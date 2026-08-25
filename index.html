@@ -1,91 +1,401 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CreateJourney</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreateJourney</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f8fbff;
-      color: #111827;
-    }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f8fc;
+  color: #111827;
+}
 
-    .page {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 20px;
-    }
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
 
-    .card {
-      width: 100%;
-      max-width: 520px;
-      background: white;
-      padding: 42px 28px;
-      border-radius: 24px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.08);
-      text-align: center;
-    }
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 34px 26px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: 42px;
-    }
+.logo {
+  text-align: center;
+  font-size: 38px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
 
-    .journey {
-      color: #69aaf7;
-    }
+.logo span {
+  color: #6fa8f5;
+  font-weight: 500;
+}
 
-    p {
-      color: #667085;
-      line-height: 1.6;
-      font-size: 17px;
-    }
+.subtitle {
+  text-align: center;
+  color: #667085;
+  line-height: 1.55;
+  margin-bottom: 28px;
+}
 
-    .button {
-      display: block;
-      margin-top: 26px;
-      padding: 16px;
-      border-radius: 12px;
-      background: #69aaf7;
-      color: white;
-      text-decoration: none;
-      font-weight: 700;
-    }
+.progress {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+}
 
-    .secondary {
-      background: #eef6ff;
-      color: #397fcf;
-      margin-top: 12px;
-    }
-  </style>
+.progress div {
+  height: 6px;
+  flex: 1;
+  background: #e8eef7;
+  border-radius: 10px;
+}
+
+.progress .active {
+  background: #6fa8f5;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 27px;
+}
+
+.helper {
+  margin: 0 0 22px;
+  color: #667085;
+  line-height: 1.5;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 16px 0 7px;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #d7deea;
+  border-radius: 13px;
+  padding: 14px;
+  font-size: 16px;
+  outline: none;
+  background: #fff;
+}
+
+input:focus {
+  border-color: #6fa8f5;
+  box-shadow: 0 0 0 3px rgba(111,168,245,.15);
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 15px;
+  margin-top: 22px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  background: #6fa8f5;
+  color: white;
+}
+
+.secondary {
+  background: #eef5ff;
+  color: #3d78c5;
+  margin-top: 10px;
+}
+
+.linkbtn {
+  background: transparent;
+  color: #667085;
+  margin-top: 8px;
+}
+
+.hidden {
+  display: none;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+  margin-top: 18px;
+}
+
+.action {
+  padding: 16px 12px;
+  border: 1px solid #dce4ef;
+  border-radius: 15px;
+  background: white;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.action.selected {
+  border-color: #6fa8f5;
+  background: #eef5ff;
+  color: #3978c8;
+}
+
+.note {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f7f9fc;
+  border-radius: 12px;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.success {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.success-icon {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eaf8ef;
+  color: #2f9b55;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.journey-preview {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #dce4ef;
+  border-radius: 16px;
+  background: #fafcff;
+}
+
+.journey-preview strong {
+  display: block;
+  margin-bottom: 8px;
+}
+</style>
 </head>
 
 <body>
-  <main class="page">
-    <section class="card">
-      <h1>Create<span class="journey">Journey</span></h1>
 
-      <p>
-        One tap. The right next step.
+<div class="app">
+  <div class="card">
+
+    <div class="logo">Create<span>Journey</span></div>
+    <div class="subtitle">
+      Set up your business and activate your first board in just a few steps.
+    </div>
+
+    <div class="progress">
+      <div id="p1" class="active"></div>
+      <div id="p2"></div>
+      <div id="p3"></div>
+      <div id="p4"></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <section id="step1">
+      <h2>Create your account</h2>
+      <p class="helper">
+        Start with the basics. You can customize everything else later.
       </p>
 
-      <p>
-        Connect your customers to payments, reviews,
-        bookings and more through one simple journey.
-      </p>
+      <label>Your name</label>
+      <input id="name" placeholder="Your name">
 
-      <a class="button" href="#">Get Started</a>
-      <a class="button secondary" href="#">Business Login</a>
+      <label>Business name</label>
+      <input id="business" placeholder="Business name">
+
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@example.com">
+
+      <label>Password</label>
+      <input id="password" type="password" placeholder="Create a password">
+
+      <button class="primary" onclick="goToStep(2)">Continue</button>
+      <button class="linkbtn">Already have an account? Business Login</button>
     </section>
-  </main>
+
+    <!-- STEP 2 -->
+    <section id="step2" class="hidden">
+      <h2>Activate your board</h2>
+      <p class="helper">
+        Scan the unique activation QR included with your CreateJourney board.
+      </p>
+
+      <label>Board activation code</label>
+      <input id="boardCode" placeholder="Example: CJ-000001">
+
+      <div class="note">
+        In the finished system, scanning your board QR will fill this automatically.
+      </div>
+
+      <button class="primary" onclick="goToStep(3)">Activate board</button>
+      <button class="secondary" onclick="goToStep(1)">Back</button>
+    </section>
+
+    <!-- STEP 3 -->
+    <section id="step3" class="hidden">
+      <h2>Make CreateJourney yours</h2>
+      <p class="helper">
+        Use the words that make sense for your business.
+      </p>
+
+      <label>What do you call your team members?</label>
+      <input id="teamLabel" placeholder="Employee, Barber, Server, Agent...">
+
+      <label>What do you call your work areas?</label>
+      <input id="locationLabel" placeholder="Station, Table, Chair, Counter...">
+
+      <label>Name this board</label>
+      <input id="boardName" placeholder="Front Counter, Chair 4, Table 8...">
+
+      <button class="primary" onclick="goToStep(4)">Build my Journey</button>
+      <button class="secondary" onclick="goToStep(2)">Back</button>
+    </section>
+
+    <!-- STEP 4 -->
+    <section id="step4" class="hidden">
+      <h2>Build your first Journey</h2>
+      <p class="helper">
+        Choose up to 3 customer actions. Shorter Journeys usually perform better.
+      </p>
+
+      <div class="actions">
+        <div class="action" onclick="toggleAction(this,'Pay')">Pay</div>
+        <div class="action" onclick="toggleAction(this,'Review')">Review</div>
+        <div class="action" onclick="toggleAction(this,'Book')">Book</div>
+        <div class="action" onclick="toggleAction(this,'Subscribe')">Subscribe</div>
+        <div class="action" onclick="toggleAction(this,'Deals')">Deals</div>
+        <div class="action" onclick="toggleAction(this,'Custom Link')">Custom Link</div>
+      </div>
+
+      <div class="note">
+        Maximum 3 actions. CreateJourney will later learn when to skip actions that are no longer relevant to returning customers.
+      </div>
+
+      <div class="journey-preview">
+        <strong>Your Journey</strong>
+        <span id="journeyText">Choose at least one action.</span>
+      </div>
+
+      <button class="primary" onclick="finishSetup()">Finish setup</button>
+      <button class="secondary" onclick="goToStep(3)">Back</button>
+    </section>
+
+    <!-- SUCCESS -->
+    <section id="success" class="hidden success">
+      <div class="success-icon">✓</div>
+
+      <h2>Your board is ready.</h2>
+
+      <p class="helper">
+        Welcome to CreateJourney. Your first board and customer Journey are set up.
+      </p>
+
+      <div class="journey-preview">
+        <strong>Active Journey</strong>
+        <span id="finalJourney"></span>
+      </div>
+
+      <button class="primary">Continue to dashboard</button>
+      <button class="secondary">Need help?</button>
+    </section>
+
+  </div>
+</div>
+
+<script>
+let selectedActions = [];
+
+function goToStep(step) {
+  document.querySelectorAll("section").forEach(section => {
+    section.classList.add("hidden");
+  });
+
+  document.getElementById("step" + step).classList.remove("hidden");
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById("p" + i).classList.toggle("active", i <= step);
+  }
+
+  window.scrollTo(0, 0);
+}
+
+function toggleAction(element, name) {
+  const exists = selectedActions.includes(name);
+
+  if (exists) {
+    selectedActions = selectedActions.filter(item => item !== name);
+    element.classList.remove("selected");
+  } else {
+    if (selectedActions.length >= 3) {
+      alert("Keep it simple. A Journey can have a maximum of 3 actions.");
+      return;
+    }
+
+    selectedActions.push(name);
+    element.classList.add("selected");
+  }
+
+  updateJourney();
+}
+
+function updateJourney() {
+  const text = selectedActions.length
+    ? selectedActions.join(" → ")
+    : "Choose at least one action.";
+
+  document.getElementById("journeyText").textContent = text;
+}
+
+function finishSetup() {
+  if (selectedActions.length === 0) {
+    alert("Choose at least one Journey action.");
+    return;
+  }
+
+  document.querySelectorAll("section").forEach(section => {
+    section.classList.add("hidden");
+  });
+
+  document.getElementById("success").classList.remove("hidden");
+
+  document.getElementById("finalJourney").textContent =
+    selectedActions.join(" → ");
+
+  document.querySelectorAll(".progress div").forEach(item => {
+    item.classList.add("active");
+  });
+
+  window.scrollTo(0, 0);
+}
+</script>
+
 </body>
 </html>
