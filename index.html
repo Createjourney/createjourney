@@ -31,7 +31,7 @@ body {
   background: #ffffff;
   border-radius: 28px;
   padding: 34px 26px;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 50px rgba(15,23,42,.08);
 }
 
 .logo {
@@ -96,11 +96,30 @@ input {
   font-size: 16px;
   outline: none;
   background: #fff;
+  transition: .18s ease;
 }
 
 input:focus {
   border-color: #6fa8f5;
   box-shadow: 0 0 0 3px rgba(111,168,245,.15);
+}
+
+input.invalid {
+  border-color: #e25555;
+  background: #fffafa;
+  box-shadow: 0 0 0 3px rgba(226,85,85,.08);
+}
+
+.error {
+  display: none;
+  margin-top: 6px;
+  color: #c83d3d;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.error.show {
+  display: block;
 }
 
 button {
@@ -112,6 +131,14 @@ button {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
+  transition: .18s ease;
+}
+
+button:disabled {
+  background: #dce6f3 !important;
+  color: #94a3b8 !important;
+  cursor: default;
+  opacity: 1;
 }
 
 .primary {
@@ -237,6 +264,12 @@ button {
 
 .status.good {
   color: #2f9b55;
+  font-weight: 600;
+}
+
+.status.bad {
+  color: #c83d3d;
+  font-weight: 600;
 }
 </style>
 </head>
@@ -244,275 +277,298 @@ button {
 <body>
 
 <div class="app">
-  <div class="card">
+<div class="card">
 
-    <div class="logo">Create<span>Journey</span></div>
+  <div class="logo">Create<span>Journey</span></div>
 
-    <div class="subtitle">
-      Set up your business and activate your first board in just a few steps.
+  <div class="subtitle">
+    Set up your business and activate your first board in just a few steps.
+  </div>
+
+  <div class="progress">
+    <div id="p1" class="active"></div>
+    <div id="p2"></div>
+    <div id="p3"></div>
+    <div id="p4"></div>
+    <div id="p5"></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <section id="step1">
+
+    <h2>Create your account</h2>
+
+    <p class="helper">
+      Start with the basics. You can customize everything else later.
+    </p>
+
+    <label>Your name</label>
+    <input id="name" placeholder="Example: Marcus Johnson">
+    <div id="nameError" class="error">Enter your name.</div>
+
+    <label>Business name</label>
+    <input id="business" placeholder="Example: Marcus Barber Studio">
+    <div id="businessError" class="error">Enter your business name.</div>
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="Example: marcus@example.com">
+    <div id="emailError" class="error">Enter a valid email address.</div>
+
+    <label>Password</label>
+    <input id="password" type="password" placeholder="At least 8 characters">
+    <div id="passwordError" class="error">
+      Password must contain at least 8 characters.
     </div>
 
-    <div class="progress">
-      <div id="p1" class="active"></div>
-      <div id="p2"></div>
-      <div id="p3"></div>
-      <div id="p4"></div>
-      <div id="p5"></div>
-    </div>
+    <button
+      id="accountContinue"
+      class="primary"
+      disabled
+      onclick="goToStep(2)"
+    >
+      Continue
+    </button>
 
-    <!-- STEP 1 -->
-    <section id="step1">
-      <h2>Create your account</h2>
+    <button class="linkbtn">
+      Already have an account? Business Login
+    </button>
 
-      <p class="helper">
-        Start with the basics. You can customize everything else later.
-      </p>
+  </section>
 
-      <label>Your name</label>
-      <input id="name" placeholder="Your name">
 
-      <label>Business name</label>
-      <input id="business" placeholder="Business name">
+  <!-- STEP 2 -->
+  <section id="step2" class="hidden">
 
-      <label>Email</label>
-      <input id="email" type="email" placeholder="you@example.com">
+    <h2>Activate your board</h2>
 
-      <label>Password</label>
-      <input id="password" type="password" placeholder="Create a password">
+    <p class="helper">
+      Scan the unique activation QR included with your CreateJourney board.
+    </p>
 
-      <button class="primary" onclick="goToStep(2)">Continue</button>
+    <label>Board activation code</label>
 
-      <button class="linkbtn">
-        Already have an account? Business Login
-      </button>
-    </section>
-
-    <!-- STEP 2 -->
-    <section id="step2" class="hidden">
-
-      <h2>Activate your board</h2>
-
-      <p class="helper">
-        Scan the unique activation QR included with your CreateJourney board.
-      </p>
-
-      <label>Board activation code</label>
-
-      <input
-        id="boardCode"
-        placeholder="Example: CJ-000001"
-      >
-
-      <div class="note">
-        In the finished system, scanning your board QR will identify this exact board automatically.
-      </div>
-
-      <button class="primary" onclick="goToStep(3)">
-        Activate board
-      </button>
-
-      <button class="secondary" onclick="goToStep(1)">
-        Back
-      </button>
-
-    </section>
-
-    <!-- STEP 3 -->
-    <section id="step3" class="hidden">
-
-      <h2>Make CreateJourney yours</h2>
-
-      <p class="helper">
-        Use the words that make sense for your business.
-      </p>
-
-      <label>What do you call your team members?</label>
-
-      <input
-        id="teamLabel"
-        placeholder="Employee, Barber, Server, Agent..."
-      >
-
-      <label>What do you call your work areas?</label>
-
-      <input
-        id="locationLabel"
-        placeholder="Station, Table, Chair, Counter..."
-      >
-
-      <label>Name this board</label>
-
-      <input
-        id="boardName"
-        placeholder="Front Counter, Chair 4, Table 8..."
-      >
-
-      <button class="primary" onclick="goToStep(4)">
-        Build my Journey
-      </button>
-
-      <button class="secondary" onclick="goToStep(2)">
-        Back
-      </button>
-
-    </section>
-
-    <!-- STEP 4 -->
-    <section id="step4" class="hidden">
-
-      <h2>Build your first Journey</h2>
-
-      <p class="helper">
-        Choose up to 3 customer actions. Shorter Journeys usually perform better.
-      </p>
-
-      <div class="actions">
-
-        <div
-          class="action"
-          onclick="toggleAction(this,'Pay')"
-        >
-          Pay
-        </div>
-
-        <div
-          class="action"
-          onclick="toggleAction(this,'Review')"
-        >
-          Review
-        </div>
-
-        <div
-          class="action"
-          onclick="toggleAction(this,'Book')"
-        >
-          Book
-        </div>
-
-        <div
-          class="action"
-          onclick="toggleAction(this,'Subscribe')"
-        >
-          Subscribe
-        </div>
-
-        <div
-          class="action"
-          onclick="toggleAction(this,'Deals')"
-        >
-          Deals
-        </div>
-
-        <div
-          class="action"
-          onclick="toggleAction(this,'Custom Link')"
-        >
-          Custom Link
-        </div>
-
-      </div>
-
-      <div class="note">
-        Maximum 3 actions. CreateJourney will later learn when to skip actions that are no longer relevant to returning customers.
-      </div>
-
-      <div class="journey-preview">
-
-        <strong>Your Journey</strong>
-
-        <span id="journeyText">
-          Choose at least one action.
-        </span>
-
-      </div>
-
-      <button
-        class="primary"
-        onclick="prepareConnections()"
-      >
-        Connect my Journey
-      </button>
-
-      <button
-        class="secondary"
-        onclick="goToStep(3)"
-      >
-        Back
-      </button>
-
-    </section>
-
-    <!-- STEP 5 -->
-    <section id="step5" class="hidden">
-
-      <h2>Connect your Journey</h2>
-
-      <p class="helper">
-        Tell CreateJourney where each customer action should take your customers.
-      </p>
-
-      <div id="connectionFields"></div>
-
-      <div class="note">
-        Test each destination before going live so customers always reach the correct place.
-      </div>
-
-      <button
-        class="primary"
-        onclick="finishSetup()"
-      >
-        Test & finish setup
-      </button>
-
-      <button
-        class="secondary"
-        onclick="goToStep(4)"
-      >
-        Back
-      </button>
-
-    </section>
-
-    <!-- SUCCESS -->
-    <section
-      id="success"
-      class="hidden success"
+    <input
+      id="boardCode"
+      placeholder="Example: CJ-000001"
     >
 
-      <div class="success-icon">
-        ✓
+    <div id="boardCodeError" class="error">
+      Enter the activation code included with your board.
+    </div>
+
+    <div class="note">
+      In the finished system, scanning your board QR will identify this exact board automatically.
+    </div>
+
+    <button
+      id="activateButton"
+      class="primary"
+      disabled
+      onclick="goToStep(3)"
+    >
+      Activate board
+    </button>
+
+    <button class="secondary" onclick="goToStep(1)">
+      Back
+    </button>
+
+  </section>
+
+
+  <!-- STEP 3 -->
+  <section id="step3" class="hidden">
+
+    <h2>Make CreateJourney yours</h2>
+
+    <p class="helper">
+      Use the words that make sense for your business.
+    </p>
+
+    <label>What do you call your team members?</label>
+
+    <input
+      id="teamLabel"
+      placeholder="Example: Barbers, Servers, Agents..."
+    >
+
+    <div id="teamLabelError" class="error">
+      Tell us what you call your team members.
+    </div>
+
+    <label>What do you call your work areas?</label>
+
+    <input
+      id="locationLabel"
+      placeholder="Example: Stations, Tables, Chairs..."
+    >
+
+    <div id="locationLabelError" class="error">
+      Tell us what you call your work areas.
+    </div>
+
+    <label>Name this board</label>
+
+    <input
+      id="boardName"
+      placeholder="Example: Chair 4 or Front Counter"
+    >
+
+    <div id="boardNameError" class="error">
+      Give this board a name.
+    </div>
+
+    <button
+      id="customizeButton"
+      class="primary"
+      disabled
+      onclick="goToStep(4)"
+    >
+      Build my Journey
+    </button>
+
+    <button class="secondary" onclick="goToStep(2)">
+      Back
+    </button>
+
+  </section>
+
+
+  <!-- STEP 4 -->
+  <section id="step4" class="hidden">
+
+    <h2>Build your first Journey</h2>
+
+    <p class="helper">
+      Choose up to 3 customer actions. Shorter Journeys usually perform better.
+    </p>
+
+    <div class="actions">
+
+      <div class="action" onclick="toggleAction(this,'Pay')">
+        Pay
       </div>
 
-      <h2>Your board is ready.</h2>
-
-      <p class="helper">
-        Welcome to CreateJourney. Your first board and customer Journey are connected and ready.
-      </p>
-
-      <div class="journey-preview">
-
-        <strong>Active Journey</strong>
-
-        <span id="finalJourney"></span>
-
+      <div class="action" onclick="toggleAction(this,'Review')">
+        Review
       </div>
 
-      <button class="primary">
-        Continue to dashboard
-      </button>
+      <div class="action" onclick="toggleAction(this,'Book')">
+        Book
+      </div>
 
-      <button class="secondary">
-        Need help?
-      </button>
+      <div class="action" onclick="toggleAction(this,'Subscribe')">
+        Subscribe
+      </div>
 
-    </section>
+      <div class="action" onclick="toggleAction(this,'Deals')">
+        Deals
+      </div>
 
-  </div>
+      <div class="action" onclick="toggleAction(this,'Custom Link')">
+        Custom Link
+      </div>
+
+    </div>
+
+    <div class="note">
+      Maximum 3 actions. CreateJourney will later learn when to skip actions that are no longer relevant to returning customers.
+    </div>
+
+    <div class="journey-preview">
+
+      <strong>Your Journey</strong>
+
+      <span id="journeyText">
+        Choose at least one action.
+      </span>
+
+    </div>
+
+    <button
+      id="connectButton"
+      class="primary"
+      disabled
+      onclick="prepareConnections()"
+    >
+      Connect my Journey
+    </button>
+
+    <button class="secondary" onclick="goToStep(3)">
+      Back
+    </button>
+
+  </section>
+
+
+  <!-- STEP 5 -->
+  <section id="step5" class="hidden">
+
+    <h2>Connect your Journey</h2>
+
+    <p class="helper">
+      Tell CreateJourney where each customer action should take your customers.
+    </p>
+
+    <div id="connectionFields"></div>
+
+    <div class="note">
+      Test each destination before going live so customers always reach the correct place.
+    </div>
+
+    <button
+      id="finishButton"
+      class="primary"
+      disabled
+      onclick="finishSetup()"
+    >
+      Finish setup
+    </button>
+
+    <button class="secondary" onclick="goToStep(4)">
+      Back
+    </button>
+
+  </section>
+
+
+  <!-- SUCCESS -->
+  <section id="success" class="hidden success">
+
+    <div class="success-icon">✓</div>
+
+    <h2>Your board is ready.</h2>
+
+    <p class="helper">
+      Welcome to CreateJourney. Your first board and customer Journey are connected and ready.
+    </p>
+
+    <div class="journey-preview">
+
+      <strong>Active Journey</strong>
+
+      <span id="finalJourney"></span>
+
+    </div>
+
+    <button class="primary">
+      Continue to dashboard
+    </button>
+
+    <button class="secondary">
+      Need help?
+    </button>
+
+  </section>
+
 </div>
+</div>
+
 
 <script>
 
 let selectedActions = [];
+let connectionUrls = {};
 
 const actionConfig = {
 
@@ -548,6 +604,7 @@ const actionConfig = {
 
 };
 
+
 function goToStep(step) {
 
   document.querySelectorAll("section").forEach(section => {
@@ -569,6 +626,155 @@ function goToStep(step) {
   window.scrollTo(0, 0);
 
 }
+
+
+function setFieldState(input, error, valid, touched = true) {
+
+  if (!touched) {
+    input.classList.remove("invalid");
+    error.classList.remove("show");
+    return;
+  }
+
+  input.classList.toggle("invalid", !valid);
+  error.classList.toggle("show", !valid);
+
+}
+
+
+function validName(value) {
+  return value.trim().length >= 2;
+}
+
+
+function validEmail(value) {
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    value.trim()
+  );
+
+}
+
+
+function validPassword(value) {
+  return value.length >= 8;
+}
+
+
+function validBoardCode(value) {
+
+  return /^[A-Za-z0-9][A-Za-z0-9-]{3,}$/.test(
+    value.trim()
+  );
+
+}
+
+
+function validateAccount(showErrors = false) {
+
+  const name = document.getElementById("name");
+  const business = document.getElementById("business");
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+
+  const nameGood = validName(name.value);
+  const businessGood = validName(business.value);
+  const emailGood = validEmail(email.value);
+  const passwordGood = validPassword(password.value);
+
+  if (showErrors) {
+
+    setFieldState(
+      name,
+      document.getElementById("nameError"),
+      nameGood
+    );
+
+    setFieldState(
+      business,
+      document.getElementById("businessError"),
+      businessGood
+    );
+
+    setFieldState(
+      email,
+      document.getElementById("emailError"),
+      emailGood
+    );
+
+    setFieldState(
+      password,
+      document.getElementById("passwordError"),
+      passwordGood
+    );
+
+  }
+
+  document.getElementById("accountContinue").disabled =
+    !(nameGood && businessGood && emailGood && passwordGood);
+
+}
+
+
+function validateActivation(showErrors = false) {
+
+  const input = document.getElementById("boardCode");
+
+  const good = validBoardCode(input.value);
+
+  if (showErrors) {
+
+    setFieldState(
+      input,
+      document.getElementById("boardCodeError"),
+      good
+    );
+
+  }
+
+  document.getElementById("activateButton").disabled =
+    !good;
+
+}
+
+
+function validateCustomization(showErrors = false) {
+
+  const team = document.getElementById("teamLabel");
+  const location = document.getElementById("locationLabel");
+  const board = document.getElementById("boardName");
+
+  const teamGood = validName(team.value);
+  const locationGood = validName(location.value);
+  const boardGood = validName(board.value);
+
+  if (showErrors) {
+
+    setFieldState(
+      team,
+      document.getElementById("teamLabelError"),
+      teamGood
+    );
+
+    setFieldState(
+      location,
+      document.getElementById("locationLabelError"),
+      locationGood
+    );
+
+    setFieldState(
+      board,
+      document.getElementById("boardNameError"),
+      boardGood
+    );
+
+  }
+
+  document.getElementById("customizeButton").disabled =
+    !(teamGood && locationGood && boardGood);
+
+}
+
 
 function toggleAction(element, name) {
 
@@ -606,6 +812,7 @@ function toggleAction(element, name) {
 
 }
 
+
 function updateJourney() {
 
   const text =
@@ -613,78 +820,86 @@ function updateJourney() {
       ? selectedActions.join(" → ")
       : "Choose at least one action.";
 
-  document
-    .getElementById("journeyText")
-    .textContent = text;
+  document.getElementById("journeyText").textContent =
+    text;
+
+  document.getElementById("connectButton").disabled =
+    selectedActions.length === 0;
 
 }
+
 
 function prepareConnections() {
 
   if (selectedActions.length === 0) {
-
-    alert(
-      "Choose at least one Journey action."
-    );
-
     return;
-
   }
 
   const container =
-    document.getElementById(
-      "connectionFields"
-    );
+    document.getElementById("connectionFields");
 
   container.innerHTML = "";
 
-  selectedActions.forEach(
-    (action, index) => {
+  connectionUrls = {};
 
-      const config =
-        actionConfig[action];
+  selectedActions.forEach((action, index) => {
 
-      const card =
-        document.createElement("div");
+    const config = actionConfig[action];
 
-      card.className =
-        "connection-card";
+    const card = document.createElement("div");
 
-      card.innerHTML = `
-        <h3>${index + 1}. ${action}</h3>
+    card.className = "connection-card";
 
-        <p>${config.question}</p>
+    card.innerHTML = `
 
-        <input
-          id="url-${index}"
-          type="url"
-          placeholder="${config.example}"
-        >
+      <h3>${index + 1}. ${action}</h3>
 
-        <button
-          type="button"
-          class="test-link"
-          onclick="testLink(${index})"
-        >
-          Test link
-        </button>
+      <p>${config.question}</p>
 
-        <div
-          id="status-${index}"
-          class="status"
-        >
-          Not tested yet
-        </div>
-      `;
+      <input
+        id="url-${index}"
+        type="url"
+        placeholder="${config.example}"
+        oninput="updateConnection(${index})"
+        onblur="validateConnectionField(${index}, true)"
+      >
 
-      container.appendChild(card);
+      <div
+        id="urlError-${index}"
+        class="error"
+      >
+        Enter a valid destination link.
+      </div>
 
-    }
-  );
+      <button
+        id="test-${index}"
+        type="button"
+        class="test-link"
+        disabled
+        onclick="testLink(${index})"
+      >
+        Test link
+      </button>
+
+      <div
+        id="status-${index}"
+        class="status"
+      >
+        ○ Add destination
+      </div>
+
+    `;
+
+    container.appendChild(card);
+
+  });
+
+  document.getElementById("finishButton").disabled = true;
 
   goToStep(5);
 
 }
+
 
 function normalizeUrl(value) {
 
@@ -698,23 +913,21 @@ function normalizeUrl(value) {
     !url.startsWith("http://") &&
     !url.startsWith("https://")
   ) {
-
     url = "https://" + url;
-
   }
 
   return url;
 
 }
 
+
 function isValidUrl(value) {
 
   try {
 
-    const url =
-      new URL(
-        normalizeUrl(value)
-      );
+    const url = new URL(
+      normalizeUrl(value)
+    );
 
     return (
       url.protocol === "http:" ||
@@ -729,40 +942,112 @@ function isValidUrl(value) {
 
 }
 
+
+function updateConnection(index) {
+
+  const input =
+    document.getElementById("url-" + index);
+
+  const testButton =
+    document.getElementById("test-" + index);
+
+  const status =
+    document.getElementById("status-" + index);
+
+  const valid =
+    isValidUrl(input.value);
+
+  testButton.disabled = !valid;
+
+  status.classList.remove("good", "bad");
+
+  if (valid) {
+
+    status.textContent =
+      "Ready to test";
+
+  } else {
+
+    status.textContent =
+      input.value.trim()
+        ? "Check this destination"
+        : "○ Add destination";
+
+  }
+
+  connectionUrls[index] = valid
+    ? normalizeUrl(input.value)
+    : "";
+
+  validateAllConnections();
+
+}
+
+
+function validateConnectionField(index, showError) {
+
+  const input =
+    document.getElementById("url-" + index);
+
+  const error =
+    document.getElementById("urlError-" + index);
+
+  const valid =
+    isValidUrl(input.value);
+
+  setFieldState(
+    input,
+    error,
+    valid,
+    showError
+  );
+
+}
+
+
+function validateAllConnections() {
+
+  let allValid = true;
+
+  selectedActions.forEach((action, index) => {
+
+    const input =
+      document.getElementById("url-" + index);
+
+    if (!input || !isValidUrl(input.value)) {
+      allValid = false;
+    }
+
+  });
+
+  document.getElementById("finishButton").disabled =
+    !allValid;
+
+}
+
+
 function testLink(index) {
 
   const input =
-    document.getElementById(
-      "url-" + index
-    );
+    document.getElementById("url-" + index);
 
   const status =
-    document.getElementById(
-      "status-" + index
-    );
+    document.getElementById("status-" + index);
+
+  if (!isValidUrl(input.value)) {
+    return;
+  }
 
   const url =
     normalizeUrl(input.value);
 
-  if (!isValidUrl(url)) {
-
-    status.textContent =
-      "Enter a valid link first.";
-
-    status.classList.remove(
-      "good"
-    );
-
-    return;
-
-  }
+  input.value = url;
 
   status.textContent =
-    "Link format looks good.";
+    "✓ Link ready";
 
-  status.classList.add(
-    "good"
-  );
+  status.classList.remove("bad");
+  status.classList.add("good");
 
   window.open(
     url,
@@ -772,101 +1057,114 @@ function testLink(index) {
 
 }
 
+
 function finishSetup() {
 
   let allValid = true;
 
-  selectedActions.forEach(
-    (action, index) => {
+  selectedActions.forEach((action, index) => {
 
-      const input =
-        document.getElementById(
-          "url-" + index
-        );
+    const input =
+      document.getElementById("url-" + index);
 
-      const status =
-        document.getElementById(
-          "status-" + index
-        );
+    const error =
+      document.getElementById("urlError-" + index);
 
-      const url =
-        normalizeUrl(
-          input.value
-        );
+    const valid =
+      isValidUrl(input.value);
 
-      if (!isValidUrl(url)) {
-
-        allValid = false;
-
-        status.textContent =
-          "Please enter a valid destination link.";
-
-        status.classList.remove(
-          "good"
-        );
-
-      } else {
-
-        input.value = url;
-
-        status.textContent =
-          "Ready.";
-
-        status.classList.add(
-          "good"
-        );
-
-      }
-
-    }
-  );
-
-  if (!allValid) {
-
-    alert(
-      "Check each Journey link before finishing setup."
+    setFieldState(
+      input,
+      error,
+      valid,
+      true
     );
 
-    return;
+    if (!valid) {
+      allValid = false;
+    }
 
+  });
+
+  if (!allValid) {
+    return;
   }
 
-  document
-    .querySelectorAll("section")
-    .forEach(section => {
-
-      section.classList.add(
-        "hidden"
-      );
-
-    });
+  document.querySelectorAll("section").forEach(section => {
+    section.classList.add("hidden");
+  });
 
   document
     .getElementById("success")
     .classList.remove("hidden");
 
   document
-    .getElementById(
-      "finalJourney"
-    )
+    .getElementById("finalJourney")
     .textContent =
       selectedActions.join(" → ");
 
   document
-    .querySelectorAll(
-      ".progress div"
-    )
+    .querySelectorAll(".progress div")
     .forEach(item => {
-
-      item.classList.add(
-        "active"
-      );
-
+      item.classList.add("active");
     });
 
   window.scrollTo(0, 0);
 
 }
+
+
+/* LIVE VALIDATION */
+
+["name","business","email","password"].forEach(id => {
+
+  const field =
+    document.getElementById(id);
+
+  field.addEventListener("input", () => {
+    validateAccount(false);
+  });
+
+  field.addEventListener("blur", () => {
+    validateAccount(true);
+  });
+
+});
+
+
+document
+  .getElementById("boardCode")
+  .addEventListener("input", () => {
+    validateActivation(false);
+  });
+
+document
+  .getElementById("boardCode")
+  .addEventListener("blur", () => {
+    validateActivation(true);
+  });
+
+
+["teamLabel","locationLabel","boardName"].forEach(id => {
+
+  const field =
+    document.getElementById(id);
+
+  field.addEventListener("input", () => {
+    validateCustomization(false);
+  });
+
+  field.addEventListener("blur", () => {
+    validateCustomization(true);
+  });
+
+});
+
+
+validateAccount();
+validateActivation();
+validateCustomization();
+updateJourney();
 
 </script>
 
