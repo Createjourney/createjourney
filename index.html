@@ -27,17 +27,17 @@ body {
 
 .card {
   width: 100%;
-  max-width: 520px;
+  max-width: 540px;
   background: #ffffff;
   border-radius: 28px;
   padding: 34px 26px;
-  box-shadow: 0 18px 50px rgba(15,23,42,.08);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
 }
 
 .logo {
   text-align: center;
   font-size: 38px;
-  font-weight: 800;
+  font-weight: 850;
   margin-bottom: 10px;
 }
 
@@ -55,7 +55,7 @@ body {
 
 .progress {
   display: flex;
-  gap: 8px;
+  gap: 7px;
   margin-bottom: 28px;
 }
 
@@ -64,6 +64,7 @@ body {
   flex: 1;
   background: #e8eef7;
   border-radius: 10px;
+  transition: 0.2s ease;
 }
 
 .progress .active {
@@ -88,32 +89,38 @@ label {
   margin: 16px 0 7px;
 }
 
-input {
+input,
+select {
   width: 100%;
-  border: 1px solid #d7deea;
+  border: 1px solid #d5dfeb;
   border-radius: 13px;
   padding: 14px;
   font-size: 16px;
   outline: none;
-  background: #fff;
-  transition: .18s ease;
+  background: #ffffff;
+  transition: 0.18s ease;
 }
 
-input:focus {
-  border-color: #6fa8f5;
-  box-shadow: 0 0 0 3px rgba(111,168,245,.15);
+/* Stronger blue focus while actively typing */
+input:focus,
+select:focus {
+  border-color: #5599f3;
+  background: #fbfdff;
+  box-shadow: 0 0 0 4px rgba(85, 153, 243, 0.24);
 }
 
-input.invalid {
-  border-color: #e25555;
+/* Only applied after user tries to continue */
+input.invalid,
+select.invalid {
+  border-color: #e05252;
   background: #fffafa;
-  box-shadow: 0 0 0 3px rgba(226,85,85,.08);
+  box-shadow: 0 0 0 3px rgba(224, 82, 82, 0.10);
 }
 
 .error {
   display: none;
   margin-top: 6px;
-  color: #c83d3d;
+  color: #c93d3d;
   font-size: 13px;
   line-height: 1.35;
 }
@@ -129,26 +136,33 @@ button {
   padding: 15px;
   margin-top: 22px;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 750;
   cursor: pointer;
-  transition: .18s ease;
+  transition: 0.18s ease;
 }
 
-button:disabled {
-  background: #dce6f3 !important;
-  color: #94a3b8 !important;
+/* Ready button */
+.primary {
+  background: #4f91eb;
+  color: white;
+}
+
+/* Incomplete button stays light blue */
+.primary:disabled {
+  background: #c8ddf7;
+  color: #ffffff;
   cursor: default;
   opacity: 1;
 }
 
-.primary {
-  background: #6fa8f5;
-  color: white;
+.primary:not(:disabled):active {
+  background: #3478d4;
+  transform: scale(0.99);
 }
 
 .secondary {
-  background: #eef5ff;
-  color: #3d78c5;
+  background: #edf5ff;
+  color: #3e7fcf;
   margin-top: 10px;
 }
 
@@ -159,7 +173,51 @@ button:disabled {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+  margin-top: 20px;
+}
+
+.use-choice {
+  border: 1px solid #dce4ef;
+  border-radius: 18px;
+  padding: 21px 14px;
+  cursor: pointer;
+  text-align: center;
+  background: #ffffff;
+  transition: 0.18s ease;
+}
+
+.use-choice:hover {
+  border-color: #9fc5f7;
+}
+
+.use-choice.selected {
+  border: 2px solid #609feb;
+  background: #eff6ff;
+}
+
+.choice-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.use-choice strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 5px;
+}
+
+.use-choice span {
+  display: block;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .actions {
@@ -170,19 +228,30 @@ button:disabled {
 }
 
 .action {
-  padding: 16px 12px;
+  position: relative;
+  padding: 17px 10px;
   border: 1px solid #dce4ef;
   border-radius: 15px;
   background: white;
   text-align: center;
   font-weight: 700;
   cursor: pointer;
+  transition: 0.16s ease;
 }
 
 .action.selected {
   border-color: #6fa8f5;
   background: #eef5ff;
   color: #3978c8;
+}
+
+.action.suggested::after {
+  content: "Suggested";
+  display: block;
+  font-size: 10px;
+  color: #6b9edc;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 .note {
@@ -193,24 +262,6 @@ button:disabled {
   color: #667085;
   font-size: 14px;
   line-height: 1.45;
-}
-
-.success {
-  text-align: center;
-  padding: 10px 0;
-}
-
-.success-icon {
-  width: 68px;
-  height: 68px;
-  margin: 0 auto 20px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #eaf8ef;
-  color: #2f9b55;
-  font-size: 34px;
-  font-weight: 800;
 }
 
 .journey-preview {
@@ -251,9 +302,14 @@ button:disabled {
   display: inline-block;
   margin-top: 9px;
   padding: 9px 13px;
-  background: #eef5ff;
-  color: #3978c8;
+  background: #d7e8fa;
+  color: #ffffff;
   font-size: 14px;
+}
+
+.test-link:not(:disabled) {
+  background: #e8f3ff;
+  color: #3978c8;
 }
 
 .status {
@@ -264,12 +320,40 @@ button:disabled {
 
 .status.good {
   color: #2f9b55;
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .status.bad {
   color: #c83d3d;
-  font-weight: 600;
+  font-weight: 650;
+}
+
+.success {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.success-icon {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eaf8ef;
+  color: #2f9b55;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.small-heading {
+  margin-top: 22px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #667085;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
 }
 </style>
 </head>
@@ -279,10 +363,12 @@ button:disabled {
 <div class="app">
 <div class="card">
 
-  <div class="logo">Create<span>Journey</span></div>
+  <div class="logo">
+    Create<span>Journey</span>
+  </div>
 
   <div class="subtitle">
-    Set up your business and activate your first board in just a few steps.
+    One board. Your Journey. Your way.
   </div>
 
   <div class="progress">
@@ -291,46 +377,58 @@ button:disabled {
     <div id="p3"></div>
     <div id="p4"></div>
     <div id="p5"></div>
+    <div id="p6"></div>
   </div>
+
 
   <!-- STEP 1 -->
   <section id="step1">
 
-    <h2>Create your account</h2>
+    <h2>How will you use CreateJourney?</h2>
 
     <p class="helper">
-      Start with the basics. You can customize everything else later.
+      Choose what fits you best. You can still use all CreateJourney features either way.
     </p>
 
-    <label>Your name</label>
-    <input id="name" placeholder="Example: Marcus Johnson">
-    <div id="nameError" class="error">Enter your name.</div>
+    <div class="choice-grid">
 
-    <label>Business name</label>
-    <input id="business" placeholder="Example: Marcus Barber Studio">
-    <div id="businessError" class="error">Enter your business name.</div>
+      <div
+        id="businessChoice"
+        class="use-choice"
+        onclick="selectUseType('business')"
+      >
+        <div class="choice-icon">🏢</div>
+        <strong>Business</strong>
+        <span>
+          For customers, clients, teams, locations and services.
+        </span>
+      </div>
 
-    <label>Email</label>
-    <input id="email" type="email" placeholder="Example: marcus@example.com">
-    <div id="emailError" class="error">Enter a valid email address.</div>
+      <div
+        id="personalChoice"
+        class="use-choice"
+        onclick="selectUseType('personal')"
+      >
+        <div class="choice-icon">👤</div>
+        <strong>Personal</strong>
+        <span>
+          For social profiles, creators, events, projects and everyday use.
+        </span>
+      </div>
 
-    <label>Password</label>
-    <input id="password" type="password" placeholder="At least 8 characters">
-    <div id="passwordError" class="error">
-      Password must contain at least 8 characters.
+    </div>
+
+    <div class="note">
+      Business and Personal simply customize your starting experience. Neither option limits what your board can do.
     </div>
 
     <button
-      id="accountContinue"
+      id="useContinue"
       class="primary"
       disabled
       onclick="goToStep(2)"
     >
       Continue
-    </button>
-
-    <button class="linkbtn">
-      Already have an account? Business Login
     </button>
 
   </section>
@@ -339,34 +437,98 @@ button:disabled {
   <!-- STEP 2 -->
   <section id="step2" class="hidden">
 
-    <h2>Activate your board</h2>
+    <h2>Create your account</h2>
 
     <p class="helper">
-      Scan the unique activation QR included with your CreateJourney board.
+      Start with the basics. You can customize everything else later.
     </p>
 
-    <label>Board activation code</label>
+    <label>Your name</label>
 
     <input
-      id="boardCode"
-      placeholder="Example: CJ-000001"
+      id="name"
+      placeholder="Example: Marcus Johnson"
+      oninput="updateAccountButton()"
     >
 
-    <div id="boardCodeError" class="error">
-      Enter the activation code included with your board.
+    <div id="nameError" class="error">
+      Enter your name.
     </div>
 
-    <div class="note">
-      In the finished system, scanning your board QR will identify this exact board automatically.
+
+    <div id="businessNameGroup">
+
+      <label>Business name</label>
+
+      <input
+        id="business"
+        placeholder="Example: Marcus Barber Studio"
+        oninput="updateAccountButton()"
+      >
+
+      <div id="businessError" class="error">
+        Enter your business name.
+      </div>
+
     </div>
+
+
+    <div id="personalNameGroup" class="hidden">
+
+      <label>What should we call your setup?</label>
+
+      <input
+        id="personalSetupName"
+        placeholder="Example: Marcus Socials, My Event, Home Guest Board"
+        oninput="updateAccountButton()"
+      >
+
+      <div id="personalSetupError" class="error">
+        Give your CreateJourney setup a name.
+      </div>
+
+    </div>
+
+
+    <label>Email</label>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="Example: marcus@example.com"
+      oninput="updateAccountButton()"
+    >
+
+    <div id="emailError" class="error">
+      Enter a valid email address.
+    </div>
+
+
+    <label>Password</label>
+
+    <input
+      id="password"
+      type="password"
+      placeholder="At least 8 characters"
+      oninput="updateAccountButton()"
+    >
+
+    <div id="passwordError" class="error">
+      Password must contain at least 8 characters.
+    </div>
+
 
     <button
-      id="activateButton"
+      id="accountContinue"
       class="primary"
       disabled
-      onclick="goToStep(3)"
+      onclick="attemptAccountContinue()"
     >
-      Activate board
+      Continue
+    </button>
+
+    <button class="linkbtn">
+      Already have an account? Sign in
     </button>
 
     <button class="secondary" onclick="goToStep(1)">
@@ -379,52 +541,35 @@ button:disabled {
   <!-- STEP 3 -->
   <section id="step3" class="hidden">
 
-    <h2>Make CreateJourney yours</h2>
+    <h2>Activate your board</h2>
 
     <p class="helper">
-      Use the words that make sense for your business.
+      Scan the unique activation QR included with your CreateJourney board.
     </p>
 
-    <label>What do you call your team members?</label>
+    <label>Board activation code</label>
 
     <input
-      id="teamLabel"
-      placeholder="Example: Barbers, Servers, Agents..."
+      id="boardCode"
+      placeholder="Example: CJ-000001"
+      oninput="updateActivationButton()"
     >
 
-    <div id="teamLabelError" class="error">
-      Tell us what you call your team members.
+    <div id="boardCodeError" class="error">
+      Enter the activation code included with your board.
     </div>
 
-    <label>What do you call your work areas?</label>
-
-    <input
-      id="locationLabel"
-      placeholder="Example: Stations, Tables, Chairs..."
-    >
-
-    <div id="locationLabelError" class="error">
-      Tell us what you call your work areas.
-    </div>
-
-    <label>Name this board</label>
-
-    <input
-      id="boardName"
-      placeholder="Example: Chair 4 or Front Counter"
-    >
-
-    <div id="boardNameError" class="error">
-      Give this board a name.
+    <div class="note">
+      On the finished product, scanning your unique activation QR will identify this exact board automatically.
     </div>
 
     <button
-      id="customizeButton"
+      id="activateButton"
       class="primary"
       disabled
-      onclick="goToStep(4)"
+      onclick="attemptActivation()"
     >
-      Build my Journey
+      Activate board
     </button>
 
     <button class="secondary" onclick="goToStep(2)">
@@ -437,42 +582,106 @@ button:disabled {
   <!-- STEP 4 -->
   <section id="step4" class="hidden">
 
-    <h2>Build your first Journey</h2>
+    <h2>Make CreateJourney yours</h2>
 
     <p class="helper">
-      Choose up to 3 customer actions. Shorter Journeys usually perform better.
+      Use the words that make sense for you.
     </p>
 
-    <div class="actions">
 
-      <div class="action" onclick="toggleAction(this,'Pay')">
-        Pay
+    <div id="businessCustomization">
+
+      <label>What do you call your team members?</label>
+
+      <input
+        id="teamLabel"
+        placeholder="Example: Barbers, Servers, Agents..."
+        oninput="updateCustomizeButton()"
+      >
+
+      <div id="teamLabelError" class="error">
+        Tell us what you call your team members.
       </div>
 
-      <div class="action" onclick="toggleAction(this,'Review')">
-        Review
-      </div>
 
-      <div class="action" onclick="toggleAction(this,'Book')">
-        Book
-      </div>
+      <label>What do you call your work areas?</label>
 
-      <div class="action" onclick="toggleAction(this,'Subscribe')">
-        Subscribe
-      </div>
+      <input
+        id="locationLabel"
+        placeholder="Example: Stations, Tables, Chairs..."
+        oninput="updateCustomizeButton()"
+      >
 
-      <div class="action" onclick="toggleAction(this,'Deals')">
-        Deals
-      </div>
-
-      <div class="action" onclick="toggleAction(this,'Custom Link')">
-        Custom Link
+      <div id="locationLabelError" class="error">
+        Tell us what you call your work areas.
       </div>
 
     </div>
 
+
+    <div id="personalCustomization" class="hidden">
+
+      <label>What are you mainly using this board for?</label>
+
+      <input
+        id="personalPurpose"
+        placeholder="Example: Socials, Event, Portfolio, Guest Information..."
+        oninput="updateCustomizeButton()"
+      >
+
+      <div id="personalPurposeError" class="error">
+        Tell us what you would like to use this board for.
+      </div>
+
+    </div>
+
+
+    <label>Name this board</label>
+
+    <input
+      id="boardName"
+      placeholder="Example: Front Counter, Chair 4, My Social Board..."
+      oninput="updateCustomizeButton()"
+    >
+
+    <div id="boardNameError" class="error">
+      Give this board a name.
+    </div>
+
+
+    <button
+      id="customizeButton"
+      class="primary"
+      disabled
+      onclick="attemptCustomization()"
+    >
+      Build my Journey
+    </button>
+
+    <button class="secondary" onclick="goToStep(3)">
+      Back
+    </button>
+
+  </section>
+
+
+  <!-- STEP 5 -->
+  <section id="step5" class="hidden">
+
+    <h2>Build your first Journey</h2>
+
+    <p class="helper">
+      Choose up to 3 customer or visitor actions. Shorter Journeys usually perform better.
+    </p>
+
+    <div id="suggestionLabel" class="small-heading">
+      Suggested for you
+    </div>
+
+    <div id="actionsContainer" class="actions"></div>
+
     <div class="note">
-      Maximum 3 actions. CreateJourney will later learn when to skip actions that are no longer relevant to returning customers.
+      Maximum 3 actions per Journey. You can configure more connections later and use different combinations on different boards.
     </div>
 
     <div class="journey-preview">
@@ -494,38 +703,38 @@ button:disabled {
       Connect my Journey
     </button>
 
-    <button class="secondary" onclick="goToStep(3)">
+    <button class="secondary" onclick="goToStep(4)">
       Back
     </button>
 
   </section>
 
 
-  <!-- STEP 5 -->
-  <section id="step5" class="hidden">
+  <!-- STEP 6 -->
+  <section id="step6" class="hidden">
 
     <h2>Connect your Journey</h2>
 
     <p class="helper">
-      Tell CreateJourney where each customer action should take your customers.
+      Tell CreateJourney where each action should take people.
     </p>
 
     <div id="connectionFields"></div>
 
     <div class="note">
-      Test each destination before going live so customers always reach the correct place.
+      Each field includes an example so you know exactly what to add.
     </div>
 
     <button
       id="finishButton"
       class="primary"
       disabled
-      onclick="finishSetup()"
+      onclick="attemptFinish()"
     >
       Finish setup
     </button>
 
-    <button class="secondary" onclick="goToStep(4)">
+    <button class="secondary" onclick="goToStep(5)">
       Back
     </button>
 
@@ -535,12 +744,14 @@ button:disabled {
   <!-- SUCCESS -->
   <section id="success" class="hidden success">
 
-    <div class="success-icon">✓</div>
+    <div class="success-icon">
+      ✓
+    </div>
 
     <h2>Your board is ready.</h2>
 
     <p class="helper">
-      Welcome to CreateJourney. Your first board and customer Journey are connected and ready.
+      Welcome to CreateJourney. Your first board and Journey are connected and ready.
     </p>
 
     <div class="journey-preview">
@@ -567,14 +778,50 @@ button:disabled {
 
 <script>
 
+let useType = "";
 let selectedActions = [];
-let connectionUrls = {};
+
+
+/* ALL ACTIONS REMAIN AVAILABLE */
+
+const actions = [
+  "Pay",
+  "Review",
+  "Book",
+  "Subscribe",
+  "Deals",
+  "Social",
+  "Contact",
+  "Information",
+  "Portfolio",
+  "Event",
+  "Custom Link"
+];
+
+
+const businessSuggested = [
+  "Pay",
+  "Review",
+  "Book",
+  "Subscribe",
+  "Deals"
+];
+
+
+const personalSuggested = [
+  "Social",
+  "Contact",
+  "Portfolio",
+  "Event",
+  "Information"
+];
+
 
 const actionConfig = {
 
   Pay: {
-    question: "Where should customers go to pay?",
-    example: "Example: your Square, Stripe, PayPal, or payment link"
+    question: "Where should people go to pay?",
+    example: "Example: your Square, Stripe, PayPal, Venmo, or payment link"
   },
 
   Review: {
@@ -583,44 +830,121 @@ const actionConfig = {
   },
 
   Book: {
-    question: "Where should customers book with you?",
+    question: "Where should people book with you?",
     example: "Example: your booking or calendar link"
   },
 
   Subscribe: {
-    question: "Where should customers subscribe?",
-    example: "Example: your membership or subscription link"
+    question: "Where should people subscribe or join?",
+    example: "Example: your membership, newsletter, or subscription link"
   },
 
   Deals: {
-    question: "Where should customers see your deals?",
-    example: "Example: your offers, specials, or promotions page"
+    question: "Where should people see your deals?",
+    example: "Example: your offers, specials, promotions, or coupon page"
+  },
+
+  Social: {
+    question: "Which social profile should people visit?",
+    example: "Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"
+  },
+
+  Contact: {
+    question: "Where should people contact you?",
+    example: "Example: your contact page, messaging link, or digital contact card"
+  },
+
+  Information: {
+    question: "Where should people see your information?",
+    example: "Example: instructions, Wi-Fi details, menu, guest information, or website"
+  },
+
+  Portfolio: {
+    question: "Where should people view your work?",
+    example: "Example: your portfolio, gallery, creator page, or website"
+  },
+
+  Event: {
+    question: "Where should people go for your event?",
+    example: "Example: event details, tickets, schedule, directions, or RSVP page"
   },
 
   "Custom Link": {
-    question: "Where should this custom action take customers?",
-    example: "Example: your website, menu, social page, or other link"
+    question: "Where should this custom action take people?",
+    example: "Example: any website or destination you choose"
   }
 
 };
 
 
+function selectUseType(type) {
+
+  useType = type;
+
+  document
+    .getElementById("businessChoice")
+    .classList.toggle("selected", type === "business");
+
+  document
+    .getElementById("personalChoice")
+    .classList.toggle("selected", type === "personal");
+
+  document.getElementById("useContinue").disabled = false;
+
+  updateConditionalFields();
+
+}
+
+
+function updateConditionalFields() {
+
+  const business =
+    useType === "business";
+
+  document
+    .getElementById("businessNameGroup")
+    .classList.toggle("hidden", !business);
+
+  document
+    .getElementById("personalNameGroup")
+    .classList.toggle("hidden", business);
+
+  document
+    .getElementById("businessCustomization")
+    .classList.toggle("hidden", !business);
+
+  document
+    .getElementById("personalCustomization")
+    .classList.toggle("hidden", business);
+
+}
+
+
 function goToStep(step) {
 
-  document.querySelectorAll("section").forEach(section => {
-    section.classList.add("hidden");
-  });
+  document
+    .querySelectorAll("section")
+    .forEach(section => {
+      section.classList.add("hidden");
+    });
 
   document
     .getElementById("step" + step)
     .classList.remove("hidden");
 
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 6; i++) {
 
     document
       .getElementById("p" + i)
-      .classList.toggle("active", i <= step);
+      .classList.toggle(
+        "active",
+        i <= step
+      );
 
+  }
+
+  if (step === 5) {
+    renderActions();
   }
 
   window.scrollTo(0, 0);
@@ -628,30 +952,17 @@ function goToStep(step) {
 }
 
 
-function setFieldState(input, error, valid, touched = true) {
+/* VALIDATION HELPERS */
 
-  if (!touched) {
-    input.classList.remove("invalid");
-    error.classList.remove("show");
-    return;
-  }
-
-  input.classList.toggle("invalid", !valid);
-  error.classList.toggle("show", !valid);
-
-}
-
-
-function validName(value) {
+function validText(value) {
   return value.trim().length >= 2;
 }
 
 
 function validEmail(value) {
 
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-    value.trim()
-  );
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    .test(value.trim());
 
 }
 
@@ -663,115 +974,319 @@ function validPassword(value) {
 
 function validBoardCode(value) {
 
-  return /^[A-Za-z0-9][A-Za-z0-9-]{3,}$/.test(
-    value.trim()
-  );
+  return /^[A-Za-z0-9][A-Za-z0-9-]{3,}$/
+    .test(value.trim());
 
 }
 
 
-function validateAccount(showErrors = false) {
+function showFieldError(inputId, errorId, show) {
 
-  const name = document.getElementById("name");
-  const business = document.getElementById("business");
-  const email = document.getElementById("email");
-  const password = document.getElementById("password");
-
-  const nameGood = validName(name.value);
-  const businessGood = validName(business.value);
-  const emailGood = validEmail(email.value);
-  const passwordGood = validPassword(password.value);
-
-  if (showErrors) {
-
-    setFieldState(
-      name,
-      document.getElementById("nameError"),
-      nameGood
+  document
+    .getElementById(inputId)
+    .classList.toggle(
+      "invalid",
+      show
     );
 
-    setFieldState(
-      business,
-      document.getElementById("businessError"),
-      businessGood
+  document
+    .getElementById(errorId)
+    .classList.toggle(
+      "show",
+      show
     );
 
-    setFieldState(
-      email,
-      document.getElementById("emailError"),
-      emailGood
-    );
+}
 
-    setFieldState(
-      password,
-      document.getElementById("passwordError"),
-      passwordGood
-    );
+
+/* ACCOUNT BUTTON LIGHTS UP WHEN FIELDS ARE FILLED */
+
+function updateAccountButton() {
+
+  const nameFilled =
+    document.getElementById("name").value.trim();
+
+  const emailFilled =
+    document.getElementById("email").value.trim();
+
+  const passwordFilled =
+    document.getElementById("password").value;
+
+  let typeFieldFilled = false;
+
+  if (useType === "business") {
+
+    typeFieldFilled =
+      document.getElementById("business").value.trim();
+
+  } else {
+
+    typeFieldFilled =
+      document.getElementById("personalSetupName").value.trim();
 
   }
 
   document.getElementById("accountContinue").disabled =
-    !(nameGood && businessGood && emailGood && passwordGood);
+    !(
+      nameFilled &&
+      typeFieldFilled &&
+      emailFilled &&
+      passwordFilled
+    );
 
 }
 
 
-function validateActivation(showErrors = false) {
+function attemptAccountContinue() {
 
-  const input = document.getElementById("boardCode");
+  const name =
+    document.getElementById("name");
 
-  const good = validBoardCode(input.value);
+  const email =
+    document.getElementById("email");
 
-  if (showErrors) {
+  const password =
+    document.getElementById("password");
 
-    setFieldState(
-      input,
-      document.getElementById("boardCodeError"),
-      good
+  const nameGood =
+    validText(name.value);
+
+  const emailGood =
+    validEmail(email.value);
+
+  const passwordGood =
+    validPassword(password.value);
+
+  showFieldError(
+    "name",
+    "nameError",
+    !nameGood
+  );
+
+  showFieldError(
+    "email",
+    "emailError",
+    !emailGood
+  );
+
+  showFieldError(
+    "password",
+    "passwordError",
+    !passwordGood
+  );
+
+  let typeGood = false;
+
+  if (useType === "business") {
+
+    typeGood =
+      validText(
+        document.getElementById("business").value
+      );
+
+    showFieldError(
+      "business",
+      "businessError",
+      !typeGood
+    );
+
+  } else {
+
+    typeGood =
+      validText(
+        document.getElementById("personalSetupName").value
+      );
+
+    showFieldError(
+      "personalSetupName",
+      "personalSetupError",
+      !typeGood
     );
 
   }
 
-  document.getElementById("activateButton").disabled =
-    !good;
+  if (
+    nameGood &&
+    emailGood &&
+    passwordGood &&
+    typeGood
+  ) {
+
+    goToStep(3);
+
+  }
 
 }
 
 
-function validateCustomization(showErrors = false) {
+/* BOARD ACTIVATION */
 
-  const team = document.getElementById("teamLabel");
-  const location = document.getElementById("locationLabel");
-  const board = document.getElementById("boardName");
+function updateActivationButton() {
 
-  const teamGood = validName(team.value);
-  const locationGood = validName(location.value);
-  const boardGood = validName(board.value);
+  document.getElementById("activateButton").disabled =
+    !document.getElementById("boardCode").value.trim();
 
-  if (showErrors) {
+}
 
-    setFieldState(
-      team,
-      document.getElementById("teamLabelError"),
-      teamGood
+
+function attemptActivation() {
+
+  const good =
+    validBoardCode(
+      document.getElementById("boardCode").value
     );
 
-    setFieldState(
-      location,
-      document.getElementById("locationLabelError"),
-      locationGood
-    );
+  showFieldError(
+    "boardCode",
+    "boardCodeError",
+    !good
+  );
 
-    setFieldState(
-      board,
-      document.getElementById("boardNameError"),
-      boardGood
-    );
+  if (good) {
+    goToStep(4);
+  }
+
+}
+
+
+/* CUSTOMIZATION */
+
+function updateCustomizeButton() {
+
+  const boardFilled =
+    document.getElementById("boardName").value.trim();
+
+  let otherFieldsFilled = false;
+
+  if (useType === "business") {
+
+    otherFieldsFilled =
+      document.getElementById("teamLabel").value.trim() &&
+      document.getElementById("locationLabel").value.trim();
+
+  } else {
+
+    otherFieldsFilled =
+      document.getElementById("personalPurpose").value.trim();
 
   }
 
   document.getElementById("customizeButton").disabled =
-    !(teamGood && locationGood && boardGood);
+    !(boardFilled && otherFieldsFilled);
+
+}
+
+
+function attemptCustomization() {
+
+  const boardGood =
+    validText(
+      document.getElementById("boardName").value
+    );
+
+  showFieldError(
+    "boardName",
+    "boardNameError",
+    !boardGood
+  );
+
+  let otherGood = false;
+
+  if (useType === "business") {
+
+    const teamGood =
+      validText(
+        document.getElementById("teamLabel").value
+      );
+
+    const locationGood =
+      validText(
+        document.getElementById("locationLabel").value
+      );
+
+    showFieldError(
+      "teamLabel",
+      "teamLabelError",
+      !teamGood
+    );
+
+    showFieldError(
+      "locationLabel",
+      "locationLabelError",
+      !locationGood
+    );
+
+    otherGood =
+      teamGood && locationGood;
+
+  } else {
+
+    const purposeGood =
+      validText(
+        document.getElementById("personalPurpose").value
+      );
+
+    showFieldError(
+      "personalPurpose",
+      "personalPurposeError",
+      !purposeGood
+    );
+
+    otherGood = purposeGood;
+
+  }
+
+  if (boardGood && otherGood) {
+    goToStep(5);
+  }
+
+}
+
+
+/* ACTIONS */
+
+function renderActions() {
+
+  const container =
+    document.getElementById("actionsContainer");
+
+  container.innerHTML = "";
+
+  const suggested =
+    useType === "business"
+      ? businessSuggested
+      : personalSuggested;
+
+  const ordered = [
+    ...suggested,
+    ...actions.filter(
+      action => !suggested.includes(action)
+    )
+  ];
+
+  ordered.forEach(name => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "action";
+
+    if (suggested.includes(name)) {
+      div.classList.add("suggested");
+    }
+
+    if (selectedActions.includes(name)) {
+      div.classList.add("selected");
+    }
+
+    div.textContent = name;
+
+    div.onclick = () =>
+      toggleAction(div, name);
+
+    container.appendChild(div);
+
+  });
 
 }
 
@@ -815,13 +1330,10 @@ function toggleAction(element, name) {
 
 function updateJourney() {
 
-  const text =
+  document.getElementById("journeyText").textContent =
     selectedActions.length
       ? selectedActions.join(" → ")
       : "Choose at least one action.";
-
-  document.getElementById("journeyText").textContent =
-    text;
 
   document.getElementById("connectButton").disabled =
     selectedActions.length === 0;
@@ -829,81 +1341,87 @@ function updateJourney() {
 }
 
 
-function prepareConnections() {
+/* CONNECTION PAGE */
 
-  if (selectedActions.length === 0) {
-    return;
-  }
+function prepareConnections() {
 
   const container =
     document.getElementById("connectionFields");
 
   container.innerHTML = "";
 
-  connectionUrls = {};
+  selectedActions.forEach(
+    (action, index) => {
 
-  selectedActions.forEach((action, index) => {
+      const config =
+        actionConfig[action];
 
-    const config = actionConfig[action];
+      const card =
+        document.createElement("div");
 
-    const card = document.createElement("div");
+      card.className =
+        "connection-card";
 
-    card.className = "connection-card";
+      card.innerHTML = `
 
-    card.innerHTML = `
+        <h3>
+          ${index + 1}. ${action}
+        </h3>
 
-      <h3>${index + 1}. ${action}</h3>
+        <p>
+          ${config.question}
+        </p>
 
-      <p>${config.question}</p>
+        <input
+          id="url-${index}"
+          type="url"
+          placeholder="${config.example}"
+          oninput="updateConnection(${index})"
+        >
 
-      <input
-        id="url-${index}"
-        type="url"
-        placeholder="${config.example}"
-        oninput="updateConnection(${index})"
-        onblur="validateConnectionField(${index}, true)"
-      >
+        <div
+          id="urlError-${index}"
+          class="error"
+        >
+          Enter a valid destination link.
+        </div>
 
-      <div
-        id="urlError-${index}"
-        class="error"
-      >
-        Enter a valid destination link.
-      </div>
+        <button
+          id="test-${index}"
+          type="button"
+          class="test-link"
+          disabled
+          onclick="testLink(${index})"
+        >
+          Test link
+        </button>
 
-      <button
-        id="test-${index}"
-        type="button"
-        class="test-link"
-        disabled
-        onclick="testLink(${index})"
-      >
-        Test link
-      </button>
+        <div
+          id="status-${index}"
+          class="status"
+        >
+          ○ Add destination
+        </div>
 
-      <div
-        id="status-${index}"
-        class="status"
-      >
-        ○ Add destination
-      </div>
+      `;
 
-    `;
+      container.appendChild(card);
 
-    container.appendChild(card);
+    }
+  );
 
-  });
+  document.getElementById("finishButton").disabled =
+    true;
 
-  document.getElementById("finishButton").disabled = true;
-
-  goToStep(5);
+  goToStep(6);
 
 }
 
 
 function normalizeUrl(value) {
 
-  let url = value.trim();
+  let url =
+    value.trim();
 
   if (!url) {
     return "";
@@ -913,7 +1431,10 @@ function normalizeUrl(value) {
     !url.startsWith("http://") &&
     !url.startsWith("https://")
   ) {
-    url = "https://" + url;
+
+    url =
+      "https://" + url;
+
   }
 
   return url;
@@ -925,9 +1446,10 @@ function isValidUrl(value) {
 
   try {
 
-    const url = new URL(
-      normalizeUrl(value)
-    );
+    const url =
+      new URL(
+        normalizeUrl(value)
+      );
 
     return (
       url.protocol === "http:" ||
@@ -946,82 +1468,37 @@ function isValidUrl(value) {
 function updateConnection(index) {
 
   const input =
-    document.getElementById("url-" + index);
+    document.getElementById(
+      "url-" + index
+    );
 
   const testButton =
-    document.getElementById("test-" + index);
+    document.getElementById(
+      "test-" + index
+    );
 
-  const status =
-    document.getElementById("status-" + index);
+  testButton.disabled =
+    !input.value.trim();
 
-  const valid =
-    isValidUrl(input.value);
+  let allFilled = true;
 
-  testButton.disabled = !valid;
+  selectedActions.forEach(
+    (action, i) => {
 
-  status.classList.remove("good", "bad");
+      const field =
+        document.getElementById(
+          "url-" + i
+        );
 
-  if (valid) {
+      if (!field || !field.value.trim()) {
+        allFilled = false;
+      }
 
-    status.textContent =
-      "Ready to test";
-
-  } else {
-
-    status.textContent =
-      input.value.trim()
-        ? "Check this destination"
-        : "○ Add destination";
-
-  }
-
-  connectionUrls[index] = valid
-    ? normalizeUrl(input.value)
-    : "";
-
-  validateAllConnections();
-
-}
-
-
-function validateConnectionField(index, showError) {
-
-  const input =
-    document.getElementById("url-" + index);
-
-  const error =
-    document.getElementById("urlError-" + index);
-
-  const valid =
-    isValidUrl(input.value);
-
-  setFieldState(
-    input,
-    error,
-    valid,
-    showError
+    }
   );
 
-}
-
-
-function validateAllConnections() {
-
-  let allValid = true;
-
-  selectedActions.forEach((action, index) => {
-
-    const input =
-      document.getElementById("url-" + index);
-
-    if (!input || !isValidUrl(input.value)) {
-      allValid = false;
-    }
-
-  });
-
   document.getElementById("finishButton").disabled =
-    !allValid;
+    !allFilled;
 
 }
 
@@ -1029,25 +1506,62 @@ function validateAllConnections() {
 function testLink(index) {
 
   const input =
-    document.getElementById("url-" + index);
+    document.getElementById(
+      "url-" + index
+    );
+
+  const error =
+    document.getElementById(
+      "urlError-" + index
+    );
 
   const status =
-    document.getElementById("status-" + index);
+    document.getElementById(
+      "status-" + index
+    );
 
-  if (!isValidUrl(input.value)) {
+  const valid =
+    isValidUrl(input.value);
+
+  input.classList.toggle(
+    "invalid",
+    !valid
+  );
+
+  error.classList.toggle(
+    "show",
+    !valid
+  );
+
+  status.classList.remove(
+    "good",
+    "bad"
+  );
+
+  if (!valid) {
+
+    status.textContent =
+      "Check this destination.";
+
+    status.classList.add("bad");
+
     return;
+
   }
 
   const url =
-    normalizeUrl(input.value);
+    normalizeUrl(
+      input.value
+    );
 
   input.value = url;
 
   status.textContent =
     "✓ Link ready";
 
-  status.classList.remove("bad");
-  status.classList.add("good");
+  status.classList.add(
+    "good"
+  );
 
   window.open(
     url,
@@ -1058,41 +1572,61 @@ function testLink(index) {
 }
 
 
-function finishSetup() {
+function attemptFinish() {
 
-  let allValid = true;
+  let allGood = true;
 
-  selectedActions.forEach((action, index) => {
+  selectedActions.forEach(
+    (action, index) => {
 
-    const input =
-      document.getElementById("url-" + index);
+      const input =
+        document.getElementById(
+          "url-" + index
+        );
 
-    const error =
-      document.getElementById("urlError-" + index);
+      const error =
+        document.getElementById(
+          "urlError-" + index
+        );
 
-    const valid =
-      isValidUrl(input.value);
+      const valid =
+        isValidUrl(
+          input.value
+        );
 
-    setFieldState(
-      input,
-      error,
-      valid,
-      true
-    );
+      input.classList.toggle(
+        "invalid",
+        !valid
+      );
 
-    if (!valid) {
-      allValid = false;
+      error.classList.toggle(
+        "show",
+        !valid
+      );
+
+      if (!valid) {
+        allGood = false;
+      }
+
     }
+  );
 
-  });
-
-  if (!allValid) {
+  if (!allGood) {
     return;
   }
 
-  document.querySelectorAll("section").forEach(section => {
-    section.classList.add("hidden");
-  });
+  finishSetup();
+
+}
+
+
+function finishSetup() {
+
+  document
+    .querySelectorAll("section")
+    .forEach(section => {
+      section.classList.add("hidden");
+    });
 
   document
     .getElementById("success")
@@ -1114,56 +1648,11 @@ function finishSetup() {
 }
 
 
-/* LIVE VALIDATION */
+/* INITIAL STATE */
 
-["name","business","email","password"].forEach(id => {
-
-  const field =
-    document.getElementById(id);
-
-  field.addEventListener("input", () => {
-    validateAccount(false);
-  });
-
-  field.addEventListener("blur", () => {
-    validateAccount(true);
-  });
-
-});
-
-
-document
-  .getElementById("boardCode")
-  .addEventListener("input", () => {
-    validateActivation(false);
-  });
-
-document
-  .getElementById("boardCode")
-  .addEventListener("blur", () => {
-    validateActivation(true);
-  });
-
-
-["teamLabel","locationLabel","boardName"].forEach(id => {
-
-  const field =
-    document.getElementById(id);
-
-  field.addEventListener("input", () => {
-    validateCustomization(false);
-  });
-
-  field.addEventListener("blur", () => {
-    validateCustomization(true);
-  });
-
-});
-
-
-validateAccount();
-validateActivation();
-validateCustomization();
+updateAccountButton();
+updateActivationButton();
+updateCustomizeButton();
 updateJourney();
 
 </script>
