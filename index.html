@@ -198,6 +198,46 @@ button {
   display: block;
   margin-bottom: 8px;
 }
+
+.connection-card {
+  margin-top: 16px;
+  padding: 17px;
+  border: 1px solid #dce4ef;
+  border-radius: 16px;
+  background: #fafcff;
+}
+
+.connection-card h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.connection-card p {
+  margin: 0 0 10px;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.test-link {
+  width: auto;
+  display: inline-block;
+  margin-top: 9px;
+  padding: 9px 13px;
+  background: #eef5ff;
+  color: #3978c8;
+  font-size: 14px;
+}
+
+.status {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #667085;
+}
+
+.status.good {
+  color: #2f9b55;
+}
 </style>
 </head>
 
@@ -207,6 +247,7 @@ button {
   <div class="card">
 
     <div class="logo">Create<span>Journey</span></div>
+
     <div class="subtitle">
       Set up your business and activate your first board in just a few steps.
     </div>
@@ -216,11 +257,13 @@ button {
       <div id="p2"></div>
       <div id="p3"></div>
       <div id="p4"></div>
+      <div id="p5"></div>
     </div>
 
     <!-- STEP 1 -->
     <section id="step1">
       <h2>Create your account</h2>
+
       <p class="helper">
         Start with the basics. You can customize everything else later.
       </p>
@@ -238,61 +281,135 @@ button {
       <input id="password" type="password" placeholder="Create a password">
 
       <button class="primary" onclick="goToStep(2)">Continue</button>
-      <button class="linkbtn">Already have an account? Business Login</button>
+
+      <button class="linkbtn">
+        Already have an account? Business Login
+      </button>
     </section>
 
     <!-- STEP 2 -->
     <section id="step2" class="hidden">
+
       <h2>Activate your board</h2>
+
       <p class="helper">
         Scan the unique activation QR included with your CreateJourney board.
       </p>
 
       <label>Board activation code</label>
-      <input id="boardCode" placeholder="Example: CJ-000001">
+
+      <input
+        id="boardCode"
+        placeholder="Example: CJ-000001"
+      >
 
       <div class="note">
-        In the finished system, scanning your board QR will fill this automatically.
+        In the finished system, scanning your board QR will identify this exact board automatically.
       </div>
 
-      <button class="primary" onclick="goToStep(3)">Activate board</button>
-      <button class="secondary" onclick="goToStep(1)">Back</button>
+      <button class="primary" onclick="goToStep(3)">
+        Activate board
+      </button>
+
+      <button class="secondary" onclick="goToStep(1)">
+        Back
+      </button>
+
     </section>
 
     <!-- STEP 3 -->
     <section id="step3" class="hidden">
+
       <h2>Make CreateJourney yours</h2>
+
       <p class="helper">
         Use the words that make sense for your business.
       </p>
 
       <label>What do you call your team members?</label>
-      <input id="teamLabel" placeholder="Employee, Barber, Server, Agent...">
+
+      <input
+        id="teamLabel"
+        placeholder="Employee, Barber, Server, Agent..."
+      >
 
       <label>What do you call your work areas?</label>
-      <input id="locationLabel" placeholder="Station, Table, Chair, Counter...">
+
+      <input
+        id="locationLabel"
+        placeholder="Station, Table, Chair, Counter..."
+      >
 
       <label>Name this board</label>
-      <input id="boardName" placeholder="Front Counter, Chair 4, Table 8...">
 
-      <button class="primary" onclick="goToStep(4)">Build my Journey</button>
-      <button class="secondary" onclick="goToStep(2)">Back</button>
+      <input
+        id="boardName"
+        placeholder="Front Counter, Chair 4, Table 8..."
+      >
+
+      <button class="primary" onclick="goToStep(4)">
+        Build my Journey
+      </button>
+
+      <button class="secondary" onclick="goToStep(2)">
+        Back
+      </button>
+
     </section>
 
     <!-- STEP 4 -->
     <section id="step4" class="hidden">
+
       <h2>Build your first Journey</h2>
+
       <p class="helper">
         Choose up to 3 customer actions. Shorter Journeys usually perform better.
       </p>
 
       <div class="actions">
-        <div class="action" onclick="toggleAction(this,'Pay')">Pay</div>
-        <div class="action" onclick="toggleAction(this,'Review')">Review</div>
-        <div class="action" onclick="toggleAction(this,'Book')">Book</div>
-        <div class="action" onclick="toggleAction(this,'Subscribe')">Subscribe</div>
-        <div class="action" onclick="toggleAction(this,'Deals')">Deals</div>
-        <div class="action" onclick="toggleAction(this,'Custom Link')">Custom Link</div>
+
+        <div
+          class="action"
+          onclick="toggleAction(this,'Pay')"
+        >
+          Pay
+        </div>
+
+        <div
+          class="action"
+          onclick="toggleAction(this,'Review')"
+        >
+          Review
+        </div>
+
+        <div
+          class="action"
+          onclick="toggleAction(this,'Book')"
+        >
+          Book
+        </div>
+
+        <div
+          class="action"
+          onclick="toggleAction(this,'Subscribe')"
+        >
+          Subscribe
+        </div>
+
+        <div
+          class="action"
+          onclick="toggleAction(this,'Deals')"
+        >
+          Deals
+        </div>
+
+        <div
+          class="action"
+          onclick="toggleAction(this,'Custom Link')"
+        >
+          Custom Link
+        </div>
+
       </div>
 
       <div class="note">
@@ -300,101 +417,457 @@ button {
       </div>
 
       <div class="journey-preview">
+
         <strong>Your Journey</strong>
-        <span id="journeyText">Choose at least one action.</span>
+
+        <span id="journeyText">
+          Choose at least one action.
+        </span>
+
       </div>
 
-      <button class="primary" onclick="finishSetup()">Finish setup</button>
-      <button class="secondary" onclick="goToStep(3)">Back</button>
+      <button
+        class="primary"
+        onclick="prepareConnections()"
+      >
+        Connect my Journey
+      </button>
+
+      <button
+        class="secondary"
+        onclick="goToStep(3)"
+      >
+        Back
+      </button>
+
+    </section>
+
+    <!-- STEP 5 -->
+    <section id="step5" class="hidden">
+
+      <h2>Connect your Journey</h2>
+
+      <p class="helper">
+        Tell CreateJourney where each customer action should take your customers.
+      </p>
+
+      <div id="connectionFields"></div>
+
+      <div class="note">
+        Test each destination before going live so customers always reach the correct place.
+      </div>
+
+      <button
+        class="primary"
+        onclick="finishSetup()"
+      >
+        Test & finish setup
+      </button>
+
+      <button
+        class="secondary"
+        onclick="goToStep(4)"
+      >
+        Back
+      </button>
+
     </section>
 
     <!-- SUCCESS -->
-    <section id="success" class="hidden success">
-      <div class="success-icon">✓</div>
+    <section
+      id="success"
+      class="hidden success"
+    >
+
+      <div class="success-icon">
+        ✓
+      </div>
 
       <h2>Your board is ready.</h2>
 
       <p class="helper">
-        Welcome to CreateJourney. Your first board and customer Journey are set up.
+        Welcome to CreateJourney. Your first board and customer Journey are connected and ready.
       </p>
 
       <div class="journey-preview">
+
         <strong>Active Journey</strong>
+
         <span id="finalJourney"></span>
+
       </div>
 
-      <button class="primary">Continue to dashboard</button>
-      <button class="secondary">Need help?</button>
+      <button class="primary">
+        Continue to dashboard
+      </button>
+
+      <button class="secondary">
+        Need help?
+      </button>
+
     </section>
 
   </div>
 </div>
 
 <script>
+
 let selectedActions = [];
 
+const actionConfig = {
+
+  Pay: {
+    question: "Where should customers go to pay?",
+    example: "Example: your Square, Stripe, PayPal, or payment link"
+  },
+
+  Review: {
+    question: "Where should customers leave a review?",
+    example: "Example: your Google Review link"
+  },
+
+  Book: {
+    question: "Where should customers book with you?",
+    example: "Example: your booking or calendar link"
+  },
+
+  Subscribe: {
+    question: "Where should customers subscribe?",
+    example: "Example: your membership or subscription link"
+  },
+
+  Deals: {
+    question: "Where should customers see your deals?",
+    example: "Example: your offers, specials, or promotions page"
+  },
+
+  "Custom Link": {
+    question: "Where should this custom action take customers?",
+    example: "Example: your website, menu, social page, or other link"
+  }
+
+};
+
 function goToStep(step) {
+
   document.querySelectorAll("section").forEach(section => {
     section.classList.add("hidden");
   });
 
-  document.getElementById("step" + step).classList.remove("hidden");
+  document
+    .getElementById("step" + step)
+    .classList.remove("hidden");
 
-  for (let i = 1; i <= 4; i++) {
-    document.getElementById("p" + i).classList.toggle("active", i <= step);
+  for (let i = 1; i <= 5; i++) {
+
+    document
+      .getElementById("p" + i)
+      .classList.toggle("active", i <= step);
+
   }
 
   window.scrollTo(0, 0);
+
 }
 
 function toggleAction(element, name) {
-  const exists = selectedActions.includes(name);
+
+  const exists =
+    selectedActions.includes(name);
 
   if (exists) {
-    selectedActions = selectedActions.filter(item => item !== name);
+
+    selectedActions =
+      selectedActions.filter(
+        item => item !== name
+      );
+
     element.classList.remove("selected");
+
   } else {
+
     if (selectedActions.length >= 3) {
-      alert("Keep it simple. A Journey can have a maximum of 3 actions.");
+
+      alert(
+        "Keep it simple. A Journey can have a maximum of 3 actions."
+      );
+
       return;
+
     }
 
     selectedActions.push(name);
+
     element.classList.add("selected");
+
   }
 
   updateJourney();
+
 }
 
 function updateJourney() {
-  const text = selectedActions.length
-    ? selectedActions.join(" → ")
-    : "Choose at least one action.";
 
-  document.getElementById("journeyText").textContent = text;
+  const text =
+    selectedActions.length
+      ? selectedActions.join(" → ")
+      : "Choose at least one action.";
+
+  document
+    .getElementById("journeyText")
+    .textContent = text;
+
+}
+
+function prepareConnections() {
+
+  if (selectedActions.length === 0) {
+
+    alert(
+      "Choose at least one Journey action."
+    );
+
+    return;
+
+  }
+
+  const container =
+    document.getElementById(
+      "connectionFields"
+    );
+
+  container.innerHTML = "";
+
+  selectedActions.forEach(
+    (action, index) => {
+
+      const config =
+        actionConfig[action];
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "connection-card";
+
+      card.innerHTML = `
+        <h3>${index + 1}. ${action}</h3>
+
+        <p>${config.question}</p>
+
+        <input
+          id="url-${index}"
+          type="url"
+          placeholder="${config.example}"
+        >
+
+        <button
+          type="button"
+          class="test-link"
+          onclick="testLink(${index})"
+        >
+          Test link
+        </button>
+
+        <div
+          id="status-${index}"
+          class="status"
+        >
+          Not tested yet
+        </div>
+      `;
+
+      container.appendChild(card);
+
+    }
+  );
+
+  goToStep(5);
+
+}
+
+function normalizeUrl(value) {
+
+  let url = value.trim();
+
+  if (!url) {
+    return "";
+  }
+
+  if (
+    !url.startsWith("http://") &&
+    !url.startsWith("https://")
+  ) {
+
+    url = "https://" + url;
+
+  }
+
+  return url;
+
+}
+
+function isValidUrl(value) {
+
+  try {
+
+    const url =
+      new URL(
+        normalizeUrl(value)
+      );
+
+    return (
+      url.protocol === "http:" ||
+      url.protocol === "https:"
+    );
+
+  } catch {
+
+    return false;
+
+  }
+
+}
+
+function testLink(index) {
+
+  const input =
+    document.getElementById(
+      "url-" + index
+    );
+
+  const status =
+    document.getElementById(
+      "status-" + index
+    );
+
+  const url =
+    normalizeUrl(input.value);
+
+  if (!isValidUrl(url)) {
+
+    status.textContent =
+      "Enter a valid link first.";
+
+    status.classList.remove(
+      "good"
+    );
+
+    return;
+
+  }
+
+  status.textContent =
+    "Link format looks good.";
+
+  status.classList.add(
+    "good"
+  );
+
+  window.open(
+    url,
+    "_blank",
+    "noopener"
+  );
+
 }
 
 function finishSetup() {
-  if (selectedActions.length === 0) {
-    alert("Choose at least one Journey action.");
+
+  let allValid = true;
+
+  selectedActions.forEach(
+    (action, index) => {
+
+      const input =
+        document.getElementById(
+          "url-" + index
+        );
+
+      const status =
+        document.getElementById(
+          "status-" + index
+        );
+
+      const url =
+        normalizeUrl(
+          input.value
+        );
+
+      if (!isValidUrl(url)) {
+
+        allValid = false;
+
+        status.textContent =
+          "Please enter a valid destination link.";
+
+        status.classList.remove(
+          "good"
+        );
+
+      } else {
+
+        input.value = url;
+
+        status.textContent =
+          "Ready.";
+
+        status.classList.add(
+          "good"
+        );
+
+      }
+
+    }
+  );
+
+  if (!allValid) {
+
+    alert(
+      "Check each Journey link before finishing setup."
+    );
+
     return;
+
   }
 
-  document.querySelectorAll("section").forEach(section => {
-    section.classList.add("hidden");
-  });
+  document
+    .querySelectorAll("section")
+    .forEach(section => {
 
-  document.getElementById("success").classList.remove("hidden");
+      section.classList.add(
+        "hidden"
+      );
 
-  document.getElementById("finalJourney").textContent =
-    selectedActions.join(" → ");
+    });
 
-  document.querySelectorAll(".progress div").forEach(item => {
-    item.classList.add("active");
-  });
+  document
+    .getElementById("success")
+    .classList.remove("hidden");
+
+  document
+    .getElementById(
+      "finalJourney"
+    )
+    .textContent =
+      selectedActions.join(" → ");
+
+  document
+    .querySelectorAll(
+      ".progress div"
+    )
+    .forEach(item => {
+
+      item.classList.add(
+        "active"
+      );
+
+    });
 
   window.scrollTo(0, 0);
+
 }
+
 </script>
 
 </body>
