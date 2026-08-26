@@ -6,9 +6,7 @@
 <title>CreateJourney</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -28,10 +26,10 @@ body {
 .card {
   width: 100%;
   max-width: 540px;
-  background: #ffffff;
+  background: #fff;
   border-radius: 28px;
   padding: 34px 26px;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 50px rgba(15,23,42,.08);
 }
 
 .logo {
@@ -64,7 +62,7 @@ body {
   flex: 1;
   background: #e8eef7;
   border-radius: 10px;
-  transition: 0.2s ease;
+  transition: .2s ease;
 }
 
 .progress .active {
@@ -89,32 +87,29 @@ label {
   margin: 16px 0 7px;
 }
 
-input,
-select {
+input {
   width: 100%;
   border: 1px solid #d5dfeb;
   border-radius: 13px;
   padding: 14px;
   font-size: 16px;
   outline: none;
-  background: #ffffff;
-  transition: 0.18s ease;
+  background: #fff;
+  transition: .18s ease;
 }
 
-/* Stronger blue focus while actively typing */
-input:focus,
-select:focus {
+/* Strong blue focus only on field being edited */
+input:focus {
   border-color: #5599f3;
   background: #fbfdff;
-  box-shadow: 0 0 0 4px rgba(85, 153, 243, 0.24);
+  box-shadow: 0 0 0 4px rgba(85,153,243,.24);
 }
 
-/* Only applied after user tries to continue */
-input.invalid,
-select.invalid {
+/* Red only after user attempts to continue/test */
+input.invalid {
   border-color: #e05252;
   background: #fffafa;
-  box-shadow: 0 0 0 3px rgba(224, 82, 82, 0.10);
+  box-shadow: 0 0 0 3px rgba(224,82,82,.10);
 }
 
 .error {
@@ -138,26 +133,26 @@ button {
   font-size: 16px;
   font-weight: 750;
   cursor: pointer;
-  transition: 0.18s ease;
+  transition: .18s ease;
 }
 
-/* Ready button */
 .primary {
   background: #4f91eb;
-  color: white;
+  color: #fff;
 }
 
-/* Incomplete button stays light blue */
+/* Incomplete button */
 .primary:disabled {
   background: #c8ddf7;
-  color: #ffffff;
+  color: #fff;
   cursor: default;
   opacity: 1;
 }
 
+/* Pressed active button */
 .primary:not(:disabled):active {
   background: #3478d4;
-  transform: scale(0.99);
+  transform: scale(.99);
 }
 
 .secondary {
@@ -176,6 +171,8 @@ button {
   display: none !important;
 }
 
+/* BUSINESS / PERSONAL */
+
 .choice-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -189,12 +186,8 @@ button {
   padding: 21px 14px;
   cursor: pointer;
   text-align: center;
-  background: #ffffff;
-  transition: 0.18s ease;
-}
-
-.use-choice:hover {
-  border-color: #9fc5f7;
+  background: #fff;
+  transition: .18s ease;
 }
 
 .use-choice.selected {
@@ -220,6 +213,8 @@ button {
   line-height: 1.4;
 }
 
+/* JOURNEY ACTIONS */
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -232,11 +227,11 @@ button {
   padding: 17px 10px;
   border: 1px solid #dce4ef;
   border-radius: 15px;
-  background: white;
+  background: #fff;
   text-align: center;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.16s ease;
+  transition: .16s ease;
 }
 
 .action.selected {
@@ -252,6 +247,16 @@ button {
   color: #6b9edc;
   font-weight: 600;
   margin-top: 4px;
+}
+
+.small-heading {
+  margin-top: 22px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #667085;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
 }
 
 .note {
@@ -276,6 +281,8 @@ button {
   display: block;
   margin-bottom: 8px;
 }
+
+/* CONNECTIONS */
 
 .connection-card {
   margin-top: 16px;
@@ -303,7 +310,7 @@ button {
   margin-top: 9px;
   padding: 9px 13px;
   background: #d7e8fa;
-  color: #ffffff;
+  color: #fff;
   font-size: 14px;
 }
 
@@ -328,6 +335,8 @@ button {
   font-weight: 650;
 }
 
+/* SUCCESS */
+
 .success {
   text-align: center;
   padding: 10px 0;
@@ -345,16 +354,6 @@ button {
   font-size: 34px;
   font-weight: 800;
 }
-
-.small-heading {
-  margin-top: 22px;
-  margin-bottom: 5px;
-  font-size: 14px;
-  color: #667085;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
 </style>
 </head>
 
@@ -363,414 +362,418 @@ button {
 <div class="app">
 <div class="card">
 
-  <div class="logo">
-    Create<span>Journey</span>
-  </div>
-
-  <div class="subtitle">
-    One board. Your Journey. Your way.
-  </div>
-
-  <div class="progress">
-    <div id="p1" class="active"></div>
-    <div id="p2"></div>
-    <div id="p3"></div>
-    <div id="p4"></div>
-    <div id="p5"></div>
-    <div id="p6"></div>
-  </div>
+<div class="logo">
+Create<span>Journey</span>
+</div>
+
+<div class="subtitle">
+One board. Your Journey. Your way.
+</div>
+
+<div class="progress">
+<div id="p1" class="active"></div>
+<div id="p2"></div>
+<div id="p3"></div>
+<div id="p4"></div>
+<div id="p5"></div>
+<div id="p6"></div>
+</div>
 
+<!-- STEP 1 -->
 
-  <!-- STEP 1 -->
-  <section id="step1">
+<section id="step1">
 
-    <h2>How will you use CreateJourney?</h2>
+<h2>How will you use CreateJourney?</h2>
 
-    <p class="helper">
-      Choose what fits you best. You can still use all CreateJourney features either way.
-    </p>
+<p class="helper">
+Choose what fits you best. You can still use all CreateJourney features either way.
+</p>
 
-    <div class="choice-grid">
+<div class="choice-grid">
 
-      <div
-        id="businessChoice"
-        class="use-choice"
-        onclick="selectUseType('business')"
-      >
-        <div class="choice-icon">🏢</div>
-        <strong>Business</strong>
-        <span>
-          For customers, clients, teams, locations and services.
-        </span>
-      </div>
+<div
+id="businessChoice"
+class="use-choice"
+onclick="selectUseType('business')"
+>
+<div class="choice-icon">🏢</div>
+<strong>Business</strong>
+<span>
+For customers, clients, teams, locations and services.
+</span>
+</div>
 
-      <div
-        id="personalChoice"
-        class="use-choice"
-        onclick="selectUseType('personal')"
-      >
-        <div class="choice-icon">👤</div>
-        <strong>Personal</strong>
-        <span>
-          For social profiles, creators, events, projects and everyday use.
-        </span>
-      </div>
+<div
+id="personalChoice"
+class="use-choice"
+onclick="selectUseType('personal')"
+>
+<div class="choice-icon">👤</div>
+<strong>Personal</strong>
+<span>
+For social profiles, creators, events, projects and everyday use.
+</span>
+</div>
 
-    </div>
+</div>
 
-    <div class="note">
-      Business and Personal simply customize your starting experience. Neither option limits what your board can do.
-    </div>
+<div class="note">
+Business and Personal customize your starting experience. Neither option limits what your board can do.
+</div>
 
-    <button
-      id="useContinue"
-      class="primary"
-      disabled
-      onclick="goToStep(2)"
-    >
-      Continue
-    </button>
+<button
+id="useContinue"
+class="primary"
+disabled
+onclick="goToStep(2)"
+>
+Continue
+</button>
 
-  </section>
+</section>
 
 
-  <!-- STEP 2 -->
-  <section id="step2" class="hidden">
+<!-- STEP 2 -->
 
-    <h2>Create your account</h2>
+<section id="step2" class="hidden">
 
-    <p class="helper">
-      Start with the basics. You can customize everything else later.
-    </p>
+<h2>Create your account</h2>
 
-    <label>Your name</label>
+<p class="helper">
+Start with the basics. You can customize everything else later.
+</p>
 
-    <input
-      id="name"
-      placeholder="Example: Marcus Johnson"
-      oninput="updateAccountButton()"
-    >
+<label>Your name</label>
 
-    <div id="nameError" class="error">
-      Enter your name.
-    </div>
+<input
+id="name"
+placeholder="Example: Marcus Johnson"
+oninput="updateAccountButton()"
+>
 
+<div id="nameError" class="error">
+Enter your name.
+</div>
 
-    <div id="businessNameGroup">
 
-      <label>Business name</label>
+<div id="businessNameGroup">
 
-      <input
-        id="business"
-        placeholder="Example: Marcus Barber Studio"
-        oninput="updateAccountButton()"
-      >
+<label>Business name</label>
 
-      <div id="businessError" class="error">
-        Enter your business name.
-      </div>
+<input
+id="business"
+placeholder="Example: Marcus Barber Studio"
+oninput="updateAccountButton()"
+>
 
-    </div>
+<div id="businessError" class="error">
+Enter your business name.
+</div>
 
+</div>
 
-    <div id="personalNameGroup" class="hidden">
 
-      <label>What should we call your setup?</label>
+<div id="personalNameGroup" class="hidden">
 
-      <input
-        id="personalSetupName"
-        placeholder="Example: Marcus Socials, My Event, Home Guest Board"
-        oninput="updateAccountButton()"
-      >
+<label>What should we call your setup?</label>
 
-      <div id="personalSetupError" class="error">
-        Give your CreateJourney setup a name.
-      </div>
+<input
+id="personalSetupName"
+placeholder="Example: Marcus Socials, My Event, Home Guest Board"
+oninput="updateAccountButton()"
+>
 
-    </div>
+<div id="personalSetupError" class="error">
+Give your CreateJourney setup a name.
+</div>
 
+</div>
 
-    <label>Email</label>
 
-    <input
-      id="email"
-      type="email"
-      placeholder="Example: marcus@example.com"
-      oninput="updateAccountButton()"
-    >
+<label>Email</label>
 
-    <div id="emailError" class="error">
-      Enter a valid email address.
-    </div>
+<input
+id="email"
+type="email"
+placeholder="Example: marcus@example.com"
+oninput="updateAccountButton()"
+>
 
+<div id="emailError" class="error">
+Enter a valid email address.
+</div>
 
-    <label>Password</label>
 
-    <input
-      id="password"
-      type="password"
-      placeholder="At least 8 characters"
-      oninput="updateAccountButton()"
-    >
+<label>Password</label>
 
-    <div id="passwordError" class="error">
-      Password must contain at least 8 characters.
-    </div>
+<input
+id="password"
+type="password"
+placeholder="At least 8 characters"
+oninput="updateAccountButton()"
+>
 
+<div id="passwordError" class="error">
+Password must contain at least 8 characters.
+</div>
 
-    <button
-      id="accountContinue"
-      class="primary"
-      disabled
-      onclick="attemptAccountContinue()"
-    >
-      Continue
-    </button>
 
-    <button class="linkbtn">
-      Already have an account? Sign in
-    </button>
+<button
+id="accountContinue"
+class="primary"
+disabled
+onclick="attemptAccountContinue()"
+>
+Continue
+</button>
 
-    <button class="secondary" onclick="goToStep(1)">
-      Back
-    </button>
+<button class="linkbtn">
+Already have an account? Sign in
+</button>
 
-  </section>
+<button class="secondary" onclick="goToStep(1)">
+Back
+</button>
 
+</section>
 
-  <!-- STEP 3 -->
-  <section id="step3" class="hidden">
 
-    <h2>Activate your board</h2>
+<!-- STEP 3 -->
 
-    <p class="helper">
-      Scan the unique activation QR included with your CreateJourney board.
-    </p>
+<section id="step3" class="hidden">
 
-    <label>Board activation code</label>
+<h2>Activate your board</h2>
 
-    <input
-      id="boardCode"
-      placeholder="Example: CJ-000001"
-      oninput="updateActivationButton()"
-    >
+<p class="helper">
+Scan the unique activation QR included with your CreateJourney board.
+</p>
 
-    <div id="boardCodeError" class="error">
-      Enter the activation code included with your board.
-    </div>
+<label>Board activation code</label>
 
-    <div class="note">
-      On the finished product, scanning your unique activation QR will identify this exact board automatically.
-    </div>
+<input
+id="boardCode"
+placeholder="Example: CJ-000001"
+oninput="updateActivationButton()"
+>
 
-    <button
-      id="activateButton"
-      class="primary"
-      disabled
-      onclick="attemptActivation()"
-    >
-      Activate board
-    </button>
+<div id="boardCodeError" class="error">
+Enter the activation code included with your board.
+</div>
 
-    <button class="secondary" onclick="goToStep(2)">
-      Back
-    </button>
+<div class="note">
+On the finished product, scanning your unique activation QR will identify this exact board automatically.
+</div>
 
-  </section>
+<button
+id="activateButton"
+class="primary"
+disabled
+onclick="attemptActivation()"
+>
+Activate board
+</button>
 
+<button class="secondary" onclick="goToStep(2)">
+Back
+</button>
 
-  <!-- STEP 4 -->
-  <section id="step4" class="hidden">
+</section>
 
-    <h2>Make CreateJourney yours</h2>
 
-    <p class="helper">
-      Use the words that make sense for you.
-    </p>
+<!-- STEP 4 -->
 
+<section id="step4" class="hidden">
 
-    <div id="businessCustomization">
+<h2>Make CreateJourney yours</h2>
 
-      <label>What do you call your team members?</label>
+<p class="helper">
+Use the words that make sense for you.
+</p>
 
-      <input
-        id="teamLabel"
-        placeholder="Example: Barbers, Servers, Agents..."
-        oninput="updateCustomizeButton()"
-      >
 
-      <div id="teamLabelError" class="error">
-        Tell us what you call your team members.
-      </div>
+<div id="businessCustomization">
 
+<label>What do you call your team members?</label>
 
-      <label>What do you call your work areas?</label>
+<input
+id="teamLabel"
+placeholder="Example: Barbers, Servers, Agents..."
+oninput="updateCustomizeButton()"
+>
 
-      <input
-        id="locationLabel"
-        placeholder="Example: Stations, Tables, Chairs..."
-        oninput="updateCustomizeButton()"
-      >
+<div id="teamLabelError" class="error">
+Tell us what you call your team members.
+</div>
 
-      <div id="locationLabelError" class="error">
-        Tell us what you call your work areas.
-      </div>
 
-    </div>
+<label>What do you call your work areas?</label>
 
+<input
+id="locationLabel"
+placeholder="Example: Stations, Tables, Chairs..."
+oninput="updateCustomizeButton()"
+>
 
-    <div id="personalCustomization" class="hidden">
+<div id="locationLabelError" class="error">
+Tell us what you call your work areas.
+</div>
 
-      <label>What are you mainly using this board for?</label>
+</div>
 
-      <input
-        id="personalPurpose"
-        placeholder="Example: Socials, Event, Portfolio, Guest Information..."
-        oninput="updateCustomizeButton()"
-      >
 
-      <div id="personalPurposeError" class="error">
-        Tell us what you would like to use this board for.
-      </div>
+<div id="personalCustomization" class="hidden">
 
-    </div>
+<label>What are you mainly using this board for?</label>
 
+<input
+id="personalPurpose"
+placeholder="Example: Socials, Event, Portfolio, Guest Information..."
+oninput="updateCustomizeButton()"
+>
 
-    <label>Name this board</label>
+<div id="personalPurposeError" class="error">
+Tell us what you would like to use this board for.
+</div>
 
-    <input
-      id="boardName"
-      placeholder="Example: Front Counter, Chair 4, My Social Board..."
-      oninput="updateCustomizeButton()"
-    >
+</div>
 
-    <div id="boardNameError" class="error">
-      Give this board a name.
-    </div>
 
+<label>Name this board</label>
 
-    <button
-      id="customizeButton"
-      class="primary"
-      disabled
-      onclick="attemptCustomization()"
-    >
-      Build my Journey
-    </button>
+<input
+id="boardName"
+placeholder="Example: Front Counter, Chair 4, My Social Board..."
+oninput="updateCustomizeButton()"
+>
 
-    <button class="secondary" onclick="goToStep(3)">
-      Back
-    </button>
+<div id="boardNameError" class="error">
+Give this board a name.
+</div>
 
-  </section>
 
+<button
+id="customizeButton"
+class="primary"
+disabled
+onclick="attemptCustomization()"
+>
+Build my Journey
+</button>
 
-  <!-- STEP 5 -->
-  <section id="step5" class="hidden">
+<button class="secondary" onclick="goToStep(3)">
+Back
+</button>
 
-    <h2>Build your first Journey</h2>
+</section>
 
-    <p class="helper">
-      Choose up to 3 customer or visitor actions. Shorter Journeys usually perform better.
-    </p>
 
-    <div id="suggestionLabel" class="small-heading">
-      Suggested for you
-    </div>
+<!-- STEP 5 -->
 
-    <div id="actionsContainer" class="actions"></div>
+<section id="step5" class="hidden">
 
-    <div class="note">
-      Maximum 3 actions per Journey. You can configure more connections later and use different combinations on different boards.
-    </div>
+<h2>Build your first Journey</h2>
 
-    <div class="journey-preview">
+<p class="helper">
+Choose up to 3 customer or visitor actions. Shorter Journeys usually perform better.
+</p>
 
-      <strong>Your Journey</strong>
+<div class="small-heading">
+Suggested for you
+</div>
 
-      <span id="journeyText">
-        Choose at least one action.
-      </span>
+<div id="actionsContainer" class="actions"></div>
 
-    </div>
+<div class="note">
+Maximum 3 actions per Journey. You can configure more connections later and use different combinations on different boards.
+</div>
 
-    <button
-      id="connectButton"
-      class="primary"
-      disabled
-      onclick="prepareConnections()"
-    >
-      Connect my Journey
-    </button>
+<div class="journey-preview">
 
-    <button class="secondary" onclick="goToStep(4)">
-      Back
-    </button>
+<strong>Your Journey</strong>
 
-  </section>
+<span id="journeyText">
+Choose at least one action.
+</span>
 
+</div>
 
-  <!-- STEP 6 -->
-  <section id="step6" class="hidden">
+<button
+id="connectButton"
+class="primary"
+disabled
+onclick="prepareConnections()"
+>
+Connect my Journey
+</button>
 
-    <h2>Connect your Journey</h2>
+<button class="secondary" onclick="goToStep(4)">
+Back
+</button>
 
-    <p class="helper">
-      Tell CreateJourney where each action should take people.
-    </p>
+</section>
 
-    <div id="connectionFields"></div>
 
-    <div class="note">
-      Each field includes an example so you know exactly what to add.
-    </div>
+<!-- STEP 6 -->
 
-    <button
-      id="finishButton"
-      class="primary"
-      disabled
-      onclick="attemptFinish()"
-    >
-      Finish setup
-    </button>
+<section id="step6" class="hidden">
 
-    <button class="secondary" onclick="goToStep(5)">
-      Back
-    </button>
+<h2>Connect your Journey</h2>
 
-  </section>
+<p class="helper">
+Tell CreateJourney where each action should take people.
+</p>
 
+<div id="connectionFields"></div>
 
-  <!-- SUCCESS -->
-  <section id="success" class="hidden success">
+<div class="note">
+Each field includes an example so you know exactly what to add.
+</div>
 
-    <div class="success-icon">
-      ✓
-    </div>
+<button
+id="finishButton"
+class="primary"
+disabled
+onclick="attemptFinish()"
+>
+Finish setup
+</button>
 
-    <h2>Your board is ready.</h2>
+<button class="secondary" onclick="goToStep(5)">
+Back
+</button>
 
-    <p class="helper">
-      Welcome to CreateJourney. Your first board and Journey are connected and ready.
-    </p>
+</section>
 
-    <div class="journey-preview">
 
-      <strong>Active Journey</strong>
+<!-- SUCCESS -->
 
-      <span id="finalJourney"></span>
+<section id="success" class="hidden success">
 
-    </div>
+<div class="success-icon">✓</div>
 
-    <button class="primary">
-      Continue to dashboard
-    </button>
+<h2>Your board is ready.</h2>
 
-    <button class="secondary">
-      Need help?
-    </button>
+<p class="helper">
+Welcome to CreateJourney. Your first board and Journey are connected and ready.
+</p>
 
-  </section>
+<div class="journey-preview">
+
+<strong>Active Journey</strong>
+
+<span id="finalJourney"></span>
+
+</div>
+
+<button class="primary">
+Continue to dashboard
+</button>
+
+<button class="secondary">
+Need help?
+</button>
+
+</section>
 
 </div>
 </div>
@@ -782,7 +785,7 @@ let useType = "";
 let selectedActions = [];
 
 
-/* ALL ACTIONS REMAIN AVAILABLE */
+/* UNIVERSAL ACTION LIBRARY */
 
 const actions = [
   "Pay",
@@ -792,359 +795,389 @@ const actions = [
   "Deals",
   "Social",
   "Contact",
-  "Information",
+  "Info",
   "Portfolio",
   "Event",
-  "Custom Link"
+  "Custom Link",
+  "Website"
 ];
 
+
+/* PRESETS ONLY — NOT RESTRICTIONS */
 
 const businessSuggested = [
   "Pay",
   "Review",
-  "Book",
-  "Subscribe",
-  "Deals"
+  "Book"
 ];
-
 
 const personalSuggested = [
   "Social",
-  "Contact",
-  "Portfolio",
-  "Event",
-  "Information"
+  "Website",
+  "Contact"
 ];
 
 
+/* CONNECTION QUESTIONS */
+
 const actionConfig = {
 
-  Pay: {
-    question: "Where should people go to pay?",
-    example: "Example: your Square, Stripe, PayPal, Venmo, or payment link"
-  },
+Pay: {
+question: "Where should people go to pay?",
+example: "Example: your Square, Stripe, PayPal, Venmo, or payment link"
+},
 
-  Review: {
-    question: "Where should customers leave a review?",
-    example: "Example: your Google Review link"
-  },
+Review: {
+question: "Where should customers leave a review?",
+example: "Example: your Google Review link"
+},
 
-  Book: {
-    question: "Where should people book with you?",
-    example: "Example: your booking or calendar link"
-  },
+Book: {
+question: "Where should people book with you?",
+example: "Example: your booking or calendar link"
+},
 
-  Subscribe: {
-    question: "Where should people subscribe or join?",
-    example: "Example: your membership, newsletter, or subscription link"
-  },
+Subscribe: {
+question: "Where should people subscribe or join?",
+example: "Example: your membership, newsletter, or subscription link"
+},
 
-  Deals: {
-    question: "Where should people see your deals?",
-    example: "Example: your offers, specials, promotions, or coupon page"
-  },
+Deals: {
+question: "Where should people see your deals?",
+example: "Example: your offers, specials, promotions, or coupon page"
+},
 
-  Social: {
-    question: "Which social profile should people visit?",
-    example: "Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"
-  },
+Social: {
+question: "Which social profile should people visit?",
+example: "Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"
+},
 
-  Contact: {
-    question: "Where should people contact you?",
-    example: "Example: your contact page, messaging link, or digital contact card"
-  },
+Contact: {
+question: "Where should people contact you?",
+example: "Example: your contact page, messaging link, or digital contact card"
+},
 
-  Information: {
-    question: "Where should people see your information?",
-    example: "Example: instructions, Wi-Fi details, menu, guest information, or website"
-  },
+Info: {
+question: "Where should people see more information?",
+example: "Example: your menu, instructions, pricing, FAQ, directions, or information page"
+},
 
-  Portfolio: {
-    question: "Where should people view your work?",
-    example: "Example: your portfolio, gallery, creator page, or website"
-  },
+Portfolio: {
+question: "Where should people view your work?",
+example: "Example: your portfolio, gallery, creator page, or work samples"
+},
 
-  Event: {
-    question: "Where should people go for your event?",
-    example: "Example: event details, tickets, schedule, directions, or RSVP page"
-  },
+Event: {
+question: "Where should people go for your event?",
+example: "Example: event details, tickets, schedule, directions, or RSVP page"
+},
 
-  "Custom Link": {
-    question: "Where should this custom action take people?",
-    example: "Example: any website or destination you choose"
-  }
+"Custom Link": {
+question: "Where should this custom action take people?",
+example: "Example: any website or destination you choose"
+},
+
+Website: {
+question: "Where should people visit your website?",
+example: "Example: your personal, business, portfolio, or company website"
+}
 
 };
 
 
+/* BUSINESS / PERSONAL */
+
 function selectUseType(type) {
 
-  useType = type;
+useType = type;
 
-  document
-    .getElementById("businessChoice")
-    .classList.toggle("selected", type === "business");
+document
+.getElementById("businessChoice")
+.classList.toggle(
+"selected",
+type === "business"
+);
 
-  document
-    .getElementById("personalChoice")
-    .classList.toggle("selected", type === "personal");
+document
+.getElementById("personalChoice")
+.classList.toggle(
+"selected",
+type === "personal"
+);
 
-  document.getElementById("useContinue").disabled = false;
+document.getElementById("useContinue").disabled = false;
 
-  updateConditionalFields();
+updateConditionalFields();
+updateAccountButton();
+updateCustomizeButton();
 
 }
 
 
 function updateConditionalFields() {
 
-  const business =
-    useType === "business";
+const business =
+useType === "business";
 
-  document
-    .getElementById("businessNameGroup")
-    .classList.toggle("hidden", !business);
+document
+.getElementById("businessNameGroup")
+.classList.toggle(
+"hidden",
+!business
+);
 
-  document
-    .getElementById("personalNameGroup")
-    .classList.toggle("hidden", business);
+document
+.getElementById("personalNameGroup")
+.classList.toggle(
+"hidden",
+business
+);
 
-  document
-    .getElementById("businessCustomization")
-    .classList.toggle("hidden", !business);
+document
+.getElementById("businessCustomization")
+.classList.toggle(
+"hidden",
+!business
+);
 
-  document
-    .getElementById("personalCustomization")
-    .classList.toggle("hidden", business);
+document
+.getElementById("personalCustomization")
+.classList.toggle(
+"hidden",
+business
+);
 
 }
 
+
+/* NAVIGATION */
 
 function goToStep(step) {
 
-  document
-    .querySelectorAll("section")
-    .forEach(section => {
-      section.classList.add("hidden");
-    });
+document
+.querySelectorAll("section")
+.forEach(section => {
+section.classList.add("hidden");
+});
 
-  document
-    .getElementById("step" + step)
-    .classList.remove("hidden");
+document
+.getElementById("step" + step)
+.classList.remove("hidden");
 
-  for (let i = 1; i <= 6; i++) {
+for (let i = 1; i <= 6; i++) {
 
-    document
-      .getElementById("p" + i)
-      .classList.toggle(
-        "active",
-        i <= step
-      );
+document
+.getElementById("p" + i)
+.classList.toggle(
+"active",
+i <= step
+);
 
-  }
+}
 
-  if (step === 5) {
-    renderActions();
-  }
+if (step === 5) {
+renderActions();
+}
 
-  window.scrollTo(0, 0);
+window.scrollTo(0,0);
 
 }
 
 
-/* VALIDATION HELPERS */
+/* VALIDATION */
 
 function validText(value) {
-  return value.trim().length >= 2;
+return value.trim().length >= 2;
 }
-
 
 function validEmail(value) {
 
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    .test(value.trim());
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+.test(value.trim());
 
 }
-
 
 function validPassword(value) {
-  return value.length >= 8;
+return value.length >= 8;
 }
-
 
 function validBoardCode(value) {
 
-  return /^[A-Za-z0-9][A-Za-z0-9-]{3,}$/
-    .test(value.trim());
+return /^[A-Za-z0-9][A-Za-z0-9-]{3,}$/
+.test(value.trim());
+
+}
+
+function showFieldError(
+inputId,
+errorId,
+show
+) {
+
+document
+.getElementById(inputId)
+.classList.toggle(
+"invalid",
+show
+);
+
+document
+.getElementById(errorId)
+.classList.toggle(
+"show",
+show
+);
 
 }
 
 
-function showFieldError(inputId, errorId, show) {
-
-  document
-    .getElementById(inputId)
-    .classList.toggle(
-      "invalid",
-      show
-    );
-
-  document
-    .getElementById(errorId)
-    .classList.toggle(
-      "show",
-      show
-    );
-
-}
-
-
-/* ACCOUNT BUTTON LIGHTS UP WHEN FIELDS ARE FILLED */
+/* ACCOUNT */
 
 function updateAccountButton() {
 
-  const nameFilled =
-    document.getElementById("name").value.trim();
+const nameFilled =
+document.getElementById("name").value.trim();
 
-  const emailFilled =
-    document.getElementById("email").value.trim();
+const emailFilled =
+document.getElementById("email").value.trim();
 
-  const passwordFilled =
-    document.getElementById("password").value;
+const passwordFilled =
+document.getElementById("password").value;
 
-  let typeFieldFilled = false;
+let typeFieldFilled = false;
 
-  if (useType === "business") {
+if (useType === "business") {
 
-    typeFieldFilled =
-      document.getElementById("business").value.trim();
+typeFieldFilled =
+document
+.getElementById("business")
+.value.trim();
 
-  } else {
+} else if (useType === "personal") {
 
-    typeFieldFilled =
-      document.getElementById("personalSetupName").value.trim();
+typeFieldFilled =
+document
+.getElementById("personalSetupName")
+.value.trim();
 
-  }
+}
 
-  document.getElementById("accountContinue").disabled =
-    !(
-      nameFilled &&
-      typeFieldFilled &&
-      emailFilled &&
-      passwordFilled
-    );
+document.getElementById("accountContinue").disabled =
+!(
+nameFilled &&
+typeFieldFilled &&
+emailFilled &&
+passwordFilled
+);
 
 }
 
 
 function attemptAccountContinue() {
 
-  const name =
-    document.getElementById("name");
+const nameGood =
+validText(
+document.getElementById("name").value
+);
 
-  const email =
-    document.getElementById("email");
+const emailGood =
+validEmail(
+document.getElementById("email").value
+);
 
-  const password =
-    document.getElementById("password");
+const passwordGood =
+validPassword(
+document.getElementById("password").value
+);
 
-  const nameGood =
-    validText(name.value);
+showFieldError(
+"name",
+"nameError",
+!nameGood
+);
 
-  const emailGood =
-    validEmail(email.value);
+showFieldError(
+"email",
+"emailError",
+!emailGood
+);
 
-  const passwordGood =
-    validPassword(password.value);
+showFieldError(
+"password",
+"passwordError",
+!passwordGood
+);
 
-  showFieldError(
-    "name",
-    "nameError",
-    !nameGood
-  );
+let typeGood = false;
 
-  showFieldError(
-    "email",
-    "emailError",
-    !emailGood
-  );
+if (useType === "business") {
 
-  showFieldError(
-    "password",
-    "passwordError",
-    !passwordGood
-  );
+typeGood =
+validText(
+document.getElementById("business").value
+);
 
-  let typeGood = false;
+showFieldError(
+"business",
+"businessError",
+!typeGood
+);
 
-  if (useType === "business") {
+} else {
 
-    typeGood =
-      validText(
-        document.getElementById("business").value
-      );
+typeGood =
+validText(
+document.getElementById("personalSetupName").value
+);
 
-    showFieldError(
-      "business",
-      "businessError",
-      !typeGood
-    );
+showFieldError(
+"personalSetupName",
+"personalSetupError",
+!typeGood
+);
 
-  } else {
+}
 
-    typeGood =
-      validText(
-        document.getElementById("personalSetupName").value
-      );
+if (
+nameGood &&
+emailGood &&
+passwordGood &&
+typeGood
+) {
 
-    showFieldError(
-      "personalSetupName",
-      "personalSetupError",
-      !typeGood
-    );
+goToStep(3);
 
-  }
-
-  if (
-    nameGood &&
-    emailGood &&
-    passwordGood &&
-    typeGood
-  ) {
-
-    goToStep(3);
-
-  }
+}
 
 }
 
 
-/* BOARD ACTIVATION */
+/* ACTIVATION */
 
 function updateActivationButton() {
 
-  document.getElementById("activateButton").disabled =
-    !document.getElementById("boardCode").value.trim();
+document.getElementById("activateButton").disabled =
+!document.getElementById("boardCode").value.trim();
 
 }
 
 
 function attemptActivation() {
 
-  const good =
-    validBoardCode(
-      document.getElementById("boardCode").value
-    );
+const good =
+validBoardCode(
+document.getElementById("boardCode").value
+);
 
-  showFieldError(
-    "boardCode",
-    "boardCodeError",
-    !good
-  );
+showFieldError(
+"boardCode",
+"boardCodeError",
+!good
+);
 
-  if (good) {
-    goToStep(4);
-  }
+if (good) {
+goToStep(4);
+}
 
 }
 
@@ -1153,509 +1186,232 @@ function attemptActivation() {
 
 function updateCustomizeButton() {
 
-  const boardFilled =
-    document.getElementById("boardName").value.trim();
+const boardFilled =
+document.getElementById("boardName").value.trim();
 
-  let otherFieldsFilled = false;
+let otherFieldsFilled = false;
 
-  if (useType === "business") {
+if (useType === "business") {
 
-    otherFieldsFilled =
-      document.getElementById("teamLabel").value.trim() &&
-      document.getElementById("locationLabel").value.trim();
+otherFieldsFilled =
+document.getElementById("teamLabel").value.trim() &&
+document.getElementById("locationLabel").value.trim();
 
-  } else {
+} else if (useType === "personal") {
 
-    otherFieldsFilled =
-      document.getElementById("personalPurpose").value.trim();
+otherFieldsFilled =
+document.getElementById("personalPurpose").value.trim();
 
-  }
+}
 
-  document.getElementById("customizeButton").disabled =
-    !(boardFilled && otherFieldsFilled);
+document.getElementById("customizeButton").disabled =
+!(boardFilled && otherFieldsFilled);
 
 }
 
 
 function attemptCustomization() {
 
-  const boardGood =
-    validText(
-      document.getElementById("boardName").value
-    );
+const boardGood =
+validText(
+document.getElementById("boardName").value
+);
 
-  showFieldError(
-    "boardName",
-    "boardNameError",
-    !boardGood
-  );
+showFieldError(
+"boardName",
+"boardNameError",
+!boardGood
+);
 
-  let otherGood = false;
+let otherGood = false;
 
-  if (useType === "business") {
+if (useType === "business") {
 
-    const teamGood =
-      validText(
-        document.getElementById("teamLabel").value
-      );
+const teamGood =
+validText(
+document.getElementById("teamLabel").value
+);
 
-    const locationGood =
-      validText(
-        document.getElementById("locationLabel").value
-      );
+const locationGood =
+validText(
+document.getElementById("locationLabel").value
+);
 
-    showFieldError(
-      "teamLabel",
-      "teamLabelError",
-      !teamGood
-    );
+showFieldError(
+"teamLabel",
+"teamLabelError",
+!teamGood
+);
 
-    showFieldError(
-      "locationLabel",
-      "locationLabelError",
-      !locationGood
-    );
+showFieldError(
+"locationLabel",
+"locationLabelError",
+!locationGood
+);
 
-    otherGood =
-      teamGood && locationGood;
+otherGood =
+teamGood && locationGood;
 
-  } else {
+} else {
 
-    const purposeGood =
-      validText(
-        document.getElementById("personalPurpose").value
-      );
+const purposeGood =
+validText(
+document.getElementById("personalPurpose").value
+);
 
-    showFieldError(
-      "personalPurpose",
-      "personalPurposeError",
-      !purposeGood
-    );
+showFieldError(
+"personalPurpose",
+"personalPurposeError",
+!purposeGood
+);
 
-    otherGood = purposeGood;
+otherGood =
+purposeGood;
 
-  }
+}
 
-  if (boardGood && otherGood) {
-    goToStep(5);
-  }
+if (boardGood && otherGood) {
+goToStep(5);
+}
 
 }
 
 
-/* ACTIONS */
+/* JOURNEY ACTIONS */
 
 function renderActions() {
 
-  const container =
-    document.getElementById("actionsContainer");
+const container =
+document.getElementById("actionsContainer");
 
-  container.innerHTML = "";
+container.innerHTML = "";
 
-  const suggested =
-    useType === "business"
-      ? businessSuggested
-      : personalSuggested;
+const suggested =
+useType === "business"
+? businessSuggested
+: personalSuggested;
 
-  const ordered = [
-    ...suggested,
-    ...actions.filter(
-      action => !suggested.includes(action)
-    )
-  ];
+const ordered = [
+...suggested,
+...actions.filter(
+action => !suggested.includes(action)
+)
+];
 
-  ordered.forEach(name => {
+ordered.forEach(name => {
 
-    const div =
-      document.createElement("div");
+const div =
+document.createElement("div");
 
-    div.className = "action";
+div.className = "action";
 
-    if (suggested.includes(name)) {
-      div.classList.add("suggested");
-    }
+if (suggested.includes(name)) {
+div.classList.add("suggested");
+}
 
-    if (selectedActions.includes(name)) {
-      div.classList.add("selected");
-    }
+if (selectedActions.includes(name)) {
+div.classList.add("selected");
+}
 
-    div.textContent = name;
+div.textContent = name;
 
-    div.onclick = () =>
-      toggleAction(div, name);
+div.onclick = () =>
+toggleAction(div,name);
 
-    container.appendChild(div);
+container.appendChild(div);
 
-  });
+});
 
 }
 
 
-function toggleAction(element, name) {
+function toggleAction(element,name) {
 
-  const exists =
-    selectedActions.includes(name);
+const exists =
+selectedActions.includes(name);
 
-  if (exists) {
+if (exists) {
 
-    selectedActions =
-      selectedActions.filter(
-        item => item !== name
-      );
+selectedActions =
+selectedActions.filter(
+item => item !== name
+);
 
-    element.classList.remove("selected");
+element.classList.remove("selected");
 
-  } else {
+} else {
 
-    if (selectedActions.length >= 3) {
+if (selectedActions.length >= 3) {
 
-      alert(
-        "Keep it simple. A Journey can have a maximum of 3 actions."
-      );
+alert(
+"Keep it simple. A Journey can have a maximum of 3 actions."
+);
 
-      return;
+return;
 
-    }
+}
 
-    selectedActions.push(name);
+selectedActions.push(name);
 
-    element.classList.add("selected");
+element.classList.add("selected");
 
-  }
+}
 
-  updateJourney();
+updateJourney();
 
 }
 
 
 function updateJourney() {
 
-  document.getElementById("journeyText").textContent =
-    selectedActions.length
-      ? selectedActions.join(" → ")
-      : "Choose at least one action.";
+document.getElementById("journeyText").textContent =
+selectedActions.length
+? selectedActions.join(" → ")
+: "Choose at least one action.";
 
-  document.getElementById("connectButton").disabled =
-    selectedActions.length === 0;
+document.getElementById("connectButton").disabled =
+selectedActions.length === 0;
 
 }
 
 
-/* CONNECTION PAGE */
+/* CONNECTIONS */
 
 function prepareConnections() {
 
-  const container =
-    document.getElementById("connectionFields");
+const container =
+document.getElementById("connectionFields");
 
-  container.innerHTML = "";
+container.innerHTML = "";
 
-  selectedActions.forEach(
-    (action, index) => {
+selectedActions.forEach(
+(action,index) => {
 
-      const config =
-        actionConfig[action];
+const config =
+actionConfig[action];
 
-      const card =
-        document.createElement("div");
+const card =
+document.createElement("div");
 
-      card.className =
-        "connection-card";
+card.className =
+"connection-card";
 
-      card.innerHTML = `
+card.innerHTML = `
 
-        <h3>
-          ${index + 1}. ${action}
-        </h3>
+<h3>
+${index + 1}. ${action}
+</h3>
 
-        <p>
-          ${config.question}
-        </p>
+<p>
+${config.question}
+</p>
 
-        <input
-          id="url-${index}"
-          type="url"
-          placeholder="${config.example}"
-          oninput="updateConnection(${index})"
-        >
+<input
+id="url-${index}"
+type="url"
+placeholder="${config.example}"
+oninput="updateConnection(${index})"
+>
 
-        <div
-          id="urlError-${index}"
-          class="error"
-        >
-          Enter a valid destination link.
-        </div>
-
-        <button
-          id="test-${index}"
-          type="button"
-          class="test-link"
-          disabled
-          onclick="testLink(${index})"
-        >
-          Test link
-        </button>
-
-        <div
-          id="status-${index}"
-          class="status"
-        >
-          ○ Add destination
-        </div>
-
-      `;
-
-      container.appendChild(card);
-
-    }
-  );
-
-  document.getElementById("finishButton").disabled =
-    true;
-
-  goToStep(6);
-
-}
-
-
-function normalizeUrl(value) {
-
-  let url =
-    value.trim();
-
-  if (!url) {
-    return "";
-  }
-
-  if (
-    !url.startsWith("http://") &&
-    !url.startsWith("https://")
-  ) {
-
-    url =
-      "https://" + url;
-
-  }
-
-  return url;
-
-}
-
-
-function isValidUrl(value) {
-
-  try {
-
-    const url =
-      new URL(
-        normalizeUrl(value)
-      );
-
-    return (
-      url.protocol === "http:" ||
-      url.protocol === "https:"
-    );
-
-  } catch {
-
-    return false;
-
-  }
-
-}
-
-
-function updateConnection(index) {
-
-  const input =
-    document.getElementById(
-      "url-" + index
-    );
-
-  const testButton =
-    document.getElementById(
-      "test-" + index
-    );
-
-  testButton.disabled =
-    !input.value.trim();
-
-  let allFilled = true;
-
-  selectedActions.forEach(
-    (action, i) => {
-
-      const field =
-        document.getElementById(
-          "url-" + i
-        );
-
-      if (!field || !field.value.trim()) {
-        allFilled = false;
-      }
-
-    }
-  );
-
-  document.getElementById("finishButton").disabled =
-    !allFilled;
-
-}
-
-
-function testLink(index) {
-
-  const input =
-    document.getElementById(
-      "url-" + index
-    );
-
-  const error =
-    document.getElementById(
-      "urlError-" + index
-    );
-
-  const status =
-    document.getElementById(
-      "status-" + index
-    );
-
-  const valid =
-    isValidUrl(input.value);
-
-  input.classList.toggle(
-    "invalid",
-    !valid
-  );
-
-  error.classList.toggle(
-    "show",
-    !valid
-  );
-
-  status.classList.remove(
-    "good",
-    "bad"
-  );
-
-  if (!valid) {
-
-    status.textContent =
-      "Check this destination.";
-
-    status.classList.add("bad");
-
-    return;
-
-  }
-
-  const url =
-    normalizeUrl(
-      input.value
-    );
-
-  input.value = url;
-
-  status.textContent =
-    "✓ Link ready";
-
-  status.classList.add(
-    "good"
-  );
-
-  window.open(
-    url,
-    "_blank",
-    "noopener"
-  );
-
-}
-
-
-function attemptFinish() {
-
-  let allGood = true;
-
-  selectedActions.forEach(
-    (action, index) => {
-
-      const input =
-        document.getElementById(
-          "url-" + index
-        );
-
-      const error =
-        document.getElementById(
-          "urlError-" + index
-        );
-
-      const valid =
-        isValidUrl(
-          input.value
-        );
-
-      input.classList.toggle(
-        "invalid",
-        !valid
-      );
-
-      error.classList.toggle(
-        "show",
-        !valid
-      );
-
-      if (!valid) {
-        allGood = false;
-      }
-
-    }
-  );
-
-  if (!allGood) {
-    return;
-  }
-
-  finishSetup();
-
-}
-
-
-function finishSetup() {
-
-  document
-    .querySelectorAll("section")
-    .forEach(section => {
-      section.classList.add("hidden");
-    });
-
-  document
-    .getElementById("success")
-    .classList.remove("hidden");
-
-  document
-    .getElementById("finalJourney")
-    .textContent =
-      selectedActions.join(" → ");
-
-  document
-    .querySelectorAll(".progress div")
-    .forEach(item => {
-      item.classList.add("active");
-    });
-
-  window.scrollTo(0, 0);
-
-}
-
-
-/* INITIAL STATE */
-
-updateAccountButton();
-updateActivationButton();
-updateCustomizeButton();
-updateJourney();
-
-</script>
-
-</body>
-</html>
+<div
+id="
