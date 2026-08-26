@@ -17,6 +17,19 @@ body {
   color: #111827;
 }
 
+button,
+input {
+  font: inherit;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================
+   ONBOARDING
+========================================= */
+
 .app {
   min-height: 100vh;
   display: flex;
@@ -31,7 +44,7 @@ body {
   background: #ffffff;
   border-radius: 28px;
   padding: 34px 26px;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 50px rgba(15,23,42,.08);
 }
 
 .logo {
@@ -64,7 +77,7 @@ body {
   flex: 1;
   background: #e8eef7;
   border-radius: 10px;
-  transition: 0.2s ease;
+  transition: .2s ease;
 }
 
 .progress .active {
@@ -97,21 +110,19 @@ input {
   font-size: 16px;
   outline: none;
   background: #ffffff;
-  transition: 0.18s ease;
+  transition: .18s ease;
 }
 
-/* Brighter blue while user is actively typing */
 input:focus {
   border-color: #4f96f3;
   background: #fbfdff;
-  box-shadow: 0 0 0 4px rgba(79, 150, 243, 0.25);
+  box-shadow: 0 0 0 4px rgba(79,150,243,.25);
 }
 
-/* Red only after user attempts to move forward */
 input.invalid {
   border-color: #e05252;
   background: #fffafa;
-  box-shadow: 0 0 0 3px rgba(224, 82, 82, 0.10);
+  box-shadow: 0 0 0 3px rgba(224,82,82,.10);
 }
 
 .error {
@@ -135,24 +146,21 @@ button {
   font-size: 16px;
   font-weight: 750;
   cursor: pointer;
-  transition: 0.18s ease;
+  transition: .18s ease;
 }
 
-/* Default incomplete primary button */
 .primary {
   background: #c8ddf7;
   color: #ffffff;
 }
 
-/* Completed / ready */
 .primary.ready {
   background: #4f91eb;
-  color: #ffffff;
 }
 
 .primary.ready:active {
   background: #3478d4;
-  transform: scale(0.99);
+  transform: scale(.99);
 }
 
 .secondary {
@@ -166,12 +174,6 @@ button {
   color: #667085;
   margin-top: 8px;
 }
-
-.hidden {
-  display: none !important;
-}
-
-/* BUSINESS / PERSONAL */
 
 .choice-grid {
   display: grid;
@@ -187,18 +189,14 @@ button {
   cursor: pointer;
   text-align: center;
   background: #ffffff;
-  transition: 0.18s ease;
+  transition: .18s ease;
   -webkit-tap-highlight-color: transparent;
-}
-
-.use-choice:active {
-  transform: scale(0.99);
 }
 
 .use-choice.selected {
   border: 2px solid #609feb;
   background: #eff6ff;
-  box-shadow: 0 0 0 3px rgba(96, 159, 235, 0.10);
+  box-shadow: 0 0 0 3px rgba(96,159,235,.10);
 }
 
 .choice-icon {
@@ -218,8 +216,6 @@ button {
   font-size: 13px;
   line-height: 1.4;
 }
-
-/* JOURNEY */
 
 .small-heading {
   margin-top: 22px;
@@ -247,8 +243,7 @@ button {
   text-align: center;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.16s ease;
-  -webkit-tap-highlight-color: transparent;
+  transition: .16s ease;
 }
 
 .action.selected {
@@ -288,8 +283,6 @@ button {
   display: block;
   margin-bottom: 8px;
 }
-
-/* CONNECTIONS */
 
 .connection-card {
   margin-top: 16px;
@@ -344,8 +337,6 @@ button {
   font-weight: 650;
 }
 
-/* SUCCESS */
-
 .success {
   text-align: center;
   padding: 10px 0;
@@ -363,12 +354,378 @@ button {
   font-size: 34px;
   font-weight: 800;
 }
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+.dashboard {
+  min-height: 100vh;
+  background: #f4f7fb;
+}
+
+.dashboard-shell {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 22px 18px 60px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.dashboard-brand {
+  font-size: 25px;
+  font-weight: 850;
+}
+
+.dashboard-brand span {
+  color: #6fa8f5;
+  font-weight: 500;
+}
+
+.account-circle {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: #e7f1fd;
+  color: #3978c8;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.dashboard-greeting {
+  margin-bottom: 22px;
+}
+
+.dashboard-greeting h1 {
+  font-size: 30px;
+  margin: 0 0 6px;
+}
+
+.dashboard-greeting p {
+  margin: 0;
+  color: #667085;
+  line-height: 1.5;
+}
+
+.demo-pill {
+  display: inline-block;
+  padding: 5px 9px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: #edf5ff;
+  color: #4a7fc4;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dashboard-section {
+  margin-top: 26px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+
+.section-heading h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.section-link {
+  border: 0;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: #3978c8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #e3e9f1;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 26px rgba(15,23,42,.035);
+}
+
+.stat-label {
+  color: #667085;
+  font-size: 13px;
+  margin-bottom: 7px;
+}
+
+.stat-number {
+  font-size: 27px;
+  font-weight: 850;
+}
+
+.stat-change {
+  margin-top: 6px;
+  color: #2f9b55;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.board-card,
+.performance-card,
+.journey-card,
+.support-card {
+  background: white;
+  border: 1px solid #e3e9f1;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 8px 26px rgba(15,23,42,.035);
+}
+
+.board-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.board-name {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.board-sub {
+  color: #667085;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.status-pill {
+  background: #eaf8ef;
+  color: #2f9b55;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.board-journey {
+  margin-top: 16px;
+  padding: 13px;
+  border-radius: 13px;
+  background: #f7f9fc;
+  color: #334155;
+  font-size: 14px;
+}
+
+.board-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 15px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+}
+
+.quick-action {
+  margin: 0;
+  min-height: 88px;
+  padding: 13px 8px;
+  border: 1px solid #dbe6f3;
+  background: white;
+  color: #334155;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.quick-action strong {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.range-tabs {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 20px;
+  background: #f4f7fb;
+  padding: 5px;
+  border-radius: 12px;
+}
+
+.range-tab {
+  margin: 0;
+  padding: 9px 7px;
+  border-radius: 9px;
+  background: transparent;
+  color: #667085;
+  font-size: 13px;
+}
+
+.range-tab.selected {
+  background: white;
+  color: #3978c8;
+  box-shadow: 0 2px 8px rgba(15,23,42,.08);
+}
+
+.performance-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.performance-number {
+  font-size: 30px;
+  font-weight: 850;
+}
+
+.performance-caption {
+  color: #667085;
+  font-size: 13px;
+}
+
+.chart {
+  height: 145px;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.bar-wrap {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: end;
+}
+
+.bar {
+  width: 100%;
+  background: #8ab7f4;
+  border-radius: 7px 7px 3px 3px;
+  min-height: 9px;
+  transition: .25s ease;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  color: #98a2b3;
+  font-size: 10px;
+  margin-top: 7px;
+}
+
+.journey-title {
+  font-weight: 850;
+  font-size: 18px;
+}
+
+.journey-sequence {
+  margin-top: 7px;
+  color: #3978c8;
+  font-weight: 700;
+}
+
+.journey-actions {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.journey-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f7f9fc;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.journey-row span:first-child {
+  font-weight: 700;
+}
+
+.journey-row span:last-child {
+  color: #667085;
+  font-size: 13px;
+}
+
+.support-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.support-card h4 {
+  margin: 0 0 5px;
+  font-size: 17px;
+}
+
+.support-card p {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.support-button {
+  width: auto;
+  margin: 0;
+  padding: 10px 14px;
+  background: #edf5ff;
+  color: #3978c8;
+  flex-shrink: 0;
+}
+
+@media (min-width: 760px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .dashboard-columns {
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 18px;
+    align-items: start;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<div class="app">
+<!-- ======================================
+     ONBOARDING
+======================================= -->
+
+<div id="onboardingApp" class="app">
+
 <div class="card">
 
   <div class="logo">
@@ -388,7 +745,6 @@ button {
     <div id="p6"></div>
   </div>
 
-
   <!-- STEP 1 -->
 
   <section id="step1">
@@ -403,20 +759,15 @@ button {
 
       <div id="businessChoice" class="use-choice">
         <div class="choice-icon">🏢</div>
-
         <strong>Business</strong>
-
         <span>
           For customers, clients, teams, locations and services.
         </span>
       </div>
 
-
       <div id="personalChoice" class="use-choice">
         <div class="choice-icon">👤</div>
-
         <strong>Personal</strong>
-
         <span>
           For social profiles, creators, events, projects and everyday use.
         </span>
@@ -424,18 +775,15 @@ button {
 
     </div>
 
-
     <div class="note">
       Business and Personal customize your starting experience. Neither option limits what your board can do.
     </div>
-
 
     <button id="useContinue" class="primary">
       Continue
     </button>
 
   </section>
-
 
   <!-- STEP 2 -->
 
@@ -447,7 +795,6 @@ button {
       Start with the basics. You can customize everything else later.
     </p>
 
-
     <label>Your name</label>
 
     <input
@@ -458,7 +805,6 @@ button {
     <div id="nameError" class="error">
       Enter your name.
     </div>
-
 
     <div id="businessNameGroup">
 
@@ -475,7 +821,6 @@ button {
 
     </div>
 
-
     <div id="personalNameGroup" class="hidden">
 
       <label>What should we call your setup?</label>
@@ -491,7 +836,6 @@ button {
 
     </div>
 
-
     <label>Email</label>
 
     <input
@@ -504,7 +848,6 @@ button {
       Enter a valid email address.
     </div>
 
-
     <label>Password</label>
 
     <input
@@ -516,7 +859,6 @@ button {
     <div id="passwordError" class="error">
       Password must contain at least 8 characters.
     </div>
-
 
     <button id="accountContinue" class="primary">
       Continue
@@ -532,7 +874,6 @@ button {
 
   </section>
 
-
   <!-- STEP 3 -->
 
   <section id="step3" class="hidden">
@@ -542,7 +883,6 @@ button {
     <p class="helper">
       Scan the unique activation QR included with your CreateJourney board.
     </p>
-
 
     <label>Board activation code</label>
 
@@ -555,11 +895,9 @@ button {
       Enter the activation code included with your board.
     </div>
 
-
     <div class="note">
       On the finished product, scanning your unique activation QR will identify this exact board automatically.
     </div>
-
 
     <button id="activateButton" class="primary">
       Activate board
@@ -571,7 +909,6 @@ button {
 
   </section>
 
-
   <!-- STEP 4 -->
 
   <section id="step4" class="hidden">
@@ -581,7 +918,6 @@ button {
     <p class="helper">
       Use the words that make sense for you.
     </p>
-
 
     <div id="businessCustomization">
 
@@ -596,7 +932,6 @@ button {
         Tell us what you call your team members.
       </div>
 
-
       <label>What do you call your work areas?</label>
 
       <input
@@ -609,7 +944,6 @@ button {
       </div>
 
     </div>
-
 
     <div id="personalCustomization" class="hidden">
 
@@ -626,7 +960,6 @@ button {
 
     </div>
 
-
     <label>Name this board</label>
 
     <input
@@ -638,7 +971,6 @@ button {
       Give this board a name.
     </div>
 
-
     <button id="customizeButton" class="primary">
       Build my Journey
     </button>
@@ -648,7 +980,6 @@ button {
     </button>
 
   </section>
-
 
   <!-- STEP 5 -->
 
@@ -660,28 +991,25 @@ button {
       Choose up to 3 customer or visitor actions. Shorter Journeys usually perform better.
     </p>
 
-
     <div class="small-heading">
       Suggested for you
     </div>
 
-
     <div id="actionsContainer" class="actions"></div>
-
 
     <div class="note">
       Maximum 3 actions per Journey. You can configure more connections later and use different combinations on different boards.
     </div>
 
-
     <div class="journey-preview">
+
       <strong>Your Journey</strong>
 
       <span id="journeyText">
         Choose at least one action.
       </span>
-    </div>
 
+    </div>
 
     <button id="connectButton" class="primary">
       Connect my Journey
@@ -693,7 +1021,6 @@ button {
 
   </section>
 
-
   <!-- STEP 6 -->
 
   <section id="step6" class="hidden">
@@ -704,14 +1031,11 @@ button {
       Tell CreateJourney where each action should take people.
     </p>
 
-
     <div id="connectionFields"></div>
-
 
     <div class="note">
       Each field includes an example so you know exactly what to add.
     </div>
-
 
     <button id="finishButton" class="primary">
       Finish setup
@@ -722,7 +1046,6 @@ button {
     </button>
 
   </section>
-
 
   <!-- SUCCESS -->
 
@@ -736,15 +1059,15 @@ button {
       Welcome to CreateJourney. Your first board and Journey are connected and ready.
     </p>
 
-
     <div class="journey-preview">
+
       <strong>Active Journey</strong>
 
       <span id="finalJourney"></span>
+
     </div>
 
-
-    <button class="primary ready">
+    <button id="dashboardButton" class="primary ready">
       Continue to dashboard
     </button>
 
@@ -753,6 +1076,296 @@ button {
     </button>
 
   </section>
+
+</div>
+</div>
+
+
+<!-- ======================================
+     DASHBOARD
+======================================= -->
+
+<div id="dashboardApp" class="dashboard hidden">
+
+<div class="dashboard-shell">
+
+  <header class="dashboard-header">
+
+    <div class="dashboard-brand">
+      Create<span>Journey</span>
+    </div>
+
+    <div id="profileInitial" class="account-circle">
+      C
+    </div>
+
+  </header>
+
+  <div class="dashboard-greeting">
+
+    <h1 id="dashboardGreeting">
+      Good to see you.
+    </h1>
+
+    <p id="dashboardAccountName">
+      Here’s what’s happening with your CreateJourney today.
+    </p>
+
+    <span class="demo-pill">
+      Demo data
+    </span>
+
+  </div>
+
+
+  <!-- TODAY -->
+
+  <section class="dashboard-section">
+
+    <div class="section-heading">
+      <h3>Today</h3>
+    </div>
+
+    <div class="stats-grid">
+
+      <div class="stat-card">
+        <div class="stat-label">Total taps</div>
+        <div class="stat-number">24</div>
+        <div class="stat-change">↑ 12% vs yesterday</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Unique visitors</div>
+        <div class="stat-number">18</div>
+        <div class="stat-change">↑ 3 new</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Returning</div>
+        <div class="stat-number">6</div>
+        <div class="stat-change">25% of taps</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Actions taken</div>
+        <div class="stat-number">14</div>
+        <div class="stat-change">58% engagement</div>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- QUICK ACTIONS -->
+
+  <section class="dashboard-section">
+
+    <div class="section-heading">
+      <h3>Quick actions</h3>
+    </div>
+
+    <div class="quick-grid">
+
+      <button class="quick-action">
+        <strong>＋</strong>
+        Add Board
+      </button>
+
+      <button class="quick-action">
+        <strong>↗</strong>
+        Edit Journey
+      </button>
+
+      <button class="quick-action">
+        <strong>＋</strong>
+        Invite Team
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <div class="dashboard-columns">
+
+    <div>
+
+      <!-- BOARDS -->
+
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+          <h3>Active boards</h3>
+          <button class="section-link">View all</button>
+        </div>
+
+        <div class="board-card">
+
+          <div class="board-header">
+
+            <div>
+              <div id="dashboardBoardName" class="board-name">
+                My Board
+              </div>
+
+              <div class="board-sub">
+                Board CJ-000001
+              </div>
+            </div>
+
+            <div class="status-pill">
+              Active
+            </div>
+
+          </div>
+
+          <div id="dashboardJourney" class="board-journey">
+            Pay → Review → Book
+          </div>
+
+          <div class="board-meta">
+            <span>24 taps today</span>
+            <span>Last tap 8 min ago</span>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- PERFORMANCE -->
+
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+          <h3>Performance</h3>
+        </div>
+
+        <div class="performance-card">
+
+          <div class="range-tabs">
+
+            <button
+              class="range-tab selected"
+              data-range="today"
+            >
+              Today
+            </button>
+
+            <button
+              class="range-tab"
+              data-range="7"
+            >
+              7 Days
+            </button>
+
+            <button
+              class="range-tab"
+              data-range="30"
+            >
+              30 Days
+            </button>
+
+          </div>
+
+          <div class="performance-top">
+
+            <div>
+              <div
+                id="performanceNumber"
+                class="performance-number"
+              >
+                24
+              </div>
+
+              <div
+                id="performanceCaption"
+                class="performance-caption"
+              >
+                taps today
+              </div>
+            </div>
+
+            <div class="stat-change">
+              ↑ 12%
+            </div>
+
+          </div>
+
+          <div id="chart" class="chart"></div>
+
+          <div class="chart-labels">
+            <span>Start</span>
+            <span>Mid</span>
+            <span>Now</span>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+
+    <div>
+
+      <!-- JOURNEY -->
+
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+          <h3>Journey performance</h3>
+        </div>
+
+        <div class="journey-card">
+
+          <div class="journey-title">
+            Current Journey
+          </div>
+
+          <div
+            id="dashboardJourneySequence"
+            class="journey-sequence"
+          >
+            Pay → Review → Book
+          </div>
+
+          <div
+            id="journeyActionStats"
+            class="journey-actions"
+          ></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SUPPORT -->
+
+      <section class="dashboard-section">
+
+        <div class="support-card">
+
+          <div>
+            <h4>Need help?</h4>
+
+            <p>
+              Get help with your board, Journey or setup.
+            </p>
+          </div>
+
+          <button class="support-button">
+            Support
+          </button>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
 
 </div>
 </div>
@@ -873,7 +1486,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function goToStep(step) {
 
     document
-      .querySelectorAll("section")
+      .querySelectorAll("#onboardingApp section")
       .forEach(function (section) {
         section.classList.add("hidden");
       });
@@ -888,7 +1501,7 @@ document.addEventListener("DOMContentLoaded", function () {
       renderActions();
     }
 
-    window.scrollTo(0, 0);
+    window.scrollTo(0,0);
   }
 
 
@@ -912,19 +1525,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  function showFieldError(inputId, errorId, show) {
+  function showFieldError(inputId,errorId,show) {
 
-    el(inputId).classList.toggle("invalid", show);
+    el(inputId).classList.toggle(
+      "invalid",
+      show
+    );
 
-    el(errorId).classList.toggle("show", show);
+    el(errorId).classList.toggle(
+      "show",
+      show
+    );
   }
 
 
-  function clearFieldError(inputId, errorId) {
+  function clearFieldError(inputId,errorId) {
 
-    el(inputId).classList.remove("invalid");
+    el(inputId).classList.remove(
+      "invalid"
+    );
 
-    el(errorId).classList.remove("show");
+    el(errorId).classList.remove(
+      "show"
+    );
   }
 
 
@@ -942,7 +1565,10 @@ document.addEventListener("DOMContentLoaded", function () {
       type === "personal"
     );
 
-    setReady(el("useContinue"), true);
+    setReady(
+      el("useContinue"),
+      true
+    );
 
     updateConditionalFields();
     updateAccountButton();
@@ -952,7 +1578,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateConditionalFields() {
 
-    const business = useType === "business";
+    const business =
+      useType === "business";
 
     el("businessNameGroup").classList.toggle(
       "hidden",
@@ -978,9 +1605,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function accountFieldsFilled() {
 
-    const nameFilled = el("name").value.trim();
-    const emailFilled = el("email").value.trim();
-    const passwordFilled = el("password").value;
+    const nameFilled =
+      el("name").value.trim();
+
+    const emailFilled =
+      el("email").value.trim();
+
+    const passwordFilled =
+      el("password").value;
 
     let typeFilled = "";
 
@@ -1013,9 +1645,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function attemptAccountContinue() {
 
-    const nameGood = validText(el("name").value);
-    const emailGood = validEmail(el("email").value);
-    const passwordGood = validPassword(el("password").value);
+    const nameGood =
+      validText(el("name").value);
+
+    const emailGood =
+      validEmail(el("email").value);
+
+    const passwordGood =
+      validPassword(el("password").value);
 
     showFieldError(
       "name",
@@ -1039,7 +1676,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (useType === "business") {
 
-      typeGood = validText(el("business").value);
+      typeGood =
+        validText(el("business").value);
 
       showFieldError(
         "business",
@@ -1049,7 +1687,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     } else {
 
-      typeGood = validText(el("personalSetupName").value);
+      typeGood =
+        validText(el("personalSetupName").value);
 
       showFieldError(
         "personalSetupName",
@@ -1080,9 +1719,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function attemptActivation() {
 
-    const good = validBoardCode(
-      el("boardCode").value
-    );
+    const good =
+      validBoardCode(
+        el("boardCode").value
+      );
 
     showFieldError(
       "boardCode",
@@ -1098,7 +1738,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function customizationFieldsFilled() {
 
-    const boardFilled = el("boardName").value.trim();
+    const boardFilled =
+      el("boardName").value.trim();
 
     if (useType === "business") {
 
@@ -1127,9 +1768,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function attemptCustomization() {
 
-    const boardGood = validText(
-      el("boardName").value
-    );
+    const boardGood =
+      validText(el("boardName").value);
 
     showFieldError(
       "boardName",
@@ -1141,13 +1781,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (useType === "business") {
 
-      const teamGood = validText(
-        el("teamLabel").value
-      );
+      const teamGood =
+        validText(el("teamLabel").value);
 
-      const locationGood = validText(
-        el("locationLabel").value
-      );
+      const locationGood =
+        validText(el("locationLabel").value);
 
       showFieldError(
         "teamLabel",
@@ -1161,13 +1799,13 @@ document.addEventListener("DOMContentLoaded", function () {
         !locationGood
       );
 
-      otherGood = teamGood && locationGood;
+      otherGood =
+        teamGood && locationGood;
 
     } else {
 
-      const purposeGood = validText(
-        el("personalPurpose").value
-      );
+      const purposeGood =
+        validText(el("personalPurpose").value);
 
       showFieldError(
         "personalPurpose",
@@ -1186,7 +1824,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function renderActions() {
 
-    const container = el("actionsContainer");
+    const container =
+      el("actionsContainer");
 
     container.innerHTML = "";
 
@@ -1197,17 +1836,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const ordered = [
       ...suggested,
-      ...actions.filter(function (action) {
+      ...actions.filter(function(action) {
         return !suggested.includes(action);
       })
     ];
 
 
-    ordered.forEach(function (name) {
+    ordered.forEach(function(name) {
 
-      const div = document.createElement("div");
+      const div =
+        document.createElement("div");
 
-      div.className = "action";
+      div.className =
+        "action";
 
       if (suggested.includes(name)) {
         div.classList.add("suggested");
@@ -1219,16 +1860,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
       div.textContent = name;
 
-      div.addEventListener("click", function () {
-        toggleAction(div, name);
-      });
+      div.addEventListener(
+        "click",
+        function() {
+          toggleAction(div,name);
+        }
+      );
 
       container.appendChild(div);
     });
   }
 
 
-  function toggleAction(element, name) {
+  function toggleAction(element,name) {
 
     const exists =
       selectedActions.includes(name);
@@ -1236,11 +1880,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (exists) {
 
       selectedActions =
-        selectedActions.filter(function (item) {
+        selectedActions.filter(function(item) {
           return item !== name;
         });
 
-      element.classList.remove("selected");
+      element.classList.remove(
+        "selected"
+      );
 
     } else {
 
@@ -1255,7 +1901,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       selectedActions.push(name);
 
-      element.classList.add("selected");
+      element.classList.add(
+        "selected"
+      );
     }
 
     updateJourney();
@@ -1278,74 +1926,98 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function prepareConnections() {
 
-    if (selectedActions.length === 0) {
+    if (
+      selectedActions.length === 0
+    ) {
       return;
     }
 
-    const container = el("connectionFields");
+    const container =
+      el("connectionFields");
 
     container.innerHTML = "";
 
 
-    selectedActions.forEach(function (action, index) {
+    selectedActions.forEach(
+      function(action,index) {
 
-      const config = actionConfig[action];
+        const config =
+          actionConfig[action];
 
-      const card = document.createElement("div");
+        const card =
+          document.createElement("div");
 
-      card.className = "connection-card";
+        card.className =
+          "connection-card";
 
-      card.innerHTML = `
-        <h3>${index + 1}. ${action}</h3>
+        card.innerHTML = `
 
-        <p>${config.question}</p>
+          <h3>
+            ${index + 1}. ${action}
+          </h3>
 
-        <input
-          id="url-${index}"
-          type="url"
-          placeholder="${config.example}"
-        >
+          <p>
+            ${config.question}
+          </p>
 
-        <div
-          id="urlError-${index}"
-          class="error"
-        >
-          Enter a valid destination link.
-        </div>
+          <input
+            id="url-${index}"
+            type="url"
+            placeholder="${config.example}"
+          >
 
-        <button
-          id="test-${index}"
-          type="button"
-          class="test-link"
-        >
-          Test link
-        </button>
+          <div
+            id="urlError-${index}"
+            class="error"
+          >
+            Enter a valid destination link.
+          </div>
 
-        <div
-          id="status-${index}"
-          class="status"
-        >
-          ○ Add destination
-        </div>
-      `;
+          <button
+            id="test-${index}"
+            type="button"
+            class="test-link"
+          >
+            Test link
+          </button>
 
-      container.appendChild(card);
+          <div
+            id="status-${index}"
+            class="status"
+          >
+            ○ Add destination
+          </div>
+        `;
 
-      const input = el("url-" + index);
+        container.appendChild(card);
 
-      const button = el("test-" + index);
+        const input =
+          el("url-" + index);
 
-      input.addEventListener("input", function () {
-        updateConnection(index);
-      });
+        const button =
+          el("test-" + index);
 
-      button.addEventListener("click", function () {
-        testLink(index);
-      });
-    });
+        input.addEventListener(
+          "input",
+          function() {
+            updateConnection(index);
+          }
+        );
+
+        button.addEventListener(
+          "click",
+          function() {
+            testLink(index);
+          }
+        );
+      }
+    );
 
 
-    setReady(el("finishButton"), false);
+    setReady(
+      el("finishButton"),
+      false
+    );
 
     goToStep(6);
   }
@@ -1353,7 +2025,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function normalizeUrl(value) {
 
-    let url = value.trim();
+    let url =
+      value.trim();
 
     if (!url) {
       return "";
@@ -1363,7 +2036,8 @@ document.addEventListener("DOMContentLoaded", function () {
       !url.startsWith("http://") &&
       !url.startsWith("https://")
     ) {
-      url = "https://" + url;
+      url =
+        "https://" + url;
     }
 
     return url;
@@ -1374,9 +2048,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
 
-      const url = new URL(
-        normalizeUrl(value)
-      );
+      const url =
+        new URL(
+          normalizeUrl(value)
+        );
 
       return (
         url.protocol === "http:" ||
@@ -1391,13 +2066,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateConnection(index) {
 
-    const input = el("url-" + index);
+    const input =
+      el("url-" + index);
 
-    const testButton = el("test-" + index);
+    const testButton =
+      el("test-" + index);
 
-    const hasText = Boolean(
-      input.value.trim()
-    );
+    const hasText =
+      Boolean(input.value.trim());
 
     testButton.classList.toggle(
       "ready",
@@ -1412,14 +2088,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let allFilled = true;
 
-    selectedActions.forEach(function (action, index) {
+    selectedActions.forEach(
+      function(action,index) {
 
-      const field = el("url-" + index);
+        const field =
+          el("url-" + index);
 
-      if (!field || !field.value.trim()) {
-        allFilled = false;
+        if (
+          !field ||
+          !field.value.trim()
+        ) {
+          allFilled = false;
+        }
       }
-    });
+    );
 
     setReady(
       el("finishButton"),
@@ -1430,15 +2112,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function testLink(index) {
 
-    const input = el("url-" + index);
-    const error = el("urlError-" + index);
-    const status = el("status-" + index);
+    const input =
+      el("url-" + index);
+
+    const error =
+      el("urlError-" + index);
+
+    const status =
+      el("status-" + index);
 
     if (!input.value.trim()) {
       return;
     }
 
-    const valid = isValidUrl(input.value);
+    const valid =
+      isValidUrl(input.value);
 
     input.classList.toggle(
       "invalid",
@@ -1455,28 +2143,29 @@ document.addEventListener("DOMContentLoaded", function () {
       "bad"
     );
 
-
     if (!valid) {
 
       status.textContent =
         "Check this destination.";
 
-      status.classList.add("bad");
+      status.classList.add(
+        "bad"
+      );
 
       return;
     }
 
-
-    const url = normalizeUrl(
-      input.value
-    );
+    const url =
+      normalizeUrl(input.value);
 
     input.value = url;
 
     status.textContent =
       "✓ Link ready";
 
-    status.classList.add("good");
+    status.classList.add(
+      "good"
+    );
 
     window.open(
       url,
@@ -1490,30 +2179,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let allGood = true;
 
-    selectedActions.forEach(function (action, index) {
+    selectedActions.forEach(
+      function(action,index) {
 
-      const input = el("url-" + index);
-      const error = el("urlError-" + index);
+        const input =
+          el("url-" + index);
 
-      const valid = isValidUrl(
-        input.value
-      );
+        const error =
+          el("urlError-" + index);
 
-      input.classList.toggle(
-        "invalid",
-        !valid
-      );
+        const valid =
+          isValidUrl(
+            input.value
+          );
 
-      error.classList.toggle(
-        "show",
-        !valid
-      );
+        input.classList.toggle(
+          "invalid",
+          !valid
+        );
 
-      if (!valid) {
-        allGood = false;
+        error.classList.toggle(
+          "show",
+          !valid
+        );
+
+        if (!valid) {
+          allGood = false;
+        }
       }
-    });
-
+    );
 
     if (!allGood) {
       return;
@@ -1526,37 +2220,261 @@ document.addEventListener("DOMContentLoaded", function () {
   function finishSetup() {
 
     document
-      .querySelectorAll("section")
-      .forEach(function (section) {
-        section.classList.add("hidden");
+      .querySelectorAll(
+        "#onboardingApp section"
+      )
+      .forEach(function(section) {
+        section.classList.add(
+          "hidden"
+        );
       });
-
 
     el("success").classList.remove(
       "hidden"
     );
 
-
     el("finalJourney").textContent =
       selectedActions.join(" → ");
 
-
     document
-      .querySelectorAll(".progress div")
-      .forEach(function (item) {
-        item.classList.add("active");
+      .querySelectorAll(
+        ".progress div"
+      )
+      .forEach(function(item) {
+        item.classList.add(
+          "active"
+        );
       });
 
-
-    window.scrollTo(0, 0);
+    window.scrollTo(0,0);
   }
 
 
-  /* FIRST-SCREEN EVENTS */
+  /* =====================================
+     DASHBOARD
+  ===================================== */
+
+  const rangeData = {
+
+    today: {
+      total: 24,
+      caption: "taps today",
+      bars: [22,35,28,48,42,65,75,58,82,70]
+    },
+
+    "7": {
+      total: 143,
+      caption: "taps in the last 7 days",
+      bars: [35,52,44,68,61,76,88]
+    },
+
+    "30": {
+      total: 618,
+      caption: "taps in the last 30 days",
+      bars: [30,45,38,56,61,47,72,68,79,82,65,90]
+    }
+
+  };
+
+
+  function openDashboard() {
+
+    el("onboardingApp").classList.add(
+      "hidden"
+    );
+
+    el("dashboardApp").classList.remove(
+      "hidden"
+    );
+
+
+    const personName =
+      el("name").value.trim() ||
+      "there";
+
+
+    const setupName =
+      useType === "business"
+        ? el("business").value.trim()
+        : el("personalSetupName").value.trim();
+
+
+    const boardName =
+      el("boardName").value.trim() ||
+      "My Board";
+
+
+    el("dashboardGreeting").textContent =
+      "Hi " +
+      personName.split(" ")[0] +
+      ".";
+
+
+    el("dashboardAccountName").textContent =
+      setupName
+        ? setupName + " is ready to go."
+        : "Here’s what’s happening today.";
+
+
+    el("profileInitial").textContent =
+      personName
+        .charAt(0)
+        .toUpperCase();
+
+
+    el("dashboardBoardName").textContent =
+      boardName;
+
+
+    const journey =
+      selectedActions.length
+        ? selectedActions.join(" → ")
+        : "No Journey configured";
+
+
+    el("dashboardJourney").textContent =
+      journey;
+
+
+    el("dashboardJourneySequence").textContent =
+      journey;
+
+
+    renderJourneyStats();
+
+    renderChart(
+      rangeData.today.bars
+    );
+
+
+    window.scrollTo(0,0);
+  }
+
+
+  function renderJourneyStats() {
+
+    const container =
+      el("journeyActionStats");
+
+    container.innerHTML = "";
+
+
+    const mockCounts = [
+      10,
+      3,
+      1
+    ];
+
+
+    selectedActions.forEach(
+      function(action,index) {
+
+        const row =
+          document.createElement("div");
+
+        row.className =
+          "journey-row";
+
+        row.innerHTML = `
+          <span>${action}</span>
+          <span>${mockCounts[index] || 0} actions</span>
+        `;
+
+        container.appendChild(row);
+      }
+    );
+  }
+
+
+  function renderChart(values) {
+
+    const chart =
+      el("chart");
+
+    chart.innerHTML = "";
+
+
+    values.forEach(
+      function(value) {
+
+        const wrap =
+          document.createElement("div");
+
+        wrap.className =
+          "bar-wrap";
+
+
+        const bar =
+          document.createElement("div");
+
+        bar.className =
+          "bar";
+
+        bar.style.height =
+          value + "%";
+
+
+        wrap.appendChild(bar);
+
+        chart.appendChild(wrap);
+      }
+    );
+  }
+
+
+  document
+    .querySelectorAll(".range-tab")
+    .forEach(function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          document
+            .querySelectorAll(".range-tab")
+            .forEach(function(tab) {
+              tab.classList.remove(
+                "selected"
+              );
+            });
+
+
+          button.classList.add(
+            "selected"
+          );
+
+
+          const range =
+            button.dataset.range;
+
+
+          const data =
+            rangeData[range];
+
+
+          el("performanceNumber").textContent =
+            data.total;
+
+
+          el("performanceCaption").textContent =
+            data.caption;
+
+
+          renderChart(
+            data.bars
+          );
+        }
+      );
+    });
+
+
+  /* =====================================
+     EVENTS
+  ===================================== */
 
   el("businessChoice").addEventListener(
     "click",
-    function () {
+    function() {
       selectUseType("business");
     }
   );
@@ -1564,7 +2482,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   el("personalChoice").addEventListener(
     "click",
-    function () {
+    function() {
       selectUseType("personal");
     }
   );
@@ -1572,7 +2490,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   el("useContinue").addEventListener(
     "click",
-    function () {
+    function() {
 
       if (!useType) {
         return;
@@ -1583,47 +2501,32 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
 
-  /* INPUT EVENTS */
-
   [
     "name",
     "business",
     "personalSetupName",
     "email",
     "password"
-  ].forEach(function (id) {
+  ].forEach(function(id) {
 
     el(id).addEventListener(
       "input",
-      function () {
+      function() {
 
         updateAccountButton();
 
-        if (id === "name") {
-          clearFieldError("name", "nameError");
-        }
+        const errorMap = {
+          name: "nameError",
+          business: "businessError",
+          personalSetupName: "personalSetupError",
+          email: "emailError",
+          password: "passwordError"
+        };
 
-        if (id === "business") {
-          clearFieldError("business", "businessError");
-        }
-
-        if (id === "personalSetupName") {
-          clearFieldError(
-            "personalSetupName",
-            "personalSetupError"
-          );
-        }
-
-        if (id === "email") {
-          clearFieldError("email", "emailError");
-        }
-
-        if (id === "password") {
-          clearFieldError(
-            "password",
-            "passwordError"
-          );
-        }
+        clearFieldError(
+          id,
+          errorMap[id]
+        );
       }
     );
   });
@@ -1631,7 +2534,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   el("boardCode").addEventListener(
     "input",
-    function () {
+    function() {
 
       updateActivationButton();
 
@@ -1648,71 +2551,60 @@ document.addEventListener("DOMContentLoaded", function () {
     "locationLabel",
     "personalPurpose",
     "boardName"
-  ].forEach(function (id) {
+  ].forEach(function(id) {
 
     el(id).addEventListener(
       "input",
-      function () {
+      function() {
 
         updateCustomizeButton();
 
-        if (id === "teamLabel") {
-          clearFieldError(
-            "teamLabel",
-            "teamLabelError"
-          );
-        }
+        const errorMap = {
+          teamLabel: "teamLabelError",
+          locationLabel: "locationLabelError",
+          personalPurpose: "personalPurposeError",
+          boardName: "boardNameError"
+        };
 
-        if (id === "locationLabel") {
-          clearFieldError(
-            "locationLabel",
-            "locationLabelError"
-          );
-        }
-
-        if (id === "personalPurpose") {
-          clearFieldError(
-            "personalPurpose",
-            "personalPurposeError"
-          );
-        }
-
-        if (id === "boardName") {
-          clearFieldError(
-            "boardName",
-            "boardNameError"
-          );
-        }
+        clearFieldError(
+          id,
+          errorMap[id]
+        );
       }
     );
   });
 
-
-  /* BUTTON EVENTS */
 
   el("accountContinue").addEventListener(
     "click",
     attemptAccountContinue
   );
 
+
   el("activateButton").addEventListener(
     "click",
     attemptActivation
   );
+
 
   el("customizeButton").addEventListener(
     "click",
     attemptCustomization
   );
 
+
   el("connectButton").addEventListener(
     "click",
-    function () {
-      if (selectedActions.length > 0) {
+    function() {
+
+      if (
+        selectedActions.length > 0
+      ) {
         prepareConnections();
       }
     }
   );
+
 
   el("finishButton").addEventListener(
     "click",
@@ -1720,39 +2612,49 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
 
+  el("dashboardButton").addEventListener(
+    "click",
+    openDashboard
+  );
+
+
   /* BACK BUTTONS */
 
   el("backToUse").addEventListener(
     "click",
-    function () {
+    function() {
       goToStep(1);
     }
   );
 
+
   el("backToAccount").addEventListener(
     "click",
-    function () {
+    function() {
       goToStep(2);
     }
   );
 
+
   el("backToActivation").addEventListener(
     "click",
-    function () {
+    function() {
       goToStep(3);
     }
   );
 
+
   el("backToCustomize").addEventListener(
     "click",
-    function () {
+    function() {
       goToStep(4);
     }
   );
 
+
   el("backToJourney").addEventListener(
     "click",
-    function () {
+    function() {
       goToStep(5);
     }
   );
