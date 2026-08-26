@@ -498,6 +498,15 @@ button {
   box-shadow: 0 8px 26px rgba(15,23,42,.035);
 }
 
+.board-card {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.board-card:active {
+  transform: scale(.995);
+}
+
 .board-header {
   display: flex;
   align-items: flex-start;
@@ -703,6 +712,207 @@ button {
   flex-shrink: 0;
 }
 
+/* =========================================
+   BOARD MANAGEMENT
+========================================= */
+
+.board-manager {
+  min-height: 100vh;
+  background: #f4f7fb;
+}
+
+.board-manager-shell {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 22px 18px 70px;
+}
+
+.manager-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 25px;
+}
+
+.manager-back {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #3978c8;
+  border: 1px solid #dfe7f1;
+  font-size: 22px;
+}
+
+.manager-title {
+  flex: 1;
+}
+
+.manager-title h1 {
+  margin: 0;
+  font-size: 27px;
+}
+
+.manager-title p {
+  margin: 4px 0 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.manager-card {
+  background: #ffffff;
+  border: 1px solid #e3e9f1;
+  border-radius: 20px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow: 0 8px 26px rgba(15,23,42,.035);
+}
+
+.manager-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.manager-board-name {
+  font-size: 22px;
+  font-weight: 850;
+}
+
+.manager-board-id {
+  margin-top: 5px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.manager-status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eaf8ef;
+  color: #2f9b55;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.manager-stats {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.manager-stat {
+  padding: 14px 8px;
+  background: #f7f9fc;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.manager-stat strong {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.manager-stat span {
+  color: #667085;
+  font-size: 11px;
+}
+
+.manager-section-title {
+  margin: 0 0 13px;
+  font-size: 19px;
+}
+
+.manager-journey {
+  padding: 15px;
+  border-radius: 14px;
+  background: #eef5ff;
+  color: #3978c8;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.manager-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.manager-action {
+  margin: 0;
+  background: #f7f9fc;
+  color: #334155;
+  border: 1px solid #dce4ef;
+  padding: 13px 10px;
+}
+
+.manager-action.primary-action {
+  background: #edf5ff;
+  color: #3978c8;
+}
+
+.rename-area {
+  margin-top: 14px;
+}
+
+.rename-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.rename-buttons button {
+  margin-top: 10px;
+}
+
+.destination-row {
+  padding: 13px;
+  background: #f7f9fc;
+  border-radius: 13px;
+  margin-top: 9px;
+}
+
+.destination-row strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.destination-url {
+  color: #667085;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.board-editor-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.board-editor-option {
+  padding: 14px 8px;
+  border: 1px solid #dce4ef;
+  border-radius: 14px;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+.board-editor-option.selected {
+  background: #eef5ff;
+  border-color: #6fa8f5;
+  color: #3978c8;
+}
+
 @media (min-width: 760px) {
   .stats-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -745,8 +955,6 @@ button {
     <div id="p6"></div>
   </div>
 
-  <!-- STEP 1 -->
-
   <section id="step1">
 
     <h2>How will you use CreateJourney?</h2>
@@ -784,8 +992,6 @@ button {
     </button>
 
   </section>
-
-  <!-- STEP 2 -->
 
   <section id="step2" class="hidden">
 
@@ -874,8 +1080,6 @@ button {
 
   </section>
 
-  <!-- STEP 3 -->
-
   <section id="step3" class="hidden">
 
     <h2>Activate your board</h2>
@@ -908,8 +1112,6 @@ button {
     </button>
 
   </section>
-
-  <!-- STEP 4 -->
 
   <section id="step4" class="hidden">
 
@@ -981,8 +1183,6 @@ button {
 
   </section>
 
-  <!-- STEP 5 -->
-
   <section id="step5" class="hidden">
 
     <h2>Build your first Journey</h2>
@@ -1021,8 +1221,6 @@ button {
 
   </section>
 
-  <!-- STEP 6 -->
-
   <section id="step6" class="hidden">
 
     <h2>Connect your Journey</h2>
@@ -1046,8 +1244,6 @@ button {
     </button>
 
   </section>
-
-  <!-- SUCCESS -->
 
   <section id="success" class="hidden success">
 
@@ -1117,9 +1313,6 @@ button {
 
   </div>
 
-
-  <!-- TODAY -->
-
   <section class="dashboard-section">
 
     <div class="section-heading">
@@ -1156,9 +1349,6 @@ button {
 
   </section>
 
-
-  <!-- QUICK ACTIONS -->
-
   <section class="dashboard-section">
 
     <div class="section-heading">
@@ -1167,17 +1357,17 @@ button {
 
     <div class="quick-grid">
 
-      <button class="quick-action">
+      <button id="quickAddBoard" class="quick-action">
         <strong>＋</strong>
         Add Board
       </button>
 
-      <button class="quick-action">
+      <button id="quickEditJourney" class="quick-action">
         <strong>↗</strong>
         Edit Journey
       </button>
 
-      <button class="quick-action">
+      <button id="quickInviteTeam" class="quick-action">
         <strong>＋</strong>
         Invite Team
       </button>
@@ -1191,16 +1381,14 @@ button {
 
     <div>
 
-      <!-- BOARDS -->
-
       <section class="dashboard-section">
 
         <div class="section-heading">
           <h3>Active boards</h3>
-          <button class="section-link">View all</button>
+          <button id="viewAllBoards" class="section-link">View all</button>
         </div>
 
-        <div class="board-card">
+        <div id="activeBoardCard" class="board-card">
 
           <div class="board-header">
 
@@ -1233,8 +1421,6 @@ button {
 
       </section>
 
-
-      <!-- PERFORMANCE -->
 
       <section class="dashboard-section">
 
@@ -1272,6 +1458,7 @@ button {
           <div class="performance-top">
 
             <div>
+
               <div
                 id="performanceNumber"
                 class="performance-number"
@@ -1285,6 +1472,7 @@ button {
               >
                 taps today
               </div>
+
             </div>
 
             <div class="stat-change">
@@ -1309,8 +1497,6 @@ button {
 
 
     <div>
-
-      <!-- JOURNEY -->
 
       <section class="dashboard-section">
 
@@ -1341,18 +1527,18 @@ button {
       </section>
 
 
-      <!-- SUPPORT -->
-
       <section class="dashboard-section">
 
         <div class="support-card">
 
           <div>
+
             <h4>Need help?</h4>
 
             <p>
               Get help with your board, Journey or setup.
             </p>
+
           </div>
 
           <button class="support-button">
@@ -1371,11 +1557,253 @@ button {
 </div>
 
 
+<!-- ======================================
+     BOARD MANAGEMENT
+======================================= -->
+
+<div id="boardManagerApp" class="board-manager hidden">
+
+<div class="board-manager-shell">
+
+  <div class="manager-topbar">
+
+    <button id="managerBack" class="manager-back">
+      ←
+    </button>
+
+    <div class="manager-title">
+
+      <h1>Board Management</h1>
+
+      <p>
+        Manage this board and its Journey.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="manager-card">
+
+    <div class="manager-heading">
+
+      <div>
+
+        <div
+          id="managerBoardName"
+          class="manager-board-name"
+        >
+          My Board
+        </div>
+
+        <div class="manager-board-id">
+          Board CJ-000001
+        </div>
+
+      </div>
+
+      <div class="manager-status">
+        Active
+      </div>
+
+    </div>
+
+
+    <div class="manager-stats">
+
+      <div class="manager-stat">
+        <strong>24</strong>
+        <span>Taps today</span>
+      </div>
+
+      <div class="manager-stat">
+        <strong>18</strong>
+        <span>Visitors</span>
+      </div>
+
+      <div class="manager-stat">
+        <strong>14</strong>
+        <span>Actions</span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="manager-card">
+
+    <h3 class="manager-section-title">
+      Current Journey
+    </h3>
+
+    <div
+      id="managerJourney"
+      class="manager-journey"
+    >
+      Pay → Review → Book
+    </div>
+
+
+    <div class="manager-actions">
+
+      <button
+        id="showJourneyEditor"
+        class="manager-action primary-action"
+      >
+        Edit Journey
+      </button>
+
+      <button
+        id="showRenameBoard"
+        class="manager-action"
+      >
+        Rename Board
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="boardJourneyEditor"
+    class="manager-card hidden"
+  >
+
+    <h3 class="manager-section-title">
+      Edit this Journey
+    </h3>
+
+    <p class="helper">
+      Choose up to 3 actions for this board.
+    </p>
+
+    <div
+      id="boardEditorActions"
+      class="board-editor-actions"
+    ></div>
+
+    <div class="note">
+      Changes here affect this board only.
+    </div>
+
+    <button
+      id="saveBoardJourney"
+      class="primary"
+    >
+      Save Journey
+    </button>
+
+  </div>
+
+
+  <div
+    id="renameBoardArea"
+    class="manager-card hidden"
+  >
+
+    <h3 class="manager-section-title">
+      Rename board
+    </h3>
+
+    <p class="helper">
+      Use a name that makes this board easy to identify.
+    </p>
+
+    <input
+      id="renameBoardInput"
+      placeholder="Example: Front Counter or Chair 4"
+    >
+
+    <div class="rename-buttons">
+
+      <button
+        id="cancelRename"
+        class="secondary"
+      >
+        Cancel
+      </button>
+
+      <button
+        id="saveBoardName"
+        class="primary ready"
+      >
+        Save Name
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="manager-card">
+
+    <h3 class="manager-section-title">
+      Journey destinations
+    </h3>
+
+    <div id="managerDestinations"></div>
+
+  </div>
+
+
+  <div class="manager-card">
+
+    <h3 class="manager-section-title">
+      Board activity
+    </h3>
+
+    <div class="journey-row">
+      <span>Total taps today</span>
+      <span>24</span>
+    </div>
+
+    <div class="journey-row">
+      <span>Unique visitors</span>
+      <span>18</span>
+    </div>
+
+    <div class="journey-row">
+      <span>Returning visitors</span>
+      <span>6</span>
+    </div>
+
+    <div class="journey-row">
+      <span>Last interaction</span>
+      <span>8 min ago</span>
+    </div>
+
+  </div>
+
+
+  <div class="manager-card">
+
+    <h3 class="manager-section-title">
+      Board controls
+    </h3>
+
+    <p class="helper">
+      Later this section will support reassignment, replacement, employee changes and deactivation.
+    </p>
+
+    <button class="secondary">
+      More board controls
+    </button>
+
+  </div>
+
+</div>
+</div>
+
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
   let useType = "";
   let selectedActions = [];
+  let boardEditorSelection = [];
 
 
   const actions = [
@@ -1487,14 +1915,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document
       .querySelectorAll("#onboardingApp section")
-      .forEach(function (section) {
+      .forEach(function(section) {
         section.classList.add("hidden");
       });
 
     el("step" + step).classList.remove("hidden");
 
     for (let i = 1; i <= 6; i++) {
-      el("p" + i).classList.toggle("active", i <= step);
+      el("p" + i).classList.toggle(
+        "active",
+        i <= step
+      );
     }
 
     if (step === 5) {
@@ -1617,11 +2048,13 @@ document.addEventListener("DOMContentLoaded", function () {
     let typeFilled = "";
 
     if (useType === "business") {
-      typeFilled = el("business").value.trim();
+      typeFilled =
+        el("business").value.trim();
     }
 
     if (useType === "personal") {
-      typeFilled = el("personalSetupName").value.trim();
+      typeFilled =
+        el("personalSetupName").value.trim();
     }
 
     return Boolean(
@@ -1688,7 +2121,9 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
 
       typeGood =
-        validText(el("personalSetupName").value);
+        validText(
+          el("personalSetupName").value
+        );
 
       showFieldError(
         "personalSetupName",
@@ -1712,7 +2147,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setReady(
       el("activateButton"),
-      Boolean(el("boardCode").value.trim())
+      Boolean(
+        el("boardCode").value.trim()
+      )
     );
   }
 
@@ -1769,7 +2206,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function attemptCustomization() {
 
     const boardGood =
-      validText(el("boardName").value);
+      validText(
+        el("boardName").value
+      );
 
     showFieldError(
       "boardName",
@@ -1782,10 +2221,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (useType === "business") {
 
       const teamGood =
-        validText(el("teamLabel").value);
+        validText(
+          el("teamLabel").value
+        );
 
       const locationGood =
-        validText(el("locationLabel").value);
+        validText(
+          el("locationLabel").value
+        );
 
       showFieldError(
         "teamLabel",
@@ -1805,7 +2248,9 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
 
       const purposeGood =
-        validText(el("personalPurpose").value);
+        validText(
+          el("personalPurpose").value
+        );
 
       showFieldError(
         "personalPurpose",
@@ -1813,10 +2258,14 @@ document.addEventListener("DOMContentLoaded", function () {
         !purposeGood
       );
 
-      otherGood = purposeGood;
+      otherGood =
+        purposeGood;
     }
 
-    if (boardGood && otherGood) {
+    if (
+      boardGood &&
+      otherGood
+    ) {
       goToStep(5);
     }
   }
@@ -1836,39 +2285,57 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const ordered = [
       ...suggested,
-      ...actions.filter(function(action) {
-        return !suggested.includes(action);
-      })
+      ...actions.filter(
+        function(action) {
+          return !suggested.includes(action);
+        }
+      )
     ];
 
 
-    ordered.forEach(function(name) {
+    ordered.forEach(
+      function(name) {
 
-      const div =
-        document.createElement("div");
+        const div =
+          document.createElement("div");
 
-      div.className =
-        "action";
+        div.className =
+          "action";
 
-      if (suggested.includes(name)) {
-        div.classList.add("suggested");
-      }
-
-      if (selectedActions.includes(name)) {
-        div.classList.add("selected");
-      }
-
-      div.textContent = name;
-
-      div.addEventListener(
-        "click",
-        function() {
-          toggleAction(div,name);
+        if (
+          suggested.includes(name)
+        ) {
+          div.classList.add(
+            "suggested"
+          );
         }
-      );
 
-      container.appendChild(div);
-    });
+        if (
+          selectedActions.includes(name)
+        ) {
+          div.classList.add(
+            "selected"
+          );
+        }
+
+        div.textContent =
+          name;
+
+        div.addEventListener(
+          "click",
+          function() {
+            toggleAction(
+              div,
+              name
+            );
+          }
+        );
+
+        container.appendChild(
+          div
+        );
+      }
+    );
   }
 
 
@@ -1880,9 +2347,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (exists) {
 
       selectedActions =
-        selectedActions.filter(function(item) {
-          return item !== name;
-        });
+        selectedActions.filter(
+          function(item) {
+            return item !== name;
+          }
+        );
 
       element.classList.remove(
         "selected"
@@ -1890,7 +2359,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     } else {
 
-      if (selectedActions.length >= 3) {
+      if (
+        selectedActions.length >= 3
+      ) {
 
         alert(
           "Keep it simple. A Journey can have a maximum of 3 actions."
@@ -1899,7 +2370,9 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      selectedActions.push(name);
+      selectedActions.push(
+        name
+      );
 
       element.classList.add(
         "selected"
@@ -1989,7 +2462,9 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         `;
 
-        container.appendChild(card);
+        container.appendChild(
+          card
+        );
 
         const input =
           el("url-" + index);
@@ -2000,14 +2475,18 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener(
           "input",
           function() {
-            updateConnection(index);
+            updateConnection(
+              index
+            );
           }
         );
 
         button.addEventListener(
           "click",
           function() {
-            testLink(index);
+            testLink(
+              index
+            );
           }
         );
       }
@@ -2073,7 +2552,9 @@ document.addEventListener("DOMContentLoaded", function () {
       el("test-" + index);
 
     const hasText =
-      Boolean(input.value.trim());
+      Boolean(
+        input.value.trim()
+      );
 
     testButton.classList.toggle(
       "ready",
@@ -2086,7 +2567,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateFinishButton() {
 
-    let allFilled = true;
+    let allFilled =
+      true;
 
     selectedActions.forEach(
       function(action,index) {
@@ -2098,7 +2580,8 @@ document.addEventListener("DOMContentLoaded", function () {
           !field ||
           !field.value.trim()
         ) {
-          allFilled = false;
+          allFilled =
+            false;
         }
       }
     );
@@ -2121,12 +2604,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const status =
       el("status-" + index);
 
-    if (!input.value.trim()) {
+    if (
+      !input.value.trim()
+    ) {
       return;
     }
 
     const valid =
-      isValidUrl(input.value);
+      isValidUrl(
+        input.value
+      );
 
     input.classList.toggle(
       "invalid",
@@ -2156,9 +2643,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const url =
-      normalizeUrl(input.value);
+      normalizeUrl(
+        input.value
+      );
 
-    input.value = url;
+    input.value =
+      url;
 
     status.textContent =
       "✓ Link ready";
@@ -2177,7 +2667,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function attemptFinish() {
 
-    let allGood = true;
+    let allGood =
+      true;
 
     selectedActions.forEach(
       function(action,index) {
@@ -2204,7 +2695,8 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         if (!valid) {
-          allGood = false;
+          allGood =
+            false;
         }
       }
     );
@@ -2223,11 +2715,13 @@ document.addEventListener("DOMContentLoaded", function () {
       .querySelectorAll(
         "#onboardingApp section"
       )
-      .forEach(function(section) {
-        section.classList.add(
-          "hidden"
-        );
-      });
+      .forEach(
+        function(section) {
+          section.classList.add(
+            "hidden"
+          );
+        }
+      );
 
     el("success").classList.remove(
       "hidden"
@@ -2240,13 +2734,18 @@ document.addEventListener("DOMContentLoaded", function () {
       .querySelectorAll(
         ".progress div"
       )
-      .forEach(function(item) {
-        item.classList.add(
-          "active"
-        );
-      });
+      .forEach(
+        function(item) {
+          item.classList.add(
+            "active"
+          );
+        }
+      );
 
-    window.scrollTo(0,0);
+    window.scrollTo(
+      0,
+      0
+    );
   }
 
 
@@ -2259,19 +2758,27 @@ document.addEventListener("DOMContentLoaded", function () {
     today: {
       total: 24,
       caption: "taps today",
-      bars: [22,35,28,48,42,65,75,58,82,70]
+      bars: [
+        22,35,28,48,42,
+        65,75,58,82,70
+      ]
     },
 
     "7": {
       total: 143,
       caption: "taps in the last 7 days",
-      bars: [35,52,44,68,61,76,88]
+      bars: [
+        35,52,44,68,61,76,88
+      ]
     },
 
     "30": {
       total: 618,
       caption: "taps in the last 30 days",
-      bars: [30,45,38,56,61,47,72,68,79,82,65,90]
+      bars: [
+        30,45,38,56,61,47,
+        72,68,79,82,65,90
+      ]
     }
 
   };
@@ -2280,6 +2787,10 @@ document.addEventListener("DOMContentLoaded", function () {
   function openDashboard() {
 
     el("onboardingApp").classList.add(
+      "hidden"
+    );
+
+    el("boardManagerApp").classList.add(
       "hidden"
     );
 
@@ -2346,8 +2857,10 @@ document.addEventListener("DOMContentLoaded", function () {
       rangeData.today.bars
     );
 
-
-    window.scrollTo(0,0);
+    window.scrollTo(
+      0,
+      0
+    );
   }
 
 
@@ -2356,7 +2869,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const container =
       el("journeyActionStats");
 
-    container.innerHTML = "";
+    container.innerHTML =
+      "";
 
 
     const mockCounts = [
@@ -2380,7 +2894,9 @@ document.addEventListener("DOMContentLoaded", function () {
           <span>${mockCounts[index] || 0} actions</span>
         `;
 
-        container.appendChild(row);
+        container.appendChild(
+          row
+        );
       }
     );
   }
@@ -2391,7 +2907,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const chart =
       el("chart");
 
-    chart.innerHTML = "";
+    chart.innerHTML =
+      "";
 
 
     values.forEach(
@@ -2414,58 +2931,382 @@ document.addEventListener("DOMContentLoaded", function () {
           value + "%";
 
 
-        wrap.appendChild(bar);
+        wrap.appendChild(
+          bar
+        );
 
-        chart.appendChild(wrap);
+        chart.appendChild(
+          wrap
+        );
       }
     );
   }
 
 
   document
-    .querySelectorAll(".range-tab")
-    .forEach(function(button) {
+    .querySelectorAll(
+      ".range-tab"
+    )
+    .forEach(
+      function(button) {
 
-      button.addEventListener(
-        "click",
-        function() {
+        button.addEventListener(
+          "click",
+          function() {
 
-          document
-            .querySelectorAll(".range-tab")
-            .forEach(function(tab) {
-              tab.classList.remove(
-                "selected"
+            document
+              .querySelectorAll(
+                ".range-tab"
+              )
+              .forEach(
+                function(tab) {
+                  tab.classList.remove(
+                    "selected"
+                  );
+                }
               );
-            });
 
 
-          button.classList.add(
+            button.classList.add(
+              "selected"
+            );
+
+
+            const range =
+              button.dataset.range;
+
+
+            const data =
+              rangeData[range];
+
+
+            el("performanceNumber").textContent =
+              data.total;
+
+
+            el("performanceCaption").textContent =
+              data.caption;
+
+
+            renderChart(
+              data.bars
+            );
+          }
+        );
+      }
+    );
+
+
+  /* =====================================
+     BOARD MANAGEMENT
+  ===================================== */
+
+  function openBoardManager() {
+
+    el("dashboardApp").classList.add(
+      "hidden"
+    );
+
+    el("boardManagerApp").classList.remove(
+      "hidden"
+    );
+
+
+    const boardName =
+      el("boardName").value.trim() ||
+      "My Board";
+
+
+    el("managerBoardName").textContent =
+      boardName;
+
+
+    el("renameBoardInput").value =
+      boardName;
+
+
+    const journey =
+      selectedActions.length
+        ? selectedActions.join(" → ")
+        : "No Journey configured";
+
+
+    el("managerJourney").textContent =
+      journey;
+
+
+    renderManagerDestinations();
+
+
+    el("boardJourneyEditor").classList.add(
+      "hidden"
+    );
+
+    el("renameBoardArea").classList.add(
+      "hidden"
+    );
+
+
+    window.scrollTo(
+      0,
+      0
+    );
+  }
+
+
+  function closeBoardManager() {
+
+    el("boardManagerApp").classList.add(
+      "hidden"
+    );
+
+    el("dashboardApp").classList.remove(
+      "hidden"
+    );
+
+    window.scrollTo(
+      0,
+      0
+    );
+  }
+
+
+  function renderManagerDestinations() {
+
+    const container =
+      el("managerDestinations");
+
+    container.innerHTML =
+      "";
+
+
+    if (
+      selectedActions.length === 0
+    ) {
+
+      container.innerHTML =
+        '<div class="note">No Journey destinations configured.</div>';
+
+      return;
+    }
+
+
+    selectedActions.forEach(
+      function(action,index) {
+
+        const input =
+          el("url-" + index);
+
+        const url =
+          input && input.value
+            ? input.value
+            : "Destination configured during setup";
+
+
+        const row =
+          document.createElement("div");
+
+        row.className =
+          "destination-row";
+
+
+        row.innerHTML = `
+          <strong>${action}</strong>
+
+          <div class="destination-url">
+            ${url}
+          </div>
+        `;
+
+
+        container.appendChild(
+          row
+        );
+      }
+    );
+  }
+
+
+  function renderBoardJourneyEditor() {
+
+    boardEditorSelection =
+      [...selectedActions];
+
+
+    const container =
+      el("boardEditorActions");
+
+    container.innerHTML =
+      "";
+
+
+    actions.forEach(
+      function(action) {
+
+        const option =
+          document.createElement("div");
+
+        option.className =
+          "board-editor-option";
+
+        option.textContent =
+          action;
+
+
+        if (
+          boardEditorSelection.includes(
+            action
+          )
+        ) {
+
+          option.classList.add(
             "selected"
           );
-
-
-          const range =
-            button.dataset.range;
-
-
-          const data =
-            rangeData[range];
-
-
-          el("performanceNumber").textContent =
-            data.total;
-
-
-          el("performanceCaption").textContent =
-            data.caption;
-
-
-          renderChart(
-            data.bars
-          );
         }
-      );
-    });
+
+
+        option.addEventListener(
+          "click",
+          function() {
+
+            const exists =
+              boardEditorSelection.includes(
+                action
+              );
+
+
+            if (exists) {
+
+              boardEditorSelection =
+                boardEditorSelection.filter(
+                  function(item) {
+                    return item !== action;
+                  }
+                );
+
+              option.classList.remove(
+                "selected"
+              );
+
+            } else {
+
+              if (
+                boardEditorSelection.length >= 3
+              ) {
+
+                alert(
+                  "A Journey can have a maximum of 3 actions."
+                );
+
+                return;
+              }
+
+
+              boardEditorSelection.push(
+                action
+              );
+
+              option.classList.add(
+                "selected"
+              );
+            }
+
+
+            setReady(
+              el("saveBoardJourney"),
+              boardEditorSelection.length > 0
+            );
+          }
+        );
+
+
+        container.appendChild(
+          option
+        );
+      }
+    );
+
+
+    setReady(
+      el("saveBoardJourney"),
+      boardEditorSelection.length > 0
+    );
+  }
+
+
+  function saveBoardJourneyChanges() {
+
+    if (
+      boardEditorSelection.length === 0
+    ) {
+      return;
+    }
+
+
+    selectedActions =
+      [...boardEditorSelection];
+
+
+    const journey =
+      selectedActions.join(" → ");
+
+
+    el("managerJourney").textContent =
+      journey;
+
+
+    el("dashboardJourney").textContent =
+      journey;
+
+
+    el("dashboardJourneySequence").textContent =
+      journey;
+
+
+    el("finalJourney").textContent =
+      journey;
+
+
+    renderJourneyStats();
+
+    renderManagerDestinations();
+
+
+    el("boardJourneyEditor").classList.add(
+      "hidden"
+    );
+  }
+
+
+  function saveBoardRename() {
+
+    const newName =
+      el("renameBoardInput")
+        .value
+        .trim();
+
+
+    if (!newName) {
+      return;
+    }
+
+
+    el("boardName").value =
+      newName;
+
+
+    el("managerBoardName").textContent =
+      newName;
+
+
+    el("dashboardBoardName").textContent =
+      newName;
+
+
+    el("renameBoardArea").classList.add(
+      "hidden"
+    );
+  }
 
 
   /* =====================================
@@ -2475,7 +3316,9 @@ document.addEventListener("DOMContentLoaded", function () {
   el("businessChoice").addEventListener(
     "click",
     function() {
-      selectUseType("business");
+      selectUseType(
+        "business"
+      );
     }
   );
 
@@ -2483,7 +3326,9 @@ document.addEventListener("DOMContentLoaded", function () {
   el("personalChoice").addEventListener(
     "click",
     function() {
-      selectUseType("personal");
+      selectUseType(
+        "personal"
+      );
     }
   );
 
@@ -2507,29 +3352,31 @@ document.addEventListener("DOMContentLoaded", function () {
     "personalSetupName",
     "email",
     "password"
-  ].forEach(function(id) {
+  ].forEach(
+    function(id) {
 
-    el(id).addEventListener(
-      "input",
-      function() {
+      el(id).addEventListener(
+        "input",
+        function() {
 
-        updateAccountButton();
+          updateAccountButton();
 
-        const errorMap = {
-          name: "nameError",
-          business: "businessError",
-          personalSetupName: "personalSetupError",
-          email: "emailError",
-          password: "passwordError"
-        };
+          const errorMap = {
+            name: "nameError",
+            business: "businessError",
+            personalSetupName: "personalSetupError",
+            email: "emailError",
+            password: "passwordError"
+          };
 
-        clearFieldError(
-          id,
-          errorMap[id]
-        );
-      }
-    );
-  });
+          clearFieldError(
+            id,
+            errorMap[id]
+          );
+        }
+      );
+    }
+  );
 
 
   el("boardCode").addEventListener(
@@ -2551,28 +3398,30 @@ document.addEventListener("DOMContentLoaded", function () {
     "locationLabel",
     "personalPurpose",
     "boardName"
-  ].forEach(function(id) {
+  ].forEach(
+    function(id) {
 
-    el(id).addEventListener(
-      "input",
-      function() {
+      el(id).addEventListener(
+        "input",
+        function() {
 
-        updateCustomizeButton();
+          updateCustomizeButton();
 
-        const errorMap = {
-          teamLabel: "teamLabelError",
-          locationLabel: "locationLabelError",
-          personalPurpose: "personalPurposeError",
-          boardName: "boardNameError"
-        };
+          const errorMap = {
+            teamLabel: "teamLabelError",
+            locationLabel: "locationLabelError",
+            personalPurpose: "personalPurposeError",
+            boardName: "boardNameError"
+          };
 
-        clearFieldError(
-          id,
-          errorMap[id]
-        );
-      }
-    );
-  });
+          clearFieldError(
+            id,
+            errorMap[id]
+          );
+        }
+      );
+    }
+  );
 
 
   el("accountContinue").addEventListener(
@@ -2615,6 +3464,79 @@ document.addEventListener("DOMContentLoaded", function () {
   el("dashboardButton").addEventListener(
     "click",
     openDashboard
+  );
+
+
+  el("activeBoardCard").addEventListener(
+    "click",
+    openBoardManager
+  );
+
+
+  el("viewAllBoards").addEventListener(
+    "click",
+    openBoardManager
+  );
+
+
+  el("managerBack").addEventListener(
+    "click",
+    closeBoardManager
+  );
+
+
+  el("showJourneyEditor").addEventListener(
+    "click",
+    function() {
+
+      renderBoardJourneyEditor();
+
+      el("boardJourneyEditor").classList.toggle(
+        "hidden"
+      );
+
+      el("renameBoardArea").classList.add(
+        "hidden"
+      );
+    }
+  );
+
+
+  el("showRenameBoard").addEventListener(
+    "click",
+    function() {
+
+      el("renameBoardArea").classList.toggle(
+        "hidden"
+      );
+
+      el("boardJourneyEditor").classList.add(
+        "hidden"
+      );
+    }
+  );
+
+
+  el("cancelRename").addEventListener(
+    "click",
+    function() {
+
+      el("renameBoardArea").classList.add(
+        "hidden"
+      );
+    }
+  );
+
+
+  el("saveBoardName").addEventListener(
+    "click",
+    saveBoardRename
+  );
+
+
+  el("saveBoardJourney").addEventListener(
+    "click",
+    saveBoardJourneyChanges
   );
 
 
