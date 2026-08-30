@@ -171,7 +171,89 @@ async function logoutUser(){if(!confirm("Sign out of CreateJourney on this devic
 async function bootstrapCloudWorkspace(){if(!backendReady)return true;const {data:{user}}=await sb.auth.getUser();if(!user)return false;const payload={p_workspace_name:workspaceName(),p_use_type:useType,p_board_code:el("boardCode").value.trim(),p_board_name:el("boardName").value.trim(),p_actions:selectedActions,p_destinations:connectionValues};const{data,error}=await sb.rpc("bootstrap_workspace",payload);if(error){alert("Backend setup: "+error.message);return false}backendWorkspaceId=data;localStorage.removeItem("cj_pending_onboarding");localStorage.removeItem("cj_pending_signup");return true}
 async function syncCloudSnapshot(){if(!backendReady||!backendWorkspaceId||actualRole==="Employee")return;const state=serializableState();const{error}=await sb.from("workspace_state").upsert({workspace_id:backendWorkspaceId,state,updated_at:new Date().toISOString()},{onConflict:"workspace_id"});if(error)console.warn("Cloud sync failed",error.message)}
 async function hydrateWorkspaceMembership(user,members){if(!members?.length)return false;backendWorkspaceId=members[0].workspace_id;actualRole=members[0].role||"Owner";currentRole=actualRole;const{data:rows,error:stateErr}=await sb.from("workspace_state").select("state").eq("workspace_id",backendWorkspaceId).maybeSingle();if(stateErr)console.warn(stateErr.message);if(rows?.state){localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(rows.state));restoreLocalState()}const{data:ws}=await sb.from("workspaces").select("name,use_type").eq("id",backendWorkspaceId).single();if(ws){useType=ws.use_type||useType;if(useType==="business")el("business").value=ws.name||"";else el("personalSetupName").value=ws.name||""}el("email").value=user.email||"";el("name").value=user.user_metadata?.name||el("name").value||user.email?.split("@")[0]||"User";return true}
-async function loadCloudWorkspace(user=null){if(authRouting)return false;authRouting=true;try{if(!backendReady)return false;if(!user){const r=await sb.auth.getUser();user=r.data.user}if(!user){showAuth();return false}signedInEmail=user.email||"";await checkPlatformAdmin();await sb.rpc("claim_my_invites");const{data:members,error}=await sb.from("workspace_members").select("workspace_id,role,can_edit_journey").eq("user_id",user.id).order("created_at",{ascending:true}).limit(1);if(error){setAuthMessage(error.message,"bad");showAuth();return false}if(isPlatformAdmin){if(members?.length)await hydrateWorkspaceMembership(user,members);else{backendWorkspaceId=null;el("email").value=user.email||"";el("name").value=user.user_metadata?.name||user.email?.split("@")[0]||"Admin"}await openAdminConsole();return true}if(!members?.length){const pending=JSON.parse(localStorage.getItem("cj_pending_signup")||"null");if(pending&&(!pending.email||pending.email.toLowerCase()===String(user.email||"").toLowerCase())){useType=pending.useType||user.user_metadata?.use_type||"business";el("name").value=pending.name||user.user_metadata?.name||"";el("email").value=pending.email||user.email||"";const setup=pending.setupName||user.user_metadata?.setup_name||"";if(useType==="business")el("business").value=setup;else el("personalSetupName").value=setup;updateConditionalFields();showOnly("onboardingApp");goToStep(3);return false}showOnly("onboardingApp");goToStep(1);return false}await hydrateWorkspaceMembership(user,members);openDashboard();return true}finally{authRouting=false}}
+/* ========================================
+   #82 AUTH ROLE ROUTING - BUILD 5.2.2
+   Super Admin is checked BEFORE customer workspace membership.
+   ======================================== */
+async function loadCloudWorkspace(user=null){
+  if(authRouting)return false;
+  authRouting=true;
+  try{
+    if(!backendReady)return false;
+    if(!user){
+      const r=await sb.auth.getUser();
+      user=r.data.user;
+    }
+    if(!user){
+      showAuth();
+      return false;
+    }
+    signedInEmail=user.email||"";
+
+    const adminAllowed=await checkPlatformAdmin();
+    if(adminAllowed){
+      backendWorkspaceId=null;
+      actualRole="Owner";
+      currentRole="Owner";
+      el("email").value=user.email||"";
+      el("name").value=user.user_metadata?.name||user.email?.split("@")[0]||"Admin";
+      setAuthMessage("");
+      await openAdminConsole();
+      return true;
+    }
+
+    try{
+      await sb.rpc("claim_my_invites");
+    }catch(inviteErr){
+      console.warn("Invite claim check failed",inviteErr);
+    }
+
+    const{data:members,error}=await sb
+      .from("workspace_members")
+      .select("workspace_id,role,can_edit_journey")
+      .eq("user_id",user.id)
+      .order("created_at",{ascending:true})
+      .limit(1);
+
+    if(error){
+      console.error("Workspace membership lookup failed",error);
+      setAuthMessage("Your account signed in, but CreateJourney could not load your workspace access.","bad");
+      showAuth();
+      return false;
+    }
+
+    if(!members?.length){
+      const pending=JSON.parse(localStorage.getItem("cj_pending_signup")||"null");
+      if(pending&&(!pending.email||pending.email.toLowerCase()===String(user.email||"").toLowerCase())){
+        useType=pending.useType||user.user_metadata?.use_type||"business";
+        el("name").value=pending.name||user.user_metadata?.name||"";
+        el("email").value=pending.email||user.email||"";
+        const setup=pending.setupName||user.user_metadata?.setup_name||"";
+        if(useType==="business")el("business").value=setup;
+        else el("personalSetupName").value=setup;
+        updateConditionalFields();
+        showOnly("onboardingApp");
+        goToStep(3);
+        return false;
+      }
+      showOnly("onboardingApp");
+      goToStep(1);
+      return false;
+    }
+
+    await hydrateWorkspaceMembership(user,members);
+    openDashboard();
+    return true;
+  }catch(err){
+    console.error("Authentication routing failed",err);
+    setAuthMessage("CreateJourney could not finish loading your account.","bad");
+    showAuth();
+    return false;
+  }finally{
+    authRouting=false;
+  }
+}
+
 async function initializeSession(){initBackend();updateBackendBadges();if(backendReady){const{data:{session}}=await sb.auth.getSession();if(session){await loadCloudWorkspace(session.user);return}sb.auth.onAuthStateChange(async(event,session)=>{if(session&&(event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")){await loadCloudWorkspace(session.user)}});showAuth();return}if(localStorage.getItem("cj_local_session")==="1"&&restoreLocalState()){openDashboard();return}showAuth();updateConditionalFields()}
 function logAudit(text,boardId=null){const item={text,time:nowText(),boardId};auditLog.unshift(item);if(boardId){const b=getBoard(boardId);if(b)b.activity.unshift(item)}renderAudits();if(!restoring)persistLocalState()}
 function showOnly(id){["authApp","onboardingApp","dashboardApp","boardsLibraryApp","boardManagerApp","addBoardApp","teamManagerApp","adminConsoleApp"].forEach(x=>el(x).classList.toggle("hidden",x!==id));const showAI=!(["authApp","onboardingApp","adminConsoleApp"].includes(id));el("aiLauncher").classList.toggle("hidden",!showAI);window.scrollTo(0,0);if(typeof updateAiContext==="function")updateAiContext()}
