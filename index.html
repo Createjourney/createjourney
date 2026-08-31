@@ -172,7 +172,7 @@ async function bootstrapCloudWorkspace(){if(!backendReady)return true;const {dat
 async function syncCloudSnapshot(){if(!backendReady||!backendWorkspaceId||actualRole==="Employee")return;const state=serializableState();const{error}=await sb.from("workspace_state").upsert({workspace_id:backendWorkspaceId,state,updated_at:new Date().toISOString()},{onConflict:"workspace_id"});if(error)console.warn("Cloud sync failed",error.message)}
 async function hydrateWorkspaceMembership(user,members){if(!members?.length)return false;backendWorkspaceId=members[0].workspace_id;actualRole=members[0].role||"Owner";currentRole=actualRole;const{data:rows,error:stateErr}=await sb.from("workspace_state").select("state").eq("workspace_id",backendWorkspaceId).maybeSingle();if(stateErr)console.warn(stateErr.message);if(rows?.state){localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(rows.state));restoreLocalState()}const{data:ws}=await sb.from("workspaces").select("name,use_type").eq("id",backendWorkspaceId).single();if(ws){useType=ws.use_type||useType;if(useType==="business")el("business").value=ws.name||"";else el("personalSetupName").value=ws.name||""}el("email").value=user.email||"";el("name").value=user.user_metadata?.name||el("name").value||user.email?.split("@")[0]||"User";return true}
 /* ========================================
-   #82 AUTH ROLE ROUTING - BUILD 5.4
+   #82 AUTH ROLE ROUTING - BUILD 5.4.1
    Super Admin is checked BEFORE customer workspace membership.
    ======================================== */
 async function loadCloudWorkspace(user=null){
@@ -426,7 +426,7 @@ async function startRealtimeVoice(){
     const{data:{session},error:sessionError}=await sb.auth.getSession();
     if(sessionError||!session?.access_token)throw new Error("Sign in again before starting live voice.");
     addAiMessage("ai","Connecting live voice...");
-    const tokenResponse=await fetch(`${SUPABASE_URL}/functions/v1/journey-ai-session`,{
+    const tokenResponse=await fetch(`${SUPABASE_URL}/functions/v1/journey-ai-realtime`,{
       method:"POST",
       headers:{
         Authorization:`Bearer ${session.access_token}`,
