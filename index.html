@@ -54,6 +54,317 @@
 
 
 
+
+
+/* SECTION 11.0 - BUSINESS INTELLIGENCE COMMAND CENTER */
+function biPct(n,d){return d>0?(n/d)*100:0}
+function biBoardRows(){
+  return visibleBoards().map(b=>{
+    const taps=Number(b.analytics?.taps||0),visitors=Number(b.analytics?.visitors||0),actions=Number(b.analytics?.actionsTaken||b.analytics?.actions||0),rate=biPct(actions,taps);
+    return{id:b.id,name:b.name,status:b.active?"Active":"Paused",taps,visitors,actions,rate,journey:Array.isArray(b.actions)?b.actions:[]}
+  }).sort((a,b)=>b.taps-a.taps)
+}
+function biLocalSnapshot(){
+  const totals=getTotals(visibleBoards()),boardRows=biBoardRows(),measured=aiMeasuredCampaignsList();
+  return{
+    id:"bis_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),
+    capturedAt:new Date().toISOString(),
+    source:"CreateJourney workspace",
+    totals:{taps:Number(totals.taps||0),visitors:Number(totals.visitors||0),returning:Number(totals.returning||0),actionsTaken:Number(totals.actionsTaken||0)},
+    actionRate:biPct(Number(totals.actionsTaken||0),Number(totals.taps||0)),
+    activeBoards:boardRows.filter(b=>b.status==="Active").length,
+    boardCount:boardRows.length,
+    measuredCampaigns:measured.length,
+    learningConfidence:aiLearningConfidenceLevel(),
+    boards:boardRows,
+    providerData:null
+  }
+}
+async function refreshBusinessIntelligence(showAlert=false){
+  const snap=biLocalSnapshot(),res=await aiActionBackendRequest("business_intelligence_snapshot",{workspaceId:backendWorkspaceId||null,localSnapshot:snap,connectedProviders:(connectedAccounts||[]).filter(c=>c.status==="connected"&&c.aiAccess).map(c=>c.providerId)});
+  if(res?.ok){
+    const pd=res.snapshot||res.data||res.intelligence;
+    if(pd&&typeof pd==="object"){snap.providerData=pd;snap.source="CreateJourney + authorized provider data"}
+  }
+  aiBusinessSnapshots.unshift(snap);if(aiBusinessSnapshots.length>60)aiBusinessSnapshots=aiBusinessSnapshots.slice(0,60);aiIntelligenceSyncAt=snap.capturedAt;rebuildAttributionRecords();rebuildAdvisorModels();persistLocalState();renderBusinessIntelligence();if(showAlert)alert(res?.ok?"Business intelligence refreshed with available connected data.":"CreateJourney intelligence refreshed. Connected-provider intelligence was not confirmed, so only available CreateJourney data is being used.");return snap
+}
+function currentBusinessSnapshot(){return aiBusinessSnapshots[0]||biLocalSnapshot()}
+function biHealthInsights(){
+  const s=currentBusinessSnapshot(),rows=[],boards=s.boards||[];
+  if(!boards.length)return[{title:"No board data yet",text:"Journey AI needs SmartBoard activity before it can compare performance.",evidence:"Insufficient data",tone:"warn"}];
+  const best=[...boards].sort((a,b)=>b.rate-a.rate)[0];
+  if(best&&best.taps>0)rows.push({title:`${best.name} has the highest recorded action rate`,text:`${best.rate.toFixed(1)}% of recorded taps currently lead to a CreateJourney action on this board. This is an observed workspace metric, not revenue conversion.`,evidence:"Observed",tone:"good"});
+  const paused=boards.filter(b=>b.status==="Paused").length;if(paused)rows.push({title:`${paused} board${paused===1?" is":"s are"} paused`,text:"Paused boards are excluded from active-board count but remain visible in historical comparisons.",evidence:"Observed",tone:"warn"});
+  if(s.measuredCampaigns===0)rows.push({title:"Campaign learning is still thin",text:"No measured campaign has enough outcome data to support campaign-specific learning yet.",evidence:"Insufficient data",tone:"warn"});
+  else rows.push({title:`${s.measuredCampaigns} campaign${s.measuredCampaigns===1?" has":"s have"} measured outcomes`,text:`Journey AI learning confidence is currently ${s.learningConfidence}.`,evidence:"Observed",tone:"good"});
+  if(s.actionRate<5&&s.totals.taps>=20)rows.push({title:"Recorded action rate is low",text:`The current workspace action rate is ${s.actionRate.toFixed(1)}%. Journey AI can inspect individual boards and Journeys before recommending a change.`,evidence:"Observed",tone:"bad"});
+  return rows.slice(0,6)
+}
+function renderBusinessIntelligence(){
+  const s=currentBusinessSnapshot();el("biTotalTaps").textContent=s.totals.taps;el("biActionRate").textContent=`${s.actionRate.toFixed(1)}%`;el("biActiveBoards").textContent=s.activeBoards;el("biMeasuredCampaignCount").textContent=s.measuredCampaigns;el("biConfidenceNote").textContent=`Learning confidence: ${s.learningConfidence}`;el("biTapsNote").textContent=s.source;el("biBoardCountNote").textContent=`${s.boardCount} board${s.boardCount===1?"":"s"} visible`;
+  const bp=el("biBoardPerformance");const boards=s.boards||[];bp.innerHTML=boards.length?`<div class="bi-table-wrap"><table class="bi-table"><thead><tr><th>Board</th><th>Status</th><th>Taps</th><th>Actions</th><th>Action rate</th><th>Journey</th></tr></thead><tbody>${boards.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.status)}</td><td>${b.taps}</td><td>${b.actions}</td><td>${b.rate.toFixed(1)}%</td><td>${esc((b.journey||[]).join(" -> ")||"-")}</td></tr>`).join("")}</tbody></table></div>`:'<div class="ai-copilot-empty">No board analytics are available yet.</div>';
+  const health=el("biHealthInsights");health.innerHTML="";biHealthInsights().forEach(x=>{const d=document.createElement("div");d.className="bi-insight";d.innerHTML=`<div class="bi-insight-head"><h4>${esc(x.title)}</h4><span class="bi-badge ${x.tone||""}">${esc(x.evidence)}</span></div><p>${esc(x.text)}</p>`;health.appendChild(d)});
+  const cp=el("biCampaignPerformance"),measured=aiMeasuredCampaignsList().slice(0,12);cp.innerHTML=measured.length?`<div class="bi-table-wrap"><table class="bi-table"><thead><tr><th>Campaign</th><th>Metric</th><th>Change</th><th>Evidence source</th></tr></thead><tbody>${measured.map(c=>{const r=c.results||{},pct=r.primaryDeltaPct;return`<tr><td><strong>${esc(c.name)}</strong></td><td>${esc(r.metric||"-")}</td><td>${typeof pct==="number"?`${pct>=0?"+":""}${pct.toFixed(1)}%`:"Measured"}</td><td>${esc(r.source||"CreateJourney")}</td></tr>`}).join("")}</tbody></table></div>`:'<div class="ai-copilot-empty">No measured campaigns yet.</div>';
+  el("biSnapshotStatus").textContent=`Last intelligence snapshot: ${aiIntelligenceSyncAt?new Date(aiIntelligenceSyncAt).toLocaleString():"current local workspace view"}. ${s.providerData?"Authorized provider data is included where supplied by the backend.":"No connected-provider intelligence has been confirmed in this snapshot."}`
+}
+function askBusinessIntelligence(){
+  const q=String(el("biQuestion").value||"").trim();if(!q){el("biQuestion").focus();return}openAI();el("aiInput").value=`Business intelligence question: ${q}. Use the current business snapshot, measured campaigns, attribution records and advisor context. Clearly distinguish observed facts, likely relationships, forecasts and insufficient data.`;el("aiInput").focus()
+}
+
+/* SECTION 11.1 - PERFORMANCE INTELLIGENCE + ATTRIBUTION */
+function attributionStrength(c){
+  const r=c.results||{},source=String(r.source||"").toLowerCase(),hasTrace=!!(r.attributionId||r.traceId||r.eventLinkage||r.deterministic===true);
+  if(hasTrace)return{label:"Deterministically attributed",level:"high",explanation:"A backend supplied traceable event-level linkage for this outcome."};
+  if(typeof r.primaryDeltaPct==="number"&&source.includes("connected"))return{label:"Likely related",level:"medium",explanation:"Authorized provider measurement and campaign timing support an association, but this is not deterministic attribution."};
+  if(typeof r.primaryDeltaPct==="number")return{label:"Observed association",level:"low",explanation:"A before/after change was measured locally. Other factors may have contributed."};
+  return{label:"Insufficient attribution data",level:"low",explanation:"The campaign is measured, but there is not enough linkage to estimate attribution strength."}
+}
+function rebuildAttributionRecords(){
+  aiAttributionRecords=aiMeasuredCampaignsList().map(c=>{
+    const s=attributionStrength(c),r=c.results||{};
+    return{id:"attr_"+c.id,campaignId:c.id,title:c.name,channels:c.channels||[],objective:c.objective,strength:s.label,confidence:s.level,explanation:s.explanation,metric:r.metric||"Campaign outcome",deltaPct:typeof r.primaryDeltaPct==="number"?r.primaryDeltaPct:null,source:r.source||"CreateJourney",measuredAt:r.measuredAt||c.updatedAt||null,path:[...(c.channels||[]).map(aiCampaignChannelLabel),"CreateJourney Journey",r.metric||"Recorded outcome"],deterministic:s.label==="Deterministically attributed"}
+  });return aiAttributionRecords
+}
+function renderAttributionIntelligence(){
+  rebuildAttributionRecords();const list=el("attributionList");list.innerHTML="";
+  if(!aiAttributionRecords.length)list.innerHTML='<div class="ai-copilot-empty">No measured campaigns are available for attribution analysis yet.</div>';
+  aiAttributionRecords.slice(0,25).forEach(a=>{const d=document.createElement("div");d.className="attribution-item";d.innerHTML=`<div class="attribution-head"><h4>${esc(a.title)}</h4><span class="bi-badge ${a.confidence==="high"?"good":a.confidence==="low"?"warn":""}">${esc(a.strength)}</span></div><div class="attribution-path">${a.path.map((p,i)=>`${i?'<span class="attribution-arrow">-&gt;</span>':""}<span class="attribution-node">${esc(p)}</span>`).join("")}</div><p>${esc(a.explanation)}</p><div class="bi-meta"><span>${esc(a.metric)}</span><span>${typeof a.deltaPct==="number"?`${a.deltaPct>=0?"+":""}${a.deltaPct.toFixed(1)}%`:"No comparable delta"}</span><span>${esc(a.source)}</span></div>`;list.appendChild(d)});
+  const rows=biBoardRows(),jt=el("attributionJourneyTable");jt.innerHTML=rows.length?`<div class="bi-table-wrap"><table class="bi-table"><thead><tr><th>Board</th><th>Journey</th><th>Taps</th><th>Actions</th><th>Recorded action rate</th></tr></thead><tbody>${rows.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td>${esc((b.journey||[]).join(" -> ")||"-")}</td><td>${b.taps}</td><td>${b.actions}</td><td>${b.rate.toFixed(1)}%</td></tr>`).join("")}</tbody></table></div>`:'<div class="ai-copilot-empty">No Journey performance data yet.</div>';
+  const hasDet=aiAttributionRecords.some(a=>a.deterministic);el("attributionLimitations").textContent=hasDet?"Some records include backend-confirmed traceable linkage. Other before/after results remain associations unless their own event-level linkage is present.":"Current local data cannot prove that a post, promotion or channel caused a later business outcome. Journey AI can show timing, measured changes and associations, but deterministic attribution requires event-level tracking from authorized systems."
+}
+
+/* SECTION 11.2 - FORECASTING + BUSINESS ADVISOR */
+function advisorEvidenceScore(){
+  const measured=aiMeasuredCampaignsList().length,snaps=aiBusinessSnapshots.length,boards=biBoardRows().filter(b=>b.taps>=10).length;
+  return Math.min(100,measured*10+Math.min(snaps,12)*3+boards*4)
+}
+function rebuildAdvisorModels(){
+  const measured=aiMeasuredCampaignsList(),forecasts=[],anomalies=[],byObjective={};
+  measured.forEach(c=>{if(typeof c.results?.primaryDeltaPct==="number")(byObjective[c.objective]||(byObjective[c.objective]=[])).push(c.results.primaryDeltaPct)});
+  Object.entries(byObjective).forEach(([objective,vals])=>{
+    if(vals.length<3)return;const avg=vals.reduce((a,b)=>a+b,0)/vals.length,variance=vals.reduce((s,x)=>s+Math.pow(x-avg,2),0)/vals.length,sd=Math.sqrt(variance),confidence=vals.length>=6&&sd<20?"High":vals.length>=4?"Medium":"Low";
+    forecasts.push({id:"fc_"+objective,title:`Future ${aiObjectiveLabel(objective).toLowerCase()} campaigns`,text:`Based on ${vals.length} measured campaigns with this objective, the historical average relative change is ${avg>=0?"+":""}${avg.toFixed(1)}%. A future campaign may perform differently; this is a history-based expectation, not a guarantee.`,objective,samples:vals.length,average:avg,confidence,assumption:"Comparable offer, audience, season and execution."})
+  });
+  const boards=biBoardRows().filter(b=>b.taps>=20),rates=boards.map(b=>b.rate).sort((a,b)=>a-b);
+  if(rates.length>=3){const median=rates[Math.floor(rates.length/2)];boards.forEach(b=>{if(b.rate<median*.6)anomalies.push({id:"anom_board_"+b.id,title:`${b.name} is below the current board median`,text:`Its recorded action rate is ${b.rate.toFixed(1)}% versus a current board median of ${median.toFixed(1)}%. This is an observed cross-board difference, not a time-series forecast.`,evidence:"Observed",severity:"Attention"})})}
+  measured.filter(c=>typeof c.results?.primaryDeltaPct==="number"&&c.results.primaryDeltaPct<-10).forEach(c=>anomalies.push({id:"anom_campaign_"+c.id,title:`${c.name} had a negative measured result`,text:`The recorded relative change was ${c.results.primaryDeltaPct.toFixed(1)}%. Journey AI should inspect the campaign context before recommending a repeat.`,evidence:"Observed",severity:"Review"}));
+  aiForecasts=forecasts.slice(0,15);aiAnomalies=anomalies.slice(0,20);return{forecasts:aiForecasts,anomalies:aiAnomalies}
+}
+function advisorRecommendations(){
+  const out=[],type=aiBusinessArchetype(),learn=aiLearningInsights||[];
+  aiAnomalies.slice(0,2).forEach(a=>out.push({title:"Investigate before changing",text:`${a.title}. Review the Journey, board placement and recent changes before assuming the cause.`,evidence:"Observed",action:"intelligence"}));
+  learn.filter(x=>x.confidence==="High"||x.confidence==="Medium").slice(0,2).forEach(x=>out.push({title:`Use the ${x.title.toLowerCase()} carefully`,text:`${x.text} Journey AI can prepare the next test while preserving the same measurement rules.`,evidence:`${x.confidence} confidence`,action:"campaigns"}));
+  if(!out.length)out.push({title:`Keep learning this ${type}`,text:"There is not enough measured history for a strong forecast yet. Run one focused campaign or Journey experiment with a clear success metric, then measure it.",evidence:"Insufficient data",action:"learning"});
+  const opp=aiBuildProactiveOpportunities()[0];if(opp)out.push({title:opp.title,text:opp.detail,evidence:opp.evidence,action:"copilot"});
+  return out.slice(0,5)
+}
+function prepareAdvisorBrief(){
+  rebuildAdvisorModels();const s=currentBusinessSnapshot(),recs=advisorRecommendations(),brief={id:"adv_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),createdAt:new Date().toISOString(),title:`Owner brief - ${new Date().toLocaleDateString()}`,summary:`Business snapshot: ${s.totals.taps} taps, ${s.totals.actionsTaken} recorded actions, ${s.actionRate.toFixed(1)}% action rate, ${s.measuredCampaigns} measured campaigns. Advisor confidence: ${advisorEvidenceScore()>=70?"High":advisorEvidenceScore()>=35?"Medium":"Low"}.`,uncertainty:aiForecasts.length?"Forecasts shown are based on historical campaign samples and are not guarantees.":"There is not enough repeated measured history for a supported forecast yet.",recommendation:recs[0]?.title||"Keep gathering measured evidence."};
+  aiAdvisorBriefs.unshift(brief);if(aiAdvisorBriefs.length>30)aiAdvisorBriefs=aiAdvisorBriefs.slice(0,30);aiTimelineAdd("Business Advisor",`Prepared ${brief.title}.`,{confidence:advisorEvidenceScore()});persistLocalState();renderBusinessAdvisor()
+}
+function renderBusinessAdvisor(){
+  rebuildAdvisorModels();const score=advisorEvidenceScore(),level=score>=70?"High":score>=35?"Medium":"Low";el("advisorForecastCount").textContent=aiForecasts.length;el("advisorAnomalyCount").textContent=aiAnomalies.length;el("advisorConfidence").textContent=level;el("advisorExperiments").textContent=aiExperiments.filter(e=>["Proposed","Active"].includes(e.status)).length;el("advisorHeadline").textContent=level==="High"?"Journey AI has a meaningful body of measured history":level==="Medium"?"Journey AI is starting to recognize repeatable signals":"Journey AI is still building reliable history";el("advisorSummary").textContent=level==="High"?"Recommendations can use repeated measured patterns, but every forecast still shows assumptions and uncertainty.":level==="Medium"?"Some patterns are useful, but important recommendations should still be treated as tests when context changes.":"There is not enough repeated evidence for confident forecasting. Journey AI will favor experiments and observed facts.";
+  const fl=el("advisorForecastList");fl.innerHTML="";if(!aiForecasts.length)fl.innerHTML='<div class="ai-copilot-empty">Not enough repeated measured history for a supported forecast yet. At least three comparable measured campaigns are required for an objective-level forecast.</div>';aiForecasts.forEach(f=>{const pct=f.confidence==="High"?85:f.confidence==="Medium"?60:35,d=document.createElement("div");d.className="advisor-item";d.innerHTML=`<div class="advisor-head"><h4>${esc(f.title)}</h4><span class="bi-badge ${f.confidence==="High"?"good":f.confidence==="Low"?"warn":""}">${esc(f.confidence)} confidence</span></div><p>${esc(f.text)}</p><div class="bi-meta"><span>${f.samples} samples</span><span>Assumption: ${esc(f.assumption)}</span></div><div class="confidence-meter"><span style="width:${pct}%"></span></div>`;fl.appendChild(d)});
+  const al=el("advisorAnomalyList");al.innerHTML="";if(!aiAnomalies.length)al.innerHTML='<div class="ai-copilot-empty">No material cross-board difference or strongly negative measured campaign is currently flagged.</div>';aiAnomalies.forEach(a=>{const d=document.createElement("div");d.className="advisor-item";d.innerHTML=`<div class="advisor-head"><h4>${esc(a.title)}</h4><span class="bi-badge warn">${esc(a.evidence)}</span></div><p>${esc(a.text)}</p>`;al.appendChild(d)});
+  const rl=el("advisorRecommendationList");rl.innerHTML="";advisorRecommendations().forEach(r=>{const d=document.createElement("div");d.className="advisor-item";d.innerHTML=`<div class="advisor-head"><h4>${esc(r.title)}</h4><span class="bi-badge">${esc(r.evidence)}</span></div><p>${esc(r.text)}</p><div class="advisor-actions"><button class="primary ready" data-open>Work on this</button></div>`;d.querySelector("[data-open]").addEventListener("click",()=>switchAiWorkspaceTab72(r.action));rl.appendChild(d)});
+  const bl=el("advisorBriefList");bl.innerHTML="";if(!aiAdvisorBriefs.length)bl.innerHTML='<div class="ai-copilot-empty">No owner brief has been prepared yet.</div>';aiAdvisorBriefs.slice(0,8).forEach(b=>{const d=document.createElement("div");d.className="advisor-item";d.innerHTML=`<h4>${esc(b.title)}</h4><p>${esc(b.summary)}</p><p><strong>Uncertainty:</strong> ${esc(b.uncertainty)}</p><p><strong>Recommended focus:</strong> ${esc(b.recommendation)}</p>`;bl.appendChild(d)})
+}
+
+/* SECTION 10.0 - JOURNEY AI MARKETING COMMAND CENTER */
+const MARKETING_CONTENT_TEMPLATES=[
+  {id:"smartboard_thankyou",title:"SmartBoard thank-you",detail:"Branded final screen after a customer completes an approved Journey.",purpose:"review_thankyou",channel:"smartboard",prompt:"Create a warm branded thank-you message for the final SmartBoard screen after a customer completes Pay and Review. Make it short, readable and appropriate for this exact business."},
+  {id:"social_promo",title:"Social promotion",detail:"A business-specific promotion concept with caption and creative direction.",purpose:"promotion",channel:"instagram",prompt:"Create a promotion concept for this business that fits the brand and real services. Do not invent pricing or discounts. If no approved offer exists, propose a concept for owner approval."},
+  {id:"google_update",title:"Google Business update",detail:"A concise local-business update using real business facts.",purpose:"announcement",channel:"google_business",prompt:"Prepare a concise Google Business update using only saved business facts, real services and approved offers."},
+  {id:"seasonal",title:"Seasonal campaign",detail:"A timely campaign adapted to the exact business type and brand.",purpose:"seasonal",channel:"instagram",prompt:"Create a seasonal marketing idea appropriate for this exact business type. Keep it brand-safe and do not assume a holiday promotion already exists."},
+  {id:"reengage",title:"Bring customers back",detail:"Retention-focused message for businesses with repeat customers.",purpose:"reengagement",channel:"email",prompt:"Prepare a customer re-engagement concept for this business. Use actual services and policies and avoid spammy language or invented incentives."},
+  {id:"educational",title:"Helpful content",detail:"Useful expertise-led content that builds trust instead of always selling.",purpose:"education",channel:"facebook",prompt:"Create one genuinely useful educational content idea based on this business's actual services and common customer questions."}
+];
+function marketingSeasonContext(){
+  const d=new Date(),m=d.getMonth()+1;
+  if(m===12)return"year-end / December";
+  if(m===11)return"November / holiday season";
+  if(m===10)return"October / fall";
+  if(m>=6&&m<=8)return"summer";
+  if(m>=3&&m<=5)return"spring";
+  if(m<=2)return"winter / new-year period";
+  return"current season"
+}
+function marketingOpportunityRows(){
+  const base=aiBuildProactiveOpportunities().slice(0,5).map(o=>({...o,source:"Journey AI Intelligence"}));
+  const type=aiBusinessArchetype(),season=marketingSeasonContext();
+  const seasonal={id:"mkt_season_"+new Date().getMonth(),title:`Plan for ${season}`,detail:`Journey AI can prepare a ${season} concept specifically for this ${type}, but it will not assume a discount, event or holiday offer unless one is approved.`,evidence:"Business-informed",priority:"Low",prompt:`Prepare one ${season} marketing idea for my ${type}. Use my real services, brand and customer context. If a promotion would require a new offer, clearly mark it for approval.`,kind:"marketing",source:"Seasonal context"};
+  if(!aiDismissedRecommendations.includes(seasonal.id))base.push(seasonal);
+  return base.slice(0,6)
+}
+function marketingPreferenceText(){
+  const p=aiMarketingPreferences||{};
+  return `Promotion style: ${p.promoStyle||"brand_first"}. Proactive suggestion level: ${p.suggestionLevel||"helpful"}. Creative tone: ${p.creativeTone||"on_brand"}.`
+}
+function marketingPlanFromBrief(name,goal,urgency,brief){
+  const type=aiBusinessArchetype(),plan={id:"mkp_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),name,goal,urgency,brief,status:"Prepared",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),businessType:type,evidence:"Business-informed",contentIds:[],campaignId:null};
+  const content=prepareMarketingContentRecord({
+    title:`${name} core message`,
+    purpose:goal==="reviews"?"review_thankyou":"promotion",
+    channel:"smartboard",
+    prompt:`Marketing plan "${name}". Goal: ${aiObjectiveLabel(goal)}. Urgency: ${urgency}. Brief: ${brief}. ${marketingPreferenceText()} Prepare the core message for this ${type}. Do not invent an offer, performance statistic, customer claim or price.`,
+    source:"Marketing Command Center",
+    planId:plan.id
+  });
+  plan.contentIds.push(content.id);return plan
+}
+function prepareMarketingPlan(){
+  if(currentRole==="Employee"){alert("Marketing plan creation is available to the Owner and Manager.");return}
+  const name=String(el("marketingBriefName").value||"").trim(),brief=String(el("marketingBriefText").value||"").trim();
+  if(!name){el("marketingBriefName").focus();return}if(!brief){el("marketingBriefText").focus();return}
+  const plan=marketingPlanFromBrief(name,el("marketingBriefGoal").value,el("marketingBriefUrgency").value,brief);
+  aiMarketingPlans.unshift(plan);aiTimelineAdd("Marketing",`Prepared marketing plan "${plan.name}".`,{goal:plan.goal,businessType:plan.businessType});captureAiMemorySignal("assistant",`Marketing plan prepared: ${plan.name}. Goal: ${aiObjectiveLabel(plan.goal)}. Brief: ${plan.brief}`);persistLocalState();renderMarketingCommandCenter();renderContentStudio()
+}
+function marketingUseTopOpportunity(){
+  const o=marketingOpportunityRows()[0];if(!o)return;
+  el("marketingBriefName").value=o.title;el("marketingBriefText").value=o.prompt||o.detail;el("marketingBriefText").focus()
+}
+function marketingStartOpportunity(id){
+  const o=marketingOpportunityRows().find(x=>x.id===id);if(!o)return;
+  switchAiWorkspaceTab72("marketing");el("marketingBriefName").value=o.title;el("marketingBriefText").value=o.prompt||o.detail;el("marketingBriefText").focus()
+}
+function marketingSavePreferences(){
+  aiMarketingPreferences={promoStyle:el("marketingPromoStyle").value,suggestionLevel:el("marketingSuggestionLevel").value,creativeTone:el("marketingCreativeTone").value};
+  captureAiMemorySignal("user",`Marketing preference updated. ${marketingPreferenceText()}`);aiTimelineAdd("Business Knowledge","Updated Journey AI marketing preferences.",aiMarketingPreferences);persistLocalState();renderMarketingCommandCenter()
+}
+function renderMarketingCommandCenter(){
+  const prefs=aiMarketingPreferences||{};el("marketingPromoStyle").value=prefs.promoStyle||"brand_first";el("marketingSuggestionLevel").value=prefs.suggestionLevel||"helpful";el("marketingCreativeTone").value=prefs.creativeTone||"on_brand";
+  const activePlans=aiMarketingPlans.filter(x=>!["Archived","Completed"].includes(x.status)).length,scheduled=aiScheduleQueue.filter(x=>["Prepared","Ready for approval","Scheduled"].includes(x.status)).length,ready=aiExternalActions.filter(x=>x.status==="Ready for approval").length+aiScheduleQueue.filter(x=>x.status==="Ready for approval").length;
+  el("marketingActiveCount").textContent=activePlans;el("marketingScheduledCount").textContent=scheduled;el("marketingReadyCount").textContent=ready;el("marketingLearningCount").textContent=aiLearningInsights.length;
+  const opp=el("marketingOpportunityList");opp.innerHTML="";const rows=marketingOpportunityRows();
+  if(!rows.length)opp.innerHTML='<div class="ai-copilot-empty">No marketing opportunity needs attention right now.</div>';
+  rows.forEach(o=>{const d=document.createElement("div");d.className="marketing-opportunity";d.innerHTML=`<div class="marketing-opportunity-head"><h4>${esc(o.title)}</h4><span class="marketing-pill ${o.evidence==="Observed"?"ready":""}">${esc(o.evidence)}</span></div><p>${esc(o.detail)}</p><div class="marketing-opportunity-actions"><button class="primary ready" data-use>Prepare it</button><button class="secondary" data-ai>Discuss with AI</button><button class="linkbtn" data-dismiss>Not interested</button></div>`;d.querySelector("[data-use]").addEventListener("click",()=>marketingStartOpportunity(o.id));d.querySelector("[data-ai]").addEventListener("click",()=>{openAI();el("aiInput").value=`Explain this marketing opportunity and what evidence supports it: ${o.title}. ${o.detail}`;el("aiInput").focus()});d.querySelector("[data-dismiss]").addEventListener("click",()=>{if(!aiDismissedRecommendations.includes(o.id))aiDismissedRecommendations.push(o.id);persistLocalState();renderMarketingCommandCenter()});opp.appendChild(d)});
+  const work=el("marketingWorkList");work.innerHTML="";
+  const plans=aiMarketingPlans.slice(0,8);if(!plans.length)work.innerHTML='<div class="ai-copilot-empty">No marketing work has been prepared yet.</div>';
+  plans.forEach(p=>{const d=document.createElement("div");d.className="marketing-opportunity";d.innerHTML=`<div class="marketing-opportunity-head"><h4>${esc(p.name)}</h4><span class="marketing-pill">${esc(p.status)}</span></div><p>${esc(p.brief)}</p><div class="marketing-opportunity-actions"><button class="primary ready" data-content>Open content</button><button class="secondary" data-campaign>Build campaign</button><button class="linkbtn" data-archive>Archive</button></div>`;d.querySelector("[data-content]").addEventListener("click",()=>switchAiWorkspaceTab72("content"));d.querySelector("[data-campaign]").addEventListener("click",()=>marketingPlanToCampaign(p.id));d.querySelector("[data-archive]").addEventListener("click",()=>{p.status="Archived";p.updatedAt=new Date().toISOString();persistLocalState();renderMarketingCommandCenter()});work.appendChild(d)})
+}
+function marketingPlanToCampaign(id){
+  const p=aiMarketingPlans.find(x=>x.id===id);if(!p)return;switchAiWorkspaceTab72("campaigns");el("aiCampaignName").value=p.name;el("aiCampaignObjective").value=p.goal in {traffic:1,reviews:1,bookings:1,sales:1,retention:1,awareness:1}?p.goal:"traffic";el("aiCampaignBrief").value=p.brief;el("aiCampaignName").focus()
+}
+
+/* SECTION 10.1 - CREATIVE + CONTENT SYSTEM */
+function prepareMarketingContentRecord({title,purpose="promotion",channel="smartboard",prompt,source="Journey AI",planId=null}={}){
+  const record={id:"mktc_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),title:title||"Journey AI content",purpose,primaryChannel:channel,prompt:String(prompt||""),source,planId,status:"Draft",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),variants:[],selectedVariantId:null,imageJobId:null};
+  aiContentLibrary.unshift(record);if(aiContentLibrary.length>250)aiContentLibrary=aiContentLibrary.slice(0,250);return record
+}
+function contentTemplatePrompt(t){
+  return `${t.prompt} Business: ${aiBusinessProfile?.businessName||workspaceName()||"this business"}. Business type: ${aiBusinessArchetype()}. ${marketingPreferenceText()} Use saved Business Knowledge, brand rules and actual services. Never invent prices, discounts, ratings, testimonials, performance claims or customer results.`
+}
+function selectContentTemplate(id){
+  const t=MARKETING_CONTENT_TEMPLATES.find(x=>x.id===id);if(!t)return;el("contentTitle").value=t.title;el("contentPurpose").value=t.purpose;el("contentPrimaryChannel").value=t.channel;el("contentPrompt").value=contentTemplatePrompt(t);el("contentPrompt").focus()
+}
+function contentChannelGuidance(ch){
+  const map={
+    smartboard:"Keep the main message very short, phone-readable and suitable for a customer who just tapped the board.",
+    instagram:"Create a visual-first caption with a clear first line and concise call to action. Do not add fake hashtags or trends as facts.",
+    facebook:"Use a conversational local-business tone with enough context to stand alone.",
+    google_business:"Keep it concise, factual, local-business appropriate and based only on verified business information.",
+    email:"Include a useful subject line, preview text and body draft. Do not imply the customer opted in unless the business has permission.",
+    website:"Write clear website-ready copy with a headline, supporting copy and call to action."
+  };return map[ch]||"Adapt the content appropriately for the selected channel."
+}
+function deterministicContentVariants(record){
+  const business=aiBusinessProfile?.businessName||workspaceName()||"Our business",type=aiBusinessArchetype(),base=record.prompt.replace(/\s+/g," ").trim().slice(0,700);
+  const short=`${business}: ${record.purpose==="review_thankyou"?"Thank you for your support. We appreciate you and hope to see you again soon.":`A ${record.purpose.replace(/_/g," ")} message prepared for our customers.`}`;
+  const polished=`${business}\n\n${record.purpose==="review_thankyou"?"Thank you for taking the time to visit us and share your feedback. Your support means a lot to our team, and we look forward to welcoming you again.":`Journey AI prepared this ${record.purpose.replace(/_/g," ")} concept for our ${type}. ${base}`}`;
+  const direct=`${record.purpose==="review_thankyou"?"Thank you. We appreciate your visit and your feedback. See you again soon.":`${business}: ${base}`}`;
+  return[
+    {id:"v_"+Date.now()+"a",label:"Short",text:short,channel:record.primaryChannel},
+    {id:"v_"+Date.now()+"b",label:"Polished",text:polished,channel:record.primaryChannel},
+    {id:"v_"+Date.now()+"c",label:"Direct",text:direct,channel:record.primaryChannel}
+  ].map(v=>({...v,guidance:contentChannelGuidance(record.primaryChannel),createdAt:new Date().toISOString()}))
+}
+function prepareContentVariants(){
+  if(currentRole==="Employee"&&!permissions().edit){alert("Your role does not have permission to prepare business content.");return}
+  const title=String(el("contentTitle").value||"").trim(),prompt=String(el("contentPrompt").value||"").trim();if(!title){el("contentTitle").focus();return}if(!prompt){el("contentPrompt").focus();return}
+  const record=prepareMarketingContentRecord({title,purpose:el("contentPurpose").value,channel:el("contentPrimaryChannel").value,prompt,source:"Creative + Content Studio"});record.variants=deterministicContentVariants(record);record.selectedVariantId=record.variants[0].id;record.status="Variants prepared";aiTimelineAdd("Content",`Prepared content variants for "${record.title}".`,{channel:record.primaryChannel,purpose:record.purpose});persistLocalState();renderContentStudio();previewContentVariant(record.id,record.selectedVariantId)
+}
+function previewContentVariant(recordId,variantId){
+  const r=aiContentLibrary.find(x=>x.id===recordId),v=r?.variants?.find(x=>x.id===variantId);if(!r||!v)return;r.selectedVariantId=v.id;
+  const box=el("contentPreviewBox");box.innerHTML=`<strong>${esc(r.title)} - ${esc(v.label)}</strong><p>${esc(v.text)}\n\n${esc(v.guidance||"")}</p>${r.imageUrl?`<img src="${esc(r.imageUrl)}" alt="${esc(r.title)}">`:""}`;persistLocalState()
+}
+function generateContentImage(){
+  if(currentRole==="Employee"){alert("Image generation is available to the Owner and Manager.");return}
+  const title=String(el("contentTitle").value||"").trim()||"Journey AI marketing creative",prompt=String(el("contentPrompt").value||"").trim();if(!prompt){el("contentPrompt").focus();return}
+  el("aiCreativePrompt").value=`Create branded marketing creative for "${title}". ${prompt} Business type: ${aiBusinessArchetype()}. Match saved brand assets and colors. Keep any image text minimal and legible. Do not invent prices, ratings, testimonials or customer claims.`;
+  el("aiCreativePurpose").value=el("contentPrimaryChannel").value==="smartboard"?"smartboard_thankyou":el("contentPurpose").value==="promotion"?"promotion":"social_post";
+  el("aiCreativeAspect").value=el("contentPrimaryChannel").value==="instagram"?"4:5":el("contentPrimaryChannel").value==="smartboard"?"1:1":"1:1";
+  switchAiWorkspaceTab72("copilot");setTimeout(()=>{el("aiCreativePrompt").focus()},0)
+}
+function contentVariantToAction(recordId,variantId){
+  const r=aiContentLibrary.find(x=>x.id===recordId),v=r?.variants?.find(x=>x.id===variantId);if(!r||!v)return;
+  const providerId=aiProviderForCampaignChannel(r.primaryChannel),type=r.primaryChannel==="smartboard"?"smartboard_end_screen":r.primaryChannel==="email"?"email_campaign":r.primaryChannel==="website"?"website_update":r.primaryChannel==="google_business"?"google_post":"social_post";
+  const a=aiCreateExternalAction({title:r.title,providerId,type,content:v.text,requiresApproval:true});a.contentId=r.id;r.status="Prepared for approval";r.updatedAt=new Date().toISOString();persistLocalState();switchAiWorkspaceTab72("copilot");renderAiExternalActions()
+}
+function scheduleContentFromRecord(recordId){
+  switchAiWorkspaceTab72("calendar");setTimeout(()=>{el("scheduleContentSelect").value=recordId;renderScheduleFormReadiness()},0)
+}
+function renderContentStudio(){
+  const tg=el("contentTemplateGrid");tg.innerHTML="";MARKETING_CONTENT_TEMPLATES.forEach(t=>{const d=document.createElement("div");d.className="content-template";d.innerHTML=`<strong>${esc(t.title)}</strong><span>${esc(t.detail)}</span>`;d.addEventListener("click",()=>selectContentTemplate(t.id));tg.appendChild(d)});
+  const list=el("contentVariantList");list.innerHTML="";
+  if(!aiContentLibrary.length){list.innerHTML='<div class="ai-copilot-empty">No reusable content yet. Choose a template or prepare a new content idea.</div>';return}
+  aiContentLibrary.slice(0,40).forEach(r=>{const wrap=document.createElement("div");wrap.className="content-variant";const selected=r.variants?.find(v=>v.id===r.selectedVariantId)||r.variants?.[0];wrap.innerHTML=`<div class="content-variant-head"><h4>${esc(r.title)}</h4><span class="marketing-pill">${esc(r.status)}</span></div><p>${esc(selected?.text||r.prompt)}</p><div class="ai-campaign-meta"><span>${esc(r.primaryChannel)}</span><span>${esc(r.purpose)}</span><span>${esc(r.source||"Journey AI")}</span></div><div class="content-variant-actions">${(r.variants||[]).map(v=>`<button class="secondary" data-preview="${esc(v.id)}">${esc(v.label)}</button>`).join("")}${selected?'<button class="primary ready" data-action>Prepare action</button><button class="secondary" data-schedule>Schedule</button>':""}<button class="linkbtn" data-delete>Delete</button></div>`;
+    wrap.querySelectorAll("[data-preview]").forEach(b=>b.addEventListener("click",()=>previewContentVariant(r.id,b.dataset.preview)));wrap.querySelector("[data-action]")?.addEventListener("click",()=>contentVariantToAction(r.id,r.selectedVariantId||r.variants?.[0]?.id));wrap.querySelector("[data-schedule]")?.addEventListener("click",()=>scheduleContentFromRecord(r.id));wrap.querySelector("[data-delete]").addEventListener("click",()=>{aiContentLibrary=aiContentLibrary.filter(x=>x.id!==r.id);persistLocalState();renderContentStudio()});list.appendChild(wrap)
+  })
+}
+
+/* SECTION 10.2 - CONTENT CALENDAR + SECURE SCHEDULING */
+function calendarCursorDate(){const d=aiCalendarCursor?new Date(aiCalendarCursor):new Date();return Number.isNaN(d.getTime())?new Date():d}
+function setCalendarCursor(d){aiCalendarCursor=new Date(d.getFullYear(),d.getMonth(),1).toISOString();persistLocalState();renderContentCalendar()}
+function calendarMove(months){const d=calendarCursorDate();setCalendarCursor(new Date(d.getFullYear(),d.getMonth()+months,1))}
+function dateKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function scheduleProviderId(ch){return aiProviderForCampaignChannel(ch)}
+function scheduleBackendReady(ch){
+  if(ch==="smartboard")return !!(backendReady&&backendWorkspaceId&&permissions().edit);
+  const pid=scheduleProviderId(ch),r=pid?integrationRecord(pid):null;return !!(r&&r.status==="connected"&&r.backendManaged&&(r.permissions||[]).some(p=>p.enabled&&p.mode==="act"))
+}
+function scheduleContentOptions(){
+  const s=el("scheduleContentSelect"),current=s.value;s.innerHTML='<option value="">Choose content</option>';aiContentLibrary.forEach(r=>{const o=document.createElement("option");o.value=r.id;o.textContent=r.title;s.appendChild(o)});if(aiContentLibrary.some(r=>r.id===current))s.value=current
+}
+function renderScheduleFormReadiness(){/* intentionally lightweight: execution readiness is rechecked at approval time */ }
+function prepareContentSchedule(){
+  if(currentRole==="Employee"){alert("Scheduling is available to the Owner and Manager.");return}
+  const contentId=el("scheduleContentSelect").value,ch=el("scheduleChannel").value,raw=el("scheduleDateTime").value,r=aiContentLibrary.find(x=>x.id===contentId);
+  if(!r){alert("Choose content to schedule.");return}if(!raw){el("scheduleDateTime").focus();return}
+  const when=new Date(raw);if(Number.isNaN(when.getTime())||when.getTime()<=Date.now()){alert("Choose a future date and time.");return}
+  const ready=scheduleBackendReady(ch),item={id:"mkts_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),contentId,contentTitle:r.title,channel:ch,scheduledFor:when.toISOString(),status:ready?"Ready for approval":"Backend required",backendReady:ready,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),approvalRequired:true};
+  aiScheduleQueue.unshift(item);r.status="Schedule prepared";r.updatedAt=item.updatedAt;aiTimelineAdd("Marketing Schedule",`Prepared schedule for "${r.title}" on ${when.toLocaleString()}.`,{channel:ch,status:item.status});persistLocalState();renderContentCalendar()
+}
+async function approveContentSchedule(id){
+  const item=aiScheduleQueue.find(x=>x.id===id),r=aiContentLibrary.find(x=>x.id===item?.contentId);if(!item||!r)return;
+  if(currentRole==="Employee"){alert("This schedule requires Owner or Manager approval.");return}
+  item.backendReady=scheduleBackendReady(item.channel);if(!item.backendReady){item.status="Backend required";persistLocalState();renderContentCalendar();alert("The secure scheduling backend or required connected-account permission is not ready. Nothing was scheduled.");return}
+  if(!confirm(`Approve scheduling "${item.contentTitle}" for ${new Date(item.scheduledFor).toLocaleString()}?`))return;
+  item.status="Scheduling";item.updatedAt=new Date().toISOString();persistLocalState();renderContentCalendar();
+  const selected=r.variants?.find(v=>v.id===r.selectedVariantId)||r.variants?.[0];
+  const res=await aiActionBackendRequest("schedule_external_action",{schedule:{id:item.id,channel:item.channel,scheduledFor:item.scheduledFor,contentId:r.id,title:r.title,content:selected?.text||r.prompt}});
+  if(!res?.ok){item.status="Backend required";item.backendReady=false;item.updatedAt=new Date().toISOString();persistLocalState();renderContentCalendar();alert(res?.error||"The secure scheduling service did not confirm the schedule. Nothing was marked scheduled.");return}
+  item.status="Scheduled";item.backendScheduleId=res.schedule_id||res.id||null;item.updatedAt=new Date().toISOString();r.status="Scheduled";aiTimelineAdd("Marketing Schedule",`Secure backend confirmed schedule for "${r.title}".`,{channel:item.channel,scheduledFor:item.scheduledFor});persistLocalState();renderContentCalendar()
+}
+async function cancelContentSchedule(id){
+  const item=aiScheduleQueue.find(x=>x.id===id);if(!item)return;
+  if(item.status==="Scheduled"&&item.backendScheduleId){
+    const res=await aiActionBackendRequest("cancel_scheduled_action",{scheduleId:item.backendScheduleId,localScheduleId:item.id});
+    if(!res?.ok){alert(res?.error||"The backend did not confirm cancellation. The schedule remains marked scheduled.");return}
+  }
+  item.status="Cancelled";item.updatedAt=new Date().toISOString();persistLocalState();renderContentCalendar()
+}
+function renderScheduleQueue(){
+  scheduleContentOptions();const c=el("scheduleList");c.innerHTML="";
+  if(!aiScheduleQueue.length){c.innerHTML='<div class="ai-copilot-empty">Nothing is waiting in the scheduling queue.</div>';return}
+  aiScheduleQueue.slice(0,30).forEach(s=>{const d=document.createElement("div");d.className="schedule-item";d.innerHTML=`<div class="schedule-item-head"><h4>${esc(s.contentTitle)}</h4><span class="marketing-pill ${s.status==="Scheduled"?"ready":s.status==="Backend required"?"warn":""}">${esc(s.status)}</span></div><p>${esc(aiCampaignChannelLabel(s.channel))} - ${esc(new Date(s.scheduledFor).toLocaleString())}</p><div class="schedule-actions">${["Ready for approval","Backend required"].includes(s.status)?'<button class="primary ready" data-approve>Approve schedule</button>':""}${s.status!=="Cancelled"?'<button class="linkbtn" data-cancel>Cancel</button>':""}</div>`;d.querySelector("[data-approve]")?.addEventListener("click",()=>approveContentSchedule(s.id));d.querySelector("[data-cancel]")?.addEventListener("click",()=>cancelContentSchedule(s.id));c.appendChild(d)})
+}
+function renderContentCalendar(){
+  const root=el("contentCalendar");if(!root)return;const cursor=calendarCursorDate(),y=cursor.getFullYear(),m=cursor.getMonth(),first=new Date(y,m,1),start=new Date(y,m,1-first.getDay()),todayKey=dateKey(new Date());el("calendarMonthTitle").textContent=cursor.toLocaleString([],{month:"long",year:"numeric"});root.innerHTML="";
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{const h=document.createElement("div");h.className="calendar-weekday";h.textContent=x;root.appendChild(h)});
+  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const key=dateKey(d),cell=document.createElement("div");cell.className="calendar-day"+(d.getMonth()!==m?" outside":"")+(key===todayKey?" today":"");cell.innerHTML=`<div class="calendar-date">${d.getDate()}</div>`;aiScheduleQueue.filter(s=>dateKey(new Date(s.scheduledFor))===key&&s.status!=="Cancelled").slice(0,4).forEach(s=>{const item=document.createElement("div");item.className="calendar-item"+(s.status==="Scheduled"?" approved":s.status==="Backend required"?" backend":"");item.textContent=s.contentTitle;item.title=`${aiCampaignChannelLabel(s.channel)} - ${new Date(s.scheduledFor).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})} - ${s.status}`;item.addEventListener("click",()=>{const target=[...el("scheduleList").children].find(()=>false);renderScheduleQueue()});cell.appendChild(item)});root.appendChild(cell)}
+  renderScheduleQueue()
+}
+
 /* SECTION 9.1 - PROVIDER ACTION PACKS + CAMPAIGN BUILDER */
 const AI_PROVIDER_ACTION_PACKS={
   google_business:{providerId:"google_business",label:"Google Business Profile",actions:[
@@ -478,6 +789,37 @@ function renderAiCreativeJobs(){
 .ai-learning-banner{padding:12px 13px;border-radius:14px;background:#f3f7fd;border:1px solid #dce8f7;margin-bottom:12px}.ai-learning-banner strong{display:block;font-size:12px}.ai-learning-banner p{margin:4px 0 0;font-size:10px;line-height:1.5;color:#667085}
 @media(max-width:800px){.ai-campaign-grid{grid-template-columns:1fr}.ai-campaign-two{grid-template-columns:1fr}.ai-learning-kpis{grid-template-columns:repeat(2,1fr)}}
 
+
+/* SECTION 10.0 + 10.1 + 10.2 - MARKETING COMMAND CENTER, CREATIVE CONTENT + CALENDAR */
+.marketing-hero{border:1px solid #d7e6fa;background:linear-gradient(135deg,#f4f8ff,#ffffff);border-radius:18px;padding:16px;margin-bottom:14px}.marketing-hero strong{display:block;font-size:15px}.marketing-hero p{margin:5px 0 0;color:#667085;font-size:11px;line-height:1.55}
+.marketing-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0}.marketing-kpi{background:#fff;border:1px solid #e3e9f1;border-radius:14px;padding:12px}.marketing-kpi strong{display:block;font-size:21px}.marketing-kpi span{font-size:9px;color:#667085}
+.marketing-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:14px}.marketing-card{background:#fff;border:1px solid #e3e9f1;border-radius:17px;padding:15px}.marketing-card h3{font-size:15px;margin:0 0 5px}.marketing-card>p{font-size:11px;line-height:1.5;color:#667085;margin:0 0 12px}
+.marketing-form{display:grid;gap:9px}.marketing-form textarea{min-height:86px}.marketing-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.marketing-row input,.marketing-row select{margin:0}
+.marketing-opportunities,.marketing-work-list,.content-template-grid,.content-variant-list,.schedule-list{display:grid;gap:9px}
+.marketing-opportunity{border:1px solid #e4eaf2;border-radius:14px;padding:11px;background:#fbfcfe}.marketing-opportunity-head{display:flex;justify-content:space-between;gap:8px}.marketing-opportunity h4{font-size:12px;margin:0}.marketing-opportunity p{font-size:10px;color:#667085;line-height:1.5;margin:5px 0}.marketing-opportunity-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.marketing-opportunity-actions button{width:auto;margin:0;padding:8px 9px;font-size:10px}
+.marketing-pill{display:inline-flex;padding:4px 7px;border-radius:999px;background:#eef4ff;color:#315f9d;font-size:9px;font-weight:850}.marketing-pill.ready{background:#eaf8ef;color:#2f7f48}.marketing-pill.warn{background:#fff4df;color:#956719}
+.content-template-grid{grid-template-columns:repeat(2,1fr)}.content-template{border:1px solid #e3e9f1;border-radius:13px;padding:11px;cursor:pointer;background:#fff}.content-template:hover{background:#f9fbfe}.content-template strong{font-size:11px;display:block}.content-template span{font-size:9px;color:#667085;line-height:1.45;display:block;margin-top:4px}
+.content-composer{display:grid;gap:9px}.content-composer textarea{min-height:95px}.content-preview-box{border:1px dashed #cfd8e3;border-radius:14px;min-height:130px;padding:13px;background:#fafcff}.content-preview-box strong{display:block;font-size:12px;margin-bottom:5px}.content-preview-box p{font-size:10px;color:#667085;line-height:1.55;margin:0;white-space:pre-wrap}.content-preview-box img{width:100%;max-height:300px;object-fit:cover;border-radius:11px;margin-top:10px}
+.content-variant{border:1px solid #e3e9f1;border-radius:13px;padding:11px}.content-variant-head{display:flex;justify-content:space-between;gap:7px}.content-variant h4{font-size:11px;margin:0}.content-variant p{font-size:10px;line-height:1.5;color:#667085;margin:5px 0;white-space:pre-wrap}.content-variant-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.content-variant-actions button{width:auto;margin:0;padding:7px 9px;font-size:9px}
+.calendar-toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}.calendar-toolbar button{width:auto;margin:0;padding:8px 10px;font-size:10px}.calendar-title{font-size:13px;font-weight:850}.content-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calendar-weekday{text-align:center;font-size:9px;color:#98a2b3;font-weight:800;padding:4px}.calendar-day{min-height:80px;border:1px solid #e5eaf0;border-radius:10px;padding:6px;background:#fff}.calendar-day.outside{opacity:.4}.calendar-day.today{border-color:#6fa8f5;background:#f5f9ff}.calendar-date{font-size:9px;font-weight:850}.calendar-item{margin-top:5px;padding:5px;border-radius:7px;background:#eef5ff;color:#315f9d;font-size:8px;line-height:1.25;cursor:pointer}.calendar-item.approved{background:#eaf8ef;color:#2f7f48}.calendar-item.backend{background:#fff4df;color:#956719}
+.schedule-item{border:1px solid #e3e9f1;border-radius:13px;padding:11px}.schedule-item-head{display:flex;justify-content:space-between;gap:8px}.schedule-item h4{font-size:11px;margin:0}.schedule-item p{font-size:9px;color:#667085;line-height:1.45;margin:5px 0}.schedule-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.schedule-actions button{width:auto;margin:0;padding:7px 9px;font-size:9px}
+.marketing-preference-row{display:flex;justify-content:space-between;align-items:center;gap:9px;padding:10px;border:1px solid #e4eaf2;border-radius:12px;margin-top:8px}.marketing-preference-row strong{font-size:10px}.marketing-preference-row span{font-size:9px;color:#667085}.marketing-preference-row select{width:auto;min-width:130px;padding:8px;font-size:10px}
+@media(max-width:800px){.marketing-grid{grid-template-columns:1fr}.marketing-kpis{grid-template-columns:repeat(2,1fr)}.marketing-row{grid-template-columns:1fr}.content-template-grid{grid-template-columns:1fr}.content-calendar{gap:3px}.calendar-day{min-height:67px;padding:4px}.calendar-item{font-size:7px}}
+
+
+/* SECTION 11.0 + 11.1 + 11.2 - BUSINESS INTELLIGENCE, ATTRIBUTION + ADVISOR */
+.bi-hero{border:1px solid #d8e6f7;background:linear-gradient(135deg,#f5f9ff,#ffffff);border-radius:18px;padding:16px;margin-bottom:14px}.bi-hero strong{display:block;font-size:15px}.bi-hero p{margin:5px 0 0;color:#667085;font-size:11px;line-height:1.55}
+.bi-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}.bi-kpi{border:1px solid #e2e8f0;background:#fff;border-radius:14px;padding:12px}.bi-kpi strong{font-size:21px;display:block}.bi-kpi span{font-size:9px;color:#667085}.bi-kpi small{display:block;font-size:8px;color:#98a2b3;margin-top:4px}
+.bi-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.bi-card{background:#fff;border:1px solid #e2e8f0;border-radius:17px;padding:15px}.bi-card h3{font-size:14px;margin:0 0 5px}.bi-card>p{font-size:10px;line-height:1.5;color:#667085;margin:0 0 11px}
+.bi-table-wrap{overflow:auto}.bi-table{width:100%;border-collapse:collapse;font-size:10px}.bi-table th,.bi-table td{padding:8px 6px;text-align:left;border-bottom:1px solid #edf1f5;vertical-align:top}.bi-table th{font-size:8px;color:#98a2b3;text-transform:uppercase;letter-spacing:.04em}.bi-table td strong{font-size:10px}
+.bi-badge{display:inline-flex;padding:4px 7px;border-radius:999px;background:#eef4ff;color:#315f9d;font-size:8px;font-weight:850}.bi-badge.good{background:#eaf8ef;color:#2f7f48}.bi-badge.warn{background:#fff4df;color:#956719}.bi-badge.bad{background:#fff0ee;color:#b42318}
+.bi-insight-list,.attribution-list,.advisor-list{display:grid;gap:9px}.bi-insight,.attribution-item,.advisor-item{border:1px solid #e3e9f1;border-radius:14px;padding:11px;background:#fff}.bi-insight-head,.attribution-head,.advisor-head{display:flex;justify-content:space-between;gap:8px}.bi-insight h4,.attribution-item h4,.advisor-item h4{font-size:11px;margin:0}.bi-insight p,.attribution-item p,.advisor-item p{font-size:10px;line-height:1.5;color:#667085;margin:5px 0}.bi-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.bi-meta span{font-size:8px;padding:4px 6px;border-radius:999px;background:#f1f5f9;color:#667085;font-weight:750}
+.attribution-path{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin:8px 0}.attribution-node{padding:5px 7px;border-radius:8px;background:#f4f7fb;font-size:8px;font-weight:800;color:#475467}.attribution-arrow{font-size:8px;color:#98a2b3}
+.advisor-banner{padding:12px 13px;border-radius:14px;background:#f7f9fc;border:1px solid #e2e8f0;margin-bottom:12px}.advisor-banner strong{display:block;font-size:12px}.advisor-banner p{font-size:10px;line-height:1.5;color:#667085;margin:4px 0 0}
+.confidence-meter{height:7px;background:#eef2f6;border-radius:999px;overflow:hidden;margin-top:8px}.confidence-meter span{display:block;height:100%;background:#6d8fbc;border-radius:999px}.advisor-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.advisor-actions button{width:auto;margin:0;padding:7px 9px;font-size:9px}
+.bi-question-bar{display:flex;gap:8px}.bi-question-bar input{margin:0}.bi-question-bar button{width:auto;margin:0;white-space:nowrap}
+@media(max-width:800px){.bi-grid{grid-template-columns:1fr}.bi-kpis{grid-template-columns:repeat(2,1fr)}.bi-question-bar{display:grid;grid-template-columns:1fr}.bi-question-bar button{width:100%}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -509,7 +851,7 @@ function renderAiCreativeJobs(){
 <header class="dashboard-header"><div class="dashboard-brand">Create<span>Journey</span></div><div class="header-actions"><select id="rolePreview" class="role-preview"><option value="Owner">View as Owner</option><option value="Manager">View as Manager</option><option value="Employee">View as Employee</option></select><div id="profileInitial" class="account-circle">C</div></div></header>
 <div class="dashboard-greeting"><h1 id="dashboardGreeting">Good to see you.</h1><p id="dashboardAccountName">Here's what's happening today.</p><span class="demo-pill">Prototype data</span><div id="dashboardBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local persistence</span></div><div id="permissionNotice" class="permission-note hidden"></div></div>
 <section class="dashboard-section"><div class="section-heading"><h3>Today</h3></div><div class="stats-grid"><div class="stat-card"><div class="stat-label">Total taps</div><div id="totalTapsStat" class="stat-number">0</div><div class="stat-change">Across visible boards</div></div><div class="stat-card"><div class="stat-label">Unique visitors</div><div id="uniqueVisitorsStat" class="stat-number">0</div><div class="stat-change">Across visible boards</div></div><div class="stat-card"><div class="stat-label">Returning</div><div id="returningVisitorsStat" class="stat-number">0</div><div class="stat-change">Recognized visitors</div></div><div class="stat-card"><div class="stat-label">Actions taken</div><div id="actionsTakenStat" class="stat-number">0</div><div class="stat-change">Journey actions</div></div></div></section>
-<section class="dashboard-section"><div class="section-heading"><h3>Quick actions</h3></div><div class="quick-grid"><button id="quickAddBoard" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><span>Add Board</span></button><button id="quickEditJourney" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 19h4l10-10-4-4L5 15v4zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Edit Journey</span></button><button id="quickInviteTeam" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 19c.7-4 2.7-6 5.5-6s4.8 2 5.5 6M18 8v6M15 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Invite Team</span></button><button id="quickAiSetup" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l2.3 4.7L19 10l-4.7 2.3L12 17l-2.3-4.7L5 10l4.7-2.3L12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M18.5 16.5l.9 1.9 1.9.9-1.9.9-.9 1.9-.9-1.9-1.9-.9 1.9-.9.9-1.9z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span><span>Teach Journey AI</span></button><button id="quickConnectedAccounts" class="quick-action"><span class="quick-icon">+</span><span>Connected Accounts</span></button><button id="quickGrowthCopilot" class="quick-action"><span class="quick-icon">AI</span><span>Growth Copilot</span></button></div></section>
+<section class="dashboard-section"><div class="section-heading"><h3>Quick actions</h3></div><div class="quick-grid"><button id="quickAddBoard" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><span>Add Board</span></button><button id="quickEditJourney" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 19h4l10-10-4-4L5 15v4zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Edit Journey</span></button><button id="quickInviteTeam" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 19c.7-4 2.7-6 5.5-6s4.8 2 5.5 6M18 8v6M15 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Invite Team</span></button><button id="quickAiSetup" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l2.3 4.7L19 10l-4.7 2.3L12 17l-2.3-4.7L5 10l4.7-2.3L12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M18.5 16.5l.9 1.9 1.9.9-1.9.9-.9 1.9-.9-1.9-1.9-.9 1.9-.9.9-1.9z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span><span>Teach Journey AI</span></button><button id="quickConnectedAccounts" class="quick-action"><span class="quick-icon">+</span><span>Connected Accounts</span></button><button id="quickGrowthCopilot" class="quick-action"><span class="quick-icon">AI</span><span>Growth Copilot</span></button><button id="quickMarketing" class="quick-action"><span class="quick-icon">M</span><span>Marketing</span></button><button id="quickIntelligence" class="quick-action"><span class="quick-icon">BI</span><span>Business Intelligence</span></button></div></section>
 <div class="dashboard-columns"><div><section class="dashboard-section"><div class="section-heading"><h3>Active boards</h3><button id="viewAllBoards" class="section-link">View all</button></div><div id="boardList" class="board-list"></div></section><section class="dashboard-section"><div class="section-heading"><h3>Performance</h3></div><div class="performance-card"><div class="range-tabs"><button class="range-tab selected" data-range="today">Today</button><button class="range-tab" data-range="7">7 Days</button><button class="range-tab" data-range="30">30 Days</button></div><div class="performance-top"><div><div id="performanceNumber" class="performance-number">0</div><div id="performanceCaption" class="performance-caption">taps today</div></div><div class="stat-change">Prototype trend</div></div><div id="chart" class="chart"></div><div class="chart-labels"><span>Start</span><span>Mid</span><span>Now</span></div></div></section></div>
 <div><section class="dashboard-section"><div class="section-heading"><h3>Journey performance</h3></div><div class="journey-card"><div class="journey-title">Primary visible board</div><div id="dashboardJourneySequence" class="journey-sequence">No Journey configured</div><div id="journeyActionStats" class="journey-actions"></div></div></section><section class="dashboard-section"><div class="section-heading"><h3>Team</h3><button id="manageTeamLink" class="section-link">Manage</button></div><div class="team-card"><div id="teamList" class="team-list"><div class="note">No team members invited yet.</div></div></div></section><section id="aiInsightsSection" class="dashboard-section"><div class="section-heading"><h3>Journey AI insights</h3><button id="openAiWorkspaceDashboard" class="section-link">Open Workspace</button></div><div class="journey-card"><div id="aiRecommendations" class="ai-rec-grid"></div></div></section><section class="dashboard-section"><div class="support-card"><div><h4>Need help?</h4><p>Get help with your board, Journey or setup.</p></div><button class="support-button">Support</button></div></section></div></div>
 </div></div>
@@ -582,6 +924,12 @@ function renderAiCreativeJobs(){
   <button class="ai-workspace-tab" data-ai-workspace-tab="copilot">Growth Copilot</button>
   <button class="ai-workspace-tab" data-ai-workspace-tab="campaigns">Campaigns</button>
   <button class="ai-workspace-tab" data-ai-workspace-tab="learning">Learning</button>
+  <button class="ai-workspace-tab" data-ai-workspace-tab="marketing">Marketing</button>
+  <button class="ai-workspace-tab" data-ai-workspace-tab="content">Creative + Content</button>
+  <button class="ai-workspace-tab" data-ai-workspace-tab="calendar">Calendar</button>
+  <button class="ai-workspace-tab" data-ai-workspace-tab="intelligence">Intelligence</button>
+  <button class="ai-workspace-tab" data-ai-workspace-tab="attribution">Attribution</button>
+  <button class="ai-workspace-tab" data-ai-workspace-tab="advisor">Advisor</button>
   <button class="ai-workspace-tab" data-ai-workspace-tab="command">Command Center</button>
 </div>
 
@@ -744,6 +1092,220 @@ function renderAiCreativeJobs(){
   <div id="aiCampaignResults"></div>
 </section>
 
+
+<section id="aiWorkspaceMarketingPanel" class="ai-workspace-panel">
+  <div class="marketing-hero">
+    <strong>Journey AI Marketing Command Center</strong>
+    <p>Turn business goals into coordinated campaigns without making the owner manage a pile of marketing tools. Journey AI uses the business profile, brand, actual performance evidence, approved connected accounts and prior results to recommend what to do next.</p>
+  </div>
+  <div class="marketing-kpis">
+    <div class="marketing-kpi"><strong id="marketingActiveCount">0</strong><span>Active marketing work</span></div>
+    <div class="marketing-kpi"><strong id="marketingScheduledCount">0</strong><span>Scheduled items</span></div>
+    <div class="marketing-kpi"><strong id="marketingReadyCount">0</strong><span>Ready for approval</span></div>
+    <div class="marketing-kpi"><strong id="marketingLearningCount">0</strong><span>Measured learnings</span></div>
+  </div>
+  <div class="marketing-grid">
+    <div class="marketing-card">
+      <div class="ai-copilot-section-head"><h3>Marketing Opportunities</h3><button id="marketingRefreshOpportunities">Refresh</button></div>
+      <p>Recommendations are business-specific and disclose whether they come from observed data, learned history, business knowledge or a proposed experiment.</p>
+      <div id="marketingOpportunityList" class="marketing-opportunities"></div>
+    </div>
+    <div class="marketing-card">
+      <div class="ai-copilot-section-head"><h3>Quick Marketing Brief</h3><button id="marketingUseOpportunity">Use top opportunity</button></div>
+      <p>Describe the result you want. Journey AI prepares a plan, content and channel actions for review.</p>
+      <div class="marketing-form">
+        <input id="marketingBriefName" placeholder="Campaign / idea name">
+        <div class="marketing-row">
+          <select id="marketingBriefGoal"><option value="traffic">More customer traffic</option><option value="reviews">More reviews</option><option value="bookings">More bookings</option><option value="sales">More sales</option><option value="retention">Customer retention</option><option value="awareness">Local awareness</option></select>
+          <select id="marketingBriefUrgency"><option value="normal">Normal priority</option><option value="this_week">This week</option><option value="today">Today</option><option value="seasonal">Seasonal / event</option></select>
+        </div>
+        <textarea id="marketingBriefText" placeholder="Example: Build a Monday campaign that fits our brand and gives people a reason to visit without using a cheap-looking discount."></textarea>
+        <button id="marketingPreparePlan" class="primary ready">Prepare marketing plan</button>
+      </div>
+    </div>
+    <div class="marketing-card">
+      <div class="ai-copilot-section-head"><h3>Marketing Work</h3><button id="marketingOpenCampaigns">Open campaigns</button></div>
+      <p>Campaigns, content and scheduled actions are connected here so the owner can see the work without jumping through multiple tools.</p>
+      <div id="marketingWorkList" class="marketing-work-list"></div>
+    </div>
+    <div class="marketing-card">
+      <div class="ai-copilot-section-head"><h3>Marketing Preferences</h3><button id="marketingSavePreferences">Save</button></div>
+      <p>Journey AI uses these guardrails when creating ideas and remembers them for future marketing work.</p>
+      <div class="marketing-preference-row"><div><strong>Promotion style</strong><span>How aggressively should Journey AI use discounts?</span></div><select id="marketingPromoStyle"><option value="brand_first">Brand first</option><option value="balanced">Balanced</option><option value="offer_forward">Offer forward</option></select></div>
+      <div class="marketing-preference-row"><div><strong>Proactive suggestions</strong><span>How often should Journey AI surface marketing ideas?</span></div><select id="marketingSuggestionLevel"><option value="important">Important only</option><option value="helpful">Helpful opportunities</option><option value="active">Actively coach me</option></select></div>
+      <div class="marketing-preference-row"><div><strong>Creative tone</strong><span>Default tone when brand knowledge is incomplete.</span></div><select id="marketingCreativeTone"><option value="on_brand">Use saved brand</option><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="premium">Premium</option><option value="playful">Playful</option></select></div>
+    </div>
+  </div>
+</section>
+
+<section id="aiWorkspaceContentPanel" class="ai-workspace-panel">
+  <div class="marketing-hero">
+    <strong>Creative + Content Studio</strong>
+    <p>Create one idea and adapt it for social media, Google Business, email, website content and SmartBoard screens. Journey AI keeps the message consistent while formatting each channel appropriately.</p>
+  </div>
+  <div class="marketing-grid">
+    <div class="marketing-card">
+      <h3>Content Composer</h3>
+      <p>Choose a starting point or describe exactly what the business needs.</p>
+      <div id="contentTemplateGrid" class="content-template-grid"></div>
+      <div class="content-composer" style="margin-top:11px">
+        <input id="contentTitle" placeholder="Content title / internal name">
+        <div class="marketing-row">
+          <select id="contentPurpose"><option value="promotion">Promotion</option><option value="social">Social post</option><option value="review_thankyou">Review thank-you</option><option value="announcement">Announcement</option><option value="education">Helpful / educational</option><option value="seasonal">Seasonal</option><option value="reengagement">Customer re-engagement</option></select>
+          <select id="contentPrimaryChannel"><option value="smartboard">SmartBoard</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="google_business">Google Business</option><option value="email">Email</option><option value="website">Website</option></select>
+        </div>
+        <textarea id="contentPrompt" placeholder="Example: Thank customers after they pay and leave a review. Make it warm, polished, branded and easy to read on a phone."></textarea>
+        <button id="contentGenerateVariants" class="primary ready">Prepare content variants</button>
+        <button id="contentGenerateImage" class="secondary">Generate matching image</button>
+      </div>
+    </div>
+    <div class="marketing-card">
+      <div class="ai-copilot-section-head"><h3>Selected Preview</h3><button id="contentClearPreview">Clear</button></div>
+      <p>Previewed text remains a draft until it is added to a campaign, SmartBoard or external action.</p>
+      <div id="contentPreviewBox" class="content-preview-box"><strong>No content selected</strong><p>Prepare a variant or choose an existing item.</p></div>
+    </div>
+  </div>
+  <div class="ai-workspace-divider"></div>
+  <div class="ai-workspace-section-head"><h3>Content Variants + Reusable Assets</h3></div>
+  <div id="contentVariantList" class="content-variant-list"></div>
+</section>
+
+<section id="aiWorkspaceCalendarPanel" class="ai-workspace-panel">
+  <div class="marketing-hero">
+    <strong>Content Calendar + Scheduling</strong>
+    <p>Plan marketing in one place. Calendar entries can be prepared locally, but actual future publishing or SmartBoard changes only become scheduled when the secure backend confirms the schedule.</p>
+  </div>
+  <div class="marketing-grid">
+    <div class="marketing-card">
+      <div class="calendar-toolbar"><button id="calendarPrevMonth">&lt; Previous</button><div id="calendarMonthTitle" class="calendar-title"></div><button id="calendarNextMonth">Next &gt;</button></div>
+      <div id="contentCalendar" class="content-calendar"></div>
+    </div>
+    <div class="marketing-card">
+      <h3>Schedule Content</h3>
+      <p>Choose an existing content item, channel and future time. Journey AI checks account readiness and approval requirements before sending the schedule to the backend.</p>
+      <div class="marketing-form">
+        <select id="scheduleContentSelect"><option value="">Choose content</option></select>
+        <div class="marketing-row">
+          <select id="scheduleChannel"><option value="smartboard">SmartBoard</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="google_business">Google Business</option><option value="email">Email</option><option value="website">Website</option></select>
+          <input id="scheduleDateTime" type="datetime-local">
+        </div>
+        <button id="schedulePrepare" class="primary ready">Prepare schedule</button>
+      </div>
+      <div class="ai-workspace-divider"></div>
+      <div class="ai-copilot-section-head"><h3>Scheduling Queue</h3><button id="scheduleRefresh">Refresh</button></div>
+      <div id="scheduleList" class="schedule-list"></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="aiWorkspaceIntelligencePanel" class="ai-workspace-panel">
+  <div class="bi-hero">
+    <strong>Business Intelligence Command Center</strong>
+    <p>Journey AI combines CreateJourney activity, measured campaign results and authorized connected-account data when available. It shows what is known, what is directional and where more data is still needed.</p>
+  </div>
+  <div class="bi-kpis">
+    <div class="bi-kpi"><strong id="biTotalTaps">0</strong><span>Total SmartBoard taps</span><small id="biTapsNote">CreateJourney data</small></div>
+    <div class="bi-kpi"><strong id="biActionRate">0%</strong><span>Journey action rate</span><small>Actions / taps</small></div>
+    <div class="bi-kpi"><strong id="biActiveBoards">0</strong><span>Active boards</span><small id="biBoardCountNote">Visible to this role</small></div>
+    <div class="bi-kpi"><strong id="biMeasuredCampaignCount">0</strong><span>Measured campaigns</span><small id="biConfidenceNote">Learning confidence: Low</small></div>
+  </div>
+  <div class="bi-grid">
+    <div class="bi-card">
+      <div class="ai-copilot-section-head"><h3>Board Performance</h3><button id="biRefresh">Refresh intelligence</button></div>
+      <p>Board comparisons use only the analytics currently available to CreateJourney.</p>
+      <div id="biBoardPerformance"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Business Health</h3>
+      <p>A small set of useful observations instead of a wall of charts.</p>
+      <div id="biHealthInsights" class="bi-insight-list"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Campaign Performance</h3>
+      <p>Measured campaign outcomes are shown with their evidence source and without turning correlation into proof.</p>
+      <div id="biCampaignPerformance"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Ask the Business</h3>
+      <p>Journey AI receives the current intelligence snapshot, attribution records and advisor context.</p>
+      <div class="bi-question-bar"><input id="biQuestion" placeholder="Example: What should I focus on this week?"><button id="biAsk" class="primary ready">Ask Journey AI</button></div>
+      <div id="biSnapshotStatus" class="ai-copilot-empty" style="margin-top:10px">Using current CreateJourney workspace data.</div>
+    </div>
+  </div>
+</section>
+
+<section id="aiWorkspaceAttributionPanel" class="ai-workspace-panel">
+  <div class="bi-hero">
+    <strong>Performance Intelligence + Attribution</strong>
+    <p>Journey AI connects campaigns and customer actions where evidence exists. It deliberately distinguishes an observed association from a likely relationship and from true deterministic attribution.</p>
+  </div>
+  <div class="bi-grid">
+    <div class="bi-card">
+      <div class="ai-copilot-section-head"><h3>Campaign Attribution</h3><button id="attributionRefresh">Rebuild</button></div>
+      <p>Measured campaigns become attribution records. Local before/after changes remain directional unless a backend provides traceable event-level linkage.</p>
+      <div id="attributionList" class="attribution-list"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Journey Conversion</h3>
+      <p>Conversion here means recorded CreateJourney actions divided by taps. It is not a payment or revenue conversion unless those systems are connected and measured.</p>
+      <div id="attributionJourneyTable"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Evidence Rules</h3>
+      <div class="bi-insight-list">
+        <div class="bi-insight"><div class="bi-insight-head"><h4>Observed</h4><span class="bi-badge good">Direct data</span></div><p>A metric or change recorded directly by CreateJourney or an authorized provider.</p></div>
+        <div class="bi-insight"><div class="bi-insight-head"><h4>Likely related</h4><span class="bi-badge">Association</span></div><p>Timing and measured movement support a relationship, but other factors could have contributed.</p></div>
+        <div class="bi-insight"><div class="bi-insight-head"><h4>Deterministically attributed</h4><span class="bi-badge warn">Requires traceable linkage</span></div><p>Only used when event-level tracking can connect the source action to the outcome. Local before/after comparisons never receive this label.</p></div>
+      </div>
+    </div>
+    <div class="bi-card">
+      <h3>What Still Cannot Be Proven</h3>
+      <p id="attributionLimitations">Journey AI will list the important data gaps here instead of filling them with assumptions.</p>
+    </div>
+  </div>
+</section>
+
+<section id="aiWorkspaceAdvisorPanel" class="ai-workspace-panel">
+  <div class="bi-hero">
+    <strong>Forecasting + Business Advisor</strong>
+    <p>Journey AI looks forward only as far as the evidence allows. Forecasts show confidence, sample size and assumptions. When there is not enough history, the advisor says so and recommends a test rather than pretending to know.</p>
+  </div>
+  <div class="advisor-banner">
+    <strong id="advisorHeadline">Building business history</strong>
+    <p id="advisorSummary">Journey AI is evaluating available history, measured campaigns and board performance.</p>
+  </div>
+  <div class="bi-kpis">
+    <div class="bi-kpi"><strong id="advisorForecastCount">0</strong><span>Supported forecasts</span><small>Evidence threshold applied</small></div>
+    <div class="bi-kpi"><strong id="advisorAnomalyCount">0</strong><span>Items needing attention</span><small>Observed differences only</small></div>
+    <div class="bi-kpi"><strong id="advisorConfidence">Low</strong><span>Advisor confidence</span><small>Based on available history</small></div>
+    <div class="bi-kpi"><strong id="advisorExperiments">0</strong><span>Suggested experiments</span><small>For weak-evidence ideas</small></div>
+  </div>
+  <div class="bi-grid">
+    <div class="bi-card">
+      <div class="ai-copilot-section-head"><h3>Forecasts + Trends</h3><button id="advisorRefresh">Refresh advisor</button></div>
+      <p>Forecasts are generated only when a minimum evidence threshold is met.</p>
+      <div id="advisorForecastList" class="advisor-list"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Needs Attention</h3>
+      <p>Cross-board differences and measured negative outcomes appear here. They are not automatically treated as future trends.</p>
+      <div id="advisorAnomalyList" class="advisor-list"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Recommended Focus</h3>
+      <p>Recommendations combine business type, owner preferences, measured learnings and current operational signals.</p>
+      <div id="advisorRecommendationList" class="advisor-list"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Advisor Brief</h3>
+      <p>Generate a concise owner-level explanation of what changed, what is uncertain and what Journey AI recommends doing next.</p>
+      <button id="advisorCreateBrief" class="primary ready">Prepare owner brief</button>
+      <div id="advisorBriefList" class="advisor-list" style="margin-top:10px"></div>
+    </div>
+  </div>
+</section>
+
 <section id="aiWorkspaceCommandPanel" class="ai-workspace-panel">
   <div class="ai-workspace-section-head"><h3>Journey AI Command Center</h3></div>
   <div class="ai-command-layout">
@@ -847,7 +1409,7 @@ const LOCAL_STATE_KEY="createjourney_build3_state_v1";
 const LOCAL_ACCOUNT_KEY="createjourney_build3_account_v1";
 let sb=null,backendWorkspaceId=null,actualRole="Owner",backendReady=false,restoring=false,signedInEmail="",isPlatformAdmin=false,adminBoards=[],adminActionBusy=false,adminHistoryBoardNumber=null,authRouting=false;
 let aiBusinessProfile={goals:[]};
-let aiTimeline=[],aiMediaLibrary=[],aiConversationSessions=[],aiWorkDrafts=[],aiTimelineFilter="All",aiTimelineView="activity",aiMediaFilter="All",aiMemoryItems=[],aiProjects=[],aiActiveProjectId=null,aiOperationQueue=[],aiOperationHistory=[],aiDismissedRecommendations=[],aiWorkspaceActiveTab="timeline",connectedAccounts=[],integrationActivity=[],integrationFilter="All",integrationCategory="All",integrationWizardProviderId=null,integrationBackendState={available:false,checked:false,error:"",lastCheckedAt:null},aiOpportunityQueue=[],aiExternalActions=[],aiCreativeJobs=[],aiMemorySignals=[],aiRecommendationFeedback=[],aiCampaigns=[],aiLearningInsights=[],aiExperiments=[],aiCampaignMetricsSyncAt=null;
+let aiTimeline=[],aiMediaLibrary=[],aiConversationSessions=[],aiWorkDrafts=[],aiTimelineFilter="All",aiTimelineView="activity",aiMediaFilter="All",aiMemoryItems=[],aiProjects=[],aiActiveProjectId=null,aiOperationQueue=[],aiOperationHistory=[],aiDismissedRecommendations=[],aiWorkspaceActiveTab="timeline",connectedAccounts=[],integrationActivity=[],integrationFilter="All",integrationCategory="All",integrationWizardProviderId=null,integrationBackendState={available:false,checked:false,error:"",lastCheckedAt:null},aiOpportunityQueue=[],aiExternalActions=[],aiCreativeJobs=[],aiMemorySignals=[],aiRecommendationFeedback=[],aiCampaigns=[],aiLearningInsights=[],aiExperiments=[],aiCampaignMetricsSyncAt=null,aiMarketingPlans=[],aiContentLibrary=[],aiScheduleQueue=[],aiMarketingPreferences={promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"},aiCalendarCursor=null,aiBusinessSnapshots=[],aiAttributionRecords=[],aiForecasts=[],aiAnomalies=[],aiAdvisorBriefs=[],aiIntelligenceSyncAt=null;
 let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="";
 const actions=["Pay","Review","Book","Subscribe","Deals","Social","Contact","Info","Portfolio","Event","Custom Link","Website"];
 const businessSuggested=["Pay","Review","Book"],personalSuggested=["Social","Website","Contact"];
@@ -867,9 +1429,9 @@ async function adminSetBoardStatus(boardNumber,status){if(adminActionBusy)return
 async function adminResetBoard(boardNumber){if(adminActionBusy)return;if(!confirm(`Reset ${boardNumber} to UNCLAIMED? This removes its current claim and activation timestamps. Use this only for testing, returns, replacements or reassignment.`))return;adminActionBusy=true;renderAdminBoards();setAdminMessage(`Resetting ${boardNumber}...`);try{const{error}=await sb.rpc("cj_admin_reset_board",{p_board_number:boardNumber});if(error)throw error;await refreshAdminAfterAction(boardNumber);setAdminMessage(`${boardNumber} was reset to unclaimed inventory.`,"good")}catch(err){console.error(err);setAdminMessage(err.message||"Board reset failed.","bad")}finally{adminActionBusy=false;renderAdminBoards()}}
 async function loadAdminHistory(boardNumber,scroll=true){adminHistoryBoardNumber=boardNumber;const box=el("adminHistory"),list=el("adminHistoryList");el("adminHistoryTitle").textContent=`${boardNumber} history`;box.classList.remove("hidden");list.innerHTML='<div class="admin-empty">Loading history...</div>';if(scroll)box.scrollIntoView({behavior:"smooth",block:"start"});try{const{data,error}=await sb.rpc("cj_admin_board_history",{p_board_number:boardNumber});if(error)throw error;const rows=Array.isArray(data)?data:[];list.innerHTML="";if(!rows.length){list.innerHTML='<div class="admin-empty">No administrative history recorded yet.</div>';return}rows.forEach(r=>{const d=document.createElement("div");d.className="admin-history-item";d.innerHTML=`<strong>${esc(r.action)}</strong><span>${esc(r.previous_status||"-")} -> ${esc(r.new_status||"-")} | ${r.created_at?esc(new Date(r.created_at).toLocaleString()):""}</span><span>${esc(r.details||"")}</span>`;list.appendChild(d)})}catch(err){console.error(err);list.innerHTML=`<div class="admin-empty">${esc(err.message||"Could not load history.")}</div>`}}
 function workspaceName(){return useType==="business"?el("business").value.trim():el("personalSetupName").value.trim()}
-function serializableState(){return{version:10,useType,selectedActions,connectionValues,boards,teamMembers,auditLog,currentBoardId,aiBusinessProfile,aiTimeline,aiMediaLibrary,aiConversationSessions,aiWorkDrafts,aiMemoryItems,aiProjects,aiActiveProjectId,aiOperationQueue,aiOperationHistory,aiDismissedRecommendations,connectedAccounts,integrationActivity,aiOpportunityQueue,aiExternalActions,aiCreativeJobs,aiMemorySignals,aiRecommendationFeedback,aiCampaigns,aiLearningInsights,aiExperiments,aiCampaignMetricsSyncAt,account:{name:el("name").value.trim(),email:el("email").value.trim(),setupName:workspaceName()},savedAt:new Date().toISOString()}}
+function serializableState(){return{version:12,useType,selectedActions,connectionValues,boards,teamMembers,auditLog,currentBoardId,aiBusinessProfile,aiTimeline,aiMediaLibrary,aiConversationSessions,aiWorkDrafts,aiMemoryItems,aiProjects,aiActiveProjectId,aiOperationQueue,aiOperationHistory,aiDismissedRecommendations,connectedAccounts,integrationActivity,aiOpportunityQueue,aiExternalActions,aiCreativeJobs,aiMemorySignals,aiRecommendationFeedback,aiCampaigns,aiLearningInsights,aiExperiments,aiCampaignMetricsSyncAt,aiMarketingPlans,aiContentLibrary,aiScheduleQueue,aiMarketingPreferences,aiCalendarCursor,aiBusinessSnapshots,aiAttributionRecords,aiForecasts,aiAnomalies,aiAdvisorBriefs,aiIntelligenceSyncAt,account:{name:el("name").value.trim(),email:el("email").value.trim(),setupName:workspaceName()},savedAt:new Date().toISOString()}}
 function persistLocalState(){try{localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(serializableState()))}catch(e){console.warn("Local state save failed",e)}if(backendReady&&backendWorkspaceId&&actualRole!=="Employee")syncCloudSnapshot()}
-function restoreLocalState(){try{const raw=localStorage.getItem(LOCAL_STATE_KEY);if(!raw)return false;const s=JSON.parse(raw);useType=s.useType||"";selectedActions=s.selectedActions||[];connectionValues=s.connectionValues||{};boards=Array.isArray(s.boards)?s.boards:[];teamMembers=Array.isArray(s.teamMembers)?s.teamMembers:[];auditLog=Array.isArray(s.auditLog)?s.auditLog:[];aiBusinessProfile=s.aiBusinessProfile&&typeof s.aiBusinessProfile==="object"?s.aiBusinessProfile:{goals:[]};aiTimeline=Array.isArray(s.aiTimeline)?s.aiTimeline:[];aiMediaLibrary=Array.isArray(s.aiMediaLibrary)?s.aiMediaLibrary:[];aiConversationSessions=Array.isArray(s.aiConversationSessions)?s.aiConversationSessions:[];aiWorkDrafts=Array.isArray(s.aiWorkDrafts)?s.aiWorkDrafts:[];aiMemoryItems=Array.isArray(s.aiMemoryItems)?s.aiMemoryItems:[];aiProjects=Array.isArray(s.aiProjects)?s.aiProjects:[];aiActiveProjectId=s.aiActiveProjectId||null;aiOperationQueue=Array.isArray(s.aiOperationQueue)?s.aiOperationQueue:[];aiOperationHistory=Array.isArray(s.aiOperationHistory)?s.aiOperationHistory:[];aiDismissedRecommendations=Array.isArray(s.aiDismissedRecommendations)?s.aiDismissedRecommendations:[];connectedAccounts=Array.isArray(s.connectedAccounts)?s.connectedAccounts:[];integrationActivity=Array.isArray(s.integrationActivity)?s.integrationActivity:[];aiOpportunityQueue=Array.isArray(s.aiOpportunityQueue)?s.aiOpportunityQueue:[];aiExternalActions=Array.isArray(s.aiExternalActions)?s.aiExternalActions:[];aiCreativeJobs=Array.isArray(s.aiCreativeJobs)?s.aiCreativeJobs:[];aiMemorySignals=Array.isArray(s.aiMemorySignals)?s.aiMemorySignals:[];aiRecommendationFeedback=Array.isArray(s.aiRecommendationFeedback)?s.aiRecommendationFeedback:[];aiCampaigns=Array.isArray(s.aiCampaigns)?s.aiCampaigns:[];aiLearningInsights=Array.isArray(s.aiLearningInsights)?s.aiLearningInsights:[];aiExperiments=Array.isArray(s.aiExperiments)?s.aiExperiments:[];aiCampaignMetricsSyncAt=s.aiCampaignMetricsSyncAt||null;currentBoardId=s.currentBoardId||boards[0]?.id||null;if(s.account){el("name").value=s.account.name||"";el("email").value=s.account.email||"";if(useType==="business")el("business").value=s.account.setupName||"";else el("personalSetupName").value=s.account.setupName||""}updateConditionalFields();return boards.length>0}catch(e){console.warn("Local state restore failed",e);return false}}
+function restoreLocalState(){try{const raw=localStorage.getItem(LOCAL_STATE_KEY);if(!raw)return false;const s=JSON.parse(raw);useType=s.useType||"";selectedActions=s.selectedActions||[];connectionValues=s.connectionValues||{};boards=Array.isArray(s.boards)?s.boards:[];teamMembers=Array.isArray(s.teamMembers)?s.teamMembers:[];auditLog=Array.isArray(s.auditLog)?s.auditLog:[];aiBusinessProfile=s.aiBusinessProfile&&typeof s.aiBusinessProfile==="object"?s.aiBusinessProfile:{goals:[]};aiTimeline=Array.isArray(s.aiTimeline)?s.aiTimeline:[];aiMediaLibrary=Array.isArray(s.aiMediaLibrary)?s.aiMediaLibrary:[];aiConversationSessions=Array.isArray(s.aiConversationSessions)?s.aiConversationSessions:[];aiWorkDrafts=Array.isArray(s.aiWorkDrafts)?s.aiWorkDrafts:[];aiMemoryItems=Array.isArray(s.aiMemoryItems)?s.aiMemoryItems:[];aiProjects=Array.isArray(s.aiProjects)?s.aiProjects:[];aiActiveProjectId=s.aiActiveProjectId||null;aiOperationQueue=Array.isArray(s.aiOperationQueue)?s.aiOperationQueue:[];aiOperationHistory=Array.isArray(s.aiOperationHistory)?s.aiOperationHistory:[];aiDismissedRecommendations=Array.isArray(s.aiDismissedRecommendations)?s.aiDismissedRecommendations:[];connectedAccounts=Array.isArray(s.connectedAccounts)?s.connectedAccounts:[];integrationActivity=Array.isArray(s.integrationActivity)?s.integrationActivity:[];aiOpportunityQueue=Array.isArray(s.aiOpportunityQueue)?s.aiOpportunityQueue:[];aiExternalActions=Array.isArray(s.aiExternalActions)?s.aiExternalActions:[];aiCreativeJobs=Array.isArray(s.aiCreativeJobs)?s.aiCreativeJobs:[];aiMemorySignals=Array.isArray(s.aiMemorySignals)?s.aiMemorySignals:[];aiRecommendationFeedback=Array.isArray(s.aiRecommendationFeedback)?s.aiRecommendationFeedback:[];aiCampaigns=Array.isArray(s.aiCampaigns)?s.aiCampaigns:[];aiLearningInsights=Array.isArray(s.aiLearningInsights)?s.aiLearningInsights:[];aiExperiments=Array.isArray(s.aiExperiments)?s.aiExperiments:[];aiCampaignMetricsSyncAt=s.aiCampaignMetricsSyncAt||null;aiMarketingPlans=Array.isArray(s.aiMarketingPlans)?s.aiMarketingPlans:[];aiContentLibrary=Array.isArray(s.aiContentLibrary)?s.aiContentLibrary:[];aiScheduleQueue=Array.isArray(s.aiScheduleQueue)?s.aiScheduleQueue:[];aiMarketingPreferences=s.aiMarketingPreferences&&typeof s.aiMarketingPreferences==="object"?{promoStyle:s.aiMarketingPreferences.promoStyle||"brand_first",suggestionLevel:s.aiMarketingPreferences.suggestionLevel||"helpful",creativeTone:s.aiMarketingPreferences.creativeTone||"on_brand"}:{promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"};aiCalendarCursor=s.aiCalendarCursor||null;aiBusinessSnapshots=Array.isArray(s.aiBusinessSnapshots)?s.aiBusinessSnapshots:[];aiAttributionRecords=Array.isArray(s.aiAttributionRecords)?s.aiAttributionRecords:[];aiForecasts=Array.isArray(s.aiForecasts)?s.aiForecasts:[];aiAnomalies=Array.isArray(s.aiAnomalies)?s.aiAnomalies:[];aiAdvisorBriefs=Array.isArray(s.aiAdvisorBriefs)?s.aiAdvisorBriefs:[];aiIntelligenceSyncAt=s.aiIntelligenceSyncAt||null;currentBoardId=s.currentBoardId||boards[0]?.id||null;if(s.account){el("name").value=s.account.name||"";el("email").value=s.account.email||"";if(useType==="business")el("business").value=s.account.setupName||"";else el("personalSetupName").value=s.account.setupName||""}updateConditionalFields();return boards.length>0}catch(e){console.warn("Local state restore failed",e);return false}}
 async function hashPassword(v){const b=new TextEncoder().encode(v);const h=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function saveLocalAccount(){const email=el("email").value.trim().toLowerCase(),password=el("password").value;if(!email||!password)return;const account={name:el("name").value.trim(),email,passwordHash:await hashPassword(password),setupName:workspaceName(),useType};localStorage.setItem(LOCAL_ACCOUNT_KEY,JSON.stringify(account));localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(serializableState()))}
 function localAccount(){try{return JSON.parse(localStorage.getItem(LOCAL_ACCOUNT_KEY)||"null")}catch{return null}}
@@ -1046,7 +1608,7 @@ function renderAiProjects(){const c=el("aiProjectList");if(!c)return;c.innerHTML
 function buildAiRecommendations(){const rows=[];const missing=boards.filter(b=>(b.actions||[]).some(a=>!b.destinations?.[a]));if(missing.length)rows.push({id:"missing_destinations",priority:"High",title:"Connect missing Journey destinations",text:`${missing.length} board${missing.length===1?" has":"s have"} at least one Journey step without a destination.`,prompt:`Help me fix missing destinations on ${missing.map(b=>b.name).join(", ")}. Review what is missing and tell me the safest next steps.`});const paused=boards.filter(b=>!b.active);if(paused.length)rows.push({id:"paused_boards",priority:"Medium",title:"Review paused boards",text:`${paused.length} board${paused.length===1?" is":"s are"} paused. Confirm whether that is intentional.`,prompt:`Review my paused boards: ${paused.map(b=>b.name).join(", ")}. Help me decide which should stay paused and which should be activated.`});const zero=boards.filter(b=>(b.analytics?.taps||0)===0);if(zero.length)rows.push({id:"zero_activity",priority:"Medium",title:"Investigate boards with no activity",text:`${zero.length} board${zero.length===1?" has":"s have"} zero recorded taps in the current prototype data.`,prompt:`Review ${zero.map(b=>b.name).join(", ")} because they show no activity. Give me a placement and Journey troubleshooting checklist.`});const mem=aiWorkspaceMemoryCount();if(mem<8)rows.push({id:"knowledge_depth",priority:"Medium",title:"Teach Journey AI more about the business",text:"The Business Knowledge profile is still relatively light, so recommendations may be less specific.",prompt:"Review my Business Knowledge profile and ask me the five most valuable missing questions one at a time."});if(!(aiBusinessProfile?.brandAssets||"").trim())rows.push({id:"brand_assets",priority:"Low",title:"Add brand assets",text:"No logo or photo notes are saved in Business Knowledge yet.",prompt:"Help me build a brand asset checklist for Journey AI so future creative work stays consistent."});if(!(aiBusinessProfile?.goals||[]).length&&!String(aiBusinessProfile?.customGoal||"").trim())rows.push({id:"business_goals",priority:"High",title:"Set clear business goals",text:"Journey AI does not yet have a saved primary business goal.",prompt:"Help me choose and save my top three CreateJourney business goals."});return rows.filter(r=>!aiDismissedRecommendations.includes(r.id))}
 function renderAiRecommendations(){const c=el("aiRecommendationList");if(!c)return;const rows=buildAiRecommendations();c.innerHTML="";if(!rows.length){c.innerHTML='<div class="ai-recommendation-empty">Nothing urgent is showing from the current workspace checks. Journey AI will surface new opportunities here as business context improves.</div>';return}rows.forEach(r=>{const d=document.createElement("div");d.className="ai-reco-card";d.innerHTML=`<div><div class="ai-reco-priority">${esc(r.priority)} priority</div><div class="ai-reco-title">${esc(r.title)}</div><div class="ai-reco-text">${esc(r.text)}</div></div><div class="ai-reco-actions"><button class="primary ready" data-start>Work on this</button><button class="linkbtn" data-dismiss>Dismiss</button></div>`;d.querySelector("[data-start]").addEventListener("click",()=>startAiWorkspacePrompt(r.prompt,r.title,"Promotion"));d.querySelector("[data-dismiss]").addEventListener("click",()=>{if(!aiDismissedRecommendations.includes(r.id))aiDismissedRecommendations.push(r.id);persistLocalState();renderAiRecommendations()});c.appendChild(d)})}
 
-function aiGlobalSearch(){const q=String(el("aiWorkspaceGlobalSearch").value||"").trim().toLowerCase(),c=el("aiWorkspaceGlobalResults");if(!q){c.classList.add("hidden");c.innerHTML="";return}const hits=[];aiTimeline.forEach(x=>{if(`${x.kind} ${x.text}`.toLowerCase().includes(q))hits.push({type:"Timeline",title:x.kind,text:x.text})});aiConversationSessions.forEach(s=>{const all=`${s.title} ${(s.messages||[]).map(m=>m.text).join(" ")}`;if(all.toLowerCase().includes(q))hits.push({type:"Conversation",title:s.title,text:(s.messages||[]).slice(-1)[0]?.text||"Saved conversation"})});aiMemoryItems.forEach(m=>{if(m.text.toLowerCase().includes(q))hits.push({type:"Memory",title:m.scope,text:m.text})});aiWorkDrafts.forEach(d=>{if(`${d.title} ${d.prompt} ${d.summary||""}`.toLowerCase().includes(q))hits.push({type:"AI Work",title:d.title,text:d.summary||d.prompt})});aiMediaLibrary.forEach(m=>{if(`${m.name} ${m.detail||""}`.toLowerCase().includes(q))hits.push({type:"Media",title:m.name,text:m.detail||"Saved asset"})});aiProjects.forEach(p=>{if(`${p.name} ${p.description||""}`.toLowerCase().includes(q))hits.push({type:"Project",title:p.name,text:p.description||"Journey AI work thread"})});aiOperationQueue.forEach(o=>{if(`${o.title} ${o.detail}`.toLowerCase().includes(q))hits.push({type:"Change Plan",title:o.title,text:o.detail})});aiMemorySignals.forEach(m=>{if(`${m.category} ${m.text}`.toLowerCase().includes(q))hits.push({type:"Organized Memory",title:m.category,text:m.text})});aiExternalActions.forEach(a=>{if(`${a.title} ${a.content} ${a.status}`.toLowerCase().includes(q))hits.push({type:"External Action",title:a.title,text:a.content||a.status})});aiCreativeJobs.forEach(j=>{if(`${j.name||""} ${j.prompt} ${j.purpose}`.toLowerCase().includes(q))hits.push({type:"Creative",title:j.name||"Journey AI creative",text:j.prompt})});aiCampaigns.forEach(c=>{if(`${c.name} ${c.brief} ${c.objective} ${c.channels.join(" ")}`.toLowerCase().includes(q))hits.push({type:"Campaign",title:c.name,text:c.brief})});aiLearningInsights.forEach(i=>{if(`${i.title} ${i.text}`.toLowerCase().includes(q))hits.push({type:"Learning",title:i.title,text:i.text})});aiExperiments.forEach(e=>{if(`${e.title} ${e.hypothesis}`.toLowerCase().includes(q))hits.push({type:"Experiment",title:e.title,text:e.hypothesis})});c.classList.remove("hidden");c.innerHTML=hits.length?hits.slice(0,40).map(h=>`<div class="ai-global-result"><strong>${esc(h.type)} - ${esc(h.title)}</strong><span>${esc(h.text)}</span></div>`).join(""):'<div class="ai-empty-card">No Journey AI workspace results matched that search.</div>'}
+function aiGlobalSearch(){const q=String(el("aiWorkspaceGlobalSearch").value||"").trim().toLowerCase(),c=el("aiWorkspaceGlobalResults");if(!q){c.classList.add("hidden");c.innerHTML="";return}const hits=[];aiTimeline.forEach(x=>{if(`${x.kind} ${x.text}`.toLowerCase().includes(q))hits.push({type:"Timeline",title:x.kind,text:x.text})});aiConversationSessions.forEach(s=>{const all=`${s.title} ${(s.messages||[]).map(m=>m.text).join(" ")}`;if(all.toLowerCase().includes(q))hits.push({type:"Conversation",title:s.title,text:(s.messages||[]).slice(-1)[0]?.text||"Saved conversation"})});aiMemoryItems.forEach(m=>{if(m.text.toLowerCase().includes(q))hits.push({type:"Memory",title:m.scope,text:m.text})});aiWorkDrafts.forEach(d=>{if(`${d.title} ${d.prompt} ${d.summary||""}`.toLowerCase().includes(q))hits.push({type:"AI Work",title:d.title,text:d.summary||d.prompt})});aiMediaLibrary.forEach(m=>{if(`${m.name} ${m.detail||""}`.toLowerCase().includes(q))hits.push({type:"Media",title:m.name,text:m.detail||"Saved asset"})});aiProjects.forEach(p=>{if(`${p.name} ${p.description||""}`.toLowerCase().includes(q))hits.push({type:"Project",title:p.name,text:p.description||"Journey AI work thread"})});aiOperationQueue.forEach(o=>{if(`${o.title} ${o.detail}`.toLowerCase().includes(q))hits.push({type:"Change Plan",title:o.title,text:o.detail})});aiMemorySignals.forEach(m=>{if(`${m.category} ${m.text}`.toLowerCase().includes(q))hits.push({type:"Organized Memory",title:m.category,text:m.text})});aiExternalActions.forEach(a=>{if(`${a.title} ${a.content} ${a.status}`.toLowerCase().includes(q))hits.push({type:"External Action",title:a.title,text:a.content||a.status})});aiCreativeJobs.forEach(j=>{if(`${j.name||""} ${j.prompt} ${j.purpose}`.toLowerCase().includes(q))hits.push({type:"Creative",title:j.name||"Journey AI creative",text:j.prompt})});aiCampaigns.forEach(c=>{if(`${c.name} ${c.brief} ${c.objective} ${c.channels.join(" ")}`.toLowerCase().includes(q))hits.push({type:"Campaign",title:c.name,text:c.brief})});aiLearningInsights.forEach(i=>{if(`${i.title} ${i.text}`.toLowerCase().includes(q))hits.push({type:"Learning",title:i.title,text:i.text})});aiExperiments.forEach(e=>{if(`${e.title} ${e.hypothesis}`.toLowerCase().includes(q))hits.push({type:"Experiment",title:e.title,text:e.hypothesis})});aiMarketingPlans.forEach(p=>{if(`${p.name} ${p.brief} ${p.goal}`.toLowerCase().includes(q))hits.push({type:"Marketing Plan",title:p.name,text:p.brief})});aiContentLibrary.forEach(c=>{if(`${c.title} ${c.prompt} ${c.purpose} ${c.primaryChannel}`.toLowerCase().includes(q))hits.push({type:"Content",title:c.title,text:c.prompt})});aiScheduleQueue.forEach(s=>{if(`${s.contentTitle} ${s.channel} ${s.status}`.toLowerCase().includes(q))hits.push({type:"Schedule",title:s.contentTitle,text:`${s.channel} - ${s.scheduledFor} - ${s.status}`})});aiAttributionRecords.forEach(a=>{if(`${a.title} ${a.strength} ${a.metric} ${a.source}`.toLowerCase().includes(q))hits.push({type:"Attribution",title:a.title,text:`${a.strength}: ${a.explanation}`})});aiForecasts.forEach(f=>{if(`${f.title} ${f.text} ${f.confidence}`.toLowerCase().includes(q))hits.push({type:"Forecast",title:f.title,text:f.text})});aiAnomalies.forEach(a=>{if(`${a.title} ${a.text}`.toLowerCase().includes(q))hits.push({type:"Attention",title:a.title,text:a.text})});aiAdvisorBriefs.forEach(b=>{if(`${b.title} ${b.summary} ${b.recommendation}`.toLowerCase().includes(q))hits.push({type:"Advisor Brief",title:b.title,text:b.summary})});c.classList.remove("hidden");c.innerHTML=hits.length?hits.slice(0,40).map(h=>`<div class="ai-global-result"><strong>${esc(h.type)} - ${esc(h.title)}</strong><span>${esc(h.text)}</span></div>`).join(""):'<div class="ai-empty-card">No Journey AI workspace results matched that search.</div>'}
 
 function aiExtractActionsOrdered(raw){const lower=String(raw||"").toLowerCase(),found=[];actions.forEach(a=>{const i=lower.indexOf(a.toLowerCase());if(i>=0)found.push({a,i})});return found.sort((x,y)=>x.i-y.i).map(x=>x.a).slice(0,3)}
 function aiFindBoardForCommand(raw){let b=findBoardInText(raw);if(b)return b;const lower=normalizeBoardText(raw),station=lower.match(/\bstation\s*(\d+)\b/);if(station){const n=station[1];b=boards.find(x=>new RegExp(`\\b${n}\\b`).test(x.name));if(b)return b}if(!el("boardManagerApp").classList.contains("hidden"))return currentBoard();return null}
@@ -1080,7 +1642,7 @@ function renderAiOperationHistory(){const c=el("aiOperationHistory");if(!c)retur
 function renderAiCommandCenter(){el("aiCommandContext").textContent=`Current context: ${currentScreenContext()}`;renderAiProjects();renderAiOperationQueue();renderAiOperationHistory()}
 
 function renderAiWorkspace72(){const p=aiBusinessProfile||{};el("aiWorkspaceBusinessName").textContent=p.businessName||workspaceName()||"Your Business";const bits=[p.description,p.services,p.goals?.length?`Goals: ${p.goals.join(", ")}`:""].filter(Boolean);el("aiWorkspaceSummary").textContent=bits.join(" ")||"Journey AI is building a working understanding of your business. Complete Business Knowledge to make recommendations more specific.";el("aiWorkspaceMemoryCount").textContent=aiWorkspaceMemoryCount()+aiMemoryItems.filter(m=>m.scope!=="Temporary").length;renderAiWorkspaceTimeline(el("aiTimelineSearch")?.value||"");renderAiConversationSessions();renderAiWorkspaceKnowledge();renderAiMemoryControls();renderAiWorkspaceMedia();renderAiRecommendations();renderAiCommandCenter()}
-function switchAiWorkspaceTab72(name){aiWorkspaceActiveTab=name;document.querySelectorAll(".ai-workspace-tab").forEach(b=>b.classList.toggle("selected",b.dataset.aiWorkspaceTab===name));["timeline","knowledge","media","actions","copilot","campaigns","learning","command"].forEach(n=>el("aiWorkspace"+n.charAt(0).toUpperCase()+n.slice(1)+"Panel").classList.toggle("active",n===name));if(name==="timeline")switchAiTimelineView(aiTimelineView);if(name==="knowledge"){renderAiWorkspaceKnowledge();renderAiMemoryControls()}if(name==="media")renderAiWorkspaceMedia();if(name==="actions")renderAiRecommendations();if(name==="copilot")renderAiGrowthCopilot();if(name==="campaigns")renderAiCampaigns();if(name==="learning")renderAiLearning();if(name==="command")renderAiCommandCenter();updateAiContext()}
+function switchAiWorkspaceTab72(name){aiWorkspaceActiveTab=name;document.querySelectorAll(".ai-workspace-tab").forEach(b=>b.classList.toggle("selected",b.dataset.aiWorkspaceTab===name));["timeline","knowledge","media","actions","copilot","campaigns","learning","marketing","content","calendar","intelligence","attribution","advisor","command"].forEach(n=>el("aiWorkspace"+n.charAt(0).toUpperCase()+n.slice(1)+"Panel").classList.toggle("active",n===name));if(name==="timeline")switchAiTimelineView(aiTimelineView);if(name==="knowledge"){renderAiWorkspaceKnowledge();renderAiMemoryControls()}if(name==="media")renderAiWorkspaceMedia();if(name==="actions")renderAiRecommendations();if(name==="copilot")renderAiGrowthCopilot();if(name==="campaigns")renderAiCampaigns();if(name==="learning")renderAiLearning();if(name==="marketing")renderMarketingCommandCenter();if(name==="content")renderContentStudio();if(name==="calendar")renderContentCalendar();if(name==="intelligence")renderBusinessIntelligence();if(name==="attribution")renderAttributionIntelligence();if(name==="advisor")renderBusinessAdvisor();if(name==="command")renderAiCommandCenter();updateAiContext()}
 
 /* SECTION 8 - CONNECTED ACCOUNTS FOUNDATION */
 const integrationProviders=[
@@ -1325,7 +1887,7 @@ function buildRealtimeJourneyContext(){
     journeyAiWorkDrafts:(aiWorkDrafts||[]).slice(0,10).map(d=>({title:d.title,status:d.status,category:d.category,summary:d.summary,prompt:d.prompt,projectId:d.projectId||null})),
     journeyAiMemory:(aiMemoryItems||[]).filter(m=>m.scope!=="Temporary"||!m.expiresAt||new Date(m.expiresAt).getTime()>Date.now()).slice(0,40).map(m=>({text:m.text,scope:m.scope,pinned:!!m.pinned})),
     journeyAiProjects:(aiProjects||[]).slice(0,20).map(p=>({id:p.id,name:p.name,active:p.id===aiActiveProjectId})),
-    connectedAccounts:(connectedAccounts||[]).filter(c=>c.status==="connected"&&c.aiAccess).map(c=>({provider:c.providerId,accountLabel:c.accountLabel,defaultAccount:c.defaultAccount||c.accountLabel,permissions:(c.permissions||[]).filter(p=>p.enabled).map(p=>({id:p.id,label:p.label,mode:p.mode})),lastSyncAt:c.lastSyncAt||null,backendManaged:!!c.backendManaged,connectionHealth:c.tokenHealth||"unknown"})),businessArchetype:typeof aiBusinessArchetype==="function"?aiBusinessArchetype():(aiBusinessProfile?.industry||"Business"),recentOrganizedMemory:(aiMemorySignals||[]).filter(x=>x.status!=="Forgotten").slice(0,40).map(x=>({category:x.category,text:x.text,important:!!x.important,role:x.role})),proactiveOpportunities:(typeof aiBuildProactiveOpportunities==="function"?aiBuildProactiveOpportunities():[]).slice(0,6).map(x=>({title:x.title,evidence:x.evidence,detail:x.detail})),pendingExternalActions:(aiExternalActions||[]).filter(x=>x.status!=="Completed").slice(0,12).map(x=>({title:x.title,provider:x.providerId,type:x.type,status:x.status,requiresApproval:x.requiresApproval})),campaigns:(aiCampaigns||[]).slice(0,15).map(c=>({name:c.name,objective:c.objective,channels:c.channels,status:c.status,result:c.results?{metric:c.results.metric,primaryDeltaPct:c.results.primaryDeltaPct,source:c.results.source}:null})),learningInsights:(aiLearningInsights||[]).slice(0,10).map(x=>({title:x.title,text:x.text,confidence:x.confidence,samples:x.samples})),activeExperiments:(aiExperiments||[]).filter(x=>x.status!=="Completed").slice(0,10).map(x=>({title:x.title,hypothesis:x.hypothesis,status:x.status})),
+    connectedAccounts:(connectedAccounts||[]).filter(c=>c.status==="connected"&&c.aiAccess).map(c=>({provider:c.providerId,accountLabel:c.accountLabel,defaultAccount:c.defaultAccount||c.accountLabel,permissions:(c.permissions||[]).filter(p=>p.enabled).map(p=>({id:p.id,label:p.label,mode:p.mode})),lastSyncAt:c.lastSyncAt||null,backendManaged:!!c.backendManaged,connectionHealth:c.tokenHealth||"unknown"})),businessArchetype:typeof aiBusinessArchetype==="function"?aiBusinessArchetype():(aiBusinessProfile?.industry||"Business"),recentOrganizedMemory:(aiMemorySignals||[]).filter(x=>x.status!=="Forgotten").slice(0,40).map(x=>({category:x.category,text:x.text,important:!!x.important,role:x.role})),proactiveOpportunities:(typeof aiBuildProactiveOpportunities==="function"?aiBuildProactiveOpportunities():[]).slice(0,6).map(x=>({title:x.title,evidence:x.evidence,detail:x.detail})),pendingExternalActions:(aiExternalActions||[]).filter(x=>x.status!=="Completed").slice(0,12).map(x=>({title:x.title,provider:x.providerId,type:x.type,status:x.status,requiresApproval:x.requiresApproval})),campaigns:(aiCampaigns||[]).slice(0,15).map(c=>({name:c.name,objective:c.objective,channels:c.channels,status:c.status,result:c.results?{metric:c.results.metric,primaryDeltaPct:c.results.primaryDeltaPct,source:c.results.source}:null})),learningInsights:(aiLearningInsights||[]).slice(0,10).map(x=>({title:x.title,text:x.text,confidence:x.confidence,samples:x.samples})),activeExperiments:(aiExperiments||[]).filter(x=>x.status!=="Completed").slice(0,10).map(x=>({title:x.title,hypothesis:x.hypothesis,status:x.status})),marketingPreferences:aiMarketingPreferences||{},marketingPlans:(aiMarketingPlans||[]).slice(0,12).map(x=>({name:x.name,goal:x.goal,urgency:x.urgency,status:x.status,brief:x.brief})),contentLibrary:(aiContentLibrary||[]).slice(0,15).map(x=>({title:x.title,purpose:x.purpose,channel:x.primaryChannel,status:x.status,selectedText:(x.variants||[]).find(v=>v.id===x.selectedVariantId)?.text||null})),scheduledMarketing:(aiScheduleQueue||[]).filter(x=>x.status!=="Cancelled").slice(0,15).map(x=>({title:x.contentTitle,channel:x.channel,scheduledFor:x.scheduledFor,status:x.status})),businessIntelligence:currentBusinessSnapshot(),attributionRecords:(aiAttributionRecords||[]).slice(0,12).map(x=>({campaign:x.title,strength:x.strength,metric:x.metric,deltaPct:x.deltaPct,source:x.source})),forecasts:(aiForecasts||[]).slice(0,10).map(x=>({title:x.title,text:x.text,confidence:x.confidence,samples:x.samples})),businessAnomalies:(aiAnomalies||[]).slice(0,10).map(x=>({title:x.title,text:x.text,evidence:x.evidence})),advisorBriefs:(aiAdvisorBriefs||[]).slice(0,5).map(x=>({title:x.title,summary:x.summary,uncertainty:x.uncertainty,recommendation:x.recommendation})),
     pendingApprovedActions:(aiOperationQueue||[]).filter(o=>o.status==="Ready for approval").slice(0,20).map(o=>({title:o.title,detail:o.detail,risk:o.risk,status:o.status})),
     focusBoard:!el("boardManagerApp").classList.contains("hidden")&&currentBoard()?{id:currentBoard().id,name:currentBoard().name}:null,
     boardCount:visible.length,
@@ -1521,6 +2083,27 @@ document.querySelectorAll("[data-ai-media-filter]").forEach(b=>b.addEventListene
 el("aiMediaCreate").addEventListener("click",()=>startAiWorkspacePrompt("Help me create a visual promotion for my business. Use my saved brand, services and goals, and tell me what image we should make.","Visual promotion","Promotion"));
 
 el("rolePreview").addEventListener("change",()=>{if(actualRole!=="Owner"){el("rolePreview").value=actualRole;currentRole=actualRole;return}currentRole=el("rolePreview").value;applyRolePreview();updateAiContext()});el("quickAddBoard").addEventListener("click",()=>permissions().add?openAddBoard():alert("This role cannot add boards."));el("quickEditJourney").addEventListener("click",()=>{const b=visibleBoards()[0];if(!b)return;currentBoardId=b.id;if(permissions().edit)openBoardManager(true);else openBoardManager(false)});el("quickInviteTeam").addEventListener("click",()=>permissions().team?openTeamManager():alert("This role cannot manage the team."));el("quickConnectedAccounts").addEventListener("click",openConnectedAccounts);
+el("quickIntelligence").addEventListener("click",()=>{openAiWorkspace();switchAiWorkspaceTab72("intelligence")});
+el("biRefresh").addEventListener("click",()=>refreshBusinessIntelligence(true));
+el("biAsk").addEventListener("click",askBusinessIntelligence);
+el("biQuestion").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();askBusinessIntelligence()}});
+el("attributionRefresh").addEventListener("click",()=>{rebuildAttributionRecords();persistLocalState();renderAttributionIntelligence()});
+el("advisorRefresh").addEventListener("click",()=>{rebuildAdvisorModels();persistLocalState();renderBusinessAdvisor()});
+el("advisorCreateBrief").addEventListener("click",prepareAdvisorBrief);
+el("quickMarketing").addEventListener("click",()=>{openAiWorkspace();switchAiWorkspaceTab72("marketing")});
+el("marketingRefreshOpportunities").addEventListener("click",renderMarketingCommandCenter);
+el("marketingUseOpportunity").addEventListener("click",marketingUseTopOpportunity);
+el("marketingPreparePlan").addEventListener("click",prepareMarketingPlan);
+el("marketingOpenCampaigns").addEventListener("click",()=>switchAiWorkspaceTab72("campaigns"));
+el("marketingSavePreferences").addEventListener("click",marketingSavePreferences);
+el("contentGenerateVariants").addEventListener("click",prepareContentVariants);
+el("contentGenerateImage").addEventListener("click",generateContentImage);
+el("contentClearPreview").addEventListener("click",()=>{el("contentPreviewBox").innerHTML='<strong>No content selected</strong><p>Prepare a variant or choose an existing item.</p>'});
+el("calendarPrevMonth").addEventListener("click",()=>calendarMove(-1));
+el("calendarNextMonth").addEventListener("click",()=>calendarMove(1));
+el("schedulePrepare").addEventListener("click",prepareContentSchedule);
+el("scheduleRefresh").addEventListener("click",renderContentCalendar);
+el("scheduleChannel").addEventListener("change",renderScheduleFormReadiness);
 el("aiCampaignUseSuggestion").addEventListener("click",aiPrepareSuggestedCampaign);
 el("aiCampaignPrepare").addEventListener("click",aiPrepareCampaign);
 el("aiCampaignRefreshProviders").addEventListener("click",()=>{renderAiProviderActionPacks();checkIntegrationBackend()});
