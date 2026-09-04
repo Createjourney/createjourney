@@ -1307,7 +1307,7 @@ const LOCAL_ACCOUNT_KEY="createjourney_build3_account_v1";
 let sb=null,backendWorkspaceId=null,actualRole="Owner",backendReady=false,restoring=false,signedInEmail="",isPlatformAdmin=false,adminBoards=[],adminActionBusy=false,adminHistoryBoardNumber=null,authRouting=false;
 let aiBusinessProfile={goals:[]};
 let aiTimeline=[],aiMediaLibrary=[],aiConversationSessions=[],aiWorkDrafts=[],aiTimelineFilter="All",aiTimelineView="activity",aiMediaFilter="All",aiMemoryItems=[],aiProjects=[],aiActiveProjectId=null,aiOperationQueue=[],aiOperationHistory=[],aiDismissedRecommendations=[],aiWorkspaceActiveTab="timeline",connectedAccounts=[],integrationActivity=[],integrationFilter="All",integrationCategory="All",integrationWizardProviderId=null,integrationBackendState={available:false,checked:false,error:"",lastCheckedAt:null},aiOpportunityQueue=[],aiExternalActions=[],aiCreativeJobs=[],aiMemorySignals=[],aiRecommendationFeedback=[],aiCampaigns=[],aiLearningInsights=[],aiExperiments=[],aiCampaignMetricsSyncAt=null,aiMarketingPlans=[],aiContentLibrary=[],aiScheduleQueue=[],aiMarketingPreferences={promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"},aiCalendarCursor=null,aiBusinessSnapshots=[],aiAttributionRecords=[],aiForecasts=[],aiAnomalies=[],aiAdvisorBriefs=[],aiIntelligenceSyncAt=null,aiAutomations=[],aiAutomationRuns=[],aiAutomationMaster={paused:false,backendConfirmed:false,updatedAt:null},aiAutomationSignals=[],aiAutomationPackHistory=[],billingState={planId:"core",status:"unconfirmed",source:"local_fallback",customerId:null,subscriptionId:null,currentPeriodEnd:null,cancelAtPeriodEnd:false,portalAvailable:false,lastSyncedAt:null},billingPlanCatalog=[],workspaceEntitlements={},workspaceUsage={periodStart:null,periodEnd:null,aiUnits:null,creativeGenerations:null,automationRuns:null,providerActions:null,source:"local_fallback"},billingInvoices=[],productionReadiness={lastRunAt:null,backendCheckedAt:null,backendVerified:false,backend:{},localChecks:[],securityChecks:[],qaChecks:[],releaseStatus:"unverified"},productionDiagnostics=[],releaseGateHistory=[],launchOperations={lastSyncedAt:null,backendConfirmed:false,maintenance:{enabled:null,message:null,confirmed:false},release:{version:null,commit:null,deployedAt:null,environment:null},services:[]},pilotWorkspaces=[],operationsIncidents=[],operationsMonitoring=[],featureFlags=[],supportDiagnostics=[],aiBusinessBrain={facts:[],preferences:[],decisions:[],highlights:[],updatedAt:null},aiCreativePreferences={variationCount:4,askMode:"smart",explainMode:"on"},aiLibrarySync={lastAttemptAt:null,lastSuccessAt:null,backendConfirmed:false,error:""},aiPendingLogoMeta=null;
-let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="";
+let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false;
 const actions=["Pay","Review","Book","Subscribe","Deals","Social","Contact","Info","Portfolio","Event","Custom Link","Website"];
 const businessSuggested=["Pay","Review","Book"],personalSuggested=["Social","Website","Contact"];
 const actionConfig={Pay:{question:"Where should people go to pay?",example:"Example: your Square, Stripe, PayPal, Venmo, or payment link"},Review:{question:"Where should customers leave a review?",example:"Example: your Google Review link"},Book:{question:"Where should people book with you?",example:"Example: your booking or calendar link"},Subscribe:{question:"Where should people subscribe or join?",example:"Example: your membership, newsletter, or subscription link"},Deals:{question:"Where should people see your deals?",example:"Example: your offers, specials, promotions, or coupon page"},Social:{question:"Which social profile should people visit?",example:"Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"},Contact:{question:"Where should people contact you?",example:"Example: your contact page, messaging link, or digital contact card"},Info:{question:"Where should people see more information?",example:"Example: your menu, instructions, pricing, FAQ, directions, or information page"},Portfolio:{question:"Where should people view your work?",example:"Example: your portfolio, gallery, creator page, or work samples"},Event:{question:"Where should people go for your event?",example:"Example: event details, tickets, schedule, directions, or RSVP page"},"Custom Link":{question:"Where should this custom action take people?",example:"Example: any website or destination you choose"},Website:{question:"Where should people visit your website?",example:"Example: your personal, business, portfolio, or company website"}};
@@ -3225,7 +3225,52 @@ function primeVoiceOutput(){if(!("speechSynthesis" in window))return;try{const s
 function speakAi(text){if(!text||!("speechSynthesis" in window))return;const clean=String(text).replace(/\s+/g," ").replace(/\s*->\s*/g,", then ").trim();if(!clean)return;const synth=window.speechSynthesis;const perform=()=>{try{synth.cancel();synth.resume();const u=new SpeechSynthesisUtterance(clean);const voices=synth.getVoices().filter(v=>/^en/i.test(v.lang));const preferred=[/Ava.*Premium/i,/Samantha.*Enhanced/i,/Samantha/i,/Ava/i,/Allison/i,/Karen/i,/Moira/i,/Evan/i,/Nathan/i];let chosen=null;for(const pattern of preferred){chosen=voices.find(v=>pattern.test(v.name));if(chosen)break}u.voice=chosen||voices.find(v=>/^en-US/i.test(v.lang))||voices[0]||null;u.lang=(u.voice&&u.voice.lang)||"en-US";u.rate=.94;u.pitch=.98;u.volume=1;u.onstart=()=>{aiVoiceSession=true};u.onend=()=>{aiVoiceSession=false};u.onerror=()=>{aiVoiceSession=false};synth.speak(u)}catch(err){aiVoiceSession=false;console.error("Journey AI voice output failed",err)}};const available=synth.getVoices();if(available.length){setTimeout(perform,120)}else{let fired=false;const ready=()=>{if(fired)return;fired=true;try{synth.removeEventListener("voiceschanged",ready)}catch(_){ }setTimeout(perform,80)};try{synth.addEventListener("voiceschanged",ready)}catch(_){ }setTimeout(ready,650)}}
 function renderAiRecommendations(){const c=el("aiRecommendations");if(!c)return;c.innerHTML="";const recs=[],paused=boards.filter(b=>!b.active),zero=boards.filter(b=>b.analytics.taps===0),missing=boards.filter(b=>b.actions.some(a=>!b.destinations[a]));if(paused.length)recs.push({t:"Paused board",d:`${paused[0].name} is paused. Reactivate it when you want customers to use its Journey again.`});if(missing.length)recs.push({t:"Destination check",d:`${missing[0].name} has at least one Journey action without a destination.`});if(zero.length)recs.push({t:"No activity yet",d:`${zero[0].name} has zero taps. Verify placement and test the NFC/QR before judging performance.`});if(!recs.length)recs.push({t:"Workspace looks healthy",d:"No obvious prototype issues are showing. Live AI recommendations become stronger after real analytics are connected."});recs.slice(0,3).forEach(r=>{const d=document.createElement("div");d.className="ai-rec";d.innerHTML=`<strong>${esc(r.t)}</strong><span>${esc(r.d)}</span>`;c.appendChild(d)})}
 function openAI(){el("journeyAiPanel").classList.remove("hidden");el("journeyAiPanel").classList.remove("collapsed");updateAiContext();if(!el("aiThread").children.length)addAiMessage("ai","Hey. I am Journey AI. Tap the microphone for live conversational voice, or type below. I can use your current CreateJourney workspace context and keep operational changes approval-based.")}
-function addAiMessage(type,text,proposal=null,voiceReply=false){if(type==="user"){aiTimelineAdd("Conversation","You: "+String(text||""));saveAiConversationMessage("user",text);captureAiMemorySignal("user",text);archiveAiConversationDetail("user",text)}else if(type==="ai"&&text){aiTimelineAdd("Conversation","Journey AI: "+String(text||""));saveAiConversationMessage("assistant",text);captureAiMemorySignal("assistant",text);archiveAiConversationDetail("assistant",text)}const d=document.createElement("div");d.className="msg "+type;d.innerHTML=esc(text);if(proposal){const p=document.createElement("div");p.className="ai-proposal";p.innerHTML=`<strong>${esc(proposal.title)}</strong><div>${esc(proposal.detail)}</div><div class="ai-proposal-actions"><button class="primary ready ai-apply">Apply</button><button class="secondary ai-cancel">Cancel</button></div>`;p.querySelector(".ai-apply").addEventListener("click",applyAiPending);p.querySelector(".ai-cancel").addEventListener("click",()=>{aiPendingAction=null;addAiMessage("ai","Cancelled. No changes were made.")});d.appendChild(p)}el("aiThread").appendChild(d);el("aiThread").scrollTop=el("aiThread").scrollHeight;if(type==="ai"&&voiceReply)speakAi(text);try{persistLocalState()}catch{}}
+function addAiMessage(type,text,proposal=null,voiceReply=false){
+  const messageText=String(text||"");
+  const thread=el("aiThread");
+  const last=thread?.lastElementChild;
+  if(last&&last.dataset?.messageText===messageText&&last.dataset?.messageType===String(type)){
+    const age=Date.now()-Number(last.dataset.messageAt||0);
+    if(age>=0&&age<3500)return last;
+  }
+
+  if(type==="user"){
+    aiTimelineAdd("Conversation","You: "+messageText);
+    saveAiConversationMessage("user",text);
+    captureAiMemorySignal("user",text);
+    archiveAiConversationDetail("user",text);
+  }else if(type==="ai"&&text){
+    aiTimelineAdd("Conversation","Journey AI: "+messageText);
+    saveAiConversationMessage("assistant",text);
+    captureAiMemorySignal("assistant",text);
+    archiveAiConversationDetail("assistant",text);
+  }
+
+  const d=document.createElement("div");
+  d.className="msg "+type;
+  d.dataset.messageText=messageText;
+  d.dataset.messageType=String(type);
+  d.dataset.messageAt=String(Date.now());
+  d.innerHTML=esc(text);
+
+  if(proposal){
+    const p=document.createElement("div");
+    p.className="ai-proposal";
+    p.innerHTML=`<strong>${esc(proposal.title)}</strong><div>${esc(proposal.detail)}</div><div class="ai-proposal-actions"><button class="primary ready ai-apply">Apply</button><button class="secondary ai-cancel">Cancel</button></div>`;
+    p.querySelector(".ai-apply").addEventListener("click",applyAiPending);
+    p.querySelector(".ai-cancel").addEventListener("click",()=>{
+      aiPendingAction=null;
+      addAiMessage("ai","Cancelled. No changes were made.")
+    });
+    d.appendChild(p);
+  }
+
+  thread.appendChild(d);
+  thread.scrollTop=thread.scrollHeight;
+  if(type==="ai"&&voiceReply)speakAi(text);
+  try{persistLocalState()}catch{}
+  return d;
+}
 function numberWordsToDigits(text){const map={zero:"0",one:"1",two:"2",three:"3",four:"4",five:"5",six:"6",seven:"7",eight:"8",nine:"9",ten:"10",eleven:"11",twelve:"12",thirteen:"13",fourteen:"14",fifteen:"15",sixteen:"16",seventeen:"17",eighteen:"18",nineteen:"19",twenty:"20"};return text.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/gi,m=>map[m.toLowerCase()]||m)}
 function normalizeBoardText(text){return numberWordsToDigits(String(text||"").toLowerCase()).replace(/[_]+/g," ").replace(/\bcj\s*[- ]?\s*(\d+)/g,"cj-$1").replace(/\s+/g," ").trim()}
 function boardAliases(b){const aliases=new Set([b.name.toLowerCase(),b.id.toLowerCase()]);const n=b.name.match(/(\d+)/);if(n){aliases.add(`chair ${n[1]}`);aliases.add(`chair${n[1]}`);aliases.add(`board ${n[1]}`);aliases.add(`board${n[1]}`)}const code=b.id.toLowerCase().replace(/\s+/g,"");aliases.add(code);aliases.add(code.replace("-",""));return [...aliases]}
@@ -3294,36 +3339,136 @@ function realtimeEventText(event){
   }
   return "";
 }
+function setRealtimeMicCapture(enabled){
+  try{
+    realtimeMicStream?.getAudioTracks?.().forEach(track=>{
+      track.enabled=!!enabled;
+    });
+  }catch(_){}
+}
+
+function realtimeSendEvent(payload){
+  try{
+    if(realtimeDataChannel?.readyState==="open"){
+      realtimeDataChannel.send(JSON.stringify(payload));
+      return true;
+    }
+  }catch(err){
+    console.warn("Realtime control event failed",err);
+  }
+  return false;
+}
+
 function handleRealtimeEvent(event){
   if(!event||!event.type)return;
-  if(event.type==="input_audio_buffer.speech_started"){setRealtimeUi(true);return}
-  if(event.type==="input_audio_buffer.speech_stopped"){return}
-  if(event.type==="conversation.item.input_audio_transcription.completed"||event.type==="input_audio_transcription.completed"){
-    const t=realtimeEventText(event);
-    if(t)addAiMessage("user",t);
+
+  if(event.type==="input_audio_buffer.speech_started"){
+    setRealtimeUi(true);
     return;
   }
+
+  if(event.type==="input_audio_buffer.speech_stopped"){
+    return;
+  }
+
+  if(event.type==="conversation.item.input_audio_transcription.completed"||
+     event.type==="input_audio_transcription.completed"){
+    const t=realtimeEventText(event);
+    if(!t)return;
+
+    addAiMessage("user",t);
+
+    /* Route spoken image-generation requests into CreateJourney's real
+       journey-ai-creative backend instead of letting the voice model say
+       it cannot create an image. */
+    if(typeof journeyAiLooksLikeImageRequest==="function"&&journeyAiLooksLikeImageRequest(t)){
+      journeyAiDiscoveryMode="";
+      realtimeSuppressAssistant=true;
+      realtimeAssistantTranscript="";
+      realtimeLastAssistantText="";
+      realtimeSendEvent({type:"response.cancel"});
+      setTimeout(()=>realtimeSendEvent({type:"response.cancel"}),80);
+      generateJourneyAiImageFromChat(t,false);
+    }
+    return;
+  }
+
+  if(event.type==="response.created"){
+    realtimeLastAssistantText="";
+    realtimeAssistantTranscript="";
+    realtimeAssistantSpeaking=false;
+    return;
+  }
+
   if(event.type==="response.output_audio_transcript.delta"){
+    if(realtimeSuppressAssistant)return;
+    if(!realtimeAssistantSpeaking){
+      realtimeAssistantSpeaking=true;
+
+      /* iPhone/Safari can feed the assistant's own audio back into the
+         open microphone and interrupt the response. Pause microphone capture
+         while Journey AI is speaking, then restore it when the turn ends. */
+      setRealtimeMicCapture(false);
+    }
     realtimeAssistantTranscript+=(event.delta||"");
     return;
   }
+
   if(event.type==="response.output_audio_transcript.done"){
+    if(realtimeSuppressAssistant){
+      realtimeAssistantTranscript="";
+      return;
+    }
+
     const t=(realtimeAssistantTranscript||realtimeEventText(event)).trim();
     realtimeAssistantTranscript="";
-    if(t)addAiMessage("ai",t);
-    return;
-  }
-  if(event.type==="response.done"){
-    if(!realtimeAssistantTranscript){
-      const t=realtimeEventText(event);
-      if(t)addAiMessage("ai",t);
+
+    if(t&&t!==realtimeLastAssistantText){
+      realtimeLastAssistantText=t;
+      addAiMessage("ai",t);
     }
-    realtimeAssistantTranscript="";
     return;
   }
+
+  if(event.type==="response.done"){
+    if(realtimeSuppressAssistant){
+      realtimeSuppressAssistant=false;
+      realtimeAssistantTranscript="";
+      realtimeLastAssistantText="";
+      realtimeAssistantSpeaking=false;
+      setTimeout(()=>setRealtimeMicCapture(true),220);
+      return;
+    }
+
+    const t=realtimeEventText(event).trim();
+
+    /* response.output_audio_transcript.done and response.done often contain
+       the same assistant text. Only render it once. */
+    if(t&&t!==realtimeLastAssistantText){
+      realtimeLastAssistantText=t;
+      addAiMessage("ai",t);
+    }
+
+    realtimeAssistantTranscript="";
+    realtimeAssistantSpeaking=false;
+    setTimeout(()=>setRealtimeMicCapture(true),220);
+    return;
+  }
+
+  if(event.type==="response.cancelled"||event.type==="response.canceled"){
+    realtimeAssistantTranscript="";
+    realtimeAssistantSpeaking=false;
+    setTimeout(()=>setRealtimeMicCapture(true),120);
+    return;
+  }
+
   if(event.type==="error"){
     console.error("Journey AI Realtime error",event);
-    addAiMessage("ai","The live voice session hit an error. I kept your account secure, and you can reconnect by tapping the microphone again.");
+    realtimeAssistantTranscript="";
+    realtimeAssistantSpeaking=false;
+    realtimeSuppressAssistant=false;
+    setRealtimeMicCapture(true);
+    addAiMessage("ai","The live voice session hit an error. You can reconnect by tapping the microphone again.");
   }
 }
 async function startRealtimeVoice(){
@@ -3768,6 +3913,8 @@ el("journeyAiFab").addEventListener("click",()=>setTimeout(renderJourneyAiDiscov
 el("aiTalkFab").addEventListener("click",()=>setTimeout(renderJourneyAiDiscoveryShortcuts,0));
 renderJourneyAiDiscoveryShortcuts();
 
+/* BUILD 16.9: Journey AI voice stability, duplicate-message suppression,
+   spoken image-request routing, and iPhone/Safari self-interruption protection. */
 /* BUILD 5.2.1: universal login is the default entry screen; onboarding only opens from Create Account */
 updateConditionalFields();updateAccountButton();updateActivationButton();updateCustomizeButton();updateJourney();initializeSession();
 setTimeout(()=>{handleIntegrationOAuthReturn().catch(()=>{});},800);
