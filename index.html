@@ -440,6 +440,75 @@
 .workspace-access-summary strong{display:block;font-size:11px;color:#111827}
 .workspace-access-summary span{display:block;font-size:9px;color:#7c8798;margin-top:3px}
 @media(max-width:600px){.workspace-access-summary{grid-template-columns:1fr}}
+
+/* BUILD 23 — CONNECTED ACCOUNTS & PROVIDER INTEGRATIONS */
+.integration-ops-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 18px}
+.integration-ops-kpi{padding:11px;border:1px solid #e3e9f1;border-radius:13px;background:#f8fafc}
+.integration-ops-kpi strong{display:block;font-size:18px;color:#111827}
+.integration-ops-kpi span{display:block;margin-top:3px;font-size:9px;color:#7b8798;font-weight:800;text-transform:uppercase}
+.integration-provider-readiness{margin-top:10px;padding:10px 11px;border-radius:12px;background:#f7f9fc;border:1px solid #e6ebf1;font-size:10px;color:#657487;line-height:1.45}
+.integration-provider-readiness.good{background:#eef9f2;border-color:#d7efdf;color:#347553}
+.integration-provider-readiness.warn{background:#fff8e9;border-color:#f1e3bd;color:#80601e}
+.integration-provider-readiness.bad{background:#fff3f1;border-color:#efd8d4;color:#91463f}
+.destination-health-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:7px}
+.destination-health-pill{display:inline-flex;padding:5px 8px;border-radius:999px;background:#f1f5f9;color:#5f6d7d;font-size:9px;font-weight:800}
+.destination-health-pill.good{background:#eaf8ef;color:#2f8f55}
+.destination-health-pill.warn{background:#fff4dd;color:#9a6818}
+.destination-health-pill.bad{background:#fff0ee;color:#9a433d}
+.integration-completion-note{margin-top:12px;padding:11px 12px;border-radius:12px;background:#f8fbff;border:1px solid #dae8f8;color:#60738b;font-size:10px;line-height:1.5}
+.integration-sync-health{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:11px 0}
+.integration-sync-health div{padding:9px;border-radius:11px;background:#f8fafc;border:1px solid #e7ebf1}
+.integration-sync-health strong{display:block;font-size:11px;color:#111827}
+.integration-sync-health span{display:block;font-size:9px;color:#7a8697;margin-top:3px}
+@media(max-width:650px){
+  .integration-ops-summary{grid-template-columns:repeat(2,1fr)}
+  .integration-sync-health{grid-template-columns:1fr}
+}
+
+/* BUILD 24 — PRODUCTION BACKEND & DATA PERSISTENCE */
+.cloud-sync-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#f1f5f9;color:#657487;font-size:9px;font-weight:800;margin-left:6px}
+.cloud-sync-pill i{width:6px;height:6px;border-radius:50%;background:#9aa6b5}
+.cloud-sync-pill.syncing{background:#eef6ff;color:#3978c8}.cloud-sync-pill.syncing i{background:#3978c8}
+.cloud-sync-pill.good{background:#eaf8ef;color:#2f8f55}.cloud-sync-pill.good i{background:#2f8f55}
+.cloud-sync-pill.warn{background:#fff6e5;color:#956717}.cloud-sync-pill.warn i{background:#d39a2f}
+.cloud-sync-pill.bad{background:#fff0ee;color:#98443e}.cloud-sync-pill.bad i{background:#c95a50}
+.sync-detail-card{margin-top:10px;padding:11px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e6ebf1;font-size:10px;color:#657487;line-height:1.5}
+.sync-detail-card strong{color:#26374a}
+.public-loading{display:flex;align-items:center;gap:8px;margin-top:14px;padding:12px;border-radius:13px;background:#f8fbff;border:1px solid #dce9f7;color:#60738b;font-size:11px}
+.public-loading:before{content:"";width:13px;height:13px;border:2px solid #c5d7ec;border-top-color:#3978c8;border-radius:50%;animation:cjspin .8s linear infinite}
+@keyframes cjspin{to{transform:rotate(360deg)}}
+
+/* BUILD 25 — FINAL QA, LAUNCH CLEANUP & RELEASE READINESS */
+.cj-system-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:15000;width:min(92vw,520px);padding:12px 14px;border-radius:14px;background:#172033;color:#fff;box-shadow:0 14px 42px rgba(15,23,42,.24);font-size:11px;line-height:1.45;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cj-system-toast.hidden{display:none}
+.cj-system-toast.good{background:#245d3d}.cj-system-toast.warn{background:#79591d}.cj-system-toast.bad{background:#843f3a}
+.cj-system-toast button{width:auto;margin:0;padding:4px 7px;border:0;background:transparent;color:inherit;font-size:16px;line-height:1}
+.release-readiness-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.release-readiness-item{padding:11px;border-radius:13px;background:#f8fafc;border:1px solid #e5eaf1}
+.release-readiness-item strong{display:block;font-size:11px;color:#111827}
+.release-readiness-item span{display:block;margin-top:4px;font-size:9px;color:#6f7d8f;line-height:1.4}
+.release-readiness-item.pass{background:#eef9f2;border-color:#d9efdf}
+.release-readiness-item.warn{background:#fff8e9;border-color:#f0e1ba}
+.release-readiness-item.fail{background:#fff2f0;border-color:#efd8d4}
+.release-readiness-item .release-mini-status{display:inline-flex;margin-top:7px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.72);font-size:8px;font-weight:900;text-transform:uppercase}
+.cj-busy{opacity:.62!important;pointer-events:none!important}
+button[data-cj-busy="true"]{position:relative}
+button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;height:10px;margin-left:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:cjspin .7s linear infinite}
+.cj-inline-error{margin-top:8px;padding:9px 10px;border-radius:11px;background:#fff1ef;border:1px solid #efd7d3;color:#93443e;font-size:10px;line-height:1.45}
+@media(max-width:700px){
+  .release-readiness-grid{grid-template-columns:1fr}
+  .dashboard-shell,.integrations-shell,.admin-shell,.team-shell,.library-shell,.manager-shell{max-width:100%;overflow-x:hidden}
+  .quick-grid.dashboard-essential{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .integration-toolbar{gap:6px}
+  .integration-toolbar input{min-width:100%;flex-basis:100%}
+  .prod-grid,.launch-grid{grid-template-columns:1fr!important}
+  .account-sheet.v18{max-height:94vh;overflow:auto}
+}
+@media(max-width:420px){
+  .quick-grid.dashboard-essential{grid-template-columns:1fr}
+  .header-actions{gap:6px}
+  .role-preview{max-width:150px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -471,6 +540,7 @@
   </div>
 </div>
 
+<div id="cjSystemToast" class="cj-system-toast hidden"><span id="cjSystemToastText"></span><button id="cjSystemToastClose" type="button" aria-label="Dismiss">×</button></div>
 <div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local prototype mode</span></div></div></div>
 <!-- ======================================
      #10 ONBOARDING
@@ -493,7 +563,7 @@
      ====================================== -->
 <div id="dashboardApp" class="dashboard hidden"><div class="dashboard-shell">
 <header class="dashboard-header"><div class="dashboard-brand"><span class="cj-brand-lockup left"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="header-actions"><select id="rolePreview" class="role-preview"><option value="Owner">View as Owner</option><option value="Manager">View as Manager</option><option value="Employee">View as Employee</option></select><div id="profileInitial" class="account-circle">C</div></div></header>
-<div class="dashboard-greeting"><h1 id="dashboardGreeting">Good to see you.</h1><p id="dashboardAccountName">Here's what's happening today.</p><span class="demo-pill">Prototype data</span><div id="dashboardBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local persistence</span></div><div id="permissionNotice" class="permission-note hidden"></div></div>
+<div class="dashboard-greeting"><h1 id="dashboardGreeting">Good to see you.</h1><p id="dashboardAccountName">Here's what's happening today.</p><span class="demo-pill">Prototype data</span><div id="dashboardBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local persistence</span></div><span id="cloudSyncStatus" class="cloud-sync-pill"><i></i><span>Local saved</span></span><div id="permissionNotice" class="permission-note hidden"></div></div>
 <section class="dashboard-section"><div class="section-heading"><h3>Today</h3></div><div class="stats-grid"><div class="stat-card"><div class="stat-label">Total taps</div><div id="totalTapsStat" class="stat-number">0</div><div class="stat-change">Across visible boards</div></div><div class="stat-card"><div class="stat-label">Unique visitors</div><div id="uniqueVisitorsStat" class="stat-number">0</div><div class="stat-change">Across visible boards</div></div><div class="stat-card"><div class="stat-label">Returning</div><div id="returningVisitorsStat" class="stat-number">0</div><div class="stat-change">Recognized visitors</div></div><div class="stat-card"><div class="stat-label">Actions taken</div><div id="actionsTakenStat" class="stat-number">0</div><div class="stat-change">Journey actions</div></div></div></section>
 <section class="dashboard-section"><div class="section-heading"><h3>Quick actions</h3></div><div class="quick-grid dashboard-essential">
 <button id="quickAddBoard" class="quick-action"><span class="quick-icon"><svg class="quick-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><span>Add Board</span></button>
@@ -525,9 +595,16 @@
 <div class="integrations-topbar"><button class="integrations-back" id="connectedAccountsBack">&#8249;</button><div class="integrations-title"><h1>Connected Accounts</h1><p>Securely connect the services Journey AI can work with.</p></div></div>
 <div class="integration-hero"><h2>One business, connected to Journey AI</h2><p>Connections use provider authorization. CreateJourney never asks you to store a Google, Instagram, Facebook or email password inside the dashboard.</p><div class="integration-kpis"><div class="integration-kpi"><strong id="integrationConnectedCount">0</strong><span>Connected</span></div><div class="integration-kpi"><strong id="integrationAvailableCount">0</strong><span>Providers</span></div><div class="integration-kpi"><strong id="integrationPermissionCount">0</strong><span>Approved capabilities</span></div></div></div>
 <div id="integrationOauthResult" class="integration-oauth-result hidden"></div>
+<div class="integration-ops-summary">
+  <div class="integration-ops-kpi"><strong id="integrationConfiguredCount">0</strong><span>Configured</span></div>
+  <div class="integration-ops-kpi"><strong id="integrationLiveCount">0</strong><span>Backend live</span></div>
+  <div class="integration-ops-kpi"><strong id="integrationNeedsSetupCount">0</strong><span>Needs setup</span></div>
+  <div class="integration-ops-kpi"><strong id="integrationDestinationMatchCount">0</strong><span>Journey matches</span></div>
+</div>
+<div class="integration-completion-note"><strong>Completion truth rule:</strong> CreateJourney records a destination click as an attempt. A review, booking or payment is counted as completed only when a connected provider returns a reliable completion confirmation.</div>
 <div class="integration-backend-banner"><div><strong><span id="integrationBackendDot" class="integration-backend-dot pending"></span><span id="integrationBackendStatusTitle" style="display:inline">Integration service</span></strong><span id="integrationBackendStatusText">Checking secure backend connection service...</span></div><button id="integrationBackendRefresh" class="secondary">Refresh connections</button></div>
 <div class="integration-toolbar"><input id="integrationSearch" placeholder="Search connected accounts and providers"><button class="integration-filter selected" data-integration-filter="All">All</button><button class="integration-filter" data-integration-filter="Connected">Connected</button><button class="integration-filter" data-integration-filter="Needs Attention">Needs Attention</button><button class="integration-filter" data-integration-filter="Available">Available</button></div>
-<div class="integration-category-tabs"><button class="integration-category-tab selected" data-integration-category="All">All categories</button><button class="integration-category-tab" data-integration-category="Social">Social</button><button class="integration-category-tab" data-integration-category="Business">Google / Business</button><button class="integration-category-tab" data-integration-category="Communication">Communication</button><button class="integration-category-tab" data-integration-category="Web">Web</button><button class="integration-category-tab" data-integration-category="Operations">Operations</button></div>
+<div class="integration-category-tabs"><button class="integration-category-tab selected" data-integration-category="All">All categories</button><button class="integration-category-tab" data-integration-category="Social">Social</button><button class="integration-category-tab" data-integration-category="Business">Google / Business</button><button class="integration-category-tab" data-integration-category="Communication">Communication</button><button class="integration-category-tab" data-integration-category="Web">Web</button><button class="integration-category-tab" data-integration-category="Booking">Booking</button><button class="integration-category-tab" data-integration-category="Payments">Payments</button><button class="integration-category-tab" data-integration-category="Operations">Operations</button></div>
 <div id="integrationGrid" class="integration-grid"></div>
 <div class="integration-health"><h3>Connection Health</h3><div class="integration-health-grid"><div class="integration-health-card"><strong id="integrationHealthyCount">0</strong><span>Healthy</span></div><div class="integration-health-card"><strong id="integrationAttentionCount">0</strong><span>Needs attention</span></div><div class="integration-health-card"><strong id="integrationExpiredCount">0</strong><span>Expired</span></div><div class="integration-health-card"><strong id="integrationAiAccessCount">0</strong><span>Journey AI enabled</span></div></div></div>
 <div class="integration-security"><h3>Connection Security & Activity</h3><p>Provider passwords are never collected here. Production OAuth tokens must live server-side, use minimum permissions, and be revocable by the owner.</p><div id="integrationActivityLog" class="integration-log"></div><div class="integration-warning">Section 8 establishes the frontend connection architecture and permission model. Live OAuth requires production backend access and approved provider credentials. Until then, CreateJourney will not pretend an external account is connected.</div></div>
@@ -1353,6 +1430,12 @@
       <div id="releaseGateList" class="release-gate"></div>
       <div class="prod-actions"><button id="qaRefreshBackend" class="secondary">Refresh backend verification</button></div>
     </div>
+    <div class="prod-card">
+      <h3>Final Launch Checklist</h3>
+      <p>This checklist combines current frontend state with backend-confirmed status where available. Unverified backend services remain clearly marked.</p>
+      <div id="finalLaunchReadiness" class="release-readiness-grid"></div>
+      <div class="prod-actions"><button id="finalLaunchRun" class="primary ready">Run final launch check</button></div>
+    </div>
   </div>
 </section>
 
@@ -1588,6 +1671,7 @@
           <summary>Advanced connection details</summary>
           <div id="accountSecurityNote" class="sync-note">CreateJourney only reports cloud sync when the connected backend confirms it.</div>
         </details>
+        <div id="accountSyncDetail" class="sync-detail-card"><strong>Workspace save status</strong><br><span id="accountSyncDetailText">Local workspace state is available on this device.</span></div>
       </div>
 
       <button id="openAdminConsole" class="admin-open-button hidden">Open Platform Admin</button>
@@ -1653,7 +1737,7 @@ async function adminSetBoardStatus(boardNumber,status){if(adminActionBusy)return
 async function adminResetBoard(boardNumber){if(adminActionBusy)return;if(!confirm(`Reset ${boardNumber} to UNCLAIMED? This removes its current claim and activation timestamps. Use this only for testing, returns, replacements or reassignment.`))return;adminActionBusy=true;renderAdminBoards();setAdminMessage(`Resetting ${boardNumber}...`);try{const{error}=await sb.rpc("cj_admin_reset_board",{p_board_number:boardNumber});if(error)throw error;await refreshAdminAfterAction(boardNumber);setAdminMessage(`${boardNumber} was reset to unclaimed inventory.`,"good")}catch(err){console.error(err);setAdminMessage(err.message||"Board reset failed.","bad")}finally{adminActionBusy=false;renderAdminBoards()}}
 async function loadAdminHistory(boardNumber,scroll=true){adminHistoryBoardNumber=boardNumber;const box=el("adminHistory"),list=el("adminHistoryList");el("adminHistoryTitle").textContent=`${boardNumber} history`;box.classList.remove("hidden");list.innerHTML='<div class="admin-empty">Loading history...</div>';if(scroll)box.scrollIntoView({behavior:"smooth",block:"start"});try{const{data,error}=await sb.rpc("cj_admin_board_history",{p_board_number:boardNumber});if(error)throw error;const rows=Array.isArray(data)?data:[];list.innerHTML="";if(!rows.length){list.innerHTML='<div class="admin-empty">No administrative history recorded yet.</div>';return}rows.forEach(r=>{const d=document.createElement("div");d.className="admin-history-item";d.innerHTML=`<strong>${esc(r.action)}</strong><span>${esc(r.previous_status||"-")} -> ${esc(r.new_status||"-")} | ${r.created_at?esc(new Date(r.created_at).toLocaleString()):""}</span><span>${esc(r.details||"")}</span>`;list.appendChild(d)})}catch(err){console.error(err);list.innerHTML=`<div class="admin-empty">${esc(err.message||"Could not load history.")}</div>`}}
 function workspaceName(){return useType==="business"?el("business").value.trim():el("personalSetupName").value.trim()}
-function serializableState(){return{version:19,useType,selectedActions,connectionValues,boards,teamMembers,auditLog,currentBoardId,aiBusinessProfile,aiTimeline,aiMediaLibrary,aiConversationSessions,aiWorkDrafts,aiMemoryItems,aiProjects,aiActiveProjectId,aiOperationQueue,aiOperationHistory,aiDismissedRecommendations,connectedAccounts,integrationActivity,aiOpportunityQueue,aiExternalActions,aiCreativeJobs,aiMemorySignals,aiRecommendationFeedback,aiCampaigns,aiLearningInsights,aiExperiments,aiCampaignMetricsSyncAt,aiMarketingPlans,aiContentLibrary,aiScheduleQueue,aiMarketingPreferences,aiCalendarCursor,aiBusinessSnapshots,aiAttributionRecords,aiForecasts,aiAnomalies,aiAdvisorBriefs,aiIntelligenceSyncAt,aiAutomations,aiAutomationRuns,aiAutomationMaster,aiAutomationSignals,aiAutomationPackHistory,billingState,billingPlanCatalog,workspaceEntitlements,workspaceUsage,billingInvoices,productionReadiness,productionDiagnostics,releaseGateHistory,launchOperations,pilotWorkspaces,operationsIncidents,operationsMonitoring,featureFlags,supportDiagnostics,aiBusinessBrain,aiCreativePreferences,aiLibrarySync,account:{name:el("name").value.trim(),email:el("email").value.trim(),setupName:workspaceName()},savedAt:new Date().toISOString()}}
+function serializableState(){return{version:24,useType,selectedActions,connectionValues,boards,teamMembers,auditLog,currentBoardId,aiBusinessProfile,aiTimeline,aiMediaLibrary,aiConversationSessions,aiWorkDrafts,aiMemoryItems,aiProjects,aiActiveProjectId,aiOperationQueue,aiOperationHistory,aiDismissedRecommendations,connectedAccounts,integrationActivity,aiOpportunityQueue,aiExternalActions,aiCreativeJobs,aiMemorySignals,aiRecommendationFeedback,aiCampaigns,aiLearningInsights,aiExperiments,aiCampaignMetricsSyncAt,aiMarketingPlans,aiContentLibrary,aiScheduleQueue,aiMarketingPreferences,aiCalendarCursor,aiBusinessSnapshots,aiAttributionRecords,aiForecasts,aiAnomalies,aiAdvisorBriefs,aiIntelligenceSyncAt,aiAutomations,aiAutomationRuns,aiAutomationMaster,aiAutomationSignals,aiAutomationPackHistory,billingState,billingPlanCatalog,workspaceEntitlements,workspaceUsage,billingInvoices,productionReadiness,productionDiagnostics,releaseGateHistory,launchOperations,pilotWorkspaces,operationsIncidents,operationsMonitoring,featureFlags,supportDiagnostics,aiBusinessBrain,aiCreativePreferences,aiLibrarySync,account:{name:el("name").value.trim(),email:el("email").value.trim(),setupName:workspaceName()},savedAt:new Date().toISOString()}}
 function persistLocalState(){try{localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(serializableState()))}catch(e){console.warn("Local state save failed",e)}if(backendReady&&backendWorkspaceId&&actualRole!=="Employee")syncCloudSnapshot()}
 function restoreLocalState(){try{const raw=localStorage.getItem(LOCAL_STATE_KEY);if(!raw)return false;const s=JSON.parse(raw);useType=s.useType||"";selectedActions=s.selectedActions||[];connectionValues=s.connectionValues||{};boards=Array.isArray(s.boards)?s.boards:[];teamMembers=Array.isArray(s.teamMembers)?s.teamMembers:[];auditLog=Array.isArray(s.auditLog)?s.auditLog:[];aiBusinessProfile=s.aiBusinessProfile&&typeof s.aiBusinessProfile==="object"?s.aiBusinessProfile:{goals:[]};aiTimeline=Array.isArray(s.aiTimeline)?s.aiTimeline:[];aiMediaLibrary=Array.isArray(s.aiMediaLibrary)?s.aiMediaLibrary:[];aiConversationSessions=Array.isArray(s.aiConversationSessions)?s.aiConversationSessions:[];aiWorkDrafts=Array.isArray(s.aiWorkDrafts)?s.aiWorkDrafts:[];aiMemoryItems=Array.isArray(s.aiMemoryItems)?s.aiMemoryItems:[];aiProjects=Array.isArray(s.aiProjects)?s.aiProjects:[];aiActiveProjectId=s.aiActiveProjectId||null;aiOperationQueue=Array.isArray(s.aiOperationQueue)?s.aiOperationQueue:[];aiOperationHistory=Array.isArray(s.aiOperationHistory)?s.aiOperationHistory:[];aiDismissedRecommendations=Array.isArray(s.aiDismissedRecommendations)?s.aiDismissedRecommendations:[];connectedAccounts=Array.isArray(s.connectedAccounts)?s.connectedAccounts:[];integrationActivity=Array.isArray(s.integrationActivity)?s.integrationActivity:[];aiOpportunityQueue=Array.isArray(s.aiOpportunityQueue)?s.aiOpportunityQueue:[];aiExternalActions=Array.isArray(s.aiExternalActions)?s.aiExternalActions:[];aiCreativeJobs=Array.isArray(s.aiCreativeJobs)?s.aiCreativeJobs:[];aiMemorySignals=Array.isArray(s.aiMemorySignals)?s.aiMemorySignals:[];aiRecommendationFeedback=Array.isArray(s.aiRecommendationFeedback)?s.aiRecommendationFeedback:[];aiCampaigns=Array.isArray(s.aiCampaigns)?s.aiCampaigns:[];aiLearningInsights=Array.isArray(s.aiLearningInsights)?s.aiLearningInsights:[];aiExperiments=Array.isArray(s.aiExperiments)?s.aiExperiments:[];aiCampaignMetricsSyncAt=s.aiCampaignMetricsSyncAt||null;aiMarketingPlans=Array.isArray(s.aiMarketingPlans)?s.aiMarketingPlans:[];aiContentLibrary=Array.isArray(s.aiContentLibrary)?s.aiContentLibrary:[];aiScheduleQueue=Array.isArray(s.aiScheduleQueue)?s.aiScheduleQueue:[];aiMarketingPreferences=s.aiMarketingPreferences&&typeof s.aiMarketingPreferences==="object"?{promoStyle:s.aiMarketingPreferences.promoStyle||"brand_first",suggestionLevel:s.aiMarketingPreferences.suggestionLevel||"helpful",creativeTone:s.aiMarketingPreferences.creativeTone||"on_brand"}:{promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"};aiCalendarCursor=s.aiCalendarCursor||null;aiBusinessSnapshots=Array.isArray(s.aiBusinessSnapshots)?s.aiBusinessSnapshots:[];aiAttributionRecords=Array.isArray(s.aiAttributionRecords)?s.aiAttributionRecords:[];aiForecasts=Array.isArray(s.aiForecasts)?s.aiForecasts:[];aiAnomalies=Array.isArray(s.aiAnomalies)?s.aiAnomalies:[];aiAdvisorBriefs=Array.isArray(s.aiAdvisorBriefs)?s.aiAdvisorBriefs:[];aiIntelligenceSyncAt=s.aiIntelligenceSyncAt||null;aiAutomations=Array.isArray(s.aiAutomations)?s.aiAutomations:[];aiAutomationRuns=Array.isArray(s.aiAutomationRuns)?s.aiAutomationRuns:[];aiAutomationMaster=s.aiAutomationMaster&&typeof s.aiAutomationMaster==="object"?{paused:!!s.aiAutomationMaster.paused,backendConfirmed:!!s.aiAutomationMaster.backendConfirmed,updatedAt:s.aiAutomationMaster.updatedAt||null}:{paused:false,backendConfirmed:false,updatedAt:null};aiAutomationSignals=Array.isArray(s.aiAutomationSignals)?s.aiAutomationSignals:[];aiAutomationPackHistory=Array.isArray(s.aiAutomationPackHistory)?s.aiAutomationPackHistory:[];billingState=s.billingState&&typeof s.billingState==="object"?Object.assign({planId:"core",status:"unconfirmed",source:"local_fallback",customerId:null,subscriptionId:null,currentPeriodEnd:null,cancelAtPeriodEnd:false,portalAvailable:false,lastSyncedAt:null},s.billingState):{planId:"core",status:"unconfirmed",source:"local_fallback",customerId:null,subscriptionId:null,currentPeriodEnd:null,cancelAtPeriodEnd:false,portalAvailable:false,lastSyncedAt:null};billingPlanCatalog=Array.isArray(s.billingPlanCatalog)?s.billingPlanCatalog:[];workspaceEntitlements=s.workspaceEntitlements&&typeof s.workspaceEntitlements==="object"?s.workspaceEntitlements:{};workspaceUsage=s.workspaceUsage&&typeof s.workspaceUsage==="object"?s.workspaceUsage:{periodStart:null,periodEnd:null,aiUnits:null,creativeGenerations:null,automationRuns:null,providerActions:null,source:"local_fallback"};billingInvoices=Array.isArray(s.billingInvoices)?s.billingInvoices:[];productionReadiness=s.productionReadiness&&typeof s.productionReadiness==="object"?Object.assign({lastRunAt:null,backendCheckedAt:null,backendVerified:false,backend:{},localChecks:[],securityChecks:[],qaChecks:[],releaseStatus:"unverified"},s.productionReadiness):{lastRunAt:null,backendCheckedAt:null,backendVerified:false,backend:{},localChecks:[],securityChecks:[],qaChecks:[],releaseStatus:"unverified"};productionDiagnostics=Array.isArray(s.productionDiagnostics)?s.productionDiagnostics:[];releaseGateHistory=Array.isArray(s.releaseGateHistory)?s.releaseGateHistory:[];launchOperations=s.launchOperations&&typeof s.launchOperations==="object"?Object.assign({lastSyncedAt:null,backendConfirmed:false,maintenance:{enabled:null,message:null,confirmed:false},release:{version:null,commit:null,deployedAt:null,environment:null},services:[]},s.launchOperations):{lastSyncedAt:null,backendConfirmed:false,maintenance:{enabled:null,message:null,confirmed:false},release:{version:null,commit:null,deployedAt:null,environment:null},services:[]};pilotWorkspaces=Array.isArray(s.pilotWorkspaces)?s.pilotWorkspaces:[];operationsIncidents=Array.isArray(s.operationsIncidents)?s.operationsIncidents:[];operationsMonitoring=Array.isArray(s.operationsMonitoring)?s.operationsMonitoring:[];featureFlags=Array.isArray(s.featureFlags)?s.featureFlags:[];supportDiagnostics=Array.isArray(s.supportDiagnostics)?s.supportDiagnostics:[];aiBusinessBrain=s.aiBusinessBrain&&typeof s.aiBusinessBrain==="object"?Object.assign({facts:[],preferences:[],decisions:[],highlights:[],updatedAt:null},s.aiBusinessBrain):{facts:[],preferences:[],decisions:[],highlights:[],updatedAt:null};aiCreativePreferences=s.aiCreativePreferences&&typeof s.aiCreativePreferences==="object"?Object.assign({variationCount:1,askMode:"smart",explainMode:"on"},s.aiCreativePreferences,{variationCount:1}):{variationCount:1,askMode:"smart",explainMode:"on"};aiLibrarySync=s.aiLibrarySync&&typeof s.aiLibrarySync==="object"?Object.assign({lastAttemptAt:null,lastSuccessAt:null,backendConfirmed:false,error:""},s.aiLibrarySync):{lastAttemptAt:null,lastSuccessAt:null,backendConfirmed:false,error:""};currentBoardId=s.currentBoardId||boards[0]?.id||null;if(s.account){el("name").value=s.account.name||"";el("email").value=s.account.email||"";if(useType==="business")el("business").value=s.account.setupName||"";else el("personalSetupName").value=s.account.setupName||""}updateConditionalFields();return boards.length>0}catch(e){console.warn("Local state restore failed",e);return false}}
 async function hashPassword(v){const b=new TextEncoder().encode(v);const h=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join("")}
@@ -2199,7 +2283,7 @@ async function updateFeatureFlag(id,next){
   row.enabled=res.enabled;row.audience=String(res.audience||next.audience||row.audience);row.rolloutPercent=Number.isFinite(Number(res.rollout_percent))?Number(res.rollout_percent):Number(next.rolloutPercent??row.rolloutPercent);row.updatedAt=res.updated_at||new Date().toISOString();persistLocalState();renderSupportOperations()
 }
 function makeSupportDiagnostic(){
-  const id=`CJ-LOCAL-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2,6).toUpperCase()}`,diag={id,createdAt:new Date().toISOString(),origin:location.origin,stateVersion:16,role:isPlatformAdmin?"Super Admin":actualRole||"Unknown",backendReady:!!backendReady,workspaceContextPresent:!!backendWorkspaceId,online:navigator.onLine!==false,releaseStatus:calculateReleaseState().status,operationsBackendConfirmed:!!launchOperations.backendConfirmed,openIncidentCount:operationsIncidents.filter(incidentOpen).length,domNodes:document.getElementsByTagName("*").length,localStateBytes:localStorageStateBytes()};
+  const id=`CJ-LOCAL-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2,6).toUpperCase()}`,diag={id,createdAt:new Date().toISOString(),origin:location.origin,stateVersion:25,role:isPlatformAdmin?"Super Admin":actualRole||"Unknown",backendReady:!!backendReady,workspaceContextPresent:!!backendWorkspaceId,online:navigator.onLine!==false,releaseStatus:calculateReleaseState().status,operationsBackendConfirmed:!!launchOperations.backendConfirmed,openIncidentCount:operationsIncidents.filter(incidentOpen).length,domNodes:document.getElementsByTagName("*").length,localStateBytes:localStorageStateBytes()};
   supportDiagnostics.unshift(diag);if(supportDiagnostics.length>20)supportDiagnostics=supportDiagnostics.slice(0,20);persistLocalState();return diag
 }
 function generateSupportCode(){
@@ -2294,7 +2378,7 @@ function normalizeProductionBackend(data){
   return{verified:true,checks,meta:data.meta||{}}
 }
 async function refreshProductionBackend(showAlert=false){
-  const res=await productionBackendRequest("production_snapshot",{client_version:15});
+  const res=await productionBackendRequest("production_snapshot",{client_version:25});
   productionReadiness.backendCheckedAt=new Date().toISOString();
   if(!res?.ok){
     productionReadiness.backendVerified=false;productionReadiness.backend={error:res?.error||"Backend verification unavailable",checks:[]};
@@ -4461,6 +4545,196 @@ renderJourneyAiDiscoveryShortcuts();
 
 
 
+
+/* BUILD 23 CONNECTED ACCOUNTS + PROVIDER INTEGRATIONS */
+
+/* Expand the provider catalog without changing the existing secure OAuth architecture. */
+[
+  {id:"stripe",name:"Stripe",icon:"S",category:"Payments",description:"Payment account context, payment status and reliable completion signals when securely connected.",permissions:[{id:"payments_read",label:"Read payment status",mode:"read"},{id:"customers_read",label:"Read customer references",mode:"read"},{id:"payment_links_read",label:"Read payment links",mode:"read"}]},
+  {id:"square",name:"Square",icon:"SQ",category:"Payments",description:"Payments, locations and transaction completion signals through secure provider authorization.",permissions:[{id:"locations_read",label:"Read locations",mode:"read"},{id:"payments_read",label:"Read payment status",mode:"read"},{id:"customers_read",label:"Read customer references",mode:"read"}]},
+  {id:"calendly",name:"Calendly",icon:"CA",category:"Booking",description:"Scheduling links, event types and confirmed booking activity.",permissions:[{id:"event_types_read",label:"Read event types",mode:"read"},{id:"scheduled_events_read",label:"Read scheduled events",mode:"read"},{id:"availability_read",label:"Read scheduling context",mode:"read"}]},
+  {id:"acuity",name:"Acuity Scheduling",icon:"AS",category:"Booking",description:"Appointment scheduling context and confirmed appointment activity.",permissions:[{id:"appointment_types_read",label:"Read appointment types",mode:"read"},{id:"appointments_read",label:"Read appointments",mode:"read"},{id:"availability_read",label:"Read availability",mode:"read"}]}
+].forEach(p=>{if(!integrationProviders.some(x=>x.id===p.id))integrationProviders.push(p)});
+
+function integrationConfiguredV23(r){
+  return !!r&&(r.status==="connected"||r.status==="needs_attention"||r.status==="expired"||!!r.accountLabel);
+}
+function integrationOperationalStateV23(r){
+  if(!r)return{label:"Not configured",tone:"warn",detail:"Provider authorization has not been configured."};
+  if(r.status==="expired")return{label:"Reconnect required",tone:"bad",detail:r.healthMessage||"Provider authorization has expired."};
+  if(r.status==="needs_attention")return{label:"Needs attention",tone:"bad",detail:r.healthMessage||"Provider connection requires attention."};
+  if(r.status==="connected"&&r.backendManaged)return{label:"Connected",tone:"good",detail:"Secure backend-managed provider connection."};
+  if(r.status==="connected")return{label:"Configured locally",tone:"warn",detail:"Frontend state exists, but live provider authorization is not backend-confirmed."};
+  return{label:"Configured",tone:"warn",detail:"Connection setup exists but is not currently confirmed live."};
+}
+function providerDomainsV23(id){
+  const map={
+    google_business:["google.com","g.page","maps.app.goo.gl"],
+    website:[],
+    calendar:["calendar.google.com","outlook.live.com"],
+    stripe:["stripe.com","buy.stripe.com"],
+    square:["squareup.com","square.site"],
+    calendly:["calendly.com"],
+    acuity:["acuityscheduling.com","squarespacescheduling.com"],
+    instagram:["instagram.com"],
+    facebook:["facebook.com","fb.com"]
+  };
+  return map[id]||[];
+}
+function providerForDestinationV23(url,action=""){
+  let host="";try{host=new URL(normalizeUrl(url)).hostname.toLowerCase()}catch(_){}
+  for(const p of integrationProviders){
+    if(providerDomainsV23(p.id).some(d=>host===d||host.endsWith("."+d)))return p;
+  }
+  const kind=customerActionKindV20(action);
+  if(kind==="review")return integrationProvider("google_business")||null;
+  if(kind==="booking"){
+    return ["calendly","acuity","calendar"].map(integrationProvider).find(p=>p&&integrationRecord(p.id)?.status==="connected")||null;
+  }
+  if(kind==="payment"){
+    return ["stripe","square"].map(integrationProvider).find(p=>p&&integrationRecord(p.id)?.status==="connected")||null;
+  }
+  return integrationProvider("website")||null;
+}
+function destinationProviderHealthV23(board,action){
+  const url=String(board?.destinations?.[action]||"").trim();
+  if(!url)return{provider:null,label:"Destination missing",tone:"bad",detail:"Connect a destination before customers use this action."};
+  const p=providerForDestinationV23(url,action);
+  if(!p)return{provider:null,label:"Direct link configured",tone:"good",detail:"Valid destination link configured."};
+  const r=integrationRecord(p.id);
+  if(r?.status==="connected"&&r.backendManaged)return{provider:p,label:`${p.name} connected`,tone:"good",detail:"Provider is securely connected and may supply reliable completion signals when supported."};
+  if(r?.status==="connected")return{provider:p,label:`${p.name} configured`,tone:"warn",detail:"Destination is configured, but provider completion confirmation is not backend-verified."};
+  if(r&&["needs_attention","expired"].includes(r.status))return{provider:p,label:`${p.name} needs attention`,tone:"bad",detail:r.healthMessage||"Reconnect this provider for reliable provider data."};
+  return{provider:p,label:`${p.name} destination`,tone:"warn",detail:"Customer link works independently, but provider completion confirmation is unavailable until the provider is securely connected."};
+}
+function integrationJourneyMatchCountV23(){
+  let n=0;
+  boards.forEach(b=>(b.actions||[]).forEach(a=>{
+    const h=destinationProviderHealthV23(b,a);
+    if(h.provider&&integrationRecord(h.provider.id)?.status==="connected")n++;
+  }));
+  return n;
+}
+function integrationSnapshotV23(){
+  return integrationProviders.map(p=>{
+    const r=integrationRecord(p.id),state=integrationOperationalStateV23(r);
+    return{
+      providerId:p.id,name:p.name,category:p.category,status:r?.status||"available",
+      operationalState:state.label,backendManaged:!!r?.backendManaged,
+      lastSyncAt:r?.lastSyncAt||null,aiAccess:!!r?.aiAccess,
+      enabledPermissions:(r?.permissions||[]).filter(x=>x.enabled).map(x=>x.id)
+    };
+  });
+}
+function updateIntegrationOpsSummaryV23(){
+  const configured=integrationProviders.filter(p=>integrationConfiguredV23(integrationRecord(p.id))).length;
+  const live=connectedAccounts.filter(r=>r.status==="connected"&&r.backendManaged).length;
+  const needs=integrationProviders.length-configured+connectedAccounts.filter(r=>["needs_attention","expired"].includes(r.status)).length;
+  if(el("integrationConfiguredCount"))el("integrationConfiguredCount").textContent=configured;
+  if(el("integrationLiveCount"))el("integrationLiveCount").textContent=live;
+  if(el("integrationNeedsSetupCount"))el("integrationNeedsSetupCount").textContent=Math.max(0,needs);
+  if(el("integrationDestinationMatchCount"))el("integrationDestinationMatchCount").textContent=integrationJourneyMatchCountV23();
+}
+function appendProviderReadinessV23(){
+  document.querySelectorAll("#integrationGrid .integration-card").forEach(card=>{
+    if(card.querySelector(".integration-provider-readiness"))return;
+    const title=card.querySelector(".integration-provider h3")?.textContent||"";
+    const p=integrationProviders.find(x=>x.name===title);if(!p)return;
+    const r=integrationRecord(p.id),state=integrationOperationalStateV23(r);
+    const n=document.createElement("div");
+    n.className=`integration-provider-readiness ${state.tone}`;
+    n.innerHTML=`<strong>${esc(state.label)}</strong><br>${esc(state.detail)}`;
+    const actions=card.querySelector(".integration-actions");
+    if(actions)card.insertBefore(n,actions);else card.appendChild(n);
+  });
+}
+const renderConnectedAccountsBeforeV23=renderConnectedAccounts;
+renderConnectedAccounts=function(){
+  renderConnectedAccountsBeforeV23();
+  updateIntegrationOpsSummaryV23();
+  appendProviderReadinessV23();
+};
+
+const renderManagerDestinationsBeforeV23=renderManagerDestinations;
+renderManagerDestinations=function(){
+  renderManagerDestinationsBeforeV23();
+  const b=currentBoard(),c=el("managerDestinations");if(!b||!c)return;
+  Array.from(c.children).forEach((row,i)=>{
+    const action=b.actions?.[i];if(!action)return;
+    const h=destinationProviderHealthV23(b,action);
+    const meta=document.createElement("div");
+    meta.className="destination-health-row";
+    meta.innerHTML=`<span class="destination-health-pill ${h.tone}">${esc(h.label)}</span>${h.provider?`<span class="destination-health-pill">${esc(h.provider.category)}</span>`:""}<span class="destination-health-pill">${esc(h.detail)}</span>`;
+    row.appendChild(meta);
+  });
+};
+
+const saveDestinationChangesBeforeV23=saveDestinationChanges;
+saveDestinationChanges=function(){
+  const b=currentBoard();
+  saveDestinationChangesBeforeV23();
+  if(b){
+    persistLocalState();
+    renderManagerDestinations();
+    updateIntegrationOpsSummaryV23();
+  }
+};
+
+function providerCompletionRowsV23(payload){
+  if(!payload||typeof payload!=="object")return[];
+  if(Array.isArray(payload.completion_events))return payload.completion_events;
+  if(Array.isArray(payload.completions))return payload.completions;
+  if(Array.isArray(payload.events))return payload.events.filter(x=>x?.type==="completion"||x?.confirmed===true);
+  return[];
+}
+function ingestProviderCompletionsV23(payload,providerId=""){
+  const rows=providerCompletionRowsV23(payload);
+  rows.forEach(x=>{
+    const boardId=String(x.board_id||x.boardId||"");
+    const action=String(x.action||x.journey_action||"");
+    const confirmed=x.confirmed===true||x.status==="completed"||x.status==="confirmed";
+    if(!boardId||!action||!confirmed)return;
+    const reference=String(x.reference||x.id||x.provider_reference||"");
+    const duplicate=journeyEventsV21().some(e=>e.type==="action_completed"&&e.confirmed&&e.boardId===boardId&&e.action===action&&String(e.meta?.reference||"")===reference&&reference);
+    if(duplicate)return;
+    confirmJourneyCompletionV21({boardId,action,provider:providerId||x.provider||"provider_confirmation",reference});
+  });
+}
+const integrationBackendRequestBeforeV23=integrationBackendRequest;
+integrationBackendRequest=async function(action,payload={},options={}){
+  const res=await integrationBackendRequestBeforeV23(action,payload,options);
+  if(res?.ok){
+    ingestProviderCompletionsV23(res,payload?.providerId||payload?.provider_id||"");
+  }
+  return res;
+};
+
+const buildRealtimeJourneyContextBeforeV23=buildRealtimeJourneyContext;
+buildRealtimeJourneyContext=function(){
+  const ctx=buildRealtimeJourneyContextBeforeV23();
+  return{
+    ...ctx,
+    integrationOperations:{
+      providers:integrationSnapshotV23(),
+      completionRule:"A destination click is an attempt. A review, booking or payment is completed only after reliable provider confirmation.",
+      matchedJourneyDestinations:integrationJourneyMatchCountV23()
+    }
+  };
+};
+
+const sanitizedBusinessBrainPayloadBeforeV23=sanitizedBusinessBrainPayload;
+sanitizedBusinessBrainPayload=function(){
+  const payload=sanitizedBusinessBrainPayloadBeforeV23();
+  return{
+    ...payload,
+    integrations:integrationSnapshotV23().map(x=>({
+      providerId:x.providerId,name:x.name,status:x.status,operationalState:x.operationalState,
+      backendManaged:x.backendManaged,lastSyncAt:x.lastSyncAt,aiAccess:x.aiAccess
+    }))
+  };
+};
+
+/* BUILD 23.0: Connected Accounts & Provider Integrations */
 /* BUILD 22 ROLE + PERMISSION SECURITY */
 function securityRoleV22(){
   if(isPlatformAdmin)return"Owner";
@@ -5099,6 +5373,455 @@ renderAiDashboardProactive=function(){
 };
 
 /* BUILD 21.0: Tracking, Analytics & Performance Engine */
+
+/* BUILD 24 PRODUCTION BACKEND + DATA PERSISTENCE HARDENING */
+const CJ_STATE_VERSION_V24=24;
+const CJ_SYNC_QUEUE_KEY="cj_cloud_sync_queue_v24";
+const CJ_EVENT_SYNC_QUEUE_KEY="cj_event_sync_queue_v24";
+const CJ_PUBLIC_EDGE_ENDPOINT="journey-public";
+let cjCloudSyncTimerV24=null,cjCloudSyncInFlightV24=false,cjCloudSyncPendingV24=false,cjRestoringCloudV24=false,cjAuthLoadingV24=false;
+
+function cjSetSyncStatusV24(state,text,detail=""){
+  const n=el("cloudSyncStatus");
+  if(n){n.className="cloud-sync-pill"+(state?` ${state}`:"");const s=n.querySelector("span");if(s)s.textContent=text}
+  const d=el("accountSyncDetailText");if(d)d.textContent=detail||text;
+}
+function cjSafeJsonV24(v,fallback=null){try{return JSON.parse(v)}catch(_){return fallback}}
+function cjStateTimestampV24(s){const t=Date.parse(s?.savedAt||"");return Number.isFinite(t)?t:0}
+function cjNormalizeStateV24(s){
+  if(!s||typeof s!=="object")return null;
+  const out={...s,version:Number(s.version||1),savedAt:s.savedAt||new Date(0).toISOString()};
+  out.boards=Array.isArray(out.boards)?out.boards:[];
+  out.teamMembers=Array.isArray(out.teamMembers)?out.teamMembers:[];
+  out.auditLog=Array.isArray(out.auditLog)?out.auditLog:[];
+  out.connectedAccounts=Array.isArray(out.connectedAccounts)?out.connectedAccounts:[];
+  out.boards=out.boards.filter(b=>b&&typeof b==="object"&&String(b.id||"").trim()).map(b=>({
+    ...b,id:String(b.id),name:String(b.name||b.id),actions:Array.isArray(b.actions)?b.actions.slice(0,3):[],
+    destinations:b.destinations&&typeof b.destinations==="object"?b.destinations:{},active:b.active!==false,
+    analytics:b.analytics&&typeof b.analytics==="object"?{
+      taps:Math.max(0,Number(b.analytics.taps||0)),visitors:Math.max(0,Number(b.analytics.visitors||0)),
+      returning:Math.max(0,Number(b.analytics.returning||0)),actionsTaken:Math.max(0,Number(b.analytics.actionsTaken||b.analytics.actions||0)),
+      lastInteraction:b.analytics.lastInteraction||"No interactions yet"
+    }:{taps:0,visitors:0,returning:0,actionsTaken:0,lastInteraction:"No interactions yet"},
+    activity:Array.isArray(b.activity)?b.activity.slice(0,100):[]
+  }));
+  return out;
+}
+function cjCurrentStateV24(){return cjNormalizeStateV24({...serializableState(),version:CJ_STATE_VERSION_V24,savedAt:new Date().toISOString()})}
+function cjLocalStateV24(){return cjNormalizeStateV24(cjSafeJsonV24(localStorage.getItem(LOCAL_STATE_KEY),null))}
+function cjSaveLocalStateV24(state){const s=cjNormalizeStateV24(state);if(!s)return false;try{localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(s));return true}catch(e){console.warn(e);return false}}
+function cjQueuedCloudStateV24(){return cjSafeJsonV24(localStorage.getItem(CJ_SYNC_QUEUE_KEY),null)}
+function cjSetQueuedCloudStateV24(state){try{state?localStorage.setItem(CJ_SYNC_QUEUE_KEY,JSON.stringify(state)):localStorage.removeItem(CJ_SYNC_QUEUE_KEY)}catch(_){}}
+
+async function cjAuthenticatedUserV24(){
+  if(!backendReady||!sb)return null;
+  try{const {data,error}=await sb.auth.getUser();if(error)throw error;return data?.user||null}catch(_){return null}
+}
+async function cjWorkspaceMembershipV24(workspaceId,userId){
+  if(!backendReady||!workspaceId||!userId)return null;
+  try{
+    const {data,error}=await sb.from("workspace_members").select("workspace_id,role").eq("workspace_id",workspaceId).eq("user_id",userId).maybeSingle();
+    if(error)throw error;return data||null;
+  }catch(e){console.warn("Membership verification failed",e);return null}
+}
+async function cjBootstrapWorkspaceV24(user){
+  if(!user||!backendReady||!sb)return null;
+  const name=String(user.user_metadata?.setup_name||workspaceName()||"My Workspace").trim();
+  const type=String(user.user_metadata?.use_type||useType||"business");
+  const id=crypto.randomUUID();
+  try{
+    const {error:wErr}=await sb.from("workspaces").insert({id,name,use_type:type});
+    if(wErr)throw wErr;
+    const {error:mErr}=await sb.from("workspace_members").insert({workspace_id:id,user_id:user.id,role:"Owner"});
+    if(mErr)throw mErr;
+    const state=cjCurrentStateV24();
+    const {error:sErr}=await sb.from("workspace_state").upsert({workspace_id:id,state},{onConflict:"workspace_id"});
+    if(sErr)throw sErr;
+    return{workspace_id:id,role:"Owner",workspaces:{name,use_type:type}};
+  }catch(e){console.warn("Workspace bootstrap unavailable",e);return null}
+}
+function cjCanCloudWriteV24(){return !!(backendReady&&sb&&backendWorkspaceId&&actualRole!=="Employee"&&!isPlatformAdmin&&navigator.onLine!==false)}
+
+async function syncCloudSnapshot(){
+  if(cjRestoringCloudV24)return false;
+  if(!cjCanCloudWriteV24()){
+    if(actualRole==="Employee")cjSetSyncStatusV24("warn","Read-only cloud","Employee accounts never upload owner-level workspace snapshots.");
+    else if(navigator.onLine===false)cjSetSyncStatusV24("warn","Saved locally","Offline. Changes are queued for cloud sync.");
+    return false;
+  }
+  if(cjCloudSyncInFlightV24){cjCloudSyncPendingV24=true;return false}
+  cjCloudSyncInFlightV24=true;cjCloudSyncPendingV24=false;
+  const state=cjCurrentStateV24();cjSetQueuedCloudStateV24(state);cjSetSyncStatusV24("syncing","Saving…","Validating workspace membership and saving securely.");
+  try{
+    const user=await cjAuthenticatedUserV24();if(!user)throw new Error("Session expired.");
+    const membership=await cjWorkspaceMembershipV24(backendWorkspaceId,user.id);
+    if(!membership)throw new Error("Workspace membership could not be verified.");
+    if(membership.role==="Employee")throw new Error("Employee accounts are read-only for workspace snapshots.");
+
+    const {data:existing,error:readErr}=await sb.from("workspace_state").select("state").eq("workspace_id",backendWorkspaceId).maybeSingle();
+    if(readErr)throw readErr;
+    const remote=cjNormalizeStateV24(existing?.state||null);
+    if(remote&&cjStateTimestampV24(remote)>cjStateTimestampV24(state)+1500){
+      cjSetSyncStatusV24("warn","Cloud newer","A newer cloud copy exists. Reload before overwriting it.");
+      return false;
+    }
+    const {error}=await sb.from("workspace_state").upsert({workspace_id:backendWorkspaceId,state},{onConflict:"workspace_id"});
+    if(error)throw error;
+    cjSetQueuedCloudStateV24(null);
+    cjSetSyncStatusV24("good","Cloud saved",`Cloud save confirmed at ${new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}.`);
+    return true;
+  }catch(e){
+    cjSetSyncStatusV24("bad","Sync pending",`Saved locally. Cloud sync needs attention: ${e?.message||e}`);
+    return false;
+  }finally{
+    cjCloudSyncInFlightV24=false;
+    if(cjCloudSyncPendingV24){cjCloudSyncPendingV24=false;setTimeout(syncCloudSnapshot,350)}
+  }
+}
+function cjScheduleCloudSyncV24(){clearTimeout(cjCloudSyncTimerV24);cjCloudSyncTimerV24=setTimeout(syncCloudSnapshot,700)}
+async function cjApplyCloudStateV24(state){
+  const s=cjNormalizeStateV24(state);if(!s)return false;cjRestoringCloudV24=true;restoring=true;
+  try{cjSaveLocalStateV24(s);const ok=restoreLocalState();return ok||s.boards.length===0}
+  finally{restoring=false;cjRestoringCloudV24=false}
+}
+
+async function loadCloudWorkspace(user){
+  if(!backendReady||!sb||!user){showAuth();return false}
+  signedInEmail=String(user.email||"").toLowerCase();
+  if(el("email")&&!el("email").value)el("email").value=signedInEmail;
+  if(el("name")&&!el("name").value)el("name").value=String(user.user_metadata?.name||user.email?.split("@")[0]||"");
+  await checkPlatformAdmin();
+  try{
+    let {data:memberships,error}=await sb.from("workspace_members").select("workspace_id,role,workspaces(name,use_type)").eq("user_id",user.id);
+    if(error)throw error;
+    let rows=Array.isArray(memberships)?memberships:[];
+    if(!rows.length&&!isPlatformAdmin){
+      const created=await cjBootstrapWorkspaceV24(user);
+      if(created)rows=[created];
+    }
+    if(!rows.length){
+      if(isPlatformAdmin){backendWorkspaceId=null;actualRole="Owner";currentRole="Owner";openDashboard();return true}
+      setAuthMessage("Signed in successfully, but no authorized CreateJourney workspace is attached to this account.","bad");showAuth();return false;
+    }
+    const membership=rows.find(x=>x.workspace_id===backendWorkspaceId)||rows[0];
+    backendWorkspaceId=membership.workspace_id;actualRole=membership.role||"Employee";currentRole=actualRole;
+    const ws=membership.workspaces||{};useType=ws.use_type||useType||"business";
+    if(useType==="business")el("business").value=ws.name||el("business").value;
+    else el("personalSetupName").value=ws.name||el("personalSetupName").value;
+
+    const {data:stateRow,error:stateErr}=await sb.from("workspace_state").select("state").eq("workspace_id",backendWorkspaceId).maybeSingle();
+    if(stateErr)throw stateErr;
+    const remote=cjNormalizeStateV24(stateRow?.state||null),local=cjLocalStateV24();
+    if(remote&&(!local||cjStateTimestampV24(remote)>=cjStateTimestampV24(local)))await cjApplyCloudStateV24(remote);
+    else if(local&&actualRole!=="Employee")cjScheduleCloudSyncV24();
+
+    localStorage.setItem("cj_local_session","1");updateConditionalFields();openDashboard();
+    if(typeof updateRoleSecurityUiV22==="function")updateRoleSecurityUiV22();
+    cjSetSyncStatusV24(remote?"good":"warn",remote?"Cloud loaded":"Local ready",remote?"Secure workspace state loaded.":"No newer cloud snapshot was found.");
+    return true;
+  }catch(e){
+    console.error("Cloud workspace load failed",e);
+    if(cjLocalStateV24()){restoreLocalState();openDashboard();cjSetSyncStatusV24("bad","Local fallback",`Cloud unavailable; using the local copy. ${e?.message||e}`);return true}
+    setAuthMessage(e?.message||"Workspace could not be loaded.","bad");showAuth();return false;
+  }
+}
+
+async function loginUser(){
+  if(cjAuthLoadingV24)return;
+  const email=String(el("loginEmail").value||"").trim().toLowerCase(),password=String(el("loginPassword").value||"");
+  if(!validEmail(email)||!password){setAuthMessage("Enter a valid email and password.","bad");return}
+  cjAuthLoadingV24=true;setAuthBusy(true,"Signing in securely...");
+  try{
+    initBackend();
+    if(backendReady&&sb){
+      const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;
+      if(!data?.user)throw new Error("Authenticated user was not returned.");
+      await loadCloudWorkspace(data.user);setAuthMessage("");return;
+    }
+    const a=localAccount();if(!a||a.email!==email)throw new Error("No local account was found on this device.");
+    if(await hashPassword(password)!==a.passwordHash)throw new Error("Incorrect email or password.");
+    signedInEmail=email;el("name").value=a.name||"";el("email").value=email;useType=a.useType||useType;
+    if(useType==="business")el("business").value=a.setupName||"";else el("personalSetupName").value=a.setupName||"";
+    restoreLocalState();openDashboard();
+  }catch(e){setAuthMessage(e?.message||"Sign-in failed.","bad")}
+  finally{cjAuthLoadingV24=false;setAuthBusy(false)}
+}
+async function sendMagicLink(){
+  const email=String(el("loginEmail").value||"").trim().toLowerCase();
+  if(!validEmail(email)){setAuthMessage("Enter a valid email first.","bad");return}
+  initBackend();if(!backendReady||!sb){setAuthMessage("Secure email sign-in requires cloud authentication.","bad");return}
+  setAuthBusy(true,"Sending secure sign-in link...");
+  try{const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;setAuthMessage("Secure sign-in link sent. Check your email.","good")}
+  catch(e){setAuthMessage(e?.message||"Could not send the sign-in link.","bad")}
+  finally{setAuthBusy(false)}
+}
+async function signupBackendIfConfigured(){
+  const email=String(el("email").value||"").trim().toLowerCase(),password=String(el("password").value||"");
+  if(!backendConfigured()||!window.supabase){await saveLocalAccount();return true}
+  initBackend();setAuthBusy(true,"Creating secure account...");
+  try{
+    const {data,error}=await sb.auth.signUp({email,password,options:{data:{name:el("name").value.trim(),setup_name:workspaceName(),use_type:useType}}});if(error)throw error;
+    if(data?.user&&data?.session){signedInEmail=email;await cjBootstrapWorkspaceV24(data.user)}
+    await saveLocalAccount();setAuthMessage(data?.session?"Account created securely.":"Account created. Check your email if verification is required.","good");return true;
+  }catch(e){setAuthMessage(e?.message||"Account creation failed.","bad");return false}
+  finally{setAuthBusy(false)}
+}
+async function logoutUser(){
+  try{if(backendReady&&sb)await sb.auth.signOut()}catch(e){console.warn("Sign out warning",e)}
+  signedInEmail="";backendWorkspaceId=null;actualRole="Owner";currentRole="Owner";isPlatformAdmin=false;
+  localStorage.removeItem("cj_local_session");el("accountPanel").classList.add("hidden");showAuth();setAuthMessage("Signed out.","good");
+}
+
+/* local-first persistence with a debounced, membership-checked cloud write */
+persistLocalState=function(){
+  const state=cjCurrentStateV24();cjSaveLocalStateV24(state);
+  if(cjCanCloudWriteV24())cjScheduleCloudSyncV24();
+  else if(navigator.onLine===false)cjSetSyncStatusV24("warn","Saved locally","Offline. Changes will sync when your connection returns.");
+};
+
+/* public cross-device board resolution + durable event queue */
+async function cjPublicBackendRequestV24(action,payload={},timeout=7000){
+  if(!backendConfigured()||navigator.onLine===false)return null;
+  try{
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/${CJ_PUBLIC_EDGE_ENDPOINT}`,{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},body:JSON.stringify({action,...payload})});
+    clearTimeout(timer);let data={};try{data=await response.json()}catch(_){}
+    return response.ok&&data&&typeof data==="object"?data:null;
+  }catch(_){return null}
+}
+function cjNormalizePublicBoardV24(raw){
+  if(!raw||typeof raw!=="object")return null;const b=raw.board||raw.data||raw,id=String(b.id||b.board_id||b.board_number||"").trim();if(!id)return null;
+  return{id,name:String(b.name||b.board_name||"CreateJourney"),actions:Array.isArray(b.actions)?b.actions.slice(0,3):[],destinations:b.destinations&&typeof b.destinations==="object"?b.destinations:{},active:b.active!==false&&!["paused","disabled"].includes(String(b.status||"").toLowerCase()),assignedTo:null,analytics:{taps:0,visitors:0,returning:0,actionsTaken:0,lastInteraction:"No interactions yet"},activity:[],publicResolved:true,workspaceName:String(b.workspace_name||b.business_name||"")};
+}
+async function cjResolvePublicBoardV24(boardId){
+  const local=getBoard(boardId);if(local)return local;
+  const response=await cjPublicBackendRequestV24("resolve_board",{board_id:boardId}),board=cjNormalizePublicBoardV24(response);
+  if(board&&!getBoard(board.id))boards.push(board);return board;
+}
+function cjQueueEventV24(event){
+  const q=cjSafeJsonV24(localStorage.getItem(CJ_EVENT_SYNC_QUEUE_KEY),null),rows=Array.isArray(q)?q:[];
+  if(!rows.some(x=>x.id===event.id))rows.push(event);
+  try{localStorage.setItem(CJ_EVENT_SYNC_QUEUE_KEY,JSON.stringify(rows.slice(-500)))}catch(_){}
+}
+async function cjFlushEventQueueV24(){
+  if(navigator.onLine===false)return false;
+  const q=cjSafeJsonV24(localStorage.getItem(CJ_EVENT_SYNC_QUEUE_KEY),null),rows=Array.isArray(q)?q:[];
+  if(!rows.length)return true;
+  const response=await cjPublicBackendRequestV24("record_events",{events:rows},9000);if(!response)return false;
+  const accepted=new Set(Array.isArray(response.accepted_ids)?response.accepted_ids:rows.map(x=>x.id)),remain=rows.filter(x=>!accepted.has(x.id));
+  try{remain.length?localStorage.setItem(CJ_EVENT_SYNC_QUEUE_KEY,JSON.stringify(remain)):localStorage.removeItem(CJ_EVENT_SYNC_QUEUE_KEY)}catch(_){}
+  return remain.length===0;
+}
+const recordJourneyEventBeforeV24=recordJourneyEventV21;
+recordJourneyEventV21=function(type,meta={}){
+  const row=recordJourneyEventBeforeV24(type,meta);if(row){cjQueueEventV24(row);setTimeout(cjFlushEventQueueV24,250)}return row;
+};
+
+const openCustomerJourneyBeforeV24=openCustomerJourneyV20;
+openCustomerJourneyV20=async function(boardId,opts={}){
+  if(!getBoard(boardId)&&!opts.preview){
+    showOnly("customerJourneyApp");el("customerJourneyTitle").textContent="Loading your Journey";el("customerJourneySub").textContent="Connecting securely to this SmartBoard.";
+    el("customerJourneyActions").innerHTML='<div class="public-loading">Loading board setup…</div>';
+    const board=await cjResolvePublicBoardV24(boardId);
+    if(!board){el("customerJourneyTitle").textContent="Board unavailable";el("customerJourneySub").textContent="This SmartBoard could not be resolved securely.";el("customerJourneyActions").innerHTML="";el("customerJourneyError").textContent="The board may be inactive, unpublished, or the public board service may be unavailable.";el("customerJourneyError").classList.remove("hidden");return false}
+  }
+  return openCustomerJourneyBeforeV24(boardId,opts);
+};
+
+const initializeSessionBeforeV24=initializeSession;
+initializeSession=async function(){
+  initBackend();updateBackendBadges();
+  if(hasCustomerBoardRouteV20()){restoreLocalState();await openCustomerJourneyV20(customerBoardFromRouteV20());return}
+  return await initializeSessionBeforeV24();
+};
+
+window.addEventListener("online",()=>{cjSetSyncStatusV24("syncing","Reconnecting…","Connection restored. Checking queued changes.");if(cjQueuedCloudStateV24()&&actualRole!=="Employee")cjScheduleCloudSyncV24();cjFlushEventQueueV24()});
+window.addEventListener("offline",()=>cjSetSyncStatusV24("warn","Saved locally","Offline. Changes remain safely on this device until connection returns."));
+
+/* BUILD 24.0: Production Backend & Data Persistence Hardening */
+
+/* BUILD 25 FINAL QA + LAUNCH READINESS */
+const CJ_BUILD_VERSION_V25=25;
+let cjLastGlobalErrorV25=null,cjFinalQaRunningV25=false;
+
+function cjToastV25(message,type=""){
+  const n=el("cjSystemToast"),t=el("cjSystemToastText");if(!n||!t)return;
+  t.textContent=String(message||"");
+  n.className="cj-system-toast"+(type?` ${type}`:"");
+  clearTimeout(cjToastV25._timer);
+  cjToastV25._timer=setTimeout(()=>n.classList.add("hidden"),5000);
+}
+function cjCloseToastV25(){el("cjSystemToast")?.classList.add("hidden")}
+function cjSetButtonBusyV25(button,busy,label=""){
+  if(!button)return;
+  if(busy){
+    if(!button.dataset.cjOriginalText)button.dataset.cjOriginalText=button.textContent;
+    button.dataset.cjBusy="true";button.disabled=true;if(label)button.textContent=label;
+  }else{
+    button.dataset.cjBusy="false";button.disabled=false;
+    if(button.dataset.cjOriginalText){button.textContent=button.dataset.cjOriginalText;delete button.dataset.cjOriginalText}
+  }
+}
+function cjSafeUrlHealthV25(url){
+  if(!url)return{status:"fail",detail:"Destination missing."};
+  if(!validUrl(url))return{status:"fail",detail:"Destination is not a valid HTTP/HTTPS link."};
+  const u=new URL(normalizeUrl(url));
+  if(["javascript:","data:","file:"].includes(u.protocol))return{status:"fail",detail:"Unsafe destination protocol."};
+  return{status:"pass",detail:"Destination format is valid."};
+}
+function cjBoardReadinessV25(){
+  const issues=[],active=(boards||[]).filter(b=>b.active);
+  if(!boards.length)issues.push("No SmartBoards exist.");
+  active.forEach(b=>{
+    if(!(b.actions||[]).length)issues.push(`${b.name}: no Journey configured.`);
+    if((b.actions||[]).length>3)issues.push(`${b.name}: Journey exceeds 3 actions.`);
+    (b.actions||[]).forEach(a=>{const h=cjSafeUrlHealthV25(b.destinations?.[a]);if(h.status==="fail")issues.push(`${b.name}: ${a} destination needs attention.`)});
+  });
+  return{status:issues.length?"warn":"pass",issues,activeCount:active.length,total:boards.length};
+}
+function cjIntegrationReadinessV25(){
+  const connected=(connectedAccounts||[]).filter(x=>x.status==="connected");
+  const attention=(connectedAccounts||[]).filter(x=>["needs_attention","expired"].includes(x.status));
+  const backendLive=connected.filter(x=>x.backendManaged);
+  return{
+    status:attention.length?"warn":"pass",
+    connected:connected.length,attention:attention.length,backendLive:backendLive.length,
+    detail:attention.length?`${attention.length} connected account${attention.length===1?" needs":"s need"} attention.`:`${connected.length} provider connection${connected.length===1?"":"s"} configured.`
+  };
+}
+function cjPublicReadinessV25(){
+  const edgeKnown=typeof CJ_PUBLIC_EDGE_ENDPOINT!=="undefined";
+  const hasBoards=(boards||[]).some(b=>b.active&&(b.actions||[]).length);
+  return{
+    status:edgeKnown&&hasBoards?"warn":"fail",
+    detail:!edgeKnown?"Public Journey backend client is missing.":!hasBoards?"No active configured board is available.":"Frontend public-board client is installed; live Edge Function availability still requires backend verification."
+  };
+}
+function cjCloudReadinessV25(){
+  if(!backendReady)return{status:"warn",detail:"Supabase client is not connected in this session."};
+  if(actualRole==="Employee")return{status:"pass",detail:"Employee workspace is correctly read-only for owner-level snapshot writes."};
+  if(!backendWorkspaceId)return{status:"warn",detail:"No backend workspace context is currently loaded."};
+  const queued=typeof cjQueuedCloudStateV24==="function"&&!!cjQueuedCloudStateV24();
+  return{status:queued?"warn":"pass",detail:queued?"A workspace cloud save is queued or pending.":"No pending workspace snapshot is queued locally."};
+}
+function cjSessionReadinessV25(){
+  const active=!!(signedInEmail||localAccount());
+  return{status:active?"pass":"warn",detail:active?"A signed-in/local session context is present.":"No signed-in session is active on this screen."};
+}
+function cjMobileReadinessV25(){
+  const viewport=document.querySelector('meta[name="viewport"]');
+  const overflow=document.documentElement.scrollWidth>window.innerWidth+4;
+  return{status:viewport&&!overflow?"pass":"warn",detail:!viewport?"Viewport meta tag is missing.":overflow?"Horizontal page overflow is detected on this device.":"Viewport configuration and current screen width look mobile-safe."};
+}
+function cjEventQueueReadinessV25(){
+  const q=typeof cjSafeJsonV24==="function"?cjSafeJsonV24(localStorage.getItem(CJ_EVENT_SYNC_QUEUE_KEY),null):null;
+  const count=Array.isArray(q)?q.length:0;
+  return{status:count?"warn":"pass",detail:count?`${count} customer event${count===1?" is":"s are"} waiting for backend persistence.`:"No customer event sync backlog is stored locally."};
+}
+function cjErrorReadinessV25(){
+  return{status:cjLastGlobalErrorV25?"warn":"pass",detail:cjLastGlobalErrorV25?`Latest runtime error: ${String(cjLastGlobalErrorV25.message||cjLastGlobalErrorV25).slice(0,180)}`:"No uncaught runtime error has been observed in this page session."};
+}
+function cjAuthFunctionReadinessV25(){
+  const fns=["loginUser","sendMagicLink","signupBackendIfConfigured","logoutUser","loadCloudWorkspace","syncCloudSnapshot"];
+  const missing=fns.filter(n=>typeof window[n]!=="function"&&typeof eval(n)!=="function");
+  return{status:missing.length?"fail":"pass",detail:missing.length?`Missing critical functions: ${missing.join(", ")}.`:"Critical authentication and cloud persistence functions are defined."};
+}
+function cjFinalLaunchRowsV25(){
+  const board=cjBoardReadinessV25(),integration=cjIntegrationReadinessV25();
+  return[
+    {id:"auth",title:"Authentication + session",...cjSessionReadinessV25()},
+    {id:"functions",title:"Critical runtime functions",...cjAuthFunctionReadinessV25()},
+    {id:"workspace",title:"Cloud workspace persistence",...cjCloudReadinessV25()},
+    {id:"boards",title:"SmartBoards + Journeys",status:board.status,detail:board.issues.length?board.issues.slice(0,3).join(" "):`${board.activeCount} active board${board.activeCount===1?"":"s"} have valid Journey structure.`},
+    {id:"destinations",title:"Customer destinations",status:board.issues.some(x=>x.includes("destination"))?"warn":"pass",detail:board.issues.filter(x=>x.includes("destination")).slice(0,3).join(" ")||"Configured Journey destinations have valid URL format."},
+    {id:"public",title:"Public NFC / QR Journey",...cjPublicReadinessV25()},
+    {id:"events",title:"Customer event persistence",...cjEventQueueReadinessV25()},
+    {id:"integrations",title:"Connected Accounts",status:integration.status,detail:integration.detail},
+    {id:"mobile",title:"Mobile layout",...cjMobileReadinessV25()},
+    {id:"runtime",title:"Runtime errors",...cjErrorReadinessV25()},
+    {id:"release",title:"Server-authoritative release gate",status:calculateReleaseState().status==="ready"?"pass":calculateReleaseState().status==="blocked"?"fail":"warn",detail:calculateReleaseState().summary}
+  ];
+}
+function renderFinalLaunchReadinessV25(){
+  const c=el("finalLaunchReadiness");if(!c)return;
+  const rows=cjFinalLaunchRowsV25();
+  c.innerHTML=rows.map(r=>`<div class="release-readiness-item ${r.status}"><strong>${esc(r.title)}</strong><span>${esc(r.detail)}</span><span class="release-mini-status">${esc(r.status==="pass"?"Pass":r.status==="fail"?"Blocked":"Review")}</span></div>`).join("");
+  return rows;
+}
+async function runFinalLaunchCheckV25(){
+  if(cjFinalQaRunningV25)return;
+  cjFinalQaRunningV25=true;const btn=el("finalLaunchRun");cjSetButtonBusyV25(btn,true,"Checking…");
+  try{
+    runLocalProductionChecks();
+    await refreshProductionBackend(false);
+    productionReadiness.qaChecks=typeof localQaChecks==="function"?localQaChecks():productionReadiness.qaChecks||[];
+    productionReadiness.lastRunAt=new Date().toISOString();
+    const rows=renderFinalLaunchReadinessV25()||[];
+    renderProductionReadiness();renderSecurityCenter();renderQaReleaseCenter();renderFinalLaunchReadinessV25();
+    const blocked=rows.filter(x=>x.status==="fail").length,review=rows.filter(x=>x.status==="warn").length;
+    cjToastV25(blocked?`${blocked} launch blocker${blocked===1?"":"s"} found.`:review?`No local blocker found; ${review} item${review===1?" still needs":"s still need"} review.`:"Final checks passed locally. Complete real-device end-to-end acceptance testing before launch.",blocked?"bad":review?"warn":"good");
+  }catch(e){console.error(e);cjToastV25(e?.message||"Final launch check failed.","bad")}
+  finally{cjFinalQaRunningV25=false;cjSetButtonBusyV25(btn,false)}
+}
+
+/* Extend the existing QA center instead of replacing its evidence-based release logic. */
+const renderQaReleaseCenterBeforeV25=renderQaReleaseCenter;
+renderQaReleaseCenter=function(){
+  renderQaReleaseCenterBeforeV25();
+  renderFinalLaunchReadinessV25();
+};
+
+/* Keep diagnostic/build metadata current. */
+const makeSupportDiagnosticBeforeV25=makeSupportDiagnostic;
+makeSupportDiagnostic=function(){
+  const d=makeSupportDiagnosticBeforeV25();
+  if(d)d.stateVersion=CJ_BUILD_VERSION_V25;
+  return d;
+};
+
+/* Guard common double-submit actions at the capture phase. */
+function cjInstallDoubleSubmitGuardV25(id,ms=900){
+  const n=el(id);if(!n)return;
+  let last=0;
+  n.addEventListener("click",e=>{
+    const now=Date.now();
+    if(now-last<ms){e.preventDefault();e.stopImmediatePropagation();return}
+    last=now;
+  },true);
+}
+["loginButton","magicLinkButton","accountSaveProfile","saveNewBoard","sendInvite","saveBoardJourney","saveDestinationChanges","copyBoardSetupButton","integrationWizardContinue","productionRunChecks","qaRunSuite"].forEach(id=>cjInstallDoubleSubmitGuardV25(id));
+
+/* Global error visibility without exposing secrets or stack traces to customers. */
+window.addEventListener("error",e=>{
+  cjLastGlobalErrorV25={message:String(e?.message||"Runtime error"),at:new Date().toISOString()};
+  console.error("CreateJourney runtime error",e?.error||e);
+});
+window.addEventListener("unhandledrejection",e=>{
+  cjLastGlobalErrorV25={message:String(e?.reason?.message||e?.reason||"Unhandled request error"),at:new Date().toISOString()};
+  console.error("CreateJourney unhandled rejection",e?.reason);
+});
+
+/* Session expiry / auth recovery feedback */
+if(backendReady&&sb){
+  try{
+    sb.auth.onAuthStateChange((event)=>{
+      if(event==="SIGNED_OUT"){
+        cjSetSyncStatusV24?.("warn","Signed out","Your secure session ended. Sign in again before making cloud changes.");
+      }
+      if(event==="TOKEN_REFRESHED"){
+        cjSetSyncStatusV24?.("good","Session active","Secure session refreshed.");
+      }
+    });
+  }catch(_){}
+}
+
+el("cjSystemToastClose").addEventListener("click",cjCloseToastV25);
+el("finalLaunchRun").addEventListener("click",runFinalLaunchCheckV25);
+
+/* Initial QA render is safe and does not claim backend verification. */
+setTimeout(()=>{try{renderFinalLaunchReadinessV25()}catch(_){}},0);
+
+/* BUILD 25.0: Final QA, Launch Cleanup & Release Readiness */
 /* BUILD 19 SAFE OVERRIDES */
 function boardNeedsSetupV19(b){if(!b||!Array.isArray(b.actions)||!b.actions.length)return true;return b.actions.some(a=>!String(b.destinations?.[a]||"").trim())}
 function boardStatusV19(b){if(!b.active)return "Paused";return boardNeedsSetupV19(b)?"Needs setup":"Ready"}
