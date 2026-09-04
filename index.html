@@ -1307,7 +1307,7 @@ const LOCAL_ACCOUNT_KEY="createjourney_build3_account_v1";
 let sb=null,backendWorkspaceId=null,actualRole="Owner",backendReady=false,restoring=false,signedInEmail="",isPlatformAdmin=false,adminBoards=[],adminActionBusy=false,adminHistoryBoardNumber=null,authRouting=false;
 let aiBusinessProfile={goals:[]};
 let aiTimeline=[],aiMediaLibrary=[],aiConversationSessions=[],aiWorkDrafts=[],aiTimelineFilter="All",aiTimelineView="activity",aiMediaFilter="All",aiMemoryItems=[],aiProjects=[],aiActiveProjectId=null,aiOperationQueue=[],aiOperationHistory=[],aiDismissedRecommendations=[],aiWorkspaceActiveTab="timeline",connectedAccounts=[],integrationActivity=[],integrationFilter="All",integrationCategory="All",integrationWizardProviderId=null,integrationBackendState={available:false,checked:false,error:"",lastCheckedAt:null},aiOpportunityQueue=[],aiExternalActions=[],aiCreativeJobs=[],aiMemorySignals=[],aiRecommendationFeedback=[],aiCampaigns=[],aiLearningInsights=[],aiExperiments=[],aiCampaignMetricsSyncAt=null,aiMarketingPlans=[],aiContentLibrary=[],aiScheduleQueue=[],aiMarketingPreferences={promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"},aiCalendarCursor=null,aiBusinessSnapshots=[],aiAttributionRecords=[],aiForecasts=[],aiAnomalies=[],aiAdvisorBriefs=[],aiIntelligenceSyncAt=null,aiAutomations=[],aiAutomationRuns=[],aiAutomationMaster={paused:false,backendConfirmed:false,updatedAt:null},aiAutomationSignals=[],aiAutomationPackHistory=[],billingState={planId:"core",status:"unconfirmed",source:"local_fallback",customerId:null,subscriptionId:null,currentPeriodEnd:null,cancelAtPeriodEnd:false,portalAvailable:false,lastSyncedAt:null},billingPlanCatalog=[],workspaceEntitlements={},workspaceUsage={periodStart:null,periodEnd:null,aiUnits:null,creativeGenerations:null,automationRuns:null,providerActions:null,source:"local_fallback"},billingInvoices=[],productionReadiness={lastRunAt:null,backendCheckedAt:null,backendVerified:false,backend:{},localChecks:[],securityChecks:[],qaChecks:[],releaseStatus:"unverified"},productionDiagnostics=[],releaseGateHistory=[],launchOperations={lastSyncedAt:null,backendConfirmed:false,maintenance:{enabled:null,message:null,confirmed:false},release:{version:null,commit:null,deployedAt:null,environment:null},services:[]},pilotWorkspaces=[],operationsIncidents=[],operationsMonitoring=[],featureFlags=[],supportDiagnostics=[],aiBusinessBrain={facts:[],preferences:[],decisions:[],highlights:[],updatedAt:null},aiCreativePreferences={variationCount:4,askMode:"smart",explainMode:"on"},aiLibrarySync={lastAttemptAt:null,lastSuccessAt:null,backendConfirmed:false,error:""},aiPendingLogoMeta=null;
-let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false;
+let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false,realtimeLastUserText="",realtimeLastUserAt=0;
 const actions=["Pay","Review","Book","Subscribe","Deals","Social","Contact","Info","Portfolio","Event","Custom Link","Website"];
 const businessSuggested=["Pay","Review","Book"],personalSuggested=["Social","Website","Contact"];
 const actionConfig={Pay:{question:"Where should people go to pay?",example:"Example: your Square, Stripe, PayPal, Venmo, or payment link"},Review:{question:"Where should customers leave a review?",example:"Example: your Google Review link"},Book:{question:"Where should people book with you?",example:"Example: your booking or calendar link"},Subscribe:{question:"Where should people subscribe or join?",example:"Example: your membership, newsletter, or subscription link"},Deals:{question:"Where should people see your deals?",example:"Example: your offers, specials, promotions, or coupon page"},Social:{question:"Which social profile should people visit?",example:"Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"},Contact:{question:"Where should people contact you?",example:"Example: your contact page, messaging link, or digital contact card"},Info:{question:"Where should people see more information?",example:"Example: your menu, instructions, pricing, FAQ, directions, or information page"},Portfolio:{question:"Where should people view your work?",example:"Example: your portfolio, gallery, creator page, or work samples"},Event:{question:"Where should people go for your event?",example:"Example: event details, tickets, schedule, directions, or RSVP page"},"Custom Link":{question:"Where should this custom action take people?",example:"Example: any website or destination you choose"},Website:{question:"Where should people visit your website?",example:"Example: your personal, business, portfolio, or company website"}};
@@ -3373,21 +3373,27 @@ function handleRealtimeEvent(event){
 
   if(event.type==="conversation.item.input_audio_transcription.completed"||
      event.type==="input_audio_transcription.completed"){
-    const t=realtimeEventText(event);
+    const t=realtimeEventText(event).trim();
     if(!t)return;
+
+    /* Realtime can emit the same completed user transcript through more than
+       one event name. Keep only one visible message per spoken turn. */
+    const now=Date.now();
+    if(t===realtimeLastUserText&&(now-realtimeLastUserAt)<6000)return;
+    realtimeLastUserText=t;
+    realtimeLastUserAt=now;
 
     addAiMessage("user",t);
 
-    /* Route spoken image-generation requests into CreateJourney's real
-       journey-ai-creative backend instead of letting the voice model say
-       it cannot create an image. */
+    /* Spoken image requests are handed to Journey AI Creative. Mute the
+       realtime assistant for this turn so it does not compete with the image
+       workflow by saying it cannot generate images. */
     if(typeof journeyAiLooksLikeImageRequest==="function"&&journeyAiLooksLikeImageRequest(t)){
       journeyAiDiscoveryMode="";
       realtimeSuppressAssistant=true;
       realtimeAssistantTranscript="";
       realtimeLastAssistantText="";
-      realtimeSendEvent({type:"response.cancel"});
-      setTimeout(()=>realtimeSendEvent({type:"response.cancel"}),80);
+      try{if(realtimeAudioEl)realtimeAudioEl.muted=true}catch(_){}
       generateJourneyAiImageFromChat(t,false);
     }
     return;
@@ -3436,6 +3442,7 @@ function handleRealtimeEvent(event){
       realtimeAssistantTranscript="";
       realtimeLastAssistantText="";
       realtimeAssistantSpeaking=false;
+      try{if(realtimeAudioEl)realtimeAudioEl.muted=false}catch(_){}
       setTimeout(()=>setRealtimeMicCapture(true),220);
       return;
     }
@@ -3464,11 +3471,15 @@ function handleRealtimeEvent(event){
 
   if(event.type==="error"){
     console.error("Journey AI Realtime error",event);
+    const wasSuppressed=realtimeSuppressAssistant;
     realtimeAssistantTranscript="";
     realtimeAssistantSpeaking=false;
     realtimeSuppressAssistant=false;
+    try{if(realtimeAudioEl)realtimeAudioEl.muted=false}catch(_){}
     setRealtimeMicCapture(true);
-    addAiMessage("ai","The live voice session hit an error. You can reconnect by tapping the microphone again.");
+    if(!wasSuppressed){
+      addAiMessage("ai","The live voice session hit an error. You can reconnect by tapping the microphone again.");
+    }
   }
 }
 async function startRealtimeVoice(){
@@ -3913,6 +3924,8 @@ el("journeyAiFab").addEventListener("click",()=>setTimeout(renderJourneyAiDiscov
 el("aiTalkFab").addEventListener("click",()=>setTimeout(renderJourneyAiDiscoveryShortcuts,0));
 renderJourneyAiDiscoveryShortcuts();
 
+/* BUILD 17.0: duplicate spoken-user suppression, clean creative handoff,
+   and realtime-audio muting during image generation. */
 /* BUILD 16.9: Journey AI voice stability, duplicate-message suppression,
    spoken image-request routing, and iPhone/Safari self-interruption protection. */
 /* BUILD 5.2.1: universal login is the default entry screen; onboarding only opens from Create Account */
