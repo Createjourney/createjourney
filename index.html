@@ -363,6 +363,83 @@
 .board-preview-sheet{width:min(620px,100%);max-height:90vh;overflow:auto;background:#f6f8fb;border-radius:24px 24px 0 0;padding:20px}.board-preview-phone{max-width:380px;margin:0 auto;background:#fff;border:1px solid #dce4ed;border-radius:26px;padding:20px;box-shadow:0 20px 50px rgba(15,23,42,.15)}
 .board-preview-actions{display:flex;flex-direction:column;gap:9px;margin-top:18px}.board-preview-actions button{margin:0}.board-preview-close{width:auto;margin:0 0 12px auto;display:block;padding:8px 12px}
 .copy-setup-grid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.copy-setup-grid button{margin:0}.add-board-status{padding:11px 12px;margin:12px 0;border-radius:12px;background:#f7fbff;color:#607086;font-size:11px;line-height:1.45}
+
+/* BUILD 20 — CUSTOMER TAP EXPERIENCE */
+.customer-screen{min-height:100vh;background:linear-gradient(180deg,#f8fbff 0%,#f3f6fa 100%);padding:22px 16px 42px}
+.customer-shell{width:100%;max-width:520px;margin:0 auto}
+.customer-brand{display:flex;justify-content:center;margin:8px 0 22px}
+.customer-card{background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:22px;box-shadow:0 14px 38px rgba(15,23,42,.07)}
+.customer-kicker{font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;color:#3978c8}
+.customer-title{margin:8px 0 6px;font-size:27px;color:#111827}
+.customer-sub{margin:0;color:#667085;font-size:13px;line-height:1.55}
+.customer-journey{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.customer-action{margin:0;padding:15px 16px;border-radius:15px;font-size:15px;font-weight:800}
+.customer-action.secondary{background:#f6f8fb;color:#334155;border:1px solid #e1e7ef}
+.customer-meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.customer-pill{padding:6px 9px;border-radius:999px;background:#f3f7fc;color:#607086;font-size:10px;font-weight:800}
+.customer-pill.returning{background:#eaf8ef;color:#2f8f55}
+.customer-prompt{margin-top:15px;padding:16px;border-radius:16px;background:#f8fbff;border:1px solid #dbe8f7}
+.customer-prompt h3{margin:0 0 6px;font-size:17px}
+.customer-prompt p{margin:0;color:#667085;font-size:12px;line-height:1.5}
+.customer-prompt-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+.customer-prompt-actions button{margin:0}
+.customer-closing{text-align:center;padding:22px 8px}
+.customer-closing strong{display:block;font-size:21px;color:#111827}
+.customer-closing span{display:block;margin-top:7px;color:#667085;font-size:13px;line-height:1.5}
+.customer-footer{text-align:center;margin-top:16px;color:#98a2b3;font-size:10px}
+.customer-error{padding:18px;border-radius:16px;background:#fff5f4;color:#9b3f3a;border:1px solid #f0d8d6;font-size:12px;line-height:1.5;margin-top:15px}
+.customer-dev-note{margin-top:12px;padding:10px 12px;border-radius:12px;background:#fffaf0;color:#8a6418;font-size:10px;line-height:1.45}
+@media(max-width:600px){
+  .customer-screen{padding-top:18px}
+  .customer-card{padding:19px}
+  .customer-title{font-size:24px}
+}
+
+/* BUILD 21 — TRACKING, ANALYTICS & PERFORMANCE */
+.bi-event-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.bi-event-kpi{padding:12px;border-radius:14px;background:#f7f9fc;border:1px solid #e5eaf1}
+.bi-event-kpi strong{display:block;font-size:20px;color:#111827}
+.bi-event-kpi span{display:block;margin-top:3px;font-size:9px;color:#7b8798;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.bi-step-list{display:flex;flex-direction:column;gap:8px}
+.bi-step-row{display:grid;grid-template-columns:minmax(100px,1fr) repeat(4,70px);gap:7px;align-items:center;padding:9px 10px;border-radius:12px;background:#f8fafc;border:1px solid #e8edf3;font-size:11px}
+.bi-step-row strong{font-size:11px;color:#111827}
+.bi-step-row span{text-align:right;color:#667085}
+.bi-trend-bars{display:flex;align-items:flex-end;gap:5px;height:110px;padding-top:8px}
+.bi-trend-day{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;height:100%}
+.bi-trend-bar{width:100%;max-width:28px;min-height:3px;border-radius:6px 6px 2px 2px;background:#7eb2f7}
+.bi-trend-day small{font-size:8px;color:#8a95a5}
+.bi-event-feed{display:flex;flex-direction:column;gap:7px;max-height:300px;overflow:auto}
+.bi-event-item{padding:9px 10px;border-radius:11px;background:#f8fafc;border:1px solid #e8edf3}
+.bi-event-item strong{display:block;font-size:11px;color:#111827}
+.bi-event-item span{display:block;margin-top:3px;font-size:9px;color:#7b8798}
+.bi-signal{padding:12px;border-radius:13px;background:#f8fbff;border:1px solid #dce9f7;margin-top:9px}
+.bi-signal strong{display:block;font-size:12px;color:#24476f}
+.bi-signal span{display:block;margin-top:4px;font-size:10px;color:#63758b;line-height:1.45}
+@media(max-width:700px){
+  .bi-event-summary{grid-template-columns:repeat(2,1fr)}
+  .bi-step-row{grid-template-columns:1fr repeat(2,58px)}
+  .bi-step-row .desktop-extra{display:none}
+}
+
+/* BUILD 22 — ROLES, PERMISSIONS & WORKSPACE SECURITY */
+.access-denied-overlay{position:fixed;inset:0;z-index:12000;background:rgba(15,23,42,.48);display:flex;align-items:flex-end;justify-content:center}
+.access-denied-overlay.hidden{display:none}
+.access-denied-sheet{width:min(560px,100%);background:#fff;border-radius:24px 24px 0 0;padding:22px;box-shadow:0 -18px 45px rgba(15,23,42,.16)}
+.access-denied-icon{width:42px;height:42px;border-radius:14px;background:#fff3e8;display:grid;place-items:center;font-weight:900;color:#a5631b;margin-bottom:12px}
+.access-denied-sheet h3{margin:0;font-size:20px;color:#111827}
+.access-denied-sheet p{margin:7px 0 0;color:#667085;font-size:12px;line-height:1.5}
+.access-denied-meta{margin-top:13px;padding:11px 12px;background:#f7f9fc;border-radius:12px;font-size:10px;color:#68778b}
+.access-denied-sheet button{margin-bottom:0}
+.role-security-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:#eef6ff;color:#3978c8;font-size:9px;font-weight:850;margin-top:7px}
+.role-security-badge:before{content:"";width:6px;height:6px;border-radius:50%;background:#3978c8}
+.security-disabled{opacity:.46!important;cursor:not-allowed!important;filter:grayscale(.1)}
+.security-hidden{display:none!important}
+.team-role-note{padding:10px 12px;border-radius:12px;background:#f8fbff;border:1px solid #dce9f7;color:#607086;font-size:10px;line-height:1.45;margin-bottom:12px}
+.workspace-access-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.workspace-access-summary div{padding:10px;border-radius:12px;background:#f7f9fc;border:1px solid #e7ebf1}
+.workspace-access-summary strong{display:block;font-size:11px;color:#111827}
+.workspace-access-summary span{display:block;font-size:9px;color:#7c8798;margin-top:3px}
+@media(max-width:600px){.workspace-access-summary{grid-template-columns:1fr}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -370,6 +447,30 @@
 <!-- ======================================
      #05 SIGN IN / ACCOUNT ACCESS
      ====================================== -->
+
+<!-- ======================================
+     #9 CUSTOMER TAP EXPERIENCE — BUILD 20
+     ====================================== -->
+<div id="customerJourneyApp" class="customer-screen hidden">
+  <div class="customer-shell">
+    <div class="customer-brand">
+      <div class="dashboard-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div>
+    </div>
+    <div class="customer-card">
+      <div id="customerJourneyKicker" class="customer-kicker">Welcome</div>
+      <h1 id="customerJourneyTitle" class="customer-title">Customer Journey</h1>
+      <p id="customerJourneySub" class="customer-sub">Choose what you would like to do.</p>
+      <div id="customerJourneyMeta" class="customer-meta"></div>
+      <div id="customerJourneyPrompt" class="customer-prompt hidden"></div>
+      <div id="customerJourneyActions" class="customer-journey"></div>
+      <div id="customerJourneyClosing" class="customer-closing hidden"></div>
+      <div id="customerJourneyError" class="customer-error hidden"></div>
+      <div id="customerJourneyDevNote" class="customer-dev-note hidden"></div>
+    </div>
+    <div class="customer-footer">No CreateJourney account is required to use this board.</div>
+  </div>
+</div>
+
 <div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local prototype mode</span></div></div></div>
 <!-- ======================================
      #10 ONBOARDING
@@ -853,6 +954,27 @@
       <p>Journey AI receives the current intelligence snapshot, attribution records and advisor context.</p>
       <div class="bi-question-bar"><input id="biQuestion" placeholder="Example: What should I focus on this week?"><button id="biAsk" class="primary ready">Ask Journey AI</button></div>
       <div id="biSnapshotStatus" class="ai-copilot-empty" style="margin-top:10px">Using current CreateJourney workspace data.</div>
+    </div>
+    <div class="bi-card">
+      <h3>Journey Performance</h3>
+      <p>Tracked impressions, choices and destination opens by Journey action.</p>
+      <div id="biJourneyEventSummary" class="bi-event-summary"></div>
+      <div id="biJourneyStepPerformance" class="bi-step-list"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Visitor & Prompt Signals</h3>
+      <p>Anonymous first/returning activity and optional-prompt response patterns.</p>
+      <div id="biVisitorSignals"></div>
+    </div>
+    <div class="bi-card">
+      <h3>7-Day Activity</h3>
+      <p>Actual CreateJourney customer events recorded in this browser/workspace snapshot.</p>
+      <div id="biEventTrend" class="bi-trend-bars"></div>
+    </div>
+    <div class="bi-card">
+      <h3>Recent Customer Events</h3>
+      <p>Attempted and confirmed outcomes remain separate.</p>
+      <div id="biRecentEvents" class="bi-event-feed"></div>
     </div>
   </div>
 </section>
@@ -1386,7 +1508,7 @@
 <div id="renameBoardArea" class="manager-card hidden"><h3 class="manager-section-title">Rename board</h3><input id="renameBoardInput" placeholder="Example: Front Counter or Chair 4"><div class="rename-buttons"><button id="cancelRename" class="secondary">Cancel</button><button id="saveBoardName" class="primary ready">Save Name</button></div></div>
 <div id="destinationEditor" class="manager-card hidden"><h3 class="manager-section-title">Edit Journey destinations</h3><p class="helper">Update where each action sends the customer.</p><div id="destinationEditFields"></div><button id="saveDestinations" class="primary ready">Save Destinations</button></div>
 <div class="manager-card"><h3 class="manager-section-title">Assignment</h3><label>Assigned team member</label><select id="boardAssignmentSelect"></select><button id="saveBoardAssignment" class="primary ready">Save Assignment</button></div>
-<div id="copyBoardSetupArea" class="manager-card hidden"><h3 class="manager-section-title">Copy setup</h3><p class="helper">Copy this board's Journey and destinations to another existing SmartBoard. The target keeps its own permanent identity, name and assignment.</p><div class="copy-setup-grid"><div><label>Target board</label><select id="copyBoardTarget"></select></div><button id="copyBoardSetupButton" class="primary ready">Copy setup</button></div><div id="copyBoardSetupMessage" class="success-message hidden">Setup copied.</div></div><div class="manager-card"><h3 class="manager-section-title">QR & NFC</h3><div class="journey-row"><span>NFC destination</span><span>Connected to board identity</span></div><div class="journey-row"><span>Management QR</span><span>Authorized shortcut only</span></div><div class="journey-row"><span>Customer access</span><span>Account not required</span></div></div><div class="manager-card"><h3 class="manager-section-title">Journey destinations</h3><div id="managerDestinations"></div></div>
+<div id="copyBoardSetupArea" class="manager-card hidden"><h3 class="manager-section-title">Copy setup</h3><p class="helper">Copy this board's Journey and destinations to another existing SmartBoard. The target keeps its own permanent identity, name and assignment.</p><div class="copy-setup-grid"><div><label>Target board</label><select id="copyBoardTarget"></select></div><button id="copyBoardSetupButton" class="primary ready">Copy setup</button></div><div id="copyBoardSetupMessage" class="success-message hidden">Setup copied.</div></div><div class="manager-card"><h3 class="manager-section-title">QR & NFC</h3><div class="journey-row"><span>NFC destination</span><span>Connected to board identity</span></div><div class="journey-row"><span>Management QR</span><span>Authorized shortcut only</span></div><div class="journey-row"><span>Customer access</span><span>Account not required</span></div><button id="copyCustomerBoardLink" class="secondary">Copy customer test link</button><div id="customerBoardLinkMessage" class="success-message hidden">Customer link copied.</div></div><div class="manager-card"><h3 class="manager-section-title">Journey destinations</h3><div id="managerDestinations"></div></div>
 <div class="manager-card"><h3 class="manager-section-title">Board activity</h3><div class="journey-row"><span>Total taps today</span><span id="managerActivityTaps">0</span></div><div class="journey-row"><span>Unique visitors</span><span id="managerActivityVisitors">0</span></div><div class="journey-row"><span>Returning visitors</span><span id="managerActivityReturning">0</span></div><div class="journey-row"><span>Last interaction</span><span id="managerActivityLast">No interactions yet</span></div></div>
 <div class="audit-card"><h3 class="manager-section-title">Recent changes</h3><div id="boardAuditList" class="audit-list"></div></div>
 </div></div>
@@ -1400,7 +1522,18 @@
 <!-- ======================================
      #60 TEAM AND PERMISSIONS
      ====================================== -->
-<div id="teamManagerApp" class="team-screen hidden"><div class="team-shell"><div class="team-topbar"><button id="teamBack" class="team-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="team-title"><h1>Team & Permissions</h1><p>Control who can see and manage each board.</p></div></div><div class="quick-panel"><h2>Invite team member</h2><label>Name</label><input id="inviteName" placeholder="Example: Jordan Smith"><label>Email</label><input id="inviteEmail" type="email" placeholder="Example: jordan@example.com"><label>Role</label><select id="inviteRole"><option value="">Choose a role</option><option>Manager</option><option>Employee</option></select><label>Assign a board</label><select id="inviteBoard"></select><div class="inline-toggle"><div><strong>Allow Journey editing</strong><div class="board-sub">Useful for independent barbers or trusted staff.</div></div><button id="inviteCanEdit" class="toggle-btn" data-enabled="false">Off</button></div><button id="sendInvite" class="primary">Send Invite</button><div id="inviteSuccess" class="success-message hidden">Invitation created.</div></div><section class="dashboard-section"><div class="section-heading"><h3>Team members</h3></div><div class="team-card"><div id="teamManagerList" class="team-list"></div></div></section><section class="dashboard-section"><div class="audit-card"><h3 class="manager-section-title">Account audit log</h3><div id="globalAuditList" class="audit-list"></div></div></section></div></div>
+<div id="teamManagerApp" class="team-screen hidden"><div class="team-shell"><div class="team-topbar"><button id="teamBack" class="team-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="team-title"><h1>Team & Permissions</h1><p>Control who can see and manage each board.</p></div></div><div class="quick-panel"><h2>Invite team member</h2><div id="teamRoleSecurityNote" class="team-role-note">Owners can invite Managers or Employees. Managers can invite Employees only. Employees cannot manage team access.</div><label>Name</label><input id="inviteName" placeholder="Example: Jordan Smith"><label>Email</label><input id="inviteEmail" type="email" placeholder="Example: jordan@example.com"><label>Role</label><select id="inviteRole"><option value="">Choose a role</option><option>Manager</option><option>Employee</option></select><label>Assign a board</label><select id="inviteBoard"></select><div class="inline-toggle"><div><strong>Allow Journey editing</strong><div class="board-sub">Useful for independent barbers or trusted staff.</div></div><button id="inviteCanEdit" class="toggle-btn" data-enabled="false">Off</button></div><button id="sendInvite" class="primary">Send Invite</button><div id="inviteSuccess" class="success-message hidden">Invitation created.</div></div><section class="dashboard-section"><div class="section-heading"><h3>Team members</h3></div><div class="team-card"><div id="teamManagerList" class="team-list"></div></div></section><section class="dashboard-section"><div class="audit-card"><h3 class="manager-section-title">Account audit log</h3><div id="globalAuditList" class="audit-list"></div></div></section></div></div>
+
+
+<div id="accessDeniedOverlay" class="access-denied-overlay hidden">
+  <div class="access-denied-sheet">
+    <div class="access-denied-icon">!</div>
+    <h3 id="accessDeniedTitle">Access restricted</h3>
+    <p id="accessDeniedText">Your current workspace role does not have permission to use this feature.</p>
+    <div id="accessDeniedMeta" class="access-denied-meta"></div>
+    <button id="accessDeniedClose" class="primary ready">Got it</button>
+  </div>
+</div>
 
 <!-- ======================================
      #65 ACCOUNT & WORKSPACE — BUILD 18
@@ -1425,7 +1558,7 @@
       </div>
 
       <div class="account-section">
-        <div class="account-section-head"><strong>Workspace access</strong><span>Your current organization and permission level.</span></div>
+        <div class="account-section-head"><strong>Workspace access</strong><span>Your current organization and permission level.</span></div><div class="workspace-access-summary"><div><strong id="accountAccessBoards">Boards</strong><span id="accountAccessBoardsNote">Full access</span></div><div><strong id="accountAccessTeam">Team</strong><span id="accountAccessTeamNote">Manage</span></div><div><strong id="accountAccessBilling">Billing</strong><span id="accountAccessBillingNote">Owner only</span></div></div>
         <div class="account-row"><span>Workspace</span><span id="accountPanelWorkspace">-</span></div>
         <div class="account-row"><span>Role</span><span id="accountPanelRole">Owner</span></div>
         <div id="accountAdminRow" class="account-row hidden"><span>Platform access</span><span>Super Admin</span></div>
@@ -4325,6 +4458,647 @@ el("aiTalkFab").addEventListener("click",()=>setTimeout(renderJourneyAiDiscovery
 renderJourneyAiDiscoveryShortcuts();
 
 
+
+
+
+/* BUILD 22 ROLE + PERMISSION SECURITY */
+function securityRoleV22(){
+  if(isPlatformAdmin)return"Owner";
+  const r=String(actualRole||"Owner");
+  return["Owner","Manager","Employee"].includes(r)?r:"Employee";
+}
+function securityCapabilitiesV22(){
+  const role=securityRoleV22();
+  if(role==="Owner")return{
+    role,boards:true,addBoard:true,editJourney:true,boardStatus:true,assignBoard:true,
+    team:true,inviteManager:true,inviteEmployee:true,integrations:true,journeyAi:true,
+    analytics:true,automation:true,billing:true,security:true,workspaceSettings:true
+  };
+  if(role==="Manager")return{
+    role,boards:true,addBoard:true,editJourney:true,boardStatus:true,assignBoard:true,
+    team:true,inviteManager:false,inviteEmployee:true,integrations:true,journeyAi:true,
+    analytics:true,automation:true,billing:false,security:false,workspaceSettings:false
+  };
+  return{
+    role,boards:true,addBoard:false,editJourney:employeeCanEdit(),boardStatus:false,assignBoard:false,
+    team:false,inviteManager:false,inviteEmployee:false,integrations:false,journeyAi:false,
+    analytics:true,automation:false,billing:false,security:false,workspaceSettings:false
+  };
+}
+function showAccessDeniedV22(feature,required=""){
+  const role=securityRoleV22();
+  el("accessDeniedTitle").textContent=`${feature} is restricted`;
+  el("accessDeniedText").textContent=required||`Your ${role} role does not have permission to use this area.`;
+  el("accessDeniedMeta").textContent=`Signed-in authorization: ${role}. “View as” is presentation-only and never grants additional access.`;
+  el("accessDeniedOverlay").classList.remove("hidden");
+}
+function requireCapabilityV22(capability,feature,required=""){
+  const caps=securityCapabilitiesV22();
+  if(caps[capability])return true;
+  showAccessDeniedV22(feature,required);
+  return false;
+}
+function employeeMemberV22(){
+  return teamMembers.find(m=>m.role==="Employee"&&signedInEmail&&m.email?.toLowerCase()===signedInEmail.toLowerCase())||null;
+}
+function visibleBoardsSecureV22(){
+  const role=securityRoleV22();
+  if(role!=="Employee")return boards;
+  const member=employeeMemberV22();
+  if(!member)return[];
+  return boards.filter(b=>(member.boardIds||[]).includes(b.id));
+}
+function updateRoleSecurityUiV22(){
+  const caps=securityCapabilitiesV22(),role=caps.role;
+  const notice=el("permissionNotice");
+  if(notice){
+    notice.textContent=`Signed-in role: ${role}. “View as” changes presentation only; permissions always follow the authenticated workspace role.`;
+    notice.classList.remove("hidden");
+  }
+  [
+    ["quickAddBoard",caps.addBoard],
+    ["quickEditJourney",caps.editJourney],
+    ["quickInviteTeam",caps.team],
+    ["quickAiSetup",caps.journeyAi],
+    ["quickConnectedAccounts",caps.integrations],
+    ["quickPerformanceHub",caps.analytics]
+  ].forEach(([id,allowed])=>{
+    const n=el(id);if(!n)return;
+    n.classList.toggle("security-disabled",!allowed);
+    n.setAttribute("aria-disabled",allowed?"false":"true");
+  });
+
+  if(el("inviteRole")){
+    Array.from(el("inviteRole").options).forEach(o=>{
+      if(o.value==="Manager")o.disabled=!caps.inviteManager;
+      if(o.value==="Employee")o.disabled=!caps.inviteEmployee;
+    });
+    if(!caps.inviteManager&&el("inviteRole").value==="Manager")el("inviteRole").value="";
+  }
+
+  if(el("teamRoleSecurityNote")){
+    el("teamRoleSecurityNote").textContent=role==="Owner"
+      ?"Owner access: you may invite Managers or Employees and assign boards."
+      :role==="Manager"
+      ?"Manager access: you may invite Employees and manage boards, but cannot create another Manager or change ownership."
+      :"Employee access: team administration is not available.";
+  }
+
+  const access={
+    Owner:["All boards","Manage team","Owner controls"],
+    Manager:["All boards","Manage employees","View only"],
+    Employee:["Assigned boards only","No team admin","No billing access"]
+  }[role];
+  if(el("accountAccessBoardsNote"))el("accountAccessBoardsNote").textContent=access[0];
+  if(el("accountAccessTeamNote"))el("accountAccessTeamNote").textContent=access[1];
+  if(el("accountAccessBillingNote"))el("accountAccessBillingNote").textContent=access[2];
+}
+function managerCanEditMemberV22(member){
+  const caps=securityCapabilitiesV22();
+  if(caps.role==="Owner")return true;
+  if(caps.role==="Manager")return member?.role==="Employee";
+  return false;
+}
+
+/* Security permissions are based on actualRole, never currentRole/view-as. */
+permissions=function(){
+  const c=securityCapabilitiesV22();
+  return{add:c.addBoard,team:c.team,edit:c.editJourney,status:c.boardStatus,assign:c.assignBoard}
+};
+visibleBoards=function(){return visibleBoardsSecureV22()};
+
+const applyRolePreviewBeforeV22=applyRolePreview;
+applyRolePreview=function(){
+  applyRolePreviewBeforeV22();
+  updateRoleSecurityUiV22();
+  renderDashboard();
+};
+
+const renderDashboardBeforeV22=renderDashboard;
+renderDashboard=function(){
+  renderDashboardBeforeV22();
+  updateRoleSecurityUiV22();
+};
+
+const fillAccountPanelBeforeV22=fillAccountPanel;
+fillAccountPanel=function(){
+  fillAccountPanelBeforeV22();
+  updateRoleSecurityUiV22();
+};
+
+const openAddBoardBeforeV22=openAddBoard;
+openAddBoard=function(){
+  if(!requireCapabilityV22("addBoard","Add SmartBoard","Only an Owner or Manager can activate another SmartBoard."))return;
+  return openAddBoardBeforeV22();
+};
+
+const addNewBoardBeforeV22=addNewBoard;
+addNewBoard=function(){
+  if(!requireCapabilityV22("addBoard","Activate SmartBoard","Only an Owner or Manager can activate boards."))return;
+  return addNewBoardBeforeV22();
+};
+
+const openTeamManagerBeforeV22=openTeamManager;
+openTeamManager=function(){
+  if(!requireCapabilityV22("team","Team & Permissions","Employees cannot view or change workspace team access."))return;
+  openTeamManagerBeforeV22();
+  updateRoleSecurityUiV22();
+};
+
+const sendInviteBeforeV22=sendInvite;
+sendInvite=async function(){
+  const caps=securityCapabilitiesV22(),role=el("inviteRole")?.value||"";
+  if(!caps.team){showAccessDeniedV22("Team invitation","Your role cannot invite team members.");return}
+  if(role==="Manager"&&!caps.inviteManager){showAccessDeniedV22("Manager invitation","Only the workspace Owner can invite another Manager.");return}
+  if(role==="Employee"&&!caps.inviteEmployee){showAccessDeniedV22("Employee invitation","Your role cannot invite Employees.");return}
+  return await sendInviteBeforeV22();
+};
+
+const saveBoardJourneyChangesBeforeV22=saveBoardJourneyChanges;
+saveBoardJourneyChanges=function(){
+  if(!requireCapabilityV22("editJourney","Edit Journey","This account does not have permission to change this board’s Journey."))return;
+  return saveBoardJourneyChangesBeforeV22();
+};
+
+const saveBoardAssignmentBeforeV22=saveBoardAssignment;
+saveBoardAssignment=function(){
+  if(!requireCapabilityV22("assignBoard","Board assignment","Only Owners and Managers can reassign SmartBoards."))return;
+  return saveBoardAssignmentBeforeV22();
+};
+
+const openConnectedAccountsBeforeV22=openConnectedAccounts;
+openConnectedAccounts=function(){
+  if(!requireCapabilityV22("integrations","Connected Accounts","Connected providers are available to Owners and Managers only."))return;
+  return openConnectedAccountsBeforeV22();
+};
+
+const openAiBusinessSetupBeforeV22=openAiBusinessSetup;
+openAiBusinessSetup=function(){
+  if(!requireCapabilityV22("journeyAi","Teach Journey AI","Journey AI business setup is available to Owners and Managers only."))return;
+  return openAiBusinessSetupBeforeV22();
+};
+
+const openAiWorkspaceBeforeV22=openAiWorkspace;
+openAiWorkspace=function(){
+  if(!requireCapabilityV22("journeyAi","Journey AI Workspace","Journey AI Workspace is available to Owners and Managers only."))return;
+  return openAiWorkspaceBeforeV22();
+};
+
+const switchAiWorkspaceTab72BeforeV22=switchAiWorkspaceTab72;
+switchAiWorkspaceTab72=function(name){
+  const ownerOnly=["billing","security"];
+  const platformOnly=["production","qa","launch","pilots","supportops","command"];
+  if(ownerOnly.includes(name)&&!securityCapabilitiesV22().billing){
+    showAccessDeniedV22(name==="billing"?"Plans & Billing":"Workspace Security","Only the workspace Owner can use this area.");
+    return;
+  }
+  if(platformOnly.includes(name)&&!isPlatformAdmin){
+    showAccessDeniedV22("Platform operations","This internal operations area is isolated to authorized CreateJourney platform administrators.");
+    return;
+  }
+  if(["automation","workflows","operations"].includes(name)&&!securityCapabilitiesV22().automation){
+    showAccessDeniedV22("Automation","Automation controls are available to Owners and Managers only.");
+    return;
+  }
+  return switchAiWorkspaceTab72BeforeV22(name);
+};
+
+const openBillingPortalBeforeV22=typeof openBillingPortal==="function"?openBillingPortal:null;
+if(openBillingPortalBeforeV22){
+  openBillingPortal=async function(){
+    if(!requireCapabilityV22("billing","Billing portal","Only the workspace Owner can manage billing."))return;
+    return await openBillingPortalBeforeV22();
+  };
+}
+
+const renderBillingCommandCenterBeforeV22=renderBillingCommandCenter;
+renderBillingCommandCenter=function(){
+  if(!securityCapabilitiesV22().billing){
+    showAccessDeniedV22("Plans & Billing","Only the workspace Owner can view or manage billing.");
+    return;
+  }
+  return renderBillingCommandCenterBeforeV22();
+};
+
+const openAdminConsoleBeforeV22=openAdminConsole;
+openAdminConsole=async function(){
+  if(!isPlatformAdmin){
+    const ok=await checkPlatformAdmin();
+    if(!ok){showAccessDeniedV22("CreateJourney Platform Admin","Platform administration is isolated from normal business workspace roles.");return}
+  }
+  return await openAdminConsoleBeforeV22();
+};
+
+/* Guard direct clicks even if a disabled-looking control is activated by keyboard/script. */
+[
+  ["quickAddBoard","addBoard","Add SmartBoard","Only an Owner or Manager can activate boards."],
+  ["quickInviteTeam","team","Team & Permissions","Employees cannot manage team access."],
+  ["quickAiSetup","journeyAi","Teach Journey AI","Available to Owners and Managers only."],
+  ["quickConnectedAccounts","integrations","Connected Accounts","Available to Owners and Managers only."]
+].forEach(([id,cap,feature,msg])=>{
+  const n=el(id);if(!n)return;
+  n.addEventListener("click",e=>{
+    if(!securityCapabilitiesV22()[cap]){
+      e.preventDefault();e.stopImmediatePropagation();
+      showAccessDeniedV22(feature,msg);
+    }
+  },true);
+});
+
+el("accessDeniedClose").addEventListener("click",()=>el("accessDeniedOverlay").classList.add("hidden"));
+el("accessDeniedOverlay").addEventListener("click",e=>{if(e.target===el("accessDeniedOverlay"))el("accessDeniedOverlay").classList.add("hidden")});
+
+/* BUILD 22.0: Roles, Permissions & Workspace Security */
+/* BUILD 21 STRUCTURED EVENT ENGINE */
+const CJ_EVENT_LOG_KEY="cj_event_log_v21";
+const CJ_EVENT_LOG_LIMIT=1500;
+
+function journeyEventsV21(){
+  try{
+    const raw=localStorage.getItem(CJ_EVENT_LOG_KEY);
+    const rows=raw?JSON.parse(raw):[];
+    return Array.isArray(rows)?rows:[];
+  }catch(_){return[]}
+}
+function saveJourneyEventsV21(rows){
+  try{localStorage.setItem(CJ_EVENT_LOG_KEY,JSON.stringify((rows||[]).slice(0,CJ_EVENT_LOG_LIMIT)))}catch(_){}
+}
+function recordJourneyEventV21(type,meta={}){
+  const boardId=String(meta.boardId||meta.board_id||"");
+  const board=boardId?getBoard(boardId):null;
+  const row={
+    id:"cje_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+    type:String(type||"event"),
+    at:new Date().toISOString(),
+    boardId:boardId||null,
+    boardName:meta.boardName||board?.name||null,
+    action:meta.action||null,
+    visitorType:meta.visitorType||null,
+    outcome:meta.outcome||null,
+    confirmed:meta.confirmed===true,
+    source:meta.source||"CreateJourney",
+    meta:meta.meta||{}
+  };
+  const rows=journeyEventsV21();
+  rows.unshift(row);
+  saveJourneyEventsV21(rows);
+  return row;
+}
+function confirmJourneyCompletionV21({boardId,action,provider="",reference=""}={}){
+  if(!boardId||!action)return null;
+  return recordJourneyEventV21("action_completed",{
+    boardId,action,outcome:"completed",confirmed:true,source:provider||"provider_confirmation",meta:{reference}
+  });
+}
+function journeyEventStatsV21(){
+  const rows=journeyEventsV21();
+  const count=t=>rows.filter(r=>r.type===t).length;
+  const taps=count("board_tap"),shown=count("action_shown"),clicked=count("destination_opened");
+  const accepted=count("prompt_accepted"),declined=count("prompt_declined");
+  const completed=rows.filter(r=>r.type==="action_completed"&&r.confirmed).length;
+  const first=rows.filter(r=>r.type==="board_tap"&&r.visitorType==="first").length;
+  const returning=rows.filter(r=>r.type==="board_tap"&&r.visitorType==="returning").length;
+  return{rows,taps,shown,clicked,accepted,declined,completed,first,returning,
+    actionRate:taps?clicked/taps*100:0,
+    promptAcceptRate:(accepted+declined)?accepted/(accepted+declined)*100:0};
+}
+function journeyActionStatsV21(){
+  const map={};
+  journeyEventsV21().forEach(r=>{
+    if(!r.action)return;
+    const k=r.action;
+    map[k]??={action:k,shown:0,accepted:0,declined:0,opened:0,completed:0};
+    if(r.type==="action_shown")map[k].shown++;
+    if(r.type==="prompt_accepted")map[k].accepted++;
+    if(r.type==="prompt_declined")map[k].declined++;
+    if(r.type==="destination_opened")map[k].opened++;
+    if(r.type==="action_completed"&&r.confirmed)map[k].completed++;
+  });
+  return Object.values(map).map(x=>({...x,openRate:x.shown?x.opened/x.shown*100:0})).sort((a,b)=>b.opened-a.opened);
+}
+function journeyBoardStatsV21(){
+  const map={};
+  journeyEventsV21().forEach(r=>{
+    if(!r.boardId)return;
+    map[r.boardId]??={id:r.boardId,name:r.boardName||r.boardId,taps:0,opens:0,completed:0};
+    if(r.type==="board_tap")map[r.boardId].taps++;
+    if(r.type==="destination_opened")map[r.boardId].opens++;
+    if(r.type==="action_completed"&&r.confirmed)map[r.boardId].completed++;
+  });
+  return Object.values(map).map(x=>({...x,rate:x.taps?x.opens/x.taps*100:0})).sort((a,b)=>b.taps-a.taps);
+}
+function journeyTrendV21(days=7){
+  const result=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);
+    const next=new Date(d);next.setDate(next.getDate()+1);
+    const rows=journeyEventsV21().filter(r=>{const t=new Date(r.at).getTime();return t>=d.getTime()&&t<next.getTime()});
+    result.push({date:d,label:d.toLocaleDateString([],{weekday:"short"}),count:rows.length,taps:rows.filter(r=>r.type==="board_tap").length,opens:rows.filter(r=>r.type==="destination_opened").length});
+  }
+  return result;
+}
+function customerPerformanceSignalV21(){
+  const s=journeyEventStatsV21(),actions=journeyActionStatsV21(),boards=journeyBoardStatsV21();
+  if(!s.rows.length)return null;
+  if(s.declined>=3&&s.promptAcceptRate<35)return{title:"Optional prompts are being declined often",text:`Prompt acceptance is ${s.promptAcceptRate.toFixed(0)}%. CreateJourney is already applying cooldown suppression instead of repeatedly asking returning visitors.`};
+  if(actions.length&&actions[0].opened>=2)return{title:`${actions[0].action} is leading customer activity`,text:`It has ${actions[0].opened} destination open${actions[0].opened===1?"":"s"} from ${actions[0].shown} tracked impression${actions[0].shown===1?"":"s"}.`};
+  if(boards.length>1)return{title:`${boards[0].name} has the most tracked traffic`,text:`${boards[0].taps} tap${boards[0].taps===1?"":"s"} recorded with a ${boards[0].rate.toFixed(0)}% destination-open rate.`};
+  return{title:"Customer Journey tracking is active",text:`${s.taps} tap${s.taps===1?"":"s"}, ${s.clicked} destination open${s.clicked===1?"":"s"}, and ${s.returning} returning visit${s.returning===1?"":"s"} recorded.`};
+}
+function renderTrackedPerformanceV21(){
+  const summary=el("biJourneyEventSummary");
+  if(!summary)return;
+  const s=journeyEventStatsV21(),actions=journeyActionStatsV21(),trend=journeyTrendV21(7);
+  summary.innerHTML=[
+    ["Taps",s.taps],["Destination opens",s.clicked],["Prompt declines",s.declined],["Confirmed completions",s.completed]
+  ].map(x=>`<div class="bi-event-kpi"><strong>${x[1]}</strong><span>${esc(x[0])}</span></div>`).join("");
+
+  const steps=el("biJourneyStepPerformance");
+  steps.innerHTML=actions.length?actions.map(x=>`<div class="bi-step-row"><strong>${esc(x.action)}</strong><span>${x.shown} shown</span><span>${x.opened} opened</span><span class="desktop-extra">${x.declined} declined</span><span class="desktop-extra">${x.completed} confirmed</span></div>`).join(""):'<div class="ai-copilot-empty">No Journey action events recorded yet.</div>';
+
+  const signals=el("biVisitorSignals");
+  const totalVisits=s.first+s.returning;
+  signals.innerHTML=`<div class="bi-event-summary"><div class="bi-event-kpi"><strong>${s.first}</strong><span>First visits</span></div><div class="bi-event-kpi"><strong>${s.returning}</strong><span>Returning</span></div><div class="bi-event-kpi"><strong>${s.promptAcceptRate.toFixed(0)}%</strong><span>Prompt accept</span></div><div class="bi-event-kpi"><strong>${s.actionRate.toFixed(0)}%</strong><span>Open / tap</span></div></div><div class="bi-signal"><strong>Identity confidence</strong><span>${totalVisits?"Level 1 anonymous browser/device recognition is active. Different browsers, devices, private browsing or cleared storage may appear as a new visitor.":"No customer-device history recorded yet."}</span></div>`;
+
+  const trendNode=el("biEventTrend"),max=Math.max(1,...trend.map(x=>x.count));
+  trendNode.innerHTML=trend.map(x=>`<div class="bi-trend-day"><div class="bi-trend-bar" style="height:${Math.max(3,Math.round(x.count/max*88))}px" title="${x.count} events"></div><small>${esc(x.label)}</small></div>`).join("");
+
+  const feed=el("biRecentEvents"),rows=s.rows.slice(0,30);
+  feed.innerHTML=rows.length?rows.map(r=>`<div class="bi-event-item"><strong>${esc(r.type.replace(/_/g," "))}${r.action?` · ${esc(r.action)}`:""}</strong><span>${esc(r.boardName||r.boardId||"Workspace")} · ${new Date(r.at).toLocaleString()}${r.type==="action_completed"?` · ${r.confirmed?"confirmed":"unconfirmed"}`:""}</span></div>`).join(""):'<div class="ai-copilot-empty">No structured customer events yet.</div>';
+}
+
+/* BUILD 20 CUSTOMER JOURNEY ENGINE */
+const CJ_CUSTOMER_STATE_KEY="cj_customer_state_v20";
+const CJ_OPTIONAL_PROMPT_COOLDOWN_DAYS=75;
+const CJ_REPEAT_DECLINE_COOLDOWN_DAYS=120;
+
+function customerNowIsoV20(){return new Date().toISOString()}
+function customerDaysMsV20(days){return days*24*60*60*1000}
+function customerStateV20(){
+  try{
+    const raw=localStorage.getItem(CJ_CUSTOMER_STATE_KEY);
+    const s=raw?JSON.parse(raw):{};
+    if(!s.visitorId)s.visitorId="cjv_"+crypto.randomUUID();
+    if(!s.boards||typeof s.boards!=="object")s.boards={};
+    localStorage.setItem(CJ_CUSTOMER_STATE_KEY,JSON.stringify(s));
+    return s;
+  }catch(_){
+    return{visitorId:"cjv_"+Date.now(),boards:{}};
+  }
+}
+function saveCustomerStateV20(s){
+  try{localStorage.setItem(CJ_CUSTOMER_STATE_KEY,JSON.stringify(s))}catch(_){}
+}
+function boardCustomerStateV20(s,boardId){
+  if(!s.boards[boardId])s.boards[boardId]={visits:0,lastVisitAt:null,actions:{}};
+  if(!s.boards[boardId].actions)s.boards[boardId].actions={};
+  return s.boards[boardId];
+}
+function actionCustomerStateV20(bs,action){
+  if(!bs.actions[action])bs.actions[action]={impressions:0,accepts:0,declines:0,clicks:0,lastShownAt:null,lastDeclinedAt:null,lastClickedAt:null};
+  return bs.actions[action];
+}
+function customerActionKindV20(action){
+  const a=String(action||"").toLowerCase();
+  if(a.includes("review"))return"review";
+  if(a.includes("book")||a.includes("appointment")||a.includes("schedule"))return"booking";
+  if(a.includes("pay")||a.includes("payment"))return"payment";
+  if(a.includes("subscribe")||a.includes("membership")||a.includes("loyalty"))return"subscribe";
+  return"direct";
+}
+function customerActionEligibleV20(boardState,action){
+  const kind=customerActionKindV20(action);
+  if(!["review","booking"].includes(kind))return true;
+  const a=actionCustomerStateV20(boardState,action);
+  const last=a.lastDeclinedAt||a.lastClickedAt;
+  if(!last)return true;
+  const declineDays=(a.declines||0)>=2?CJ_REPEAT_DECLINE_COOLDOWN_DAYS:CJ_OPTIONAL_PROMPT_COOLDOWN_DAYS;
+  return Date.now()-new Date(last).getTime()>=customerDaysMsV20(declineDays);
+}
+function customerEligibleActionsV20(board,boardState){
+  return (board.actions||[]).filter(a=>customerActionEligibleV20(boardState,a)).slice(0,3);
+}
+function customerRecordEventV20(board,boardState,action,event){
+  const now=customerNowIsoV20();
+  const a=actionCustomerStateV20(boardState,action);
+  if(event==="shown"){a.impressions=(a.impressions||0)+1;a.lastShownAt=now}
+  if(event==="accepted"){a.accepts=(a.accepts||0)+1}
+  if(event==="declined"){a.declines=(a.declines||0)+1;a.lastDeclinedAt=now}
+  if(event==="clicked"){a.clicks=(a.clicks||0)+1;a.lastClickedAt=now}
+  board.activity=Array.isArray(board.activity)?board.activity:[];
+  board.activity.unshift({text:`Customer ${event}: ${action}`,time:nowText(),boardId:board.id});
+  if(board.activity.length>100)board.activity.length=100;
+}
+function customerDestinationV20(board,action){return String(board?.destinations?.[action]||"").trim()}
+function customerOpenDestinationV20(board,boardState,action){
+  const url=customerDestinationV20(board,action);
+  if(!url){
+    showCustomerClosingV20("This option is not connected yet.","Please let the business know this destination still needs to be configured.");
+    return;
+  }
+  customerRecordEventV20(board,boardState,action,"clicked");
+  board.analytics.actionsTaken=Number(board.analytics.actionsTaken||0)+1;
+  board.analytics.lastInteraction="Just now";
+  persistLocalState();
+  const s=customerStateV20();s.boards[board.id]=boardState;saveCustomerStateV20(s);
+  try{window.location.href=normalizeUrl(url)}catch(_){window.location.href=url}
+}
+function showCustomerClosingV20(title="Thank you.",message="We look forward to seeing you again."){
+  el("customerJourneyPrompt").classList.add("hidden");
+  el("customerJourneyActions").innerHTML="";
+  const c=el("customerJourneyClosing");
+  c.innerHTML=`<strong>${esc(title)}</strong><span>${esc(message)}</span>`;
+  c.classList.remove("hidden");
+}
+function clearCustomerPromptV20(){const p=el("customerJourneyPrompt");p.innerHTML="";p.classList.add("hidden")}
+function showOptionalCustomerPromptV20(board,boardState,action){
+  const kind=customerActionKindV20(action),p=el("customerJourneyPrompt");
+  p.innerHTML="";
+  p.classList.remove("hidden");
+  const title=kind==="review"?"Would you like to leave a review?":"Would you like to book your next appointment now?";
+  const detail=kind==="review"?"If yes, we’ll take you to the business’s configured review page.":"If yes, we’ll open the business’s configured booking destination.";
+  p.innerHTML=`<h3>${esc(title)}</h3><p>${esc(detail)}</p><div class="customer-prompt-actions"><button class="primary ready" data-yes>Yes</button><button class="secondary" data-no>Not now</button></div>`;
+  p.querySelector("[data-yes]").addEventListener("click",()=>{
+    customerRecordEventV20(board,boardState,action,"accepted");
+    clearCustomerPromptV20();
+    customerOpenDestinationV20(board,boardState,action);
+  });
+  p.querySelector("[data-no]").addEventListener("click",()=>{
+    customerRecordEventV20(board,boardState,action,"declined");
+    const s=customerStateV20();s.boards[board.id]=boardState;saveCustomerStateV20(s);
+    persistLocalState();
+    showCustomerClosingV20("No problem.","We look forward to seeing you again.");
+  });
+}
+function renderCustomerActionsV20(board,boardState){
+  const c=el("customerJourneyActions");
+  c.innerHTML="";
+  const eligible=customerEligibleActionsV20(board,boardState);
+  if(!eligible.length){
+    showCustomerClosingV20("Welcome back.","There’s nothing else we need to ask you right now. Thanks for stopping by.");
+    return;
+  }
+  eligible.forEach(action=>{
+    customerRecordEventV20(board,boardState,action,"shown");
+    const btn=document.createElement("button");
+    btn.className="customer-action primary ready";
+    btn.textContent=action;
+    btn.addEventListener("click",()=>{
+      const kind=customerActionKindV20(action);
+      if(kind==="review"||kind==="booking"){
+        showOptionalCustomerPromptV20(board,boardState,action);
+        return;
+      }
+      customerOpenDestinationV20(board,boardState,action);
+    });
+    c.appendChild(btn);
+  });
+}
+function customerBoardFromRouteV20(){
+  const q=new URLSearchParams(location.search);
+  return String(q.get("board")||q.get("cj_board")||"").trim();
+}
+function hasCustomerBoardRouteV20(){return !!customerBoardFromRouteV20()}
+function openCustomerJourneyV20(boardId,{preview=false}={}){
+  if(!boards.length)restoreLocalState();
+  const board=getBoard(boardId);
+  showOnly("customerJourneyApp");
+  el("aiLauncher").classList.add("hidden");
+  el("customerJourneyClosing").classList.add("hidden");
+  el("customerJourneyError").classList.add("hidden");
+  clearCustomerPromptV20();
+
+  if(!board){
+    el("customerJourneyTitle").textContent="Board unavailable";
+    el("customerJourneySub").textContent="This CreateJourney board could not be loaded.";
+    el("customerJourneyActions").innerHTML="";
+    el("customerJourneyMeta").innerHTML="";
+    el("customerJourneyError").textContent="The board identity is not available in this browser yet. During the current prototype stage, public board resolution across devices will be connected through the secure backend before launch.";
+    el("customerJourneyError").classList.remove("hidden");
+    return false;
+  }
+  if(!board.active){
+    el("customerJourneyTitle").textContent=workspaceName()||board.name;
+    el("customerJourneySub").textContent="This board is temporarily unavailable.";
+    el("customerJourneyActions").innerHTML="";
+    el("customerJourneyMeta").innerHTML='<span class="customer-pill">Paused</span>';
+    return true;
+  }
+
+  const state=customerStateV20(),bs=boardCustomerStateV20(state,board.id);
+  const returning=(bs.visits||0)>0;
+
+  if(!preview){
+    board.analytics=board.analytics||{taps:0,visitors:0,returning:0,actionsTaken:0,lastInteraction:"No interactions yet"};
+    board.analytics.taps=Number(board.analytics.taps||0)+1;
+    if(returning)board.analytics.returning=Number(board.analytics.returning||0)+1;
+    else board.analytics.visitors=Number(board.analytics.visitors||0)+1;
+    board.analytics.lastInteraction="Just now";
+    bs.visits=(bs.visits||0)+1;
+    bs.lastVisitAt=customerNowIsoV20();
+    state.boards[board.id]=bs;
+    saveCustomerStateV20(state);
+    persistLocalState();
+  }
+
+  el("customerJourneyKicker").textContent=returning?"Welcome back":"Welcome";
+  el("customerJourneyTitle").textContent=workspaceName()||board.name;
+  el("customerJourneySub").textContent=returning?"Choose what you’d like to do today.":"Thanks for stopping by. Choose what you’d like to do.";
+  el("customerJourneyMeta").innerHTML=`<span class="customer-pill">${esc(board.name)}</span><span class="customer-pill ${returning?"returning":""}">${returning?"Returning visitor":"First visit on this device"}</span>`;
+  el("customerJourneyDevNote").classList.toggle("hidden",!preview);
+  if(preview)el("customerJourneyDevNote").textContent="Preview mode: no customer analytics or cooldown history is being recorded.";
+  renderCustomerActionsV20(board,bs);
+  state.boards[board.id]=bs;
+  saveCustomerStateV20(state);
+  return true;
+}
+function customerLinkForBoardV20(board){
+  const u=new URL(location.href);
+  u.search="";
+  u.hash="";
+  u.searchParams.set("board",board.id);
+  return u.toString();
+}
+async function copyCustomerBoardLinkV20(){
+  const b=currentBoard();if(!b)return;
+  const text=customerLinkForBoardV20(b);
+  try{
+    await navigator.clipboard.writeText(text);
+    const m=el("customerBoardLinkMessage");m.textContent="Customer test link copied.";m.classList.remove("hidden");setTimeout(()=>m.classList.add("hidden"),1400);
+  }catch(_){
+    prompt("Copy this customer test link:",text);
+  }
+}
+
+const showOnlyBeforeV20=showOnly;
+showOnly=function(id){
+  const all=["authApp","onboardingApp","dashboardApp","journeyAiSetupApp","journeyAiWorkspaceApp","connectedAccountsApp","boardsLibraryApp","boardManagerApp","addBoardApp","teamManagerApp","adminConsoleApp","customerJourneyApp"];
+  all.forEach(x=>{const n=el(x);if(n)n.classList.toggle("hidden",x!==id)});
+  const showAI=!(["authApp","onboardingApp","journeyAiSetupApp","adminConsoleApp","customerJourneyApp"].includes(id));
+  el("aiLauncher").classList.toggle("hidden",!showAI);
+  window.scrollTo(0,0);
+  if(typeof updateAiContext==="function")updateAiContext();
+};
+
+const initializeSessionBeforeV20=initializeSession;
+initializeSession=async function(){
+  initBackend();
+  updateBackendBadges();
+  if(hasCustomerBoardRouteV20()){
+    restoreLocalState();
+    openCustomerJourneyV20(customerBoardFromRouteV20());
+    return;
+  }
+  return initializeSessionBeforeV20();
+};
+
+el("copyCustomerBoardLink").addEventListener("click",copyCustomerBoardLinkV20);
+
+/* BUILD 20.0: Customer Tap Experience + Conditional Journey Engine */
+
+/* BUILD 21 CUSTOMER EVENT HOOKS */
+const customerRecordEventBeforeV21=customerRecordEventV20;
+customerRecordEventV20=function(board,boardState,action,event){
+  customerRecordEventBeforeV21(board,boardState,action,event);
+  const map={shown:"action_shown",accepted:"prompt_accepted",declined:"prompt_declined",clicked:"destination_opened"};
+  if(map[event])recordJourneyEventV21(map[event],{boardId:board.id,boardName:board.name,action,outcome:event,confirmed:false});
+};
+
+const openCustomerJourneyBeforeV21=openCustomerJourneyV20;
+openCustomerJourneyV20=function(boardId,opts={}){
+  const preview=!!opts.preview;
+  const stateBefore=customerStateV20(),bsBefore=boardCustomerStateV20(stateBefore,boardId),wasReturning=(bsBefore.visits||0)>0;
+  const ok=openCustomerJourneyBeforeV21(boardId,opts);
+  if(ok&&!preview){
+    const b=getBoard(boardId);
+    recordJourneyEventV21("board_tap",{boardId,boardName:b?.name||boardId,visitorType:wasReturning?"returning":"first",outcome:"visit",confirmed:true});
+    (b?.actions||[]).slice(0,3).forEach(a=>{});
+  }
+  return ok;
+};
+
+const renderBusinessIntelligenceBeforeV21=renderBusinessIntelligence;
+renderBusinessIntelligence=function(){
+  renderBusinessIntelligenceBeforeV21();
+  renderTrackedPerformanceV21();
+  const s=journeyEventStatsV21();
+  if(s.taps){
+    el("biTotalTaps").textContent=s.taps;
+    el("biActionRate").textContent=`${s.actionRate.toFixed(1)}%`;
+    el("biTapsNote").textContent="Structured CreateJourney event data";
+  }
+};
+
+const renderAiDashboardProactiveBeforeV21=renderAiDashboardProactive;
+renderAiDashboardProactive=function(){
+  const signal=customerPerformanceSignalV21(),c=el("aiRecommendations");
+  if(!signal||!c){return renderAiDashboardProactiveBeforeV21()}
+  c.innerHTML=`<div class="dashboard-insight-card"><div class="dashboard-insight-kicker">Performance signal · Direct data</div><div class="dashboard-insight-title">${esc(signal.title)}</div><div class="dashboard-insight-text">${esc(signal.text)}</div><div class="dashboard-insight-actions"><button class="primary ready" data-performance>Open Performance Hub</button><button class="secondary" data-ai>Ask Journey AI</button></div></div>`;
+  c.querySelector("[data-performance]").addEventListener("click",()=>{openAiWorkspace();switchAiWorkspaceTab72("intelligence")});
+  c.querySelector("[data-ai]").addEventListener("click",()=>{openAI();el("aiInput").value=`Review this customer performance signal and tell me what I should do next: ${signal.title}. ${signal.text}`;el("aiInput").focus()});
+};
+
+/* BUILD 21.0: Tracking, Analytics & Performance Engine */
 /* BUILD 19 SAFE OVERRIDES */
 function boardNeedsSetupV19(b){if(!b||!Array.isArray(b.actions)||!b.actions.length)return true;return b.actions.some(a=>!String(b.destinations?.[a]||"").trim())}
 function boardStatusV19(b){if(!b.active)return "Paused";return boardNeedsSetupV19(b)?"Needs setup":"Ready"}
@@ -4347,7 +5121,7 @@ function renderCopyTargetsV19(){const s=el("copyBoardTarget");s.innerHTML='<opti
 function copyBoardSetupV19(){const source=currentBoard(),target=getBoard(el("copyBoardTarget").value);if(!source||!target||!permissions().edit)return;target.actions=[...(source.actions||[])];target.destinations={...(source.destinations||{})};persistLocalState();logAudit(`Copied Journey setup from ${source.name} to ${target.name}`,target.id);renderDashboard();renderLibrary();const m=el("copyBoardSetupMessage");m.textContent=`Setup copied to ${target.name}.`;m.classList.remove("hidden");setTimeout(()=>m.classList.add("hidden"),1500)}
 function openBoardCustomerPreviewV19(){const b=currentBoard();if(!b)return;el("previewBoardBusiness").textContent=workspaceName()||"Customer Journey";el("previewBoardIntro").textContent=`Previewing ${b.name}. ${b.active?"This board is active.":"This board is paused."}`;const c=el("previewBoardActions");c.innerHTML="";if(!b.actions.length)c.innerHTML='<div class="note">No Journey is configured yet.</div>';b.actions.forEach(a=>{const btn=document.createElement("button");btn.className="primary ready";btn.textContent=a;btn.addEventListener("click",()=>{const url=String(b.destinations?.[a]||"").trim();alert(url?`Preview only: ${a} would open its configured destination.`:`${a} still needs a destination.`)});c.appendChild(btn)});el("boardCustomerPreview").classList.remove("hidden")}
 
-el("previewCustomerJourney").addEventListener("click",openBoardCustomerPreviewV19);
+el("previewCustomerJourney").addEventListener("click",()=>{const b=currentBoard();if(b)openCustomerJourneyV20(b.id,{preview:true})});
 el("closeBoardCustomerPreview").addEventListener("click",()=>el("boardCustomerPreview").classList.add("hidden"));
 el("boardCustomerPreview").addEventListener("click",e=>{if(e.target===el("boardCustomerPreview"))el("boardCustomerPreview").classList.add("hidden")});
 el("showCopyBoardSetup").addEventListener("click",()=>{renderCopyTargetsV19();el("copyBoardSetupArea").classList.toggle("hidden")});
