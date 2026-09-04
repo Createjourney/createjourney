@@ -306,6 +306,63 @@
   .auth-brand .cj-powered-by,.logo .cj-powered-by{font-size:9px}
   .dashboard-brand .cj-powered-by{font-size:7.5px}
 }
+
+/* BUILD 18 ACCOUNT / AUTH UI */
+.auth-help-row{display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px}
+.auth-text-button{width:auto!important;margin:0!important;padding:4px 0!important;background:transparent!important;color:#3978c8!important;border:0!important;font-size:12px!important;font-weight:750!important;box-shadow:none!important}
+.auth-recovery-card{margin-top:12px;padding:13px 14px;border:1px solid #dce7f4;border-radius:14px;background:#f8fbff;color:#52606d;font-size:12px;line-height:1.45}
+.account-sheet.v18{max-width:620px;max-height:88vh;overflow:auto;padding:0}
+.account-v18-head{position:sticky;top:0;z-index:2;padding:20px 20px 15px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid #edf1f6}
+.account-v18-head h3{margin:0;font-size:21px}
+.account-v18-head p{margin:5px 0 0;color:#667085;font-size:12px;line-height:1.4}
+.account-v18-body{padding:16px 20px 22px}
+.account-section{border:1px solid #e3e9f1;border-radius:17px;background:#fff;margin-bottom:12px;overflow:hidden}
+.account-section-head{padding:14px 15px 10px}
+.account-section-head strong{display:block;color:#111827;font-size:14px}
+.account-section-head span{display:block;color:#7a8699;font-size:11px;margin-top:3px;line-height:1.4}
+.account-section .account-row{margin:0;padding:12px 15px;border-top:1px solid #eef2f6;border-radius:0;background:transparent}
+.account-section .account-row:first-of-type{border-top:1px solid #eef2f6}
+.account-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800}
+.account-status-dot{width:7px;height:7px;border-radius:50%;background:#aab4c3}
+.account-status.good .account-status-dot{background:#36a269}
+.account-status.warn .account-status-dot{background:#e5a434}
+.account-v18-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:2px 0 10px}
+.account-v18-actions button{margin:0}
+.account-v18-actions .wide{grid-column:1/-1}
+.account-advanced{margin-top:8px}
+.account-advanced summary{cursor:pointer;color:#667085;font-size:12px;font-weight:750;padding:10px 0}
+.account-advanced .sync-note{margin-top:0}
+.account-form{padding:0 15px 14px}
+.account-form label{font-size:11px;margin-top:10px}
+.account-form input,.account-form select{margin-bottom:0}
+.account-inline-message{font-size:11px;line-height:1.4;margin-top:9px;color:#667085}
+.account-inline-message.good{color:#2f8b55}
+.account-inline-message.bad{color:#b54747}
+@media(max-width:600px){
+  .account-sheet.v18{max-height:92vh;border-radius:22px 22px 0 0}
+  .account-v18-actions{grid-template-columns:1fr}
+  .account-v18-actions .wide{grid-column:auto}
+}
+
+/* BUILD 19 — SMARTBOARDS & JOURNEY MANAGEMENT */
+.board-library-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}
+.board-library-kpi{background:#fff;border:1px solid #e3e9f1;border-radius:16px;padding:13px}
+.board-library-kpi strong{display:block;font-size:22px;color:#111827}.board-library-kpi span{display:block;margin-top:3px;font-size:10px;color:#7b8798;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.board-status-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.board-mini-pill{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#eef6ff;color:#3978c8}
+.board-mini-pill.warn{background:#fff5df;color:#a96d11}.board-mini-pill.paused{background:#f2f4f7;color:#667085}.board-mini-pill.good{background:#eaf8ef;color:#2f8f55}
+.library-card.v19{padding:16px}.library-card.v19 .board-journey{font-weight:750;color:#334155;margin-top:12px}
+.board-card-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}.board-card-meta div{background:#f7f9fc;border-radius:10px;padding:8px;text-align:center}.board-card-meta strong{display:block;font-size:14px;color:#111827}.board-card-meta span{display:block;font-size:9px;color:#7b8798;margin-top:2px}
+.board-health{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;background:#f7f9fc;border-radius:13px;margin-top:12px}.board-health strong{font-size:12px}.board-health span{font-size:11px;color:#667085;text-align:right}
+.journey-sequence-v19{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}.journey-step-v19{padding:9px 11px;border:1px solid #dce5ef;border-radius:12px;background:#fff;font-size:12px;font-weight:800}.journey-arrow-v19{color:#9aa5b5;font-weight:900}
+.journey-editor-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}.journey-editor-item{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;padding:10px;border:1px solid #dfe6ef;border-radius:13px;background:#fff}
+.journey-editor-number{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#edf5ff;color:#3978c8;font-size:11px;font-weight:850}.journey-editor-controls{display:flex;gap:5px}.journey-editor-controls button{width:31px;height:31px;padding:0;margin:0;border-radius:9px;background:#f4f7fb;color:#52606d;border:1px solid #e0e6ee}.journey-editor-controls button:disabled{opacity:.35}
+.journey-conditional-note{margin-top:10px;padding:11px 12px;border-radius:12px;background:#f8fbff;color:#5d6a7d;font-size:11px;line-height:1.45}.publish-state{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:11px;font-weight:750;color:#2f8f55}.publish-state i{width:7px;height:7px;border-radius:50%;background:#36a269}
+.board-identity-note{margin-top:10px;padding:10px 12px;border-left:3px solid #7eb2f7;background:#f7fbff;color:#607086;font-size:10px;line-height:1.45}
+.board-preview-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.55);display:flex;align-items:flex-end;justify-content:center}.board-preview-overlay.hidden{display:none}
+.board-preview-sheet{width:min(620px,100%);max-height:90vh;overflow:auto;background:#f6f8fb;border-radius:24px 24px 0 0;padding:20px}.board-preview-phone{max-width:380px;margin:0 auto;background:#fff;border:1px solid #dce4ed;border-radius:26px;padding:20px;box-shadow:0 20px 50px rgba(15,23,42,.15)}
+.board-preview-actions{display:flex;flex-direction:column;gap:9px;margin-top:18px}.board-preview-actions button{margin:0}.board-preview-close{width:auto;margin:0 0 12px auto;display:block;padding:8px 12px}
+.copy-setup-grid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.copy-setup-grid button{margin:0}.add-board-status{padding:11px 12px;margin:12px 0;border-radius:12px;background:#f7fbff;color:#607086;font-size:11px;line-height:1.45}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -313,7 +370,7 @@
 <!-- ======================================
      #05 SIGN IN / ACCOUNT ACCESS
      ====================================== -->
-<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local prototype mode</span></div></div></div>
+<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local prototype mode</span></div></div></div>
 <!-- ======================================
      #10 ONBOARDING
      ====================================== -->
@@ -1317,27 +1374,28 @@
 <!-- ======================================
      #30 BOARD LIBRARY
      ====================================== -->
-<div id="boardsLibraryApp" class="library-screen hidden"><div class="library-shell"><div class="library-topbar"><button id="libraryBack" class="library-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="library-title"><h1>Boards</h1><p>Every physical CreateJourney board in this account.</p></div></div><div class="section-heading"><h3>Board library</h3><button id="libraryAddBoard" class="section-link">Add board</button></div><div id="libraryList" class="library-list"></div></div></div>
+<div id="boardsLibraryApp" class="library-screen hidden"><div class="library-shell"><div class="library-topbar"><button id="libraryBack" class="library-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="library-title"><h1>SmartBoards</h1><p>Manage every physical CreateJourney board, its Journey, assignment and status.</p></div></div><div class="board-library-summary"><div class="board-library-kpi"><strong id="boardLibraryTotal">0</strong><span>Total</span></div><div class="board-library-kpi"><strong id="boardLibraryActive">0</strong><span>Active</span></div><div class="board-library-kpi"><strong id="boardLibraryNeedsSetup">0</strong><span>Needs setup</span></div></div><div class="section-heading"><h3>Your boards</h3><button id="libraryAddBoard" class="section-link">Add board</button></div><div id="libraryList" class="library-list"></div></div></div>
 
 <!-- ======================================
      #40 BOARD MANAGEMENT
      ====================================== -->
 <div id="boardManagerApp" class="board-manager hidden"><div class="board-manager-shell"><div class="manager-topbar"><button id="managerBack" class="manager-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="manager-title"><h1>Board Management</h1><p>Manage this board, its Journey, assignment and destinations.</p></div></div>
-<div class="manager-card"><div class="manager-heading"><div><div id="managerBoardName" class="manager-board-name">My Board</div><div id="managerBoardId" class="manager-board-id">Board CJ-000001</div></div><div id="managerStatus" class="manager-status">Active</div></div><div class="manager-stats"><div class="manager-stat"><strong id="managerTaps">0</strong><span>Taps today</span></div><div class="manager-stat"><strong id="managerVisitors">0</strong><span>Visitors</span></div><div class="manager-stat"><strong id="managerActions">0</strong><span>Actions</span></div></div><div id="managerAssignmentLine" class="assigned-line"></div></div>
-<div class="manager-card"><h3 class="manager-section-title">Current Journey</h3><div id="managerJourney" class="manager-journey">No Journey configured</div><div class="manager-actions"><button id="showJourneyEditor" class="manager-action primary-action">Edit Journey</button><button id="showRenameBoard" class="manager-action">Rename Board</button><button id="showDestinationEditor" class="manager-action">Edit Destinations</button><button id="toggleBoardStatus" class="manager-action">Pause Board</button></div></div>
-<div id="boardJourneyEditor" class="manager-card hidden"><h3 class="manager-section-title">Edit this Journey</h3><p class="helper">Choose up to 3 actions for this board.</p><div id="boardEditorActions" class="board-editor-actions"></div><div class="note">Changes affect this board only.</div><button id="saveBoardJourney" class="primary">Save Journey</button></div>
+<div class="manager-card"><div class="manager-heading"><div><div id="managerBoardName" class="manager-board-name">My Board</div><div id="managerBoardId" class="manager-board-id">Board CJ-000001</div></div><div id="managerStatus" class="manager-status">Active</div></div><div class="manager-stats"><div class="manager-stat"><strong id="managerTaps">0</strong><span>Taps today</span></div><div class="manager-stat"><strong id="managerVisitors">0</strong><span>Visitors</span></div><div class="manager-stat"><strong id="managerActions">0</strong><span>Actions</span></div></div><div id="managerAssignmentLine" class="assigned-line"></div><div class="board-health"><strong id="managerHealthTitle">Ready</strong><span id="managerHealthText">Journey and destinations are configured.</span></div><div class="board-identity-note">This board has a permanent CreateJourney identity. Renaming, reassigning or changing its Journey does not require rewriting the NFC tag. Possession of the printed QR code never grants editing permission.</div></div>
+<div class="manager-card"><div class="section-heading"><h3 class="manager-section-title">Customer Journey</h3><button id="previewCustomerJourney" class="section-link">Preview</button></div><div id="managerJourney" class="manager-journey">No Journey configured</div><div id="managerJourneySequenceV19" class="journey-sequence-v19"></div><div id="managerPublishState" class="publish-state"><i></i><span>Current setup saved</span></div><div class="manager-actions"><button id="showJourneyEditor" class="manager-action primary-action">Edit Journey</button><button id="showRenameBoard" class="manager-action">Rename</button><button id="showDestinationEditor" class="manager-action">Destinations</button><button id="toggleBoardStatus" class="manager-action">Pause Board</button><button id="showCopyBoardSetup" class="manager-action">Copy Setup</button></div></div>
+<div id="boardJourneyEditor" class="manager-card hidden"><h3 class="manager-section-title">Edit customer Journey</h3><p class="helper">Choose up to 3 actions, then use the arrows to control their order.</p><div id="boardEditorActions" class="board-editor-actions"></div><div id="boardEditorOrder" class="journey-editor-list"></div><div class="journey-conditional-note"><strong>Smart behavior stays simple here.</strong><br>Optional prompts such as Review can be conditionally suppressed for returning visitors based on eligibility and cooldown rules. The underlying action remains available; CreateJourney does not use sentiment-based review gating.</div><button id="saveBoardJourney" class="primary">Save & Publish Journey</button></div>
 <div id="renameBoardArea" class="manager-card hidden"><h3 class="manager-section-title">Rename board</h3><input id="renameBoardInput" placeholder="Example: Front Counter or Chair 4"><div class="rename-buttons"><button id="cancelRename" class="secondary">Cancel</button><button id="saveBoardName" class="primary ready">Save Name</button></div></div>
 <div id="destinationEditor" class="manager-card hidden"><h3 class="manager-section-title">Edit Journey destinations</h3><p class="helper">Update where each action sends the customer.</p><div id="destinationEditFields"></div><button id="saveDestinations" class="primary ready">Save Destinations</button></div>
 <div class="manager-card"><h3 class="manager-section-title">Assignment</h3><label>Assigned team member</label><select id="boardAssignmentSelect"></select><button id="saveBoardAssignment" class="primary ready">Save Assignment</button></div>
-<div class="manager-card"><h3 class="manager-section-title">Journey destinations</h3><div id="managerDestinations"></div></div>
+<div id="copyBoardSetupArea" class="manager-card hidden"><h3 class="manager-section-title">Copy setup</h3><p class="helper">Copy this board's Journey and destinations to another existing SmartBoard. The target keeps its own permanent identity, name and assignment.</p><div class="copy-setup-grid"><div><label>Target board</label><select id="copyBoardTarget"></select></div><button id="copyBoardSetupButton" class="primary ready">Copy setup</button></div><div id="copyBoardSetupMessage" class="success-message hidden">Setup copied.</div></div><div class="manager-card"><h3 class="manager-section-title">QR & NFC</h3><div class="journey-row"><span>NFC destination</span><span>Connected to board identity</span></div><div class="journey-row"><span>Management QR</span><span>Authorized shortcut only</span></div><div class="journey-row"><span>Customer access</span><span>Account not required</span></div></div><div class="manager-card"><h3 class="manager-section-title">Journey destinations</h3><div id="managerDestinations"></div></div>
 <div class="manager-card"><h3 class="manager-section-title">Board activity</h3><div class="journey-row"><span>Total taps today</span><span id="managerActivityTaps">0</span></div><div class="journey-row"><span>Unique visitors</span><span id="managerActivityVisitors">0</span></div><div class="journey-row"><span>Returning visitors</span><span id="managerActivityReturning">0</span></div><div class="journey-row"><span>Last interaction</span><span id="managerActivityLast">No interactions yet</span></div></div>
 <div class="audit-card"><h3 class="manager-section-title">Recent changes</h3><div id="boardAuditList" class="audit-list"></div></div>
 </div></div>
+<div id="boardCustomerPreview" class="board-preview-overlay hidden"><div class="board-preview-sheet"><button id="closeBoardCustomerPreview" class="secondary board-preview-close">Close preview</button><div class="board-preview-phone"><div class="dashboard-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><h2 id="previewBoardBusiness">Customer Journey</h2><p id="previewBoardIntro">Preview of the customer tap experience.</p><div id="previewBoardActions" class="board-preview-actions"></div><div class="note" style="margin-top:15px">Preview mode does not record a real customer tap or completion.</div></div></div></div>
 
 <!-- ======================================
      #50 ADD BOARD
      ====================================== -->
-<div id="addBoardApp" class="quick-screen hidden"><div class="quick-screen-shell"><div class="quick-topbar"><button id="addBoardBack" class="quick-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="quick-title"><h1>Add another board</h1><p>Activate another official CreateJourney board.</p></div></div><div class="quick-panel"><label>Board activation code</label><input id="newBoardCode" placeholder="Example: CJ-000002"><label>Name this board</label><input id="newBoardName" placeholder="Example: Chair 2, Table 8, Front Counter"><label>Starting Journey</label><div id="useExistingJourney" class="quick-choice selected">Copy the primary board Journey</div><div id="startEmptyJourney" class="quick-choice">Start with no Journey</div><label>Assign to team member</label><select id="newBoardAssignee"></select><button id="saveNewBoard" class="primary">Add Board</button><div id="addBoardSuccess" class="success-message hidden">Board added successfully.</div></div></div></div>
+<div id="addBoardApp" class="quick-screen hidden"><div class="quick-screen-shell"><div class="quick-topbar"><button id="addBoardBack" class="quick-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="quick-title"><h1>Add SmartBoard</h1><p>Claim and configure another official CreateJourney board.</p></div></div><div class="quick-panel"><div class="add-board-status"><strong>Permanent identity.</strong> The activation code claims this physical board to your authorized workspace. Later changes do not require NFC rewriting.</div><label>Board activation code</label><input id="newBoardCode" placeholder="Example: CJ-000002"><label>Name this board</label><input id="newBoardName" placeholder="Example: Chair 2, Table 8, Front Counter"><label>Starting Journey</label><div id="useExistingJourney" class="quick-choice selected">Copy the primary board Journey</div><div id="startEmptyJourney" class="quick-choice">Start with no Journey</div><label>Assign to team member</label><select id="newBoardAssignee"></select><button id="saveNewBoard" class="primary">Activate Board</button><div id="addBoardSuccess" class="success-message hidden">Board added successfully.</div></div></div></div>
 
 <!-- ======================================
      #60 TEAM AND PERMISSIONS
@@ -1345,10 +1403,68 @@
 <div id="teamManagerApp" class="team-screen hidden"><div class="team-shell"><div class="team-topbar"><button id="teamBack" class="team-back"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="team-title"><h1>Team & Permissions</h1><p>Control who can see and manage each board.</p></div></div><div class="quick-panel"><h2>Invite team member</h2><label>Name</label><input id="inviteName" placeholder="Example: Jordan Smith"><label>Email</label><input id="inviteEmail" type="email" placeholder="Example: jordan@example.com"><label>Role</label><select id="inviteRole"><option value="">Choose a role</option><option>Manager</option><option>Employee</option></select><label>Assign a board</label><select id="inviteBoard"></select><div class="inline-toggle"><div><strong>Allow Journey editing</strong><div class="board-sub">Useful for independent barbers or trusted staff.</div></div><button id="inviteCanEdit" class="toggle-btn" data-enabled="false">Off</button></div><button id="sendInvite" class="primary">Send Invite</button><div id="inviteSuccess" class="success-message hidden">Invitation created.</div></div><section class="dashboard-section"><div class="section-heading"><h3>Team members</h3></div><div class="team-card"><div id="teamManagerList" class="team-list"></div></div></section><section class="dashboard-section"><div class="audit-card"><h3 class="manager-section-title">Account audit log</h3><div id="globalAuditList" class="audit-list"></div></div></section></div></div>
 
 <!-- ======================================
-     #65 ACCOUNT PANEL
+     #65 ACCOUNT & WORKSPACE — BUILD 18
      ====================================== -->
-<div id="accountPanel" class="account-panel hidden"><div class="account-sheet"><h3>Account & Workspace</h3><div class="account-meta">Your CreateJourney identity, access level and workspace connection.</div><div class="account-row"><span>Name</span><span id="accountPanelName">-</span></div><div class="account-row"><span>Email</span><span id="accountPanelEmail">-</span></div><div class="account-row"><span>Workspace</span><span id="accountPanelWorkspace">-</span></div><div class="account-row"><span>Role</span><span id="accountPanelRole">Owner</span></div><div id="accountAdminRow" class="account-row hidden"><span>Platform access</span><span>Super Admin</span></div><div class="account-row"><span>Session</span><span id="accountPanelSession">Active</span></div><div class="account-row"><span>Backend</span><span id="accountPanelBackend">Local prototype</span></div><div class="account-row"><span>Storage</span><span id="accountPanelStorage">This device</span></div><button id="openAdminConsole" class="admin-open-button hidden">Open Platform Admin</button><div class="account-actions"><button id="closeAccountPanel" class="secondary">Close</button><button id="logoutButton" class="danger">Sign out</button></div><div id="accountSecurityNote" class="sync-note">Local mode saves this workspace on this device. Cloud mode will securely sync the same workspace across authorized devices.</div></div></div>
+<div id="accountPanel" class="account-panel hidden">
+  <div class="account-sheet v18">
+    <div class="account-v18-head">
+      <h3>Account & Workspace</h3>
+      <p>Your identity, workspace access, security and cloud connection in one place.</p>
+    </div>
+    <div class="account-v18-body">
+      <div class="account-section">
+        <div class="account-section-head"><strong>Profile</strong><span>The name and email associated with this CreateJourney account.</span></div>
+        <div class="account-row"><span>Name</span><span id="accountPanelName">-</span></div>
+        <div class="account-row"><span>Email</span><span id="accountPanelEmail">-</span></div>
+        <div class="account-form">
+          <label>Display name</label>
+          <input id="accountEditName" type="text" autocomplete="name" placeholder="Your name">
+          <button id="accountSaveProfile" class="secondary">Save profile name</button>
+          <div id="accountProfileMessage" class="account-inline-message hidden"></div>
+        </div>
+      </div>
 
+      <div class="account-section">
+        <div class="account-section-head"><strong>Workspace access</strong><span>Your current organization and permission level.</span></div>
+        <div class="account-row"><span>Workspace</span><span id="accountPanelWorkspace">-</span></div>
+        <div class="account-row"><span>Role</span><span id="accountPanelRole">Owner</span></div>
+        <div id="accountAdminRow" class="account-row hidden"><span>Platform access</span><span>Super Admin</span></div>
+        <div id="accountWorkspaceSwitcherWrap" class="account-form hidden">
+          <label>Switch workspace</label>
+          <select id="accountWorkspaceSwitcher"></select>
+          <button id="accountSwitchWorkspace" class="secondary">Switch workspace</button>
+          <div id="accountWorkspaceMessage" class="account-inline-message hidden"></div>
+        </div>
+      </div>
+
+      <div class="account-section">
+        <div class="account-section-head"><strong>Security & session</strong><span>Password recovery and current sign-in status.</span></div>
+        <div class="account-row"><span>Session</span><span id="accountPanelSession" class="account-status"><i class="account-status-dot"></i><b>Active</b></span></div>
+        <div class="account-v18-actions" style="padding:12px 15px 14px">
+          <button id="accountSendReset" class="secondary">Send password reset</button>
+          <button id="accountSendMagicLink" class="secondary">Send sign-in link</button>
+        </div>
+        <div id="accountSecurityMessage" class="account-inline-message hidden" style="padding:0 15px 14px"></div>
+      </div>
+
+      <div class="account-section">
+        <div class="account-section-head"><strong>Sync status</strong><span>Simple status first. Technical details stay tucked away.</span></div>
+        <div class="account-row"><span>Cloud connection</span><span id="accountPanelBackend">Local prototype</span></div>
+        <div class="account-row"><span>Workspace storage</span><span id="accountPanelStorage">This device</span></div>
+        <details class="account-advanced">
+          <summary>Advanced connection details</summary>
+          <div id="accountSecurityNote" class="sync-note">CreateJourney only reports cloud sync when the connected backend confirms it.</div>
+        </details>
+      </div>
+
+      <button id="openAdminConsole" class="admin-open-button hidden">Open Platform Admin</button>
+      <div class="account-v18-actions">
+        <button id="closeAccountPanel" class="secondary">Close</button>
+        <button id="logoutButton" class="danger">Sign out</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ======================================
      #68 CREATEJOURNEY PLATFORM ADMIN
@@ -1410,101 +1526,202 @@ function restoreLocalState(){try{const raw=localStorage.getItem(LOCAL_STATE_KEY)
 async function hashPassword(v){const b=new TextEncoder().encode(v);const h=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function saveLocalAccount(){const email=el("email").value.trim().toLowerCase(),password=el("password").value;if(!email||!password)return;const account={name:el("name").value.trim(),email,passwordHash:await hashPassword(password),setupName:workspaceName(),useType};localStorage.setItem(LOCAL_ACCOUNT_KEY,JSON.stringify(account));localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(serializableState()))}
 function localAccount(){try{return JSON.parse(localStorage.getItem(LOCAL_ACCOUNT_KEY)||"null")}catch{return null}}
-function setAuthMessage(text,type=""){const n=el("authMessage");n.textContent=text;n.className="auth-message"+(type?" "+type:"");n.classList.toggle("hidden",!text)}function setAuthBusy(busy,label=""){["loginButton","magicLinkButton","startCreateAccount"].forEach(id=>{const b=el(id);if(b)b.disabled=busy});if(label&&busy)setAuthMessage(label)}
+function setAuthMessage(text,type=""){const n=el("authMessage");n.textContent=text;n.className="auth-message"+(type?" "+type:"");n.classList.toggle("hidden",!text)}function setAuthBusy(busy,label=""){["loginButton","magicLinkButton","forgotPasswordButton","startCreateAccount"].forEach(id=>{const b=el(id);if(b)b.disabled=busy});if(label&&busy)setAuthMessage(label)}
 function showAuth(){showOnly("authApp");el("aiLauncher").classList.add("hidden");updateBackendBadges()}
-function updateBackendBadges(){const cloud=backendReady;[["authBackendStatus",cloud?"Supabase connected":"Local prototype mode"],["dashboardBackendStatus",cloud?"Supabase cloud":"Local persistence"]].forEach(([id,text])=>{const n=el(id);if(!n)return;n.querySelector("span:last-child").textContent=text;n.classList.toggle("cloud",cloud)});el("accountPanelStorage").textContent=cloud?"Cloud workspace":"This device";el("accountPanelBackend").textContent=cloud?"Supabase cloud":"Local prototype";el("accountSecurityNote").textContent=cloud?"Cloud mode is connected. Access is controlled by authenticated workspace membership and backend policies.":"Local mode saves this workspace on this device only. We will switch this workspace to secure multi-device cloud storage when Supabase is connected."}
-function fillAccountPanel(){const a=localAccount();el("accountPanelName").textContent=el("name").value.trim()||a?.name||signedInEmail?.split("@")[0]||"-";el("accountPanelEmail").textContent=el("email").value.trim()||a?.email||signedInEmail||"-";el("accountPanelWorkspace").textContent=backendWorkspaceId?(workspaceName()||a?.setupName||(isPlatformAdmin?"CreateJourney Platform":"Workspace")):(isPlatformAdmin?"CreateJourney Platform":"-");el("accountPanelRole").textContent=isPlatformAdmin?"Super Admin":actualRole;el("accountPanelSession").textContent=(signedInEmail||a)?"Active":"Not signed in";updateAdminAccessUi();updateBackendBadges()}
-async function loginUser(){const email=el("loginEmail").value.trim().toLowerCase(),password=el("loginPassword").value;if(!validEmail(email)||password.length<8){setAuthMessage("Enter a valid email and password.","bad");return}setAuthBusy(true,"Signing in...");try{if(backendReady){const{data,error}=await sb.auth.signInWithPassword({email,password});if(error){const msg=/confirm|verified/i.test(error.message||"")?"Confirm your email first, then sign in here with the same email and password. Your Business/Personal setup is saved.":error.message;setAuthMessage(msg,"bad");return}setAuthMessage("");await loadCloudWorkspace(data.user);return}const a=localAccount();if(!a||a.email!==email||a.passwordHash!==await hashPassword(password)){setAuthMessage("Email or password is incorrect.","bad");return}signedInEmail=email;restoreLocalState();setAuthMessage("");openDashboard()}catch(err){setAuthMessage("Sign in could not be completed. Please try again.","bad");console.error(err)}finally{setAuthBusy(false)}}
-async function sendMagicLink(){const email=el("loginEmail").value.trim().toLowerCase();if(!backendReady){setAuthMessage("Magic-link sign in turns on after Supabase is connected.","bad");return}if(!validEmail(email)){setAuthMessage("Enter your email first.","bad");return}setAuthBusy(true,"Sending secure sign-in link...");try{const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});setAuthMessage(error?error.message:"Check your email for the CreateJourney sign-in link.",error?"bad":"good")}catch(err){setAuthMessage("The sign-in link could not be sent. Please try again.","bad");console.error(err)}finally{setAuthBusy(false)}}
-async function signupBackendIfConfigured(){if(!backendReady)return true;const email=el("email").value.trim().toLowerCase(),password=el("password").value,name=el("name").value.trim(),setupName=workspaceName();const pending={useType,name,email,setupName,stage:"awaiting_confirmation",createdAt:new Date().toISOString()};localStorage.setItem("cj_pending_onboarding","1");localStorage.setItem("cj_pending_signup",JSON.stringify(pending));const{data,error}=await sb.auth.signUp({email,password,options:{data:{name,use_type:useType,setup_name:setupName},emailRedirectTo:location.origin+location.pathname}});if(error){setAuthMessage(error.message,"bad");showAuth();el("loginEmail").value=email;return false}if(!data.session){showAuth();el("loginEmail").value=email;setAuthMessage("Account created. Confirm the email we sent you, then return here and sign in with the same email and password. Your setup will continue automatically.","good");return false}signedInEmail=email;return true}
-async function logoutUser(){if(!confirm("Sign out of CreateJourney on this device?"))return;disconnectRealtimeVoice();try{if(backendReady)await sb.auth.signOut()}catch(err){console.error(err)}localStorage.removeItem("cj_local_session");backendWorkspaceId=null;actualRole="Owner";currentRole="Owner";signedInEmail="";isPlatformAdmin=false;adminBoards=[];adminHistoryBoardNumber=null;updateAdminAccessUi();el("accountPanel").classList.add("hidden");showAuth();setAuthMessage("Signed out. Use this same Sign in page for any CreateJourney account.","good")}
-async function bootstrapCloudWorkspace(){if(!backendReady)return true;const {data:{user}}=await sb.auth.getUser();if(!user)return false;const payload={p_workspace_name:workspaceName(),p_use_type:useType,p_board_code:el("boardCode").value.trim(),p_board_name:el("boardName").value.trim(),p_actions:selectedActions,p_destinations:connectionValues};const{data,error}=await sb.rpc("bootstrap_workspace",payload);if(error){alert("Backend setup: "+error.message);return false}backendWorkspaceId=data;localStorage.removeItem("cj_pending_onboarding");localStorage.removeItem("cj_pending_signup");return true}
-async function syncCloudSnapshot(){if(!backendReady||!backendWorkspaceId||actualRole==="Employee")return;const state=serializableState();const{error}=await sb.from("workspace_state").upsert({workspace_id:backendWorkspaceId,state,updated_at:new Date().toISOString()},{onConflict:"workspace_id"});if(error)console.warn("Cloud sync failed",error.message)}
-async function hydrateWorkspaceMembership(user,members){if(!members?.length)return false;backendWorkspaceId=members[0].workspace_id;actualRole=members[0].role||"Owner";currentRole=actualRole;const{data:rows,error:stateErr}=await sb.from("workspace_state").select("state").eq("workspace_id",backendWorkspaceId).maybeSingle();if(stateErr)console.warn(stateErr.message);if(rows?.state){localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(rows.state));restoreLocalState()}const{data:ws}=await sb.from("workspaces").select("name,use_type").eq("id",backendWorkspaceId).single();if(ws){useType=ws.use_type||useType;if(useType==="business")el("business").value=ws.name||"";else el("personalSetupName").value=ws.name||""}el("email").value=user.email||"";el("name").value=user.user_metadata?.name||el("name").value||user.email?.split("@")[0]||"User";return true}
-/* ========================================
-   #82 AUTH ROLE ROUTING - BUILD 5.4.1 + SECTION 6
-   Super Admin is checked BEFORE customer workspace membership.
-   ======================================== */
-async function loadCloudWorkspace(user=null){
-  if(authRouting)return false;
-  authRouting=true;
+function updateBackendBadges(){const cloud=backendReady;[["authBackendStatus",cloud?"Supabase connected":"Local prototype mode"],["dashboardBackendStatus",cloud?"Supabase cloud":"Local persistence"]].forEach(([id,text])=>{const n=el(id);if(!n)return;n.querySelector("span:last-child").textContent=text;n.classList.toggle("cloud",cloud)});el("accountPanelStorage").textContent=cloud?"Secure cloud workspace":"This device";el("accountPanelBackend").textContent=cloud?"Connected":"Local-only mode";el("accountSecurityNote").textContent=cloud?"Cloud mode is connected. Access is controlled by authenticated workspace membership and backend policies.":"Local mode saves this workspace on this device only. We will switch this workspace to secure multi-device cloud storage when Supabase is connected."}
+async function loadAccountWorkspaceOptions(){
+  const wrap=el("accountWorkspaceSwitcherWrap"),select=el("accountWorkspaceSwitcher");
+  if(!wrap||!select){return}
+  wrap.classList.add("hidden");
+  select.innerHTML="";
+  if(!backendReady||!signedInEmail)return;
   try{
-    if(!backendReady)return false;
-    if(!user){
-      const r=await sb.auth.getUser();
-      user=r.data.user;
-    }
-    if(!user){
-      showAuth();
-      return false;
-    }
-    signedInEmail=user.email||"";
-
-    const adminAllowed=await checkPlatformAdmin();
-    if(adminAllowed){
-      backendWorkspaceId=null;
-      actualRole="Owner";
-      currentRole="Owner";
-      el("email").value=user.email||"";
-      el("name").value=user.user_metadata?.name||user.email?.split("@")[0]||"Admin";
-      setAuthMessage("");
-      await openAdminConsole();
-      return true;
-    }
-
-    try{
-      await sb.rpc("claim_my_invites");
-    }catch(inviteErr){
-      console.warn("Invite claim check failed",inviteErr);
-    }
-
-    const{data:members,error}=await sb
-      .from("workspace_members")
-      .select("workspace_id,role,can_edit_journey")
-      .eq("user_id",user.id)
-      .order("created_at",{ascending:true})
-      .limit(1);
-
-    if(error){
-      console.error("Workspace membership lookup failed",error);
-      setAuthMessage("Your account signed in, but CreateJourney could not load your workspace access.","bad");
-      showAuth();
-      return false;
-    }
-
-    if(!members?.length){
-      const pending=JSON.parse(localStorage.getItem("cj_pending_signup")||"null");
-      if(pending&&(!pending.email||pending.email.toLowerCase()===String(user.email||"").toLowerCase())){
-        useType=pending.useType||user.user_metadata?.use_type||"business";
-        el("name").value=pending.name||user.user_metadata?.name||"";
-        el("email").value=pending.email||user.email||"";
-        const setup=pending.setupName||user.user_metadata?.setup_name||"";
-        if(useType==="business")el("business").value=setup;
-        else el("personalSetupName").value=setup;
-        updateConditionalFields();
-        showOnly("onboardingApp");
-        goToStep(3);
-        return false;
-      }
-      showOnly("onboardingApp");
-      goToStep(1);
-      return false;
-    }
-
-    await hydrateWorkspaceMembership(user,members);
-    openDashboard();
-    return true;
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user)return;
+    const {data,error}=await sb.from("workspace_members").select("workspace_id,role,workspaces(name,use_type)").eq("user_id",user.id);
+    if(error)throw error;
+    const rows=Array.isArray(data)?data:[];
+    if(rows.length<=1)return;
+    rows.forEach(r=>{
+      const o=document.createElement("option");
+      o.value=r.workspace_id;
+      o.textContent=(r.workspaces?.name||"Workspace")+" · "+(r.role||"Member");
+      o.selected=r.workspace_id===backendWorkspaceId;
+      select.appendChild(o);
+    });
+    wrap.classList.remove("hidden");
   }catch(err){
-    console.error("Authentication routing failed",err);
-    setAuthMessage("CreateJourney could not finish loading your account.","bad");
-    showAuth();
-    return false;
-  }finally{
-    authRouting=false;
+    console.warn("Workspace switcher could not load",err);
   }
 }
 
-async function initializeSession(){initBackend();updateBackendBadges();if(backendReady){const{data:{session}}=await sb.auth.getSession();if(session){await loadCloudWorkspace(session.user);return}sb.auth.onAuthStateChange(async(event,session)=>{if(session&&(event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")){await loadCloudWorkspace(session.user)}});showAuth();return}if(localStorage.getItem("cj_local_session")==="1"&&restoreLocalState()){openDashboard();return}showAuth();updateConditionalFields()}
+async function switchAccountWorkspace(){
+  const workspaceId=el("accountWorkspaceSwitcher")?.value;
+  const box=el("accountWorkspaceMessage");
+  const say=(text,type="")=>{if(!box)return;box.textContent=text;box.className="account-inline-message"+(type?" "+type:"");box.classList.remove("hidden")};
+  if(!backendReady||!workspaceId||workspaceId===backendWorkspaceId){say("You are already viewing that workspace.");return}
+  try{
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user)throw new Error("Your session is no longer active.");
+    const {data:member,error:memberErr}=await sb.from("workspace_members").select("workspace_id,role").eq("user_id",user.id).eq("workspace_id",workspaceId).maybeSingle();
+    if(memberErr)throw memberErr;
+    if(!member)throw new Error("You are not authorized for that workspace.");
+
+    backendWorkspaceId=workspaceId;
+    actualRole=member.role||"Employee";
+    currentRole=actualRole;
+
+    const {data:rows,error:stateErr}=await sb.from("workspace_state").select("state").eq("workspace_id",workspaceId).maybeSingle();
+    if(stateErr)throw stateErr;
+    if(rows?.state){
+      localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify(rows.state));
+      restoreLocalState();
+    }
+
+    const {data:ws}=await sb.from("workspaces").select("name,use_type").eq("id",workspaceId).maybeSingle();
+    if(ws){
+      useType=ws.use_type||useType;
+      if(useType==="business"&&el("business"))el("business").value=ws.name||el("business").value;
+      if(useType!=="business"&&el("personalSetupName"))el("personalSetupName").value=ws.name||el("personalSetupName").value;
+    }
+
+    updateConditionalFields();
+    fillAccountPanel();
+    renderDashboard();
+    say("Workspace switched successfully.","good");
+  }catch(err){
+    console.error(err);
+    say(err?.message||"The workspace could not be switched.","bad");
+  }
+}
+
+async function saveAccountProfile(){
+  const input=el("accountEditName"),box=el("accountProfileMessage");
+  const name=String(input?.value||"").trim();
+  const say=(text,type="")=>{if(!box)return;box.textContent=text;box.className="account-inline-message"+(type?" "+type:"");box.classList.remove("hidden")};
+  if(!validText(name)){say("Enter at least 2 characters for your display name.","bad");return}
+  try{
+    if(el("name"))el("name").value=name;
+    const a=localAccount();
+    if(a){
+      a.name=name;
+      localStorage.setItem("cj_account",JSON.stringify(a));
+    }
+    if(backendReady){
+      const {error}=await sb.auth.updateUser({data:{name}});
+      if(error)throw error;
+    }
+    persistLocalState();
+    fillAccountPanel();
+    say("Profile name saved.","good");
+  }catch(err){
+    console.error(err);
+    say(err?.message||"The profile name could not be saved.","bad");
+  }
+}
+
+function fillAccountPanel(){
+  const a=localAccount();
+  const name=el("name").value.trim()||a?.name||signedInEmail?.split("@")[0]||"-";
+  const email=el("email").value.trim()||a?.email||signedInEmail||"-";
+  el("accountPanelName").textContent=name;
+  el("accountPanelEmail").textContent=email;
+  el("accountEditName").value=name==="-"?"":name;
+  el("accountPanelWorkspace").textContent=backendWorkspaceId?(workspaceName()||a?.setupName||(isPlatformAdmin?"CreateJourney Platform":"Workspace")):(isPlatformAdmin?"CreateJourney Platform":"-");
+  el("accountPanelRole").textContent=isPlatformAdmin?"Super Admin":actualRole;
+
+  const sessionNode=el("accountPanelSession");
+  const active=!!(signedInEmail||a);
+  if(sessionNode){
+    sessionNode.className="account-status "+(active?"good":"warn");
+    sessionNode.innerHTML='<i class="account-status-dot"></i><b>'+(active?"Active":"Not signed in")+'</b>';
+  }
+
+  updateAdminAccessUi();
+  updateBackendBadges();
+  loadAccountWorkspaceOptions();
+}
+
+async function sendPasswordReset(emailOverride=""){
+  const email=String(emailOverride||el("loginEmail")?.value||signedInEmail||"").trim().toLowerCase();
+  if(!backendReady){
+    setAuthMessage("Password reset becomes available when secure cloud authentication is connected.","bad");
+    return false;
+  }
+  if(!validEmail(email)){
+    setAuthMessage("Enter your account email first.","bad");
+    el("loginEmail")?.focus();
+    return false;
+  }
+  setAuthBusy(true,"Sending password reset email...");
+  try{
+    const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname+"?reset=1"});
+    if(error){
+      setAuthMessage(error.message||"The password reset email could not be sent.","bad");
+      return false;
+    }
+    setAuthMessage("Password reset email sent. Open the secure link in your email to choose a new password.","good");
+    return true;
+  }catch(err){
+    console.error(err);
+    setAuthMessage("The password reset email could not be sent. Please try again.","bad");
+    return false;
+  }finally{
+    setAuthBusy(false);
+  }
+}
+
+async function sendAccountSecurityEmail(kind){
+  const email=String(signedInEmail||el("accountPanelEmail")?.textContent||"").trim().toLowerCase();
+  const box=el("accountSecurityMessage");
+  const say=(text,type="")=>{if(!box)return;box.textContent=text;box.className="account-inline-message"+(type?" "+type:"");box.classList.remove("hidden")};
+  if(!backendReady){say("Secure email actions require the connected cloud authentication service.","bad");return}
+  if(!validEmail(email)){say("A valid signed-in email address is required.","bad");return}
+  try{
+    if(kind==="reset"){
+      const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname+"?reset=1"});
+      if(error)throw error;
+      say("Password reset email sent.","good");
+    }else{
+      const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+      if(error)throw error;
+      say("Secure sign-in link sent.","good");
+    }
+  }catch(err){
+    console.error(err);
+    say(err?.message||"That security email could not be sent.","bad");
+  }
+}
+
+
+
+async function handlePasswordRecoveryIfNeeded(){
+  if(!backendReady)return false;
+  const params=new URLSearchParams(location.search);
+  const hash=String(location.hash||"");
+  const recovery=params.get("reset")==="1"||/type=recovery/i.test(hash);
+  if(!recovery)return false;
+
+  const next=prompt("Enter a new CreateJourney password (minimum 8 characters):");
+  if(next===null)return false;
+  if(!validPassword(next)){alert("Your new password must be at least 8 characters.");return true}
+  const confirmNext=prompt("Enter the new password again:");
+  if(confirmNext!==next){alert("The passwords did not match. No password was changed.");return true}
+
+  try{
+    const {error}=await sb.auth.updateUser({password:next});
+    if(error)throw error;
+    history.replaceState({},document.title,location.pathname);
+    alert("Your CreateJourney password has been updated. You can continue with your signed-in account.");
+    return true;
+  }catch(err){
+    console.error(err);
+    alert(err?.message||"The password could not be updated.");
+    return true;
+  }
+}
+
+async function initializeSession(){initBackend();updateBackendBadges();if(backendReady){const{data:{session}}=await sb.auth.getSession();if(session){await handlePasswordRecoveryIfNeeded();await loadCloudWorkspace(session.user);return}sb.auth.onAuthStateChange(async(event,session)=>{if(session&&(event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")){await loadCloudWorkspace(session.user)}});showAuth();return}if(localStorage.getItem("cj_local_session")==="1"&&restoreLocalState()){openDashboard();return}showAuth();updateConditionalFields()}
 function logAudit(text,boardId=null){const item={text,time:nowText(),boardId};auditLog.unshift(item);if(boardId){const b=getBoard(boardId);if(b)b.activity.unshift(item)}renderAudits();if(!restoring)persistLocalState()}
 function showOnly(id){["authApp","onboardingApp","dashboardApp","journeyAiSetupApp","journeyAiWorkspaceApp","connectedAccountsApp","boardsLibraryApp","boardManagerApp","addBoardApp","teamManagerApp","adminConsoleApp"].forEach(x=>el(x).classList.toggle("hidden",x!==id));const showAI=!(["authApp","onboardingApp","journeyAiSetupApp","adminConsoleApp"].includes(id));el("aiLauncher").classList.toggle("hidden",!showAI);window.scrollTo(0,0);if(typeof updateAiContext==="function")updateAiContext()}
 function goToStep(step){document.querySelectorAll("#onboardingApp section").forEach(s=>s.classList.add("hidden"));el("step"+step).classList.remove("hidden");for(let i=1;i<=6;i++)el("p"+i).classList.toggle("active",i<=step);if(step===5)renderActions();window.scrollTo(0,0)}
@@ -3850,7 +4067,17 @@ el("teamBack").addEventListener("click",openDashboard);["inviteName","inviteEmai
 el("aiSetupBack").addEventListener("click",openDashboard);el("aiSetupCancel1").addEventListener("click",openDashboard);el("aiSetupNext1").addEventListener("click",()=>aiSetupShowStep(2));el("aiSetupBack2").addEventListener("click",()=>aiSetupShowStep(1));el("aiSetupNext2").addEventListener("click",()=>aiSetupShowStep(3));el("aiSetupBack3").addEventListener("click",()=>aiSetupShowStep(2));el("aiSetupNext3").addEventListener("click",()=>aiSetupShowStep(4));el("aiSetupBack4").addEventListener("click",()=>aiSetupShowStep(3));el("aiSetupNext4").addEventListener("click",()=>aiSetupShowStep(5));el("aiSetupBack5").addEventListener("click",()=>aiSetupShowStep(4));el("aiSetupNext5").addEventListener("click",()=>aiSetupShowStep(6));el("aiSetupBack6").addEventListener("click",()=>aiSetupShowStep(5));el("aiSetupSave").addEventListener("click",saveAiBusinessSetup);document.querySelectorAll("#aiGoalOptions .ai-setup-option").forEach(b=>b.addEventListener("click",()=>b.classList.toggle("selected")));
 el("journeyAiFab").addEventListener("click",openAI);el("aiTalkFab").addEventListener("click",startVoice);el("aiHandle").addEventListener("click",()=>{const p=el("journeyAiPanel");if(p.classList.contains("expanded")){p.classList.remove("expanded");p.classList.add("collapsed")}else if(p.classList.contains("collapsed")){p.classList.remove("collapsed")}else{p.classList.add("expanded")}updateAiContext()});el("aiClose").addEventListener("click",()=>{disconnectRealtimeVoice();el("journeyAiPanel").classList.add("hidden")});el("aiSend").addEventListener("click",()=>{const t=el("aiInput").value;el("aiInput").value="";handleAiPrompt(t)});el("aiInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();el("aiSend").click()}});el("aiMic").addEventListener("click",startVoice);document.querySelectorAll(".ai-chip").forEach(b=>b.addEventListener("click",()=>handleAiPrompt(b.dataset.prompt)));
 el("openAdminConsole").addEventListener("click",openAdminConsole);el("adminRefreshBoards").addEventListener("click",loadAdminBoards);el("adminHistoryClose").addEventListener("click",()=>{adminHistoryBoardNumber=null;el("adminHistory").classList.add("hidden")});el("adminBack").addEventListener("click",()=>{if(isPlatformAdmin||backendWorkspaceId){openDashboard()}else{showAuth();setAuthMessage("Your session is active, but no workspace dashboard is attached to this account yet.","good")}});
-el("profileInitial").addEventListener("click",()=>{fillAccountPanel();el("accountPanel").classList.remove("hidden")});el("closeAccountPanel").addEventListener("click",()=>el("accountPanel").classList.add("hidden"));el("accountPanel").addEventListener("click",e=>{if(e.target===el("accountPanel"))el("accountPanel").classList.add("hidden")});el("logoutButton").addEventListener("click",logoutUser);el("onboardingSignInLink").addEventListener("click",showAuth);el("authSignInTab").addEventListener("click",()=>{setAuthMessage("");el("authSignInTab").classList.add("selected");el("authCreateTab").classList.remove("selected");el("authSignInPanel").classList.remove("hidden");el("authCreatePanel").classList.add("hidden")});el("authCreateTab").addEventListener("click",()=>{setAuthMessage("");el("authCreateTab").classList.add("selected");el("authSignInTab").classList.remove("selected");el("authCreatePanel").classList.remove("hidden");el("authSignInPanel").classList.add("hidden")});el("startCreateAccount").addEventListener("click",()=>{showOnly("onboardingApp");goToStep(1)});el("loginButton").addEventListener("click",loginUser);el("magicLinkButton").addEventListener("click",sendMagicLink);el("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")loginUser()});
+el("profileInitial").addEventListener("click",()=>{fillAccountPanel();el("accountPanel").classList.remove("hidden")});el("closeAccountPanel").addEventListener("click",()=>el("accountPanel").classList.add("hidden"));el("accountPanel").addEventListener("click",e=>{if(e.target===el("accountPanel"))el("accountPanel").classList.add("hidden")});el("logoutButton").addEventListener("click",logoutUser);
+
+el("forgotPasswordButton").addEventListener("click",async()=>{
+  el("authRecoveryHelp")?.classList.remove("hidden");
+  await sendPasswordReset();
+});
+el("accountSaveProfile").addEventListener("click",saveAccountProfile);
+el("accountSendReset").addEventListener("click",()=>sendAccountSecurityEmail("reset"));
+el("accountSendMagicLink").addEventListener("click",()=>sendAccountSecurityEmail("magic"));
+el("accountSwitchWorkspace").addEventListener("click",switchAccountWorkspace);
+el("onboardingSignInLink").addEventListener("click",showAuth);el("authSignInTab").addEventListener("click",()=>{setAuthMessage("");el("authSignInTab").classList.add("selected");el("authCreateTab").classList.remove("selected");el("authSignInPanel").classList.remove("hidden");el("authCreatePanel").classList.add("hidden")});el("authCreateTab").addEventListener("click",()=>{setAuthMessage("");el("authCreateTab").classList.add("selected");el("authSignInTab").classList.remove("selected");el("authCreatePanel").classList.remove("hidden");el("authSignInPanel").classList.add("hidden")});el("startCreateAccount").addEventListener("click",()=>{showOnly("onboardingApp");goToStep(1)});el("loginButton").addEventListener("click",loginUser);el("magicLinkButton").addEventListener("click",sendMagicLink);el("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")loginUser()});
 el("backToUse").addEventListener("click",()=>goToStep(1));el("backToAccount").addEventListener("click",()=>goToStep(2));el("backToActivation").addEventListener("click",()=>goToStep(3));el("backToCustomize").addEventListener("click",()=>goToStep(4));el("backToJourney").addEventListener("click",()=>goToStep(5));
 
 
@@ -4097,6 +4324,39 @@ el("journeyAiFab").addEventListener("click",()=>setTimeout(renderJourneyAiDiscov
 el("aiTalkFab").addEventListener("click",()=>setTimeout(renderJourneyAiDiscoveryShortcuts,0));
 renderJourneyAiDiscoveryShortcuts();
 
+
+/* BUILD 19 SAFE OVERRIDES */
+function boardNeedsSetupV19(b){if(!b||!Array.isArray(b.actions)||!b.actions.length)return true;return b.actions.some(a=>!String(b.destinations?.[a]||"").trim())}
+function boardStatusV19(b){if(!b.active)return "Paused";return boardNeedsSetupV19(b)?"Needs setup":"Ready"}
+function renderManagerSequenceV19(){const b=currentBoard(),c=el("managerJourneySequenceV19");if(!b||!c)return;c.innerHTML=b.actions.length?b.actions.map((a,i)=>`${i?'<span class="journey-arrow-v19">→</span>':""}<span class="journey-step-v19">${esc(a)}</span>`).join(""):'<span class="note">No Journey configured</span>';const needs=boardNeedsSetupV19(b);el("managerHealthTitle").textContent=!b.active?"Paused":needs?"Needs setup":"Ready for customers";el("managerHealthText").textContent=!b.active?"Customer Journey is currently paused.":needs?"Finish the Journey or connect missing destinations.":"Journey and destinations are configured.";el("managerPublishState").innerHTML='<i></i><span>'+(needs?"Saved · setup incomplete":"Saved · current setup ready")+'</span>'}
+
+const renderLibraryBeforeV19=renderLibrary;
+renderLibrary=function(){const c=el("libraryList"),list=visibleBoards();c.innerHTML="";el("boardLibraryTotal").textContent=list.length;el("boardLibraryActive").textContent=list.filter(b=>b.active).length;el("boardLibraryNeedsSetup").textContent=list.filter(boardNeedsSetupV19).length;if(!list.length){c.innerHTML='<div class="note">No boards available.</div>';return}list.forEach(b=>{const d=document.createElement("div"),state=boardStatusV19(b);d.className="library-card v19";d.innerHTML=`<div class="library-header"><div><div class="board-name">${esc(b.name)}</div><div class="board-sub">${esc(b.id)}</div></div><div class="status-pill ${b.active?"":"paused"}">${b.active?"Active":"Paused"}</div></div><div class="board-status-row"><span class="board-mini-pill ${state==="Ready"?"good":state==="Paused"?"paused":"warn"}">${state}</span><span class="board-mini-pill">${esc(getMemberName(b.assignedTo)||"Unassigned")}</span></div><div class="board-journey">${b.actions.length?esc(b.actions.join(" → ")):"No Journey configured"}</div><div class="board-card-meta"><div><strong>${Number(b.analytics?.taps||0)}</strong><span>Taps</span></div><div><strong>${Number(b.analytics?.visitors||0)}</strong><span>Visitors</span></div><div><strong>${Number(b.analytics?.actionsTaken||0)}</strong><span>Actions</span></div></div><div class="library-actions"><button class="primary ready manage-board">Manage</button><button class="secondary preview-board">Preview</button></div>`;d.querySelector(".manage-board").addEventListener("click",()=>{currentBoardId=b.id;openBoardManager(false)});d.querySelector(".preview-board").addEventListener("click",()=>{currentBoardId=b.id;openBoardCustomerPreviewV19()});c.appendChild(d)})};
+
+const openBoardManagerBeforeV19=openBoardManager;
+openBoardManager=function(openEditor=false,openRename=false){openBoardManagerBeforeV19(openEditor,openRename);const b=currentBoard();if(!b)return;renderManagerSequenceV19();el("copyBoardSetupArea").classList.add("hidden");renderCopyTargetsV19()};
+
+function renderJourneyOrderV19(){const c=el("boardEditorOrder");if(!c)return;c.innerHTML="";boardEditorSelection.forEach((a,i)=>{const d=document.createElement("div");d.className="journey-editor-item";d.innerHTML=`<span class="journey-editor-number">${i+1}</span><strong>${esc(a)}</strong><div class="journey-editor-controls"><button data-up>↑</button><button data-down>↓</button></div>`;const up=d.querySelector("[data-up]"),down=d.querySelector("[data-down]");up.disabled=i===0;down.disabled=i===boardEditorSelection.length-1;up.addEventListener("click",()=>{if(i>0){[boardEditorSelection[i-1],boardEditorSelection[i]]=[boardEditorSelection[i],boardEditorSelection[i-1]];renderBoardJourneyEditor()}});down.addEventListener("click",()=>{if(i<boardEditorSelection.length-1){[boardEditorSelection[i+1],boardEditorSelection[i]]=[boardEditorSelection[i],boardEditorSelection[i+1]];renderBoardJourneyEditor()}});c.appendChild(d)})}
+
+renderBoardJourneyEditor=function(){const b=currentBoard();if(!Array.isArray(boardEditorSelection)||!boardEditorSelection.length)boardEditorSelection=[...(b?.actions||[])];const c=el("boardEditorActions");c.innerHTML="";actions.forEach(a=>{const o=document.createElement("div");o.className="board-editor-option";o.textContent=a;if(boardEditorSelection.includes(a))o.classList.add("selected");o.addEventListener("click",()=>{if(boardEditorSelection.includes(a))boardEditorSelection=boardEditorSelection.filter(x=>x!==a);else{if(boardEditorSelection.length>=3){alert("A Journey can have a maximum of 3 actions.");return}boardEditorSelection.push(a)}renderBoardJourneyEditor()});c.appendChild(o)});renderJourneyOrderV19();setReady(el("saveBoardJourney"),boardEditorSelection.length>0)};
+
+const saveBoardJourneyChangesBeforeV19=saveBoardJourneyChanges;
+saveBoardJourneyChanges=function(){saveBoardJourneyChangesBeforeV19();const b=currentBoard();if(!b)return;persistLocalState();renderManagerSequenceV19()};
+
+function renderCopyTargetsV19(){const s=el("copyBoardTarget");s.innerHTML='<option value="">Choose another board</option>';const current=currentBoard();boards.filter(b=>b.id!==current?.id).forEach(b=>{const o=document.createElement("option");o.value=b.id;o.textContent=`${b.name} · ${b.id}`;s.appendChild(o)})}
+function copyBoardSetupV19(){const source=currentBoard(),target=getBoard(el("copyBoardTarget").value);if(!source||!target||!permissions().edit)return;target.actions=[...(source.actions||[])];target.destinations={...(source.destinations||{})};persistLocalState();logAudit(`Copied Journey setup from ${source.name} to ${target.name}`,target.id);renderDashboard();renderLibrary();const m=el("copyBoardSetupMessage");m.textContent=`Setup copied to ${target.name}.`;m.classList.remove("hidden");setTimeout(()=>m.classList.add("hidden"),1500)}
+function openBoardCustomerPreviewV19(){const b=currentBoard();if(!b)return;el("previewBoardBusiness").textContent=workspaceName()||"Customer Journey";el("previewBoardIntro").textContent=`Previewing ${b.name}. ${b.active?"This board is active.":"This board is paused."}`;const c=el("previewBoardActions");c.innerHTML="";if(!b.actions.length)c.innerHTML='<div class="note">No Journey is configured yet.</div>';b.actions.forEach(a=>{const btn=document.createElement("button");btn.className="primary ready";btn.textContent=a;btn.addEventListener("click",()=>{const url=String(b.destinations?.[a]||"").trim();alert(url?`Preview only: ${a} would open its configured destination.`:`${a} still needs a destination.`)});c.appendChild(btn)});el("boardCustomerPreview").classList.remove("hidden")}
+
+el("previewCustomerJourney").addEventListener("click",openBoardCustomerPreviewV19);
+el("closeBoardCustomerPreview").addEventListener("click",()=>el("boardCustomerPreview").classList.add("hidden"));
+el("boardCustomerPreview").addEventListener("click",e=>{if(e.target===el("boardCustomerPreview"))el("boardCustomerPreview").classList.add("hidden")});
+el("showCopyBoardSetup").addEventListener("click",()=>{renderCopyTargetsV19();el("copyBoardSetupArea").classList.toggle("hidden")});
+el("copyBoardSetupButton").addEventListener("click",copyBoardSetupV19);
+
+/* BUILD 19.0: SmartBoards & Journey Management cleanup */
+/* BUILD 18.0: production-oriented Accounts, Profile & Authentication cleanup:
+   forgot-password recovery, secure sign-in email tools, profile editing, multi-workspace
+   switching when available, clearer session/sync status, and simplified account UX. */
 /* BUILD 17.5: adds "Powered by JourneyAI" directly beneath the CreateJourney
    wordmark on login, onboarding, and the main admin/dashboard header. */
 /* BUILD 17.4: six purposeful dashboard actions, Performance Hub,
