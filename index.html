@@ -509,6 +509,34 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
   .header-actions{gap:6px}
   .role-preview{max-width:150px}
 }
+
+/* BUILD 25.1 — ORIGINAL CREATEJOURNEY WORDMARK RESTORE
+   Keep all existing icon/logo artwork unchanged.
+   Only restore the original text-logo styling and retain Powered by JourneyAI beneath it. */
+.cj-brand-lockup .cj-wordmark{
+  display:inline;
+  color:inherit!important;
+  font-size:inherit;
+  font-weight:inherit!important;
+  letter-spacing:inherit;
+  line-height:1;
+}
+.cj-brand-lockup .cj-wordmark>span{
+  color:#6fa8f5!important;
+  font-weight:500!important;
+}
+.cj-brand-lockup .cj-powered-by{
+  display:block;
+  color:#8b95a7!important;
+  font-weight:700!important;
+  letter-spacing:.04em;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.cj-brand-lockup .cj-powered-by strong{
+  color:#3978c8!important;
+  font-weight:850!important;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -523,7 +551,7 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 <div id="customerJourneyApp" class="customer-screen hidden">
   <div class="customer-shell">
     <div class="customer-brand">
-      <div class="dashboard-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div>
+      <div class="dashboard-brand"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div>
     </div>
     <div class="customer-card">
       <div id="customerJourneyKicker" class="customer-kicker">Welcome</div>
@@ -541,13 +569,13 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 </div>
 
 <div id="cjSystemToast" class="cj-system-toast hidden"><span id="cjSystemToastText"></span><button id="cjSystemToastClose" type="button" aria-label="Dismiss">×</button></div>
-<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local prototype mode</span></div></div></div>
+<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local prototype mode</span></div></div></div>
 <!-- ======================================
      #10 ONBOARDING
      ====================================== -->
 <div id="onboardingApp" class="app hidden">
 <div class="card">
-<div class="logo"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="subtitle">One board. Your Journey. Your way.</div>
+<div class="logo"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="subtitle">One board. Your Journey. Your way.</div>
 <div class="progress"><div id="p1" class="active"></div><div id="p2"></div><div id="p3"></div><div id="p4"></div><div id="p5"></div><div id="p6"></div></div>
 <section id="step1"><h2>How will you use CreateJourney?</h2><p class="helper">Choose what fits you best. You can still use all CreateJourney features either way.</p><div class="choice-grid"><div id="businessChoice" class="use-choice"><div class="choice-icon" aria-hidden="true"><svg class="choice-svg" viewBox="0 0 48 48" focusable="false"><path d="M8 19h32v21H8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M6 19l4-9h28l4 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 25h6v6h-6zm14 0h6v6h-6zM21 40V29h6v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div><strong>Business</strong><span>For customers, clients, teams, locations and services.</span></div><div id="personalChoice" class="use-choice"><div class="choice-icon" aria-hidden="true"><svg class="choice-svg" viewBox="0 0 48 48" focusable="false"><circle cx="24" cy="17" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 40c1.6-8 7.2-12 15-12s13.4 4 15 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><strong>Personal</strong><span>For social profiles, creators, events, projects and everyday use.</span></div></div><div class="note">Business and Personal customize your starting experience. Neither option limits what your board can do.</div><button id="useContinue" class="primary">Continue</button></section>
 <section id="step2" class="hidden"><h2>Create your account</h2><p class="helper">Start with the basics. You can customize everything else later.</p><label>Your name</label><input id="name" placeholder="Example: Marcus Johnson"><div id="nameError" class="error">Enter your name.</div><div id="businessNameGroup"><label>Business name</label><input id="business" placeholder="Example: Marcus Barber Studio"><div id="businessError" class="error">Enter your business name.</div></div><div id="personalNameGroup" class="hidden"><label>What should we call your setup?</label><input id="personalSetupName" placeholder="Example: Marcus Socials, My Event, Home Guest Board"><div id="personalSetupError" class="error">Give your CreateJourney setup a name.</div></div><label>Email</label><input id="email" type="email" placeholder="Example: marcus@example.com"><div id="emailError" class="error">Enter a valid email address.</div><label>Password</label><input id="password" type="password" placeholder="At least 8 characters"><div id="passwordError" class="error">Password must contain at least 8 characters.</div><button id="accountContinue" class="primary">Continue</button><button id="onboardingSignInLink" class="linkbtn">Already have an account? Sign in</button><button id="backToUse" class="secondary">Back</button></section>
@@ -1595,7 +1623,7 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 <div class="manager-card"><h3 class="manager-section-title">Board activity</h3><div class="journey-row"><span>Total taps today</span><span id="managerActivityTaps">0</span></div><div class="journey-row"><span>Unique visitors</span><span id="managerActivityVisitors">0</span></div><div class="journey-row"><span>Returning visitors</span><span id="managerActivityReturning">0</span></div><div class="journey-row"><span>Last interaction</span><span id="managerActivityLast">No interactions yet</span></div></div>
 <div class="audit-card"><h3 class="manager-section-title">Recent changes</h3><div id="boardAuditList" class="audit-list"></div></div>
 </div></div>
-<div id="boardCustomerPreview" class="board-preview-overlay hidden"><div class="board-preview-sheet"><button id="closeBoardCustomerPreview" class="secondary board-preview-close">Close preview</button><div class="board-preview-phone"><div class="dashboard-brand"><span class="cj-brand-lockup"><span>Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><h2 id="previewBoardBusiness">Customer Journey</h2><p id="previewBoardIntro">Preview of the customer tap experience.</p><div id="previewBoardActions" class="board-preview-actions"></div><div class="note" style="margin-top:15px">Preview mode does not record a real customer tap or completion.</div></div></div></div>
+<div id="boardCustomerPreview" class="board-preview-overlay hidden"><div class="board-preview-sheet"><button id="closeBoardCustomerPreview" class="secondary board-preview-close">Close preview</button><div class="board-preview-phone"><div class="dashboard-brand"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><h2 id="previewBoardBusiness">Customer Journey</h2><p id="previewBoardIntro">Preview of the customer tap experience.</p><div id="previewBoardActions" class="board-preview-actions"></div><div class="note" style="margin-top:15px">Preview mode does not record a real customer tap or completion.</div></div></div></div>
 
 <!-- ======================================
      #50 ADD BOARD
