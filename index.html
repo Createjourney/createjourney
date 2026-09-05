@@ -6215,5 +6215,331 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- BUILD 27: live normalized SmartBoard backend sync + verified Journey AI Journey/status execution. -->
 
+
+<!-- ======================================
+     BUILDS 28 + 29 — OWNER/MINIBOARD + PUBLIC CUSTOMER PRODUCTION SUITE
+     ====================================== -->
+<style id="cjBuild2829Styles">
+#cj2829Launcher{position:fixed;left:18px;bottom:18px;z-index:89;width:auto;margin:0;padding:11px 14px;border-radius:999px;background:#fff;color:#172033;border:1px solid #dbe5f0;box-shadow:0 10px 28px rgba(15,23,42,.12);font-size:12px;font-weight:800}
+#cj2829Suite{position:fixed;inset:0;z-index:220;background:#f4f7fb;overflow:auto;color:#111827}
+.cj2829-shell{max-width:1180px;margin:0 auto;padding:18px 16px 100px}
+.cj2829-top{position:sticky;top:0;z-index:3;background:rgba(244,247,251,.95);backdrop-filter:blur(16px);padding:8px 0 14px;border-bottom:1px solid #e3eaf3}
+.cj2829-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.cj2829-head h1{margin:0;font-size:28px}.cj2829-head p{margin:3px 0 0;color:#667085;font-size:13px}
+.cj2829-close{width:42px;height:42px;padding:0;margin:0;border-radius:50%;background:#fff;color:#334155;border:1px solid #dce4ef}
+.cj2829-tabs{display:flex;gap:7px;overflow:auto;padding:12px 0 2px}.cj2829-tab{width:auto;white-space:nowrap;margin:0;padding:9px 12px;border-radius:999px;background:#fff;color:#667085;border:1px solid #dce4ef;font-size:12px}.cj2829-tab.active{background:#172033;color:#fff;border-color:#172033}
+.cj2829-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:16px}.cj2829-card{grid-column:span 6;background:#fff;border:1px solid #e1e8f1;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.035)}.cj2829-card.full{grid-column:1/-1}.cj2829-card.third{grid-column:span 4}.cj2829-card h3{margin:0 0 6px;font-size:18px}.cj2829-card p{margin:0;color:#667085;font-size:13px;line-height:1.5}
+.cj2829-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.cj2829-kpi{background:#f7f9fc;border-radius:14px;padding:13px}.cj2829-kpi strong{display:block;font-size:24px}.cj2829-kpi span{font-size:11px;color:#667085}
+.cj2829-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #edf1f5}.cj2829-row:first-of-type{border-top:0}.cj2829-row-main{min-width:0}.cj2829-row strong{display:block;font-size:14px}.cj2829-row small{display:block;color:#667085;margin-top:3px;line-height:1.35}.cj2829-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;background:#eef5ff;color:#3978c8;font-size:10px;font-weight:800}.cj2829-pill.good{background:#eaf8ef;color:#287b4b}.cj2829-pill.warn{background:#fff4dc;color:#8d6519}.cj2829-pill.bad{background:#fff0f0;color:#a43e3e}
+.cj2829-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.cj2829-actions button,.cj2829-small{width:auto;margin:0;padding:9px 11px;border-radius:11px;font-size:12px}.cj2829-primary{background:#172033;color:#fff}.cj2829-secondary{background:#edf5ff;color:#3978c8}.cj2829-quiet{background:#f5f7fa;color:#475467}.cj2829-danger{background:#fff0f0;color:#a43e3e}
+.cj2829-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cj2829-field label{display:block;margin:0 0 6px;font-size:12px}.cj2829-field input,.cj2829-field select,.cj2829-field textarea{width:100%;border:1px solid #d7e0ea;border-radius:12px;padding:11px;background:#fff;outline:none}.cj2829-field textarea{min-height:90px;resize:vertical}.cj2829-field.full{grid-column:1/-1}
+.cj2829-empty{padding:18px;border:1px dashed #ccd7e5;border-radius:16px;color:#667085;text-align:center;font-size:13px}.cj2829-note{margin-top:10px;padding:11px 12px;border-radius:13px;background:#f7f9fc;color:#667085;font-size:12px;line-height:1.45}
+.cj2829-activity{max-height:520px;overflow:auto}.cj2829-activity-item{position:relative;padding:12px 12px 12px 28px;border-bottom:1px solid #edf1f5}.cj2829-activity-item:before{content:"";position:absolute;left:8px;top:18px;width:8px;height:8px;border-radius:50%;background:#6fa8f5}.cj2829-activity-item strong{font-size:13px}.cj2829-activity-item small{display:block;color:#667085;margin-top:3px}
+.cj2829-stars{display:flex;gap:7px;margin:12px 0}.cj2829-star{width:42px;height:42px;padding:0;margin:0;border-radius:12px;background:#f4f7fb;color:#98a2b3;font-size:21px}.cj2829-star.on{background:#fff5cf;color:#a56e00}
+.cj2829-progress{height:8px;background:#edf1f5;border-radius:999px;overflow:hidden;margin-top:8px}.cj2829-progress span{display:block;height:100%;background:#6fa8f5;border-radius:999px}
+.cj2829-customer-feedback{margin-top:18px;text-align:center}.cj2829-feedback-link{width:auto;margin:0;padding:7px 10px;background:transparent;color:#667085;font-size:12px;text-decoration:underline}.cj2829-feedback-panel{margin:14px auto 0;max-width:460px;background:#fff;border:1px solid #e1e8f1;border-radius:18px;padding:16px;text-align:left}.cj2829-feedback-panel textarea{width:100%;min-height:92px;border:1px solid #d7e0ea;border-radius:12px;padding:11px}.cj2829-feedback-panel button{margin-top:10px}
+.cj2829-success{padding:13px;border-radius:13px;background:#eaf8ef;color:#287b4b;font-size:13px}.cj2829-review-neutral{margin-top:10px;padding:12px;border-radius:13px;background:#f7f9fc;color:#475467;font-size:12px}
+.cj2829-sync{font-size:11px;color:#667085;margin-top:8px}.cj2829-hidden{display:none!important}
+@media(max-width:760px){.cj2829-card,.cj2829-card.third{grid-column:1/-1}.cj2829-kpis{grid-template-columns:1fr 1fr}.cj2829-form{grid-template-columns:1fr}.cj2829-field.full{grid-column:auto}.cj2829-head h1{font-size:23px}#cj2829Launcher{left:12px;bottom:12px}}
+</style>
+
+<button id="cj2829Launcher" class="hidden" type="button">Owner Production Suite</button>
+<div id="cj2829Suite" class="cj2829-hidden" aria-hidden="true">
+  <div class="cj2829-shell">
+    <div class="cj2829-top">
+      <div class="cj2829-head">
+        <div><h1>SmartBoard Control Center</h1><p>Build 28 + 29 · Owner, MiniBoard and public customer production system</p></div>
+        <button id="cj2829Close" class="cj2829-close" type="button">×</button>
+      </div>
+      <div id="cj2829Tabs" class="cj2829-tabs"></div>
+    </div>
+    <div id="cj2829Content"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const KEY='cj_build_29_owner_suite_v1';
+const tabs=['Overview','Board Network','Professionals','Activity','Customers & Feedback','Journey AI Work','Trial & Billing','Public Journey QA'];
+let activeTab='Overview';
+let ownerData={boards:[],events:[],feedback:[],tasks:[],role:null,business_id:null,loadedAt:null,error:''};
+let state=load();
+
+function load(){try{return Object.assign({professionalProfiles:{},miniPermissions:{},dismissedRecommendations:[],trialChecklist:{},qa:{},lastSync:null},JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return{professionalProfiles:{},miniPermissions:{},dismissedRecommendations:[],trialChecklist:{},qa:{},lastSync:null}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(_){}}
+function h(v){return typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function fmt(v){if(!v)return'—';try{return new Date(v).toLocaleString()}catch(_){return String(v)}}
+function localBoards(){try{return Array.isArray(boards)?boards:[]}catch(_){return[]}}
+function localTeam(){try{return Array.isArray(teamMembers)?teamMembers:[]}catch(_){return[]}}
+function allBoards(){return ownerData.boards.length?ownerData.boards:localBoards().map(b=>({id:b.backendId||b.id,source_key:b.id,name:b.name,status:b.active===false?'paused':'active',board_kind:b.boardKind||b.kind||'smartboard',parent_board_id:b.parentBoardId||null,placement_label:b.location||'',journey_ai_personal_assistant:!!b.journeyAiPersonalAssistant,ai_addon_status:b.journeyAiPersonalAssistant?'active':'inactive'}))}
+function miniBoards(){return allBoards().filter(b=>String(b.board_kind||'').toLowerCase()==='miniboard')}
+function mainBoards(){return allBoards().filter(b=>String(b.board_kind||'smartboard').toLowerCase()!=='miniboard')}
+function boardName(id){return allBoards().find(b=>String(b.id)===String(id))?.name||localBoards().find(b=>String(b.id)===String(id)||String(b.backendId)===String(id))?.name||'SmartBoard'}
+function eventStats(){
+ const rows=ownerData.events||[];const taps=rows.filter(e=>e.event_type==='board_tap').length,actions=rows.filter(e=>['action_opened','action_clicked','action_completed','review_link_clicked'].includes(e.event_type)).length,confirmed=rows.filter(e=>e.status==='confirmed').length;
+ const visitors=new Set(rows.map(e=>e.visitor_id).filter(Boolean)).size;
+ return{taps,actions,confirmed,visitors};
+}
+function feedbackStats(){
+ const rows=ownerData.feedback||[];const avg=rows.length?rows.reduce((a,b)=>a+Number(b.rating||0),0)/rows.length:0;
+ return{count:rows.length,avg};
+}
+async function ownerRequest(action,payload={}){
+ if(typeof integrationSession!=='function')return null;
+ const session=await integrationSession();if(!session)return null;
+ try{
+  const r=await fetch(`${SUPABASE_URL}/functions/v1/journey-owner-data`,{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`,apikey:SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json'},body:JSON.stringify({action,workspace_id:backendWorkspaceId||null,business_id:(window.CJ27&&CJ27.businessId)||null,...payload})});
+  const d=await r.json().catch(()=>({}));return r.ok?{ok:true,...d}:{ok:false,error:d.error||`Owner data returned ${r.status}`};
+ }catch(e){return{ok:false,error:e?.message||'Owner data unavailable'}}
+}
+async function refreshOwnerData(show=true){
+ if(show)status('Refreshing production data…');
+ try{
+  if(typeof cjSyncNormalizedBackendV27==='function')await cjSyncNormalizedBackendV27(false);
+  const r=await ownerRequest('dashboard');
+  if(r?.ok){ownerData={...r,loadedAt:new Date().toISOString(),error:''};state.lastSync=ownerData.loadedAt;save();status(`Production data refreshed · ${fmt(ownerData.loadedAt)}`);render()}
+  else{ownerData.error=r?.error||'Owner data service is unavailable';status(ownerData.error)}
+ }catch(e){ownerData.error=e?.message||'Unable to refresh';status(ownerData.error)}
+}
+function status(msg){let n=document.getElementById('cj2829Status');if(n)n.textContent=msg}
+function open(tab='Overview'){activeTab=tab;document.getElementById('cj2829Suite')?.classList.remove('cj2829-hidden');document.getElementById('cj2829Suite')?.setAttribute('aria-hidden','false');render();refreshOwnerData(false)}
+function close(){document.getElementById('cj2829Suite')?.classList.add('cj2829-hidden');document.getElementById('cj2829Suite')?.setAttribute('aria-hidden','true')}
+function renderTabs(){const c=document.getElementById('cj2829Tabs');if(!c)return;c.innerHTML=tabs.map(t=>`<button class="cj2829-tab ${t===activeTab?'active':''}" data-cj2829-tab="${h(t)}">${h(t)}</button>`).join('')}
+function card(title,body,cls=''){return`<section class="cj2829-card ${cls}"><h3>${h(title)}</h3>${body}</section>`}
+
+function renderOverview(){
+ const es=eventStats(),fs=feedbackStats(),boards=allBoards(),tasks=ownerData.tasks||[];
+ const complete=tasks.filter(t=>t.status==='completed').length,pending=tasks.filter(t=>['awaiting_approval','in_progress'].includes(t.status)).length;
+ const recs=[];
+ if(!miniBoards().length)recs.push(['Expand customer touchpoints','No MiniBoards are connected in production data yet. Add them only where the business layout creates a useful customer moment.','Board Network']);
+ if(fs.count&&fs.avg<4)recs.push(['Review customer feedback','Recent private feedback is averaging below 4/5. Look for repeated themes before changing the Journey.','Customers & Feedback']);
+ if(boards.some(b=>b.status!=='active'))recs.push(['Check paused boards','At least one board is paused or inactive. Confirm that is intentional.','Board Network']);
+ if(!recs.length)recs.push(['No urgent recommendation','Journey AI should prioritize only evidence-backed opportunities. Nothing in the current production data requires an urgent change.','Activity']);
+ return `<div class="cj2829-grid">
+ ${card('Production snapshot',`<p>Live CreateJourney data available to this workspace.</p><div class="cj2829-kpis"><div class="cj2829-kpi"><strong>${boards.length}</strong><span>Total boards</span></div><div class="cj2829-kpi"><strong>${miniBoards().length}</strong><span>MiniBoards</span></div><div class="cj2829-kpi"><strong>${es.taps}</strong><span>30-day taps</span></div><div class="cj2829-kpi"><strong>${fs.count}</strong><span>Feedback records</span></div></div><div id="cj2829Status" class="cj2829-sync">${ownerData.error?h(ownerData.error):`Last sync ${fmt(ownerData.loadedAt||state.lastSync)}`}</div><div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-refresh>Refresh production data</button><button class="cj2829-secondary" data-cj2829-tab="Board Network">Manage board network</button></div>`,'full')}
+ ${card('Journey AI work',`<div class="cj2829-kpis"><div class="cj2829-kpi"><strong>${complete}</strong><span>Verified complete</span></div><div class="cj2829-kpi"><strong>${pending}</strong><span>Needs approval / working</span></div><div class="cj2829-kpi"><strong>${es.confirmed}</strong><span>Confirmed events</span></div><div class="cj2829-kpi"><strong>${fs.avg?fs.avg.toFixed(1):'—'}</strong><span>Avg feedback</span></div></div><div class="cj2829-note">A green completion state is shown only when CreateJourney or an external provider has sufficient confirmation. Clicks and attempts are not treated as completed outcomes.</div>`)}
+ ${card('Journey AI recommends',recs.slice(0,3).map(r=>`<div class="cj2829-row"><div class="cj2829-row-main"><strong>${h(r[0])}</strong><small>${h(r[1])}</small></div><button class="cj2829-small cj2829-secondary" data-cj2829-tab="${h(r[2])}">Open</button></div>`).join(''))}
+ </div>`;
+}
+
+function renderNetwork(){
+ const mains=mainBoards(),minis=miniBoards();
+ const rows=[...mains,...minis].map(b=>{
+  const local=localBoards().find(x=>String(x.backendId||x.id)===String(b.id)||String(x.id)===String(b.source_key));
+  const j=local?.actions?.join(' → ')||'Journey sync available after board setup';
+  return `<div class="cj2829-row"><div class="cj2829-row-main"><strong>${h(b.name)}</strong><small>${h((b.board_kind||'SmartBoard').replace('smartboard','SmartBoard').replace('miniboard','MiniBoard'))} · ${h(b.placement_label||'Placement not set')} · ${h(j)}</small></div><div><span class="cj2829-pill ${b.status==='active'?'good':'warn'}">${h(b.status||'active')}</span> <button class="cj2829-small cj2829-secondary" data-cj2829-board="${h(b.source_key||b.id)}">Manage</button></div></div>`;
+ }).join('');
+ return `<div class="cj2829-grid">
+ ${card('SmartBoard Network',`<p>Main SmartBoards stay the business hubs. MiniBoards are companion customer touchpoints with permanent identities, independent Journeys and owner-controlled assignments.</p><div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-addmini>Add MiniBoard</button><button class="cj2829-secondary" data-cj2829-syncboards>Sync all boards</button></div><div style="margin-top:12px">${rows||'<div class="cj2829-empty">No production boards are available yet.</div>'}</div>`,'full')}
+ ${card('MiniBoard design rules',`<div class="cj2829-row"><div class="cj2829-row-main"><strong>Permanent identity</strong><small>Reassign a MiniBoard without rewriting NFC.</small></div><span class="cj2829-pill good">Locked</span></div><div class="cj2829-row"><div class="cj2829-row-main"><strong>Parent-child architecture</strong><small>MiniBoards connect through software, not Bluetooth.</small></div><span class="cj2829-pill good">Locked</span></div><div class="cj2829-row"><div class="cj2829-row-main"><strong>Owner governance</strong><small>Professionals get useful control without business-wide administrative access.</small></div><span class="cj2829-pill good">Locked</span></div>`)}
+ ${card('Placement Advisor',`<p>Journey AI can use business photos plus Business Brain context to recommend useful board placements without pretending a photo reveals information it cannot see.</p><div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-space>Show Journey My Space</button></div>`)}
+ </div>`;
+}
+
+function addMiniForm(){
+ const main=mainBoards()[0];
+ return `<div class="cj2829-grid">${card('Add MiniBoard',`<p>Create the companion touchpoint, assign its purpose, then sync it into the production SmartBoard network.</p><div class="cj2829-form" style="margin-top:14px">
+ <div class="cj2829-field"><label>Name</label><input id="cj2829MiniName" placeholder="Station 3"></div>
+ <div class="cj2829-field"><label>Placement</label><input id="cj2829MiniPlace" placeholder="Barber station, table, room…"></div>
+ <div class="cj2829-field"><label>Assigned professional</label><input id="cj2829MiniPerson" placeholder="David"></div>
+ <div class="cj2829-field"><label>Parent SmartBoard</label><select id="cj2829MiniParent">${mainBoards().map(x=>`<option value="${h(x.source_key||x.id)}">${h(x.name)}</option>`).join('')}</select></div>
+ <div class="cj2829-field full"><label>Journey · up to 3 comma-separated actions</label><input id="cj2829MiniJourney" value="Book, Review" placeholder="Book, Review, Follow"></div>
+ <div class="cj2829-field"><label>Journey AI Personal Assistant</label><select id="cj2829MiniAI"><option value="off">Not active</option><option value="on">Enabled</option></select></div>
+ <div class="cj2829-field"><label>Professional can edit Journey?</label><select id="cj2829MiniEdit"><option value="no">Owner approval required</option><option value="yes">Allow within this MiniBoard</option></select></div>
+ </div><div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-savemini>Save + sync MiniBoard</button><button class="cj2829-quiet" data-cj2829-tab="Board Network">Cancel</button></div><div class="cj2829-note">Physical possession of the board does not grant administrative access. Authentication and permissions remain separate from NFC/QR identity.</div>`,'full')}</div>`;
+}
+
+async function saveMini(){
+ const name=document.getElementById('cj2829MiniName')?.value.trim(),place=document.getElementById('cj2829MiniPlace')?.value.trim(),person=document.getElementById('cj2829MiniPerson')?.value.trim(),parent=document.getElementById('cj2829MiniParent')?.value||'',acts=(document.getElementById('cj2829MiniJourney')?.value||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,3),ai=document.getElementById('cj2829MiniAI')?.value==='on',canEdit=document.getElementById('cj2829MiniEdit')?.value==='yes';
+ if(!name){alert('Name the MiniBoard first.');return}
+ const id='CJ-MINI-'+String(Date.now()).slice(-7);
+ const b={id,name,active:true,actions:acts,destinations:Object.fromEntries(acts.map(a=>[a,''])),assignedTo:null,boardKind:'miniboard',kind:'miniboard',parentBoardId:parent,location:place,placementLabel:place,journeyAiPersonalAssistant:ai,analytics:{taps:0,visitors:0,returning:0,actionsTaken:0,lastInteraction:'No interactions yet'},activity:[]};
+ try{boards.push(b);persistLocalState()}catch(_){}
+ state.professionalProfiles[id]={name:person||'Unassigned Professional',boardId:id,goals:[],bookingLink:'',social:'',services:''};state.miniPermissions[id]={canEditJourney:canEdit,ownerOverride:true};save();
+ if(typeof cjSyncNormalizedBackendV27==='function'){const r=await cjSyncNormalizedBackendV27(true);if(!r?.ok){alert('MiniBoard was saved locally, but production sync needs attention.');activeTab='Board Network';render();return}}
+ try{if(typeof addActivity26==='function')addActivity26(`${name} MiniBoard connected`,'complete','Production board network')}catch(_){}
+ await refreshOwnerData(false);activeTab='Board Network';render();
+}
+
+function renderProfessionals(){
+ const minis=miniBoards();const team=localTeam();
+ const rows=minis.map(m=>{const key=m.source_key||m.id,p=state.professionalProfiles[key]||{};return`<div class="cj2829-row"><div class="cj2829-row-main"><strong>${h(p.name||'Unassigned Professional')}</strong><small>${h(m.name)} · ${h(m.placement_label||'Placement not set')} · Personal Assistant ${m.journey_ai_personal_assistant?'active':'off'}</small></div><button class="cj2829-small cj2829-secondary" data-cj2829-prof="${h(key)}">Workspace</button></div>`}).join('');
+ return `<div class="cj2829-grid">
+ ${card('Professional Workspaces',`<p>Each assigned professional gets a focused MiniBoard workspace while the Owner keeps ecosystem-level control.</p><div style="margin-top:12px">${rows||'<div class="cj2829-empty">Add a MiniBoard before assigning a professional workspace.</div>'}</div>`,'full')}
+ ${card('Permission model',`<div class="cj2829-row"><div class="cj2829-row-main"><strong>Owner</strong><small>Full board, billing, assignment and override control.</small></div></div><div class="cj2829-row"><div class="cj2829-row-main"><strong>Manager</strong><small>Operational control according to workspace permissions.</small></div></div><div class="cj2829-row"><div class="cj2829-row-main"><strong>Professional</strong><small>Only assigned MiniBoard tools and explicitly granted Journey editing.</small></div></div>`)}
+ ${card('Existing team',team.length?team.slice(0,8).map(t=>`<div class="cj2829-row"><div class="cj2829-row-main"><strong>${h(t.name||t.email||'Team member')}</strong><small>${h(t.role||'Team member')}</small></div></div>`).join(''):'<div class="cj2829-empty">No local team members are available yet.</div>')}
+ </div>`;
+}
+
+function professionalWorkspace(id){
+ const b=allBoards().find(x=>String(x.source_key||x.id)===String(id));if(!b)return;
+ const p=state.professionalProfiles[id]||{name:'Unassigned Professional',goals:[]},perm=state.miniPermissions[id]||{canEditJourney:false,ownerOverride:true};
+ document.getElementById('cj2829Content').innerHTML=`<div class="cj2829-grid">${card(`${p.name} · ${b.name}`,`<p>Professional MiniBoard workspace. The owner retains reassignment, pause and permission override control.</p><div class="cj2829-kpis"><div class="cj2829-kpi"><strong>${eventsForBoard(b.id).filter(e=>e.event_type==='board_tap').length}</strong><span>Taps</span></div><div class="cj2829-kpi"><strong>${eventsForBoard(b.id).filter(e=>e.action_type).length}</strong><span>Actions</span></div><div class="cj2829-kpi"><strong>${feedbackForBoard(b.id).length}</strong><span>Feedback</span></div><div class="cj2829-kpi"><strong>${b.journey_ai_personal_assistant?'On':'Off'}</strong><span>Personal Assistant</span></div></div>
+ <div class="cj2829-form" style="margin-top:14px"><div class="cj2829-field"><label>Professional name</label><input id="cj2829ProfName" value="${h(p.name||'')}"></div><div class="cj2829-field"><label>Booking link</label><input id="cj2829ProfBooking" value="${h(p.bookingLink||'')}"></div><div class="cj2829-field"><label>Services</label><input id="cj2829ProfServices" value="${h(p.services||'')}"></div><div class="cj2829-field"><label>Social handle/link</label><input id="cj2829ProfSocial" value="${h(p.social||'')}"></div><div class="cj2829-field full"><label>Professional goals</label><textarea id="cj2829ProfGoals">${h((p.goals||[]).join('\\n'))}</textarea></div><div class="cj2829-field"><label>Journey editing</label><select id="cj2829ProfEdit"><option value="no" ${perm.canEditJourney?'':'selected'}>Owner approval required</option><option value="yes" ${perm.canEditJourney?'selected':''}>Allowed on this MiniBoard</option></select></div></div>
+ <div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-saveprof="${h(id)}">Save professional workspace</button><button class="cj2829-secondary" data-cj2829-personalai="${h(id)}">Open Personal Assistant</button><button class="cj2829-quiet" data-cj2829-tab="Professionals">Back</button></div>`,'full')}</div>`;
+}
+
+function saveProfessional(id){
+ const p=state.professionalProfiles[id]||{};p.name=document.getElementById('cj2829ProfName')?.value.trim()||'Unassigned Professional';p.bookingLink=document.getElementById('cj2829ProfBooking')?.value.trim()||'';p.services=document.getElementById('cj2829ProfServices')?.value.trim()||'';p.social=document.getElementById('cj2829ProfSocial')?.value.trim()||'';p.goals=(document.getElementById('cj2829ProfGoals')?.value||'').split('\\n').map(x=>x.trim()).filter(Boolean);state.professionalProfiles[id]=p;state.miniPermissions[id]={canEditJourney:document.getElementById('cj2829ProfEdit')?.value==='yes',ownerOverride:true};save();alert('Professional workspace saved.');professionalWorkspace(id)
+}
+function personalAI(id){
+ const b=allBoards().find(x=>String(x.source_key||x.id)===String(id)),p=state.professionalProfiles[id]||{};const tap=eventsForBoard(b?.id).filter(e=>e.event_type==='board_tap').length,fb=feedbackForBoard(b?.id);
+ const insight=tap===0?'There is not enough activity yet to recommend a Journey change. Verify placement and collect a baseline first.':fb.length&&fb.reduce((a,x)=>a+Number(x.rating||0),0)/fb.length<4?'Private feedback deserves review before making a promotional change.':'I can compare this MiniBoard’s Journey, engagement and feedback without exposing other professionals’ private workspace data.';
+ document.getElementById('cj2829Content').innerHTML=`<div class="cj2829-grid">${card('Journey AI Personal Assistant',`<p>${h(b?.name||'MiniBoard')} · ${h(p.name||'Professional')}</p><div class="cj2829-note">${h(insight)}</div><div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-askmini="${h(id)}">Ask Journey about this MiniBoard</button><button class="cj2829-quiet" data-cj2829-prof="${h(id)}">Back to workspace</button></div>`,'full')}</div>`;
+}
+
+function eventsForBoard(id){return(ownerData.events||[]).filter(e=>String(e.board_id)===String(id))}
+function feedbackForBoard(id){return(ownerData.feedback||[]).filter(e=>String(e.board_id)===String(id))}
+function renderActivity(){
+ const rows=(ownerData.events||[]).slice(0,250);
+ return `<div class="cj2829-grid">${card('Board Activity Timeline',`<p>Attempts, clicks and provider-confirmed outcomes stay distinct.</p><div class="cj2829-activity" style="margin-top:12px">${rows.length?rows.map(e=>`<div class="cj2829-activity-item"><strong>${h(boardName(e.board_id))} · ${h((e.event_type||'interaction').replaceAll('_',' '))}</strong><small>${h(e.action_type||e.status||'Observed')} · ${fmt(e.occurred_at)}${e.provider?' · '+h(e.provider):''}</small></div>`).join(''):'<div class="cj2829-empty">No production customer events have been recorded yet.</div>'}</div>`,'full')}</div>`;
+}
+function renderFeedback(){
+ const rows=ownerData.feedback||[],fs=feedbackStats();
+ return `<div class="cj2829-grid">
+ ${card('Customers & Feedback',`<p>Private customer feedback is visible to the business. Public review opportunities remain neutral and are never gated by a customer’s rating.</p><div class="cj2829-kpis"><div class="cj2829-kpi"><strong>${fs.count}</strong><span>Feedback records</span></div><div class="cj2829-kpi"><strong>${fs.avg?fs.avg.toFixed(1):'—'}</strong><span>Average rating</span></div><div class="cj2829-kpi"><strong>${rows.filter(x=>x.review_link_clicked_at).length}</strong><span>Review link attempts</span></div><div class="cj2829-kpi"><strong>${new Set(rows.map(x=>x.board_id)).size}</strong><span>Boards with feedback</span></div></div>`,'full')}
+ ${card('Recent feedback',rows.length?rows.slice(0,60).map(x=>`<div class="cj2829-row"><div class="cj2829-row-main"><strong>${'★'.repeat(Number(x.rating||0))}${'☆'.repeat(Math.max(0,5-Number(x.rating||0)))}</strong><small>${h(x.feedback_text||'No written comment')} · ${h(boardName(x.board_id))} · ${fmt(x.created_at)}</small></div><span class="cj2829-pill ${Number(x.rating)>=4?'good':Number(x.rating)<=2?'bad':'warn'}">${h(x.rating)}/5</span></div>`).join(''):'<div class="cj2829-empty">No private customer feedback yet.</div>','full')}
+ </div>`;
+}
+function taskClass(s){return s==='completed'?'good':s==='failed'?'bad':['awaiting_approval','in_progress'].includes(s)?'warn':''}
+function renderTasks(){
+ const rows=ownerData.tasks||[];
+ return `<div class="cj2829-grid">${card('Journey AI Activity & Approval Center',`<p>Suggested → Working → Needs You → Completed / Needs Attention. Completion requires real confirmation.</p><div style="margin-top:12px">${rows.length?rows.map(t=>`<div class="cj2829-row"><div class="cj2829-row-main"><strong>${h(t.title||t.task_type)}</strong><small>${h(boardName(t.board_id))} · ${fmt(t.created_at)}${t.error_message?' · '+h(t.error_message):''}</small></div><span class="cj2829-pill ${taskClass(t.status)}">${h((t.status||'suggested').replaceAll('_',' '))}</span></div>`).join(''):'<div class="cj2829-empty">No production Journey AI tasks yet.</div>'}</div>`,'full')}</div>`;
+}
+function trialState(){
+ try{
+  const x=JSON.parse(localStorage.getItem('cj_build26_state')||'{}');return x.trial||{};
+ }catch(_){return{}}
+}
+function renderTrial(){
+ const tr=trialState(),started=tr.startedAt?new Date(tr.startedAt):null,days=started?Math.max(0,3-Math.floor((Date.now()-started.getTime())/86400000)):3;
+ const checklist=[
+  ['business_profile','Learn the business profile'],['journey','Improve a Journey'],['creative','Create a marketing asset'],['opportunity','Identify a growth opportunity'],['feedback','Analyze feedback/activity'],['campaign','Prepare a campaign/promotion'],['performance','Provide a performance insight'],['owner_task','Complete an owner-requested task']
+ ];
+ const complete=(ownerData.tasks||[]).filter(t=>t.status==='completed').length;
+ return `<div class="cj2829-grid">
+ ${card('3-day Journey AI proof of value',`<p>The trial starts at meaningful Journey AI use, not account creation. Business Brain is retained if the trial ends.</p><div class="cj2829-kpis"><div class="cj2829-kpi"><strong>${tr.subscribed?'Active':started?days:'3'}</strong><span>${tr.subscribed?'Journey AI plan':started?'Days remaining':'Days when started'}</span></div><div class="cj2829-kpi"><strong>${complete}</strong><span>Verified AI tasks</span></div><div class="cj2829-kpi"><strong>${ownerData.feedback.length}</strong><span>Feedback analyzed</span></div><div class="cj2829-kpi"><strong>${ownerData.events.length}</strong><span>Activity signals</span></div></div><div class="cj2829-progress"><span style="width:${Math.min(100,(complete/8)*100)}%"></span></div><div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-billing>Billing & Subscription</button></div>`,'full')}
+ ${card('Proof checklist',checklist.map((x,i)=>`<div class="cj2829-row"><div class="cj2829-row-main"><strong>${h(x[1])}</strong><small>${i<complete?'Verified task evidence available':'Not yet verified'}</small></div><span class="cj2829-pill ${i<complete?'good':''}">${i<complete?'Completed':'Pending'}</span></div>`).join(''),'full')}
+ </div>`;
+}
+function renderQA(){
+ const q=state.qa||{};
+ return `<div class="cj2829-grid">
+ ${card('Public NFC / QR launch QA',`<p>Use these checks before calling a physical SmartBoard customer-ready.</p>${[
+ ['resolve','Permanent public board identity resolves cross-device'],
+ ['journey','Correct 1–3 Journey actions render'],
+ ['events','Tap/action events reach production activity timeline'],
+ ['feedback','Private 1–5 feedback submits successfully'],
+ ['review','Public review opportunity remains rating-neutral'],
+ ['cooldown','Declined optional prompts use 75/120-day cooldown rules'],
+ ['paused','Paused boards stop resolving publicly'],
+ ['preview','Owner preview does not mutate customer analytics']
+ ].map(x=>`<div class="cj2829-row"><div class="cj2829-row-main"><strong>${h(x[1])}</strong></div><button class="cj2829-small ${q[x[0]]?'cj2829-primary':'cj2829-quiet'}" data-cj2829-qa="${x[0]}">${q[x[0]]?'Passed':'Mark after test'}</button></div>`).join('')}<div class="cj2829-note">These are manual verification gates. The interface does not mark them passed automatically unless you explicitly confirm the observed behavior.</div>`,'full')}
+ ${card('Open a public Journey',`<p>Select a board and launch its current public customer experience.</p><div class="cj2829-form" style="margin-top:12px"><div class="cj2829-field full"><select id="cj2829QABoard">${allBoards().map(b=>`<option value="${h(b.source_key||b.public_id||b.id)}">${h(b.name)}</option>`).join('')}</select></div></div><div class="cj2829-actions"><button class="cj2829-primary" data-cj2829-openpublic>Open customer Journey</button></div>`,'full')}
+ </div>`;
+}
+function render(){
+ renderTabs();const c=document.getElementById('cj2829Content');if(!c)return;
+ if(activeTab==='Overview')c.innerHTML=renderOverview();
+ else if(activeTab==='Board Network')c.innerHTML=renderNetwork();
+ else if(activeTab==='Professionals')c.innerHTML=renderProfessionals();
+ else if(activeTab==='Activity')c.innerHTML=renderActivity();
+ else if(activeTab==='Customers & Feedback')c.innerHTML=renderFeedback();
+ else if(activeTab==='Journey AI Work')c.innerHTML=renderTasks();
+ else if(activeTab==='Trial & Billing')c.innerHTML=renderTrial();
+ else if(activeTab==='Public Journey QA')c.innerHTML=renderQA();
+ else c.innerHTML=renderOverview();
+}
+function showAddMini(){document.getElementById('cj2829Content').innerHTML=addMiniForm()}
+function manageBoard(id){const local=localBoards().find(b=>String(b.id)===String(id)||String(b.backendId)===String(id));if(local){try{currentBoardId=local.id;close();openBoardManager(false);return}catch(_){}}alert('This production board does not have a local editor mapping yet. Refresh/sync the board network first.')}
+function askMini(id){const b=allBoards().find(x=>String(x.source_key||x.id)===String(id)),p=state.professionalProfiles[id]||{};close();if(typeof openAI==='function'&&typeof handleAiPrompt==='function'){openAI();setTimeout(()=>handleAiPrompt(`Focus only on ${b?.name||'this MiniBoard'} for ${p.name||'the assigned professional'}. Analyze its Journey, customer activity and feedback. Do not invent data. Recommend the single highest-value next action and explain the evidence.`,false),50)}}
+function askSpace(){close();try{const inp=document.getElementById('cj26CameraInput');if(inp){inp.click();return}}catch(_){}if(typeof openAI==='function'&&typeof handleAiPrompt==='function'){openAI();handleAiPrompt('I want to show you my business so you can recommend SmartBoard and MiniBoard placement. Ask me to upload or take photos of the storefront, waiting area, main service area and checkout/reception.',false)}}
+function billing(){close();try{if(typeof openBillingWorkspace==='function'){openBillingWorkspace();return}}catch(_){}try{if(typeof openBilling26==='function'){openBilling26();return}}catch(_){}alert('Billing workspace is available after the production frontend finishes loading.')}
+function qaToggle(k){state.qa[k]=!state.qa[k];save();render()}
+function openPublicQA(){const id=document.getElementById('cj2829QABoard')?.value;if(!id)return;close();try{openCustomerJourneyV20(id,{preview:false})}catch(_){location.href=`?board=${encodeURIComponent(id)}`}}
+
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.id==='cj2829Launcher')open();
+ if(t.id==='cj2829Close')close();
+ if(t.dataset.cj2829Tab){activeTab=t.dataset.cj2829Tab;render()}
+ if(t.hasAttribute('data-cj2829-refresh'))refreshOwnerData(true);
+ if(t.hasAttribute('data-cj2829-addmini'))showAddMini();
+ if(t.hasAttribute('data-cj2829-savemini'))await saveMini();
+ if(t.hasAttribute('data-cj2829-syncboards')){if(typeof cjSyncNormalizedBackendV27==='function')await cjSyncNormalizedBackendV27(true);await refreshOwnerData(true)}
+ if(t.dataset.cj2829Board)manageBoard(t.dataset.cj2829Board);
+ if(t.dataset.cj2829Prof)professionalWorkspace(t.dataset.cj2829Prof);
+ if(t.dataset.cj2829Saveprof)saveProfessional(t.dataset.cj2829Saveprof);
+ if(t.dataset.cj2829Personalai)personalAI(t.dataset.cj2829Personalai);
+ if(t.dataset.cj2829Askmini)askMini(t.dataset.cj2829Askmini);
+ if(t.hasAttribute('data-cj2829-space'))askSpace();
+ if(t.hasAttribute('data-cj2829-billing'))billing();
+ if(t.dataset.cj2829Qa)qaToggle(t.dataset.cj2829Qa);
+ if(t.hasAttribute('data-cj2829-openpublic'))openPublicQA();
+});
+
+// Public customer feedback layer: neutral, rating-independent review opportunity.
+let feedbackRating=0;
+function publicBoard(){
+ const route=typeof customerBoardFromRouteV20==='function'?customerBoardFromRouteV20():null;
+ try{return route?getBoard(route):null}catch(_){return null}
+}
+function feedbackMount(){
+ const app=document.getElementById('customerJourneyApp'),actions=document.getElementById('customerJourneyActions');if(!app||!actions||app.classList.contains('hidden'))return;
+ if(document.getElementById('cj2829CustomerFeedback'))return;
+ const d=document.createElement('div');d.id='cj2829CustomerFeedback';d.className='cj2829-customer-feedback';d.innerHTML=`<button class="cj2829-feedback-link" data-cj2829-feedback-open type="button">Share private feedback</button><div id="cj2829FeedbackPanel" class="cj2829-feedback-panel cj2829-hidden"></div>`;actions.parentNode?.insertBefore(d,actions.nextSibling);
+}
+function feedbackOpen(){
+ feedbackRating=0;const p=document.getElementById('cj2829FeedbackPanel');if(!p)return;p.classList.remove('cj2829-hidden');p.innerHTML=`<strong>How was your experience?</strong><p style="margin:4px 0 0;color:#667085;font-size:12px">Your feedback goes privately to the business.</p><div class="cj2829-stars">${[1,2,3,4,5].map(n=>`<button type="button" class="cj2829-star" data-cj2829-star="${n}">★</button>`).join('')}</div><textarea id="cj2829FeedbackText" placeholder="Anything you'd like the business to know?"></textarea><button type="button" class="primary ready" data-cj2829-feedback-submit>Send private feedback</button>`;
+}
+async function submitFeedback(){
+ if(!feedbackRating){alert('Choose a rating from 1 to 5.');return}
+ const route=typeof customerBoardFromRouteV20==='function'?customerBoardFromRouteV20():null,b=publicBoard(),cs=typeof customerStateV20==='function'?customerStateV20():{};
+ const txt=document.getElementById('cj2829FeedbackText')?.value.trim()||'';
+ if(!route){alert('Board identity is unavailable.');return}
+ const res=await cjPublicBackendRequestV24('submit_feedback',{board_id:route,rating:feedbackRating,feedback_text:txt,visitor_id:cs.visitorId||null,session_id:cs.sessionId||null,metadata:{source:'public_customer_journey'}});
+ const p=document.getElementById('cj2829FeedbackPanel');if(!p)return;
+ if(!res){p.innerHTML='<div class="cj2829-note">Your feedback could not be confirmed as submitted. Please try again.</div>';return}
+ const reviewAction=(b?.actions||[]).find(a=>String(a).toLowerCase().includes('review')),reviewUrl=reviewAction?b?.destinations?.[reviewAction]:'';
+ p.innerHTML=`<div class="cj2829-success">Thank you. Your private feedback was submitted.</div>${reviewUrl?`<div class="cj2829-review-neutral">If you'd also like to share a public review, that option is available to every customer regardless of the rating you selected.</div><button type="button" class="secondary" data-cj2829-public-review="${h(reviewUrl)}" data-cj2829-feedback-id="${h(res.feedback_id||'')}">Open public review</button>`:''}`;
+}
+async function publicReview(btn){
+ const url=btn.dataset.cj2829PublicReview,route=typeof customerBoardFromRouteV20==='function'?customerBoardFromRouteV20():null,cs=typeof customerStateV20==='function'?customerStateV20():{};
+ if(route)await cjPublicBackendRequestV24('record_review_click',{board_id:route,visitor_id:cs.visitorId||null,provider:'google',feedback_id:btn.dataset.cj2829FeedbackId||null});
+ if(url)window.open(url,'_blank','noopener');
+}
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.hasAttribute('data-cj2829-feedback-open'))feedbackOpen();
+ if(t.dataset.cj2829Star){feedbackRating=Number(t.dataset.cj2829Star);document.querySelectorAll('.cj2829-star').forEach(x=>x.classList.toggle('on',Number(x.dataset.cj2829Star)<=feedbackRating))}
+ if(t.hasAttribute('data-cj2829-feedback-submit'))submitFeedback();
+ if(t.dataset.cj2829PublicReview)publicReview(t);
+ if((t.textContent||'').trim().toLowerCase()==='yes'||(t.textContent||'').trim().toLowerCase()==='no'){
+   const app=document.getElementById('customerJourneyApp');if(!app||app.classList.contains('hidden'))return;
+   const route=typeof customerBoardFromRouteV20==='function'?customerBoardFromRouteV20():null,cs=typeof customerStateV20==='function'?customerStateV20():{},prompt=(document.getElementById('customerJourneyPrompt')?.textContent||'optional_prompt').trim().slice(0,100);
+   if(route&&cs.visitorId)cjPublicBackendRequestV24('prompt_response',{board_id:route,visitor_id:cs.visitorId,prompt_key:prompt||'optional_prompt',response:(t.textContent||'').trim().toLowerCase(),metadata:{source:'customer_journey'}});
+ }
+},true);
+
+const oldOpenCustomer=window.openCustomerJourneyV20;
+if(typeof oldOpenCustomer==='function')window.openCustomerJourneyV20=async function(...args){const r=await oldOpenCustomer(...args);setTimeout(feedbackMount,60);return r};
+
+function injectLauncher(){
+ const l=document.getElementById('cj2829Launcher');if(!l)return;
+ const dash=document.getElementById('dashboardApp');l.classList.toggle('hidden',!dash||dash.classList.contains('hidden'));
+ if(dash&&!dash.querySelector('[data-cj2829-dashboard]')){
+  const shell=dash.querySelector('.dashboard-shell');if(shell){const d=document.createElement('div');d.className='dashboard-section';d.setAttribute('data-cj2829-dashboard','');d.innerHTML=`<div class="section-heading"><h3>Production Owner System</h3><button class="section-link" type="button" data-cj2829-open>Open</button></div><div class="support-card"><div><h4>SmartBoard Network + Customer Journey</h4><p>Manage MiniBoards, professionals, customer feedback, activity, Journey AI work and public NFC/QR launch QA.</p></div><button class="support-button" type="button" data-cj2829-open>Open</button></div>`;shell.appendChild(d)}}
+}
+document.addEventListener('click',e=>{if(e.target.closest('[data-cj2829-open]'))open()});
+const mo=new MutationObserver(()=>{injectLauncher();feedbackMount()});mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{injectLauncher();feedbackMount()});else{injectLauncher();feedbackMount()}
+
+window.CJBuild29={open,refresh:refreshOwnerData,state:()=>state,ownerData:()=>ownerData};
+})();
+</script>
+<!-- BUILD 28: production owner SmartBoard/MiniBoard network, professional workspaces, permissions, activity, Journey AI Personal Assistant, trial/billing and approval visibility.
+     BUILD 29: production public customer Journey QA, private feedback, neutral public-review opportunity, prompt-response server cooldown synchronization and owner feedback/activity dashboards. -->
+
 </body>
 </html>
