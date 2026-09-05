@@ -6279,7 +6279,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <div class="cj2829-shell">
     <div class="cj2829-top">
       <div class="cj2829-head">
-        <div><h1>SmartBoard Control Center</h1><p>Build 29.1 · Owner, MiniBoard and public customer production system</p></div>
+        <div><h1>SmartBoard Control Center</h1><p>Build 31 · Owner, MiniBoard, customer and production integration system</p></div>
         <button id="cj2829Close" class="cj2829-close" type="button">×</button>
       </div>
       <div id="cj2829Tabs" class="cj2829-tabs"></div>
@@ -6572,6 +6572,352 @@ window.CJBuild29={open,refresh:refreshOwnerData,state:()=>state,ownerData:()=>ow
 </script>
 <!-- BUILD 28: production owner SmartBoard/MiniBoard network, professional workspaces, permissions, activity, Journey AI Personal Assistant, trial/billing and approval visibility.
      BUILD 29: production public customer Journey QA, private feedback, neutral public-review opportunity, prompt-response server cooldown synchronization and owner feedback/activity dashboards. -->
+
+
+<!-- =========================================================
+     BUILDS 30 + 31 — PRODUCTION HARDENING + INTEGRATION READINESS
+     ========================================================= -->
+<style id="cjBuild3031Styles">
+:root{
+  --cj31-ink:#121827;--cj31-muted:#667085;--cj31-line:#dfe7f0;--cj31-card:#fff;
+  --cj31-blue:#6fa8f5;--cj31-soft:#f5f8fc;--cj31-good:#2f8f57;--cj31-warn:#9a6a15;--cj31-bad:#b33a3a
+}
+#cj31Panel{position:fixed;inset:0;z-index:260;background:var(--cj31-soft);overflow:auto;color:var(--cj31-ink)}
+.cj31-hidden{display:none!important}
+.cj31-shell{max-width:1160px;margin:0 auto;padding:18px 16px 110px}
+.cj31-top{position:sticky;top:0;z-index:5;background:rgba(245,248,252,.95);backdrop-filter:blur(16px);padding:8px 0 14px;border-bottom:1px solid var(--cj31-line)}
+.cj31-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.cj31-head h1{margin:0;font-size:28px}.cj31-head p{margin:5px 0 0;color:var(--cj31-muted);font-size:13px;line-height:1.45}
+.cj31-close{width:42px;height:42px;padding:0;margin:0;border-radius:50%;background:#fff;color:#334155;border:1px solid var(--cj31-line)}
+.cj31-tabs{display:flex;gap:7px;overflow:auto;padding-top:13px}.cj31-tab{width:auto;white-space:nowrap;margin:0;padding:9px 12px;border-radius:999px;border:1px solid var(--cj31-line);background:#fff;color:var(--cj31-muted);font-size:12px}.cj31-tab.active{background:#172033;color:#fff;border-color:#172033}
+.cj31-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:16px}.cj31-card{grid-column:span 6;background:#fff;border:1px solid var(--cj31-line);border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.035)}.cj31-card.full{grid-column:1/-1}.cj31-card.third{grid-column:span 4}.cj31-card h3{margin:0 0 6px;font-size:18px}.cj31-card p{margin:0;color:var(--cj31-muted);font-size:13px;line-height:1.5}
+.cj31-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.cj31-kpi{background:#f7f9fc;border-radius:14px;padding:13px}.cj31-kpi strong{display:block;font-size:24px}.cj31-kpi span{font-size:11px;color:var(--cj31-muted)}
+.cj31-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #edf1f5}.cj31-row:first-of-type{border-top:0}.cj31-row-main{min-width:0}.cj31-row strong{display:block;font-size:14px}.cj31-row small{display:block;color:var(--cj31-muted);margin-top:3px;line-height:1.35}
+.cj31-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;background:#eef5ff;color:#3978c8;font-size:10px;font-weight:800}.cj31-pill.good{background:#eaf8ef;color:var(--cj31-good)}.cj31-pill.warn{background:#fff4dc;color:var(--cj31-warn)}.cj31-pill.bad{background:#fff0f0;color:var(--cj31-bad)}
+.cj31-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.cj31-actions button,.cj31-small{width:auto;margin:0;padding:9px 11px;border-radius:11px;font-size:12px}.cj31-primary{background:#172033;color:#fff}.cj31-secondary{background:#edf5ff;color:#3978c8}.cj31-quiet{background:#f5f7fa;color:#475467}.cj31-danger{background:#fff0f0;color:#a43e3e}
+.cj31-note{margin-top:10px;padding:11px 12px;border-radius:13px;background:#f7f9fc;color:var(--cj31-muted);font-size:12px;line-height:1.45}
+.cj31-banner{padding:13px;border-radius:15px;margin-top:12px;background:#fff4dc;color:#805f19;font-size:12px;line-height:1.45}.cj31-banner.good{background:#eaf8ef;color:#287b4b}.cj31-banner.bad{background:#fff0f0;color:#9a3131}
+.cj31-progress{height:8px;background:#edf1f5;border-radius:999px;overflow:hidden;margin-top:8px}.cj31-progress span{display:block;height:100%;background:var(--cj31-blue);border-radius:999px}
+.cj31-list{margin-top:10px}.cj31-check{display:flex;align-items:center;gap:9px;padding:10px 0;border-top:1px solid #edf1f5}.cj31-check:first-child{border-top:0}.cj31-dot{width:18px;height:18px;min-width:18px;border-radius:50%;display:grid;place-items:center;background:#edf1f5;color:#98a2b3;font-size:11px;font-weight:900}.cj31-dot.good{background:#eaf8ef;color:var(--cj31-good)}.cj31-dot.warn{background:#fff4dc;color:var(--cj31-warn)}
+.cj31-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cj31-field label{display:block;margin:0 0 6px;font-size:12px}.cj31-field input,.cj31-field select,.cj31-field textarea{width:100%;border:1px solid #d7e0ea;border-radius:12px;padding:11px;background:#fff;outline:none}.cj31-field textarea{min-height:90px;resize:vertical}.cj31-field.full{grid-column:1/-1}
+.cj31-bottombar{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:145;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);padding:7px;border:1px solid #dfe7f0;border-radius:999px;box-shadow:0 12px 30px rgba(15,23,42,.14)}
+.cj31-bottombar button{width:auto;margin:0;padding:11px 14px;border-radius:999px;font-size:12px;font-weight:800}.cj31-bottombar .cj31-home{background:#fff;color:#334155}.cj31-bottombar .cj31-owner{background:#edf5ff;color:#3978c8}.cj31-bottombar .cj31-ai{background:#172033;color:#fff}.cj31-bottombar .cj31-mic{width:42px;height:42px;padding:0;background:#6fa8f5;color:#fff}
+body.cj31-mobile-polish #cj2829Launcher,body.cj31-mobile-polish .ai-launcher{opacity:0;pointer-events:none}
+.cj31-command{display:flex;gap:8px;margin-top:12px}.cj31-command input{flex:1;border:1px solid #d7e0ea;border-radius:13px;padding:12px}.cj31-command button{width:auto;margin:0;padding:11px 14px;border-radius:13px}
+.cj31-result{margin-top:10px;padding:12px;border-radius:13px;background:#f7f9fc;color:#475467;font-size:12px;line-height:1.45;white-space:pre-wrap}
+@media(max-width:760px){
+ .cj31-card,.cj31-card.third{grid-column:1/-1}.cj31-kpis{grid-template-columns:1fr 1fr}.cj31-form{grid-template-columns:1fr}.cj31-field.full{grid-column:auto}.cj31-head h1{font-size:23px}.cj31-bottombar{max-width:calc(100vw - 20px);width:max-content}.cj31-bottombar button{padding:10px 12px}.cj31-bottombar .cj31-label-hide{display:none}
+}
+</style>
+
+<div id="cj31Panel" class="cj31-hidden" aria-hidden="true">
+  <div class="cj31-shell">
+    <div class="cj31-top">
+      <div class="cj31-head">
+        <div>
+          <h1>Production Command Center</h1>
+          <p>Build 30 + 31 · Production data hardening, Journey AI execution, integrations and release readiness</p>
+        </div>
+        <button id="cj31Close" class="cj31-close" type="button">×</button>
+      </div>
+      <div id="cj31Tabs" class="cj31-tabs"></div>
+    </div>
+    <div id="cj31Content"></div>
+  </div>
+</div>
+
+<div id="cj31BottomBar" class="cj31-bottombar cj31-hidden" aria-hidden="true">
+  <button type="button" class="cj31-home" data-cj31-home>Home</button>
+  <button type="button" class="cj31-owner" data-cj31-owner>Owner</button>
+  <button type="button" class="cj31-ai" data-cj31-ai>Journey AI</button>
+  <button type="button" class="cj31-mic" data-cj31-mic>🎙</button>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const BUILD='31.0';
+const tabs=['System Health','Journey AI Execute','Board Network','Customer Flow','Integrations','Native App','Release QA'];
+let active='System Health';
+let local={lastHealth:null,lastResult:'',qa:{},providerNotes:{},native:{ios:false,android:false}};
+try{local=Object.assign(local,JSON.parse(localStorage.getItem('cj_build31_state')||'{}'))}catch(_){}
+const persist=()=>{try{localStorage.setItem('cj_build31_state',JSON.stringify(local))}catch(_){}};
+const h=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt=v=>{if(!v)return'—';try{return new Date(v).toLocaleString()}catch(_){return String(v)}};
+const card=(title,body,cls='')=>`<section class="cj31-card ${cls}"><h3>${h(title)}</h3>${body}</section>`;
+const pill=(text,kind='')=>`<span class="cj31-pill ${kind}">${h(text)}</span>`;
+const runtime=()=>({
+ backendReady:!!window.backendReady,
+ workspaceId:window.backendWorkspaceId||null,
+ role:window.actualRole||null,
+ boards:Array.isArray(window.boards)?window.boards:[],
+ team:Array.isArray(window.teamMembers)?window.teamMembers:[],
+ cj29:window.CJBuild29||null,
+ cj27:window.CJ27||null
+});
+const boardList=()=>runtime().boards||[];
+const miniBoards=()=>boardList().filter(b=>String(b.boardKind||b.kind||'').toLowerCase()==='miniboard');
+const mainBoards=()=>boardList().filter(b=>String(b.boardKind||b.kind||'smartboard').toLowerCase()!=='miniboard');
+const safeStatus=(ok,yes='Ready',no='Needs attention')=>pill(ok?yes:no,ok?'good':'warn');
+
+async function authSession(){
+ try{return typeof window.integrationSession==='function'?await window.integrationSession():null}catch(_){return null}
+}
+async function fn(slug,body={},auth=true){
+ const s=auth?await authSession():null;
+ if(auth&&!s)return{ok:false,error:'Sign in is required.'};
+ try{
+   const headers={'Content-Type':'application/json',apikey:window.SUPABASE_PUBLISHABLE_KEY||''};
+   if(s?.access_token)headers.Authorization=`Bearer ${s.access_token}`;
+   const r=await fetch(`${window.SUPABASE_URL}/functions/v1/${slug}`,{method:'POST',headers,body:JSON.stringify(body)});
+   const d=await r.json().catch(()=>({}));
+   return r.ok?{ok:true,...d}:{ok:false,error:d.error||`${slug} returned ${r.status}`};
+ }catch(e){return{ok:false,error:e?.message||`${slug} unavailable`}}
+}
+async function health(){
+ const rt=runtime(),checks={
+   runtime_bridge:!!window.CJRuntimeBridge?.ready,
+   signed_in:!!(await authSession()),
+   workspace:!!rt.workspaceId,
+   normalized_sync:typeof window.cjSyncNormalizedBackendV27==='function',
+   public_backend:typeof window.cjPublicBackendRequestV24==='function',
+   journey_ai_actions:typeof window.aiActionBackendRequest==='function',
+   owner_data:!!window.CJBuild29,
+   board_runtime:Array.isArray(rt.boards)
+ };
+ let owner=null;
+ if(checks.signed_in){
+   owner=await fn('journey-owner-data',{action:'dashboard',workspace_id:rt.workspaceId,business_id:rt.cj27?.businessId||null},true);
+   checks.owner_data_live=!!owner?.ok;
+ }
+ local.lastHealth={at:new Date().toISOString(),checks,owner};persist();return local.lastHealth;
+}
+function percentage(checks){const vals=Object.values(checks||{});if(!vals.length)return 0;return Math.round(vals.filter(Boolean).length/vals.length*100)}
+function renderTabs(){const n=document.getElementById('cj31Tabs');if(!n)return;n.innerHTML=tabs.map(t=>`<button class="cj31-tab ${t===active?'active':''}" data-cj31-tab="${h(t)}">${h(t)}</button>`).join('')}
+function systemHealth(){
+ const hs=local.lastHealth,checks=hs?.checks||{},pct=percentage(checks),rt=runtime();
+ const rows=[
+ ['Runtime bridge',checks.runtime_bridge,'Build 29.1 bridge is available to later production layers.'],
+ ['Authenticated session',checks.signed_in,'Required for secure owner and Journey AI actions.'],
+ ['Workspace identity',checks.workspace,'Production actions need an authorized workspace.'],
+ ['Normalized board sync',checks.normalized_sync,'Moves prototype board state into production board records.'],
+ ['Journey AI action backend',checks.journey_ai_actions,'Required for proposal → approval → execute.'],
+ ['Public customer backend',checks.public_backend,'Required for NFC/QR customer Journeys and event recording.'],
+ ['Owner production data',checks.owner_data_live,'Required for live activity, feedback and task history.']
+ ];
+ return `<div class="cj31-grid">
+ ${card('Production health',`<p>One source of truth is the goal: Supabase production data first, local state only as a compatibility bridge while migration finishes.</p><div class="cj31-kpis"><div class="cj31-kpi"><strong>${pct}%</strong><span>Runtime checks passing</span></div><div class="cj31-kpi"><strong>${boardList().length}</strong><span>Local runtime boards</span></div><div class="cj31-kpi"><strong>${miniBoards().length}</strong><span>MiniBoards</span></div><div class="cj31-kpi"><strong>${h(rt.role||'—')}</strong><span>Authenticated role</span></div></div><div class="cj31-progress"><span style="width:${pct}%"></span></div><div class="cj31-actions"><button class="cj31-primary" data-cj31-health>Run health check</button><button class="cj31-secondary" data-cj31-sync>Sync production boards</button></div><div class="cj31-note">Last check: ${fmt(hs?.at)}</div>`,'full')}
+ ${card('Health checks',rows.map(r=>`<div class="cj31-row"><div class="cj31-row-main"><strong>${h(r[0])}</strong><small>${h(r[2])}</small></div>${safeStatus(!!r[1])}</div>`).join(''),'full')}
+ </div>`;
+}
+function commandExamples(){return[
+ 'Set my SmartBoard Journey to Review, Book, and Pay',
+ 'Pause Station 3',
+ 'Rename MiniBoard 2 to David Station',
+ 'Assign David to Station 3',
+ 'Show me the highest-value board improvement'
+]}
+function journeyExecute(){
+ return `<div class="cj31-grid">
+ ${card('Journey AI Execute',`<p>Journey AI should act like the operating layer for CreateJourney, not a generic chatbot. Internal changes must produce a real proposal or verified action result.</p><div class="cj31-command"><input id="cj31Command" placeholder="Tell Journey what you want changed…"><button class="cj31-primary" data-cj31-runcommand>Run</button></div><div class="cj31-actions">${commandExamples().map(x=>`<button class="cj31-quiet" data-cj31-example="${h(x)}">${h(x)}</button>`).join('')}</div><div id="cj31CommandResult" class="cj31-result">${h(local.lastResult||'No command run yet.')}</div>`,'full')}
+ ${card('Execution policy',`<div class="cj31-row"><div class="cj31-row-main"><strong>Safe internal changes</strong><small>Prepare and execute through CreateJourney action backends when permission allows.</small></div>${pill('Supported','good')}</div><div class="cj31-row"><div class="cj31-row-main"><strong>Sensitive changes</strong><small>Billing, destructive deletion, access/role changes and paid ads still require explicit approval.</small></div>${pill('Approval required','warn')}</div><div class="cj31-row"><div class="cj31-row-main"><strong>External provider actions</strong><small>Never claim completion unless the provider or CreateJourney confirms it.</small></div>${pill('Provider confirmation','warn')}</div>`)}
+ ${card('Completion rule',`<p>A green check means CreateJourney received sufficient confirmation that the action actually completed. Clicked, attempted, proposed and approved are separate states.</p>`)}
+ </div>`;
+}
+function normalizeActions(text){
+ const lower=text.toLowerCase();
+ const known=['review','book','pay','wi-fi','wifi','subscribe','feedback','follow','menu','tip','loyalty'];
+ const found=[];
+ for(const k of known)if(lower.includes(k)&&!found.includes(k==='wifi'?'wi-fi':k))found.push(k==='wifi'?'wi-fi':k);
+ return found.slice(0,3);
+}
+function matchBoard(text){
+ const lower=text.toLowerCase();
+ const boards=boardList();
+ return boards.find(b=>lower.includes(String(b.name||'').toLowerCase()))||boards.find(b=>lower.includes(String(b.id||'').toLowerCase()))||boards[0]||null;
+}
+async function runCommand(raw){
+ const out=document.getElementById('cj31CommandResult');if(out)out.textContent='Working…';
+ const text=String(raw||'').trim();if(!text){if(out)out.textContent='Enter a command first.';return}
+ const b=matchBoard(text),lower=text.toLowerCase();let result=null;
+ try{
+   if((lower.includes('journey')||normalizeActions(text).length)&&b){
+     const acts=normalizeActions(text);
+     if(!acts.length)throw new Error('I could not identify the requested Journey actions.');
+     const payload={business_id:window.CJ27?.businessId||null,workspace_id:window.backendWorkspaceId||null,board_id:b.backendId||b.id,steps:acts.map(a=>({action_type:a,destination_url:(b.destinations||{})[a]||null})),journey_name:'Primary Journey',title:`Update ${b.name||'SmartBoard'} Journey`,description:`Journey AI prepared ${acts.join(' → ')}.`};
+     result=await fn('journey-ai-actions',{action:'propose_journey',...payload},true);
+     if(result?.ok||result?.task){
+       const task=result.task;local.lastResult=`Proposal prepared for ${b.name||'SmartBoard'}: ${acts.join(' → ')}.\nStatus: ${task?.status||'awaiting approval'}${task?.id?`\nTask ID: ${task.id}`:''}`;
+     }else throw new Error(result?.error||'Journey proposal failed');
+   }else if(lower.includes('pause')&&b){
+     result=await fn('journey-ai-actions',{action:'set_board_status',board_id:b.backendId||b.id,status:'paused'},true);
+     if(!result?.ok&&!result?.completed)throw new Error(result?.error||'Pause failed');
+     local.lastResult=`${b.name||'Board'} is confirmed paused.`;
+   }else if((lower.includes('activate')||lower.includes('resume'))&&b){
+     result=await fn('journey-ai-actions',{action:'set_board_status',board_id:b.backendId||b.id,status:'active'},true);
+     if(!result?.ok&&!result?.completed)throw new Error(result?.error||'Activation failed');
+     local.lastResult=`${b.name||'Board'} is confirmed active.`;
+   }else{
+     local.lastResult='This command is not yet mapped to a verified internal action. Journey AI can still advise on it, but this screen will not pretend it executed.';
+   }
+ }catch(e){local.lastResult=`Needs attention: ${e?.message||'Command failed.'}`}
+ persist();if(out)out.textContent=local.lastResult;
+}
+function network(){
+ const rows=boardList().map(b=>`<div class="cj31-row"><div class="cj31-row-main"><strong>${h(b.name||b.id)}</strong><small>${h((b.boardKind||b.kind||'SmartBoard'))} · ${h(b.location||b.placementLabel||'Placement not set')} · ${(b.actions||[]).map(h).join(' → ')||'Journey not set'}</small></div>${pill(b.active===false?'paused':'active',b.active===false?'warn':'good')}</div>`).join('');
+ return `<div class="cj31-grid">
+ ${card('Production Board Network',`<p>SmartBoards and MiniBoards should resolve to the same normalized production records used by owner analytics and the public customer Journey.</p><div class="cj31-actions"><button class="cj31-primary" data-cj31-sync>Sync production boards</button><button class="cj31-secondary" data-cj31-open29>Open Owner Production Suite</button></div><div class="cj31-list">${rows||'<div class="cj31-note">No runtime boards are available yet.</div>'}</div>`,'full')}
+ ${card('MiniBoard production rules',`<div class="cj31-row"><div class="cj31-row-main"><strong>Permanent NFC identity</strong><small>Reassignment never requires rewriting NFC.</small></div>${pill('Locked','good')}</div><div class="cj31-row"><div class="cj31-row-main"><strong>Parent-child software hierarchy</strong><small>No Bluetooth dependency between boards.</small></div>${pill('Locked','good')}</div><div class="cj31-row"><div class="cj31-row-main"><strong>Professional scope</strong><small>Assigned professionals see only their permitted MiniBoard workspace.</small></div>${pill('Locked','good')}</div>`)}
+ ${card('Current counts',`<div class="cj31-kpis"><div class="cj31-kpi"><strong>${mainBoards().length}</strong><span>Main SmartBoards</span></div><div class="cj31-kpi"><strong>${miniBoards().length}</strong><span>MiniBoards</span></div><div class="cj31-kpi"><strong>${boardList().filter(b=>b.active!==false).length}</strong><span>Active</span></div><div class="cj31-kpi"><strong>${boardList().filter(b=>b.active===false).length}</strong><span>Paused</span></div></div>`)}
+ </div>`;
+}
+function customerFlow(){
+ const checks=[
+ ['Permanent identity','Public board resolver uses permanent board identity rather than a hard-coded destination.'],
+ ['1–3 visible actions','Customer Journey remains intentionally simple.'],
+ ['Returning visitor state','Anonymous browser/device recognition supports suppression and returning behavior.'],
+ ['Private feedback','All customers may submit private 1–5 feedback.'],
+ ['Neutral public review','Review opportunity is not gated by rating or sentiment.'],
+ ['Attempt vs completion','Booking/payment/review clicks stay separate from provider-confirmed outcomes.'],
+ ['Paused behavior','Paused/inactive boards should stop public resolution.']
+ ];
+ return `<div class="cj31-grid">
+ ${card('Customer NFC / QR production flow',`<p>Tap → resolve board → load Journey → recognize returning browser/device where possible → show eligible actions → record events → preserve provider-confirmed completion semantics.</p><div class="cj31-actions"><button class="cj31-primary" data-cj31-openqa>Open Public Journey QA</button></div>`,'full')}
+ ${card('Hardening checklist',checks.map(x=>`<div class="cj31-row"><div class="cj31-row-main"><strong>${h(x[0])}</strong><small>${h(x[1])}</small></div>${pill('Required','good')}</div>`).join(''),'full')}
+ </div>`;
+}
+function integrations(){
+ const providers=[
+ ['Stripe','Billing / subscription','Production code path exists; live use requires Stripe secret, price IDs and webhook configuration.'],
+ ['Google Business Profile','Reviews / business presence','OAuth and provider configuration still required before CreateJourney can confirm provider-side activity.'],
+ ['Square','Payments','Provider OAuth/API configuration required.'],
+ ['Calendly / Acuity','Booking','Provider OAuth/API or supported booking-link integration required.'],
+ ['Instagram / Facebook','Marketing / publishing','Meta OAuth scopes and app review may be required for publishing features.'],
+ ['Business Email / Calendar','Communication / scheduling','Provider authorization required.']
+ ];
+ return `<div class="cj31-grid">
+ ${card('Connected Accounts readiness',`<p>Build 31 separates “UI exists” from “provider is actually authorized.” No provider is shown as completed merely because a button was clicked.</p>${providers.map(p=>`<div class="cj31-row"><div class="cj31-row-main"><strong>${h(p[0])}</strong><small>${h(p[1])} · ${h(p[2])}</small></div>${pill('Credential / OAuth gate','warn')}</div>`).join('')}`,'full')}
+ ${card('Provider completion rules',`<div class="cj31-row"><div class="cj31-row-main"><strong>Connected</strong><small>Only after a valid provider authorization is stored.</small></div>${pill('Verified only','good')}</div><div class="cj31-row"><div class="cj31-row-main"><strong>Published / paid / booked</strong><small>Only after provider or backend confirmation.</small></div>${pill('No guessing','good')}</div><div class="cj31-row"><div class="cj31-row-main"><strong>Credentials</strong><small>Never place secret provider keys inside index.html.</small></div>${pill('Server-side only','good')}</div>`)}
+ </div>`;
+}
+function nativeApp(){
+ const rt=runtime(),backendOk=!!rt.workspaceId&&typeof window.SUPABASE_URL==='string';
+ const parity=[
+ ['Authentication / workspaces',backendOk],
+ ['SmartBoard Control Center',true],
+ ['SmartBoard / MiniBoard model',true],
+ ['Journey AI actions backend',typeof window.aiActionBackendRequest==='function'],
+ ['Business Brain / memory',true],
+ ['Customer feedback / activity',!!window.CJBuild29],
+ ['Billing backend',true],
+ ['Camera / business-space analysis',true],
+ ['Push notifications',false],
+ ['App signing / TestFlight / Play internal test',false]
+ ];
+ const pct=Math.round(parity.filter(x=>x[1]).length/parity.length*100);
+ return `<div class="cj31-grid">
+ ${card('Native iPhone / Android readiness',`<p>The native app is a separate React Native/Expo project. This web file cannot become an App Store binary by itself, but Build 31 aligns the backend contracts the native app must consume.</p><div class="cj31-kpis"><div class="cj31-kpi"><strong>${pct}%</strong><span>Shared-system readiness</span></div><div class="cj31-kpi"><strong>${local.native.ios?'Passed':'Pending'}</strong><span>iPhone device test</span></div><div class="cj31-kpi"><strong>${local.native.android?'Passed':'Pending'}</strong><span>Android device test</span></div><div class="cj31-kpi"><strong>Expo / RN</strong><span>Native project path</span></div></div><div class="cj31-progress"><span style="width:${pct}%"></span></div>`,'full')}
+ ${card('Parity map',parity.map(x=>`<div class="cj31-row"><div class="cj31-row-main"><strong>${h(x[0])}</strong></div>${pill(x[1]?'Shared foundation ready':'Still required',x[1]?'good':'warn')}</div>`).join(''),'full')}
+ ${card('Device verification',`<div class="cj31-row"><div class="cj31-row-main"><strong>iPhone / iOS</strong><small>Test auth, voice, camera, Journey AI, board management and push permission on a physical device.</small></div><button class="cj31-small ${local.native.ios?'cj31-primary':'cj31-quiet'}" data-cj31-native="ios">${local.native.ios?'Passed':'Mark after test'}</button></div><div class="cj31-row"><div class="cj31-row-main"><strong>Android</strong><small>Test auth, voice, camera, Journey AI, NFC/QR launch and push permission on a physical device.</small></div><button class="cj31-small ${local.native.android?'cj31-primary':'cj31-quiet'}" data-cj31-native="android">${local.native.android?'Passed':'Mark after test'}</button></div>`,'full')}
+ </div>`;
+}
+function releaseQA(){
+ const items=[
+ ['web_admin','Owner admin loads and signs in'],
+ ['normalized','Production board data sync verified'],
+ ['journey_execute','Journey proposal → approval → actual backend change verified'],
+ ['voice_ios','Long Journey voice reply completes on iPhone without final-word cutoff'],
+ ['miniboard','MiniBoard add/link/reassign/permission flow verified'],
+ ['customer','Physical/public board Journey resolves and records activity'],
+ ['feedback','Private feedback + neutral review opportunity verified'],
+ ['billing','Stripe live configuration tested'],
+ ['providers','Required provider OAuth integrations tested'],
+ ['ios','iOS physical-device build tested'],
+ ['android','Android physical-device build tested'],
+ ['stores','TestFlight + Google Play internal testing completed']
+ ];
+ const done=items.filter(x=>local.qa[x[0]]).length,pct=Math.round(done/items.length*100);
+ return `<div class="cj31-grid">
+ ${card('Release readiness',`<p>This checklist is deliberately strict. A feature is not launch-ready merely because its screen exists.</p><div class="cj31-kpis"><div class="cj31-kpi"><strong>${done}/${items.length}</strong><span>Verified gates</span></div><div class="cj31-kpi"><strong>${pct}%</strong><span>Release readiness</span></div><div class="cj31-kpi"><strong>${BUILD}</strong><span>Current hardening build</span></div><div class="cj31-kpi"><strong>${pct===100?'Ready':'Not yet'}</strong><span>Production release</span></div></div><div class="cj31-progress"><span style="width:${pct}%"></span></div>`,'full')}
+ ${card('Verification gates',items.map(x=>`<div class="cj31-row"><div class="cj31-row-main"><strong>${h(x[1])}</strong></div><button class="cj31-small ${local.qa[x[0]]?'cj31-primary':'cj31-quiet'}" data-cj31-qa="${x[0]}">${local.qa[x[0]]?'Verified':'Mark after test'}</button></div>`).join(''),'full')}
+ </div>`;
+}
+function render(){renderTabs();const c=document.getElementById('cj31Content');if(!c)return;c.innerHTML=active==='System Health'?systemHealth():active==='Journey AI Execute'?journeyExecute():active==='Board Network'?network():active==='Customer Flow'?customerFlow():active==='Integrations'?integrations():active==='Native App'?nativeApp():releaseQA()}
+function open(tab='System Health'){active=tab;document.getElementById('cj31Panel')?.classList.remove('cj31-hidden');document.getElementById('cj31Panel')?.setAttribute('aria-hidden','false');render()}
+function close(){document.getElementById('cj31Panel')?.classList.add('cj31-hidden');document.getElementById('cj31Panel')?.setAttribute('aria-hidden','true')}
+async function sync(){
+ local.lastResult='Syncing normalized production boards…';persist();
+ try{
+   if(typeof window.cjSyncNormalizedBackendV27!=='function')throw new Error('Normalized sync function is unavailable.');
+   const r=await window.cjSyncNormalizedBackendV27(true);
+   local.lastResult=r?.ok===false?`Sync needs attention: ${r.error||'Unknown error'}`:`Production board sync completed.`;
+ }catch(e){local.lastResult=`Sync needs attention: ${e?.message||'Unknown error'}`}
+ persist();render();
+}
+function open29(){close();try{window.CJBuild29?.open?.('Overview')}catch(_){}}
+function openQA(){close();try{window.CJBuild29?.open?.('Public Journey QA')}catch(_){}}
+function bottom(){
+ const dash=document.getElementById('dashboardApp'),visible=dash&&!dash.classList.contains('hidden');
+ const bar=document.getElementById('cj31BottomBar');if(!bar)return;
+ bar.classList.toggle('cj31-hidden',!visible);bar.setAttribute('aria-hidden',visible?'false':'true');
+ document.body.classList.toggle('cj31-mobile-polish',visible&&matchMedia('(max-width:760px)').matches);
+}
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.id==='cj31Close')close();
+ if(t.dataset.cj31Tab){active=t.dataset.cj31Tab;render()}
+ if(t.hasAttribute('data-cj31-health')){await health();render()}
+ if(t.hasAttribute('data-cj31-sync'))await sync();
+ if(t.hasAttribute('data-cj31-open29'))open29();
+ if(t.hasAttribute('data-cj31-openqa'))openQA();
+ if(t.dataset.cj31Example){const i=document.getElementById('cj31Command');if(i)i.value=t.dataset.cj31Example}
+ if(t.hasAttribute('data-cj31-runcommand'))runCommand(document.getElementById('cj31Command')?.value||'');
+ if(t.dataset.cj31Qa){local.qa[t.dataset.cj31Qa]=!local.qa[t.dataset.cj31Qa];persist();render()}
+ if(t.dataset.cj31Native){local.native[t.dataset.cj31Native]=!local.native[t.dataset.cj31Native];persist();render()}
+ if(t.hasAttribute('data-cj31-home')){try{window.openDashboard?.()}catch(_){}}
+ if(t.hasAttribute('data-cj31-owner'))open('System Health');
+ if(t.hasAttribute('data-cj31-ai')){try{openAI();}catch(_){}}
+ if(t.hasAttribute('data-cj31-mic')){try{document.querySelector('.ai-talk-fab')?.click()}catch(_){}}
+ if(t.hasAttribute('data-cj31-open'))open('System Health');
+});
+const mo=new MutationObserver(bottom);mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{bottom();health().then(render)});else{bottom();health().then(render)}
+window.CJBuild31={open,health,runCommand,version:BUILD,state:()=>local};
+})();
+</script>
+
+<script>
+(function(){
+'use strict';
+function injectEntry(){
+ const dash=document.getElementById('dashboardApp');if(!dash||dash.querySelector('[data-cj31-entry]'))return;
+ const shell=dash.querySelector('.dashboard-shell');if(!shell)return;
+ const section=document.createElement('div');section.className='dashboard-section';section.setAttribute('data-cj31-entry','');
+ section.innerHTML=`<div class="section-heading"><h3>Production Command Center</h3><button class="section-link" type="button" data-cj31-open>Open</button></div><div class="support-card"><div><h4>Build 30 + 31</h4><p>Production health, Journey AI execution, integrations, native-app readiness and release QA.</p></div><button class="support-button" type="button" data-cj31-open>Open</button></div>`;
+ shell.appendChild(section);
+}
+const mo=new MutationObserver(injectEntry);mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',injectEntry);else injectEntry();
+})();
+</script>
+
+<!--
+Build 30:
+- Production runtime/source-of-truth health checks
+- Normalized board sync controls
+- Journey AI execution command layer for supported internal actions
+- Board network consistency checks
+- Customer flow hardening visibility
+- iPhone bottom-control polish to prevent button crowding
+
+Build 31:
+- Connected-account readiness and provider-completion rules
+- Native app parity/readiness map
+- Physical-device verification gates
+- Strict release QA checklist
+- No provider is marked connected without real OAuth/credentials
+- No action is marked completed without sufficient CreateJourney/provider confirmation
+-->
 
 </body>
 </html>
