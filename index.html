@@ -5982,6 +5982,38 @@ el("copyBoardSetupButton").addEventListener("click",copyBoardSetupV19);
 /* BUILD 16.9: Journey AI voice stability, duplicate-message suppression,
    spoken image-request routing, and iPhone/Safari self-interruption protection. */
 /* BUILD 5.2.1: universal login is the default entry screen; onboarding only opens from Create Account */
+
+/* BUILD 29.1 RUNTIME BRIDGE
+   Exposes only the authenticated frontend runtime values/functions required by
+   later Build 27-29 layers. No service-role keys or hidden credentials are exposed. */
+try{
+  const defineRuntimeValue=(name,getter,setter)=>{
+    try{
+      Object.defineProperty(window,name,{configurable:true,enumerable:false,get:getter,set:setter});
+    }catch(_){}
+  };
+  defineRuntimeValue("backendReady",()=>backendReady);
+  defineRuntimeValue("sb",()=>sb);
+  defineRuntimeValue("backendWorkspaceId",()=>backendWorkspaceId);
+  defineRuntimeValue("actualRole",()=>actualRole);
+  defineRuntimeValue("boards",()=>boards,v=>{boards=v});
+  defineRuntimeValue("teamMembers",()=>teamMembers,v=>{teamMembers=v});
+  defineRuntimeValue("currentBoardId",()=>currentBoardId,v=>{currentBoardId=v});
+  defineRuntimeValue("SUPABASE_URL",()=>SUPABASE_URL);
+  defineRuntimeValue("SUPABASE_PUBLISHABLE_KEY",()=>SUPABASE_PUBLISHABLE_KEY);
+
+  window.persistLocalState=persistLocalState;
+  window.integrationSession=integrationSession;
+  window.aiActionBackendRequest=aiActionBackendRequest;
+  window.openBoardManager=openBoardManager;
+  window.openDashboard=openDashboard;
+  window.permissions=permissions;
+  window.serializableState=serializableState;
+  window.CJRuntimeBridge={ready:true,version:"29.1"};
+}catch(runtimeBridgeError){
+  console.warn("CreateJourney runtime bridge could not initialize",runtimeBridgeError);
+}
+
 updateConditionalFields();updateAccountButton();updateActivationButton();updateCustomizeButton();updateJourney();initializeSession();
 setTimeout(()=>{handleIntegrationOAuthReturn().catch(()=>{});},800);
 });
@@ -6247,7 +6279,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <div class="cj2829-shell">
     <div class="cj2829-top">
       <div class="cj2829-head">
-        <div><h1>SmartBoard Control Center</h1><p>Build 28 + 29 · Owner, MiniBoard and public customer production system</p></div>
+        <div><h1>SmartBoard Control Center</h1><p>Build 29.1 · Owner, MiniBoard and public customer production system</p></div>
         <button id="cj2829Close" class="cj2829-close" type="button">×</button>
       </div>
       <div id="cj2829Tabs" class="cj2829-tabs"></div>
