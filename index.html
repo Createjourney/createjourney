@@ -5998,6 +5998,8 @@ try{
   defineRuntimeValue("actualRole",()=>actualRole);
   defineRuntimeValue("boards",()=>boards,v=>{boards=v});
   defineRuntimeValue("teamMembers",()=>teamMembers,v=>{teamMembers=v});
+  defineRuntimeValue("aiBusinessProfile",()=>aiBusinessProfile,v=>{aiBusinessProfile=v&&typeof v==="object"?v:{goals:[]}});
+  defineRuntimeValue("useType",()=>useType,v=>{useType=v});
   defineRuntimeValue("currentBoardId",()=>currentBoardId,v=>{currentBoardId=v});
   defineRuntimeValue("SUPABASE_URL",()=>SUPABASE_URL);
   defineRuntimeValue("SUPABASE_PUBLISHABLE_KEY",()=>SUPABASE_PUBLISHABLE_KEY);
@@ -6615,7 +6617,7 @@ body.cj31-mobile-polish #cj2829Launcher,body.cj31-mobile-polish .ai-launcher{opa
       <div class="cj31-head">
         <div>
           <h1>Production Command Center</h1>
-          <p>Build 30 + 31 · Production data hardening, Journey AI execution, integrations and release readiness</p>
+          <p>Build 32 · Production cutover, Journey AI execution, integrations and release readiness</p>
         </div>
         <button id="cj31Close" class="cj31-close" type="button">×</button>
       </div>
@@ -6917,6 +6919,189 @@ Build 31:
 - Strict release QA checklist
 - No provider is marked connected without real OAuth/credentials
 - No action is marked completed without sufficient CreateJourney/provider confirmation
+-->
+
+
+<!-- =========================================================
+     BUILD 32 — PRODUCTION DATA CUTOVER + TEST/PRODUCTION SEPARATION
+     ========================================================= -->
+<style id="cjBuild32Styles">
+#cj32DataCenter{position:fixed;inset:0;z-index:275;background:#f5f8fc;overflow:auto;color:#121827}
+.cj32-hidden{display:none!important}.cj32-shell{max-width:1080px;margin:0 auto;padding:18px 16px 110px}
+.cj32-top{position:sticky;top:0;z-index:4;background:rgba(245,248,252,.95);backdrop-filter:blur(16px);padding:8px 0 14px;border-bottom:1px solid #dfe7f0}
+.cj32-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.cj32-head h1{margin:0;font-size:27px}.cj32-head p{margin:5px 0 0;color:#667085;font-size:13px;line-height:1.5}
+.cj32-close{width:42px;height:42px;margin:0;padding:0;border-radius:50%;background:#fff;color:#334155;border:1px solid #dfe7f0}
+.cj32-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:16px}.cj32-card{grid-column:span 6;background:#fff;border:1px solid #dfe7f0;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.035)}.cj32-card.full{grid-column:1/-1}.cj32-card h3{margin:0 0 6px;font-size:18px}.cj32-card p{margin:0;color:#667085;font-size:13px;line-height:1.5}
+.cj32-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.cj32-kpi{background:#f7f9fc;border-radius:14px;padding:13px}.cj32-kpi strong{display:block;font-size:22px}.cj32-kpi span{font-size:11px;color:#667085}
+.cj32-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #edf1f5}.cj32-row:first-of-type{border-top:0}.cj32-row-main{min-width:0}.cj32-row strong{display:block;font-size:14px}.cj32-row small{display:block;color:#667085;margin-top:3px;line-height:1.4}
+.cj32-pill{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#eef5ff;color:#3978c8}.cj32-pill.good{background:#eaf8ef;color:#287b4b}.cj32-pill.warn{background:#fff4dc;color:#8b6519}.cj32-pill.bad{background:#fff0f0;color:#a43e3e}
+.cj32-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.cj32-actions button{width:auto;margin:0;padding:10px 12px;border-radius:12px;font-size:12px}.cj32-primary{background:#172033;color:#fff}.cj32-secondary{background:#edf5ff;color:#3978c8}.cj32-quiet{background:#f5f7fa;color:#475467}.cj32-danger{background:#fff0f0;color:#a43e3e}
+.cj32-banner{margin-top:12px;padding:13px;border-radius:14px;background:#fff4dc;color:#805f19;font-size:12px;line-height:1.5}.cj32-banner.good{background:#eaf8ef;color:#287b4b}.cj32-banner.bad{background:#fff0f0;color:#9a3131}
+.cj32-note{margin-top:10px;padding:11px 12px;border-radius:13px;background:#f7f9fc;color:#667085;font-size:12px;line-height:1.45}
+.cj32-progress{height:8px;background:#edf1f5;border-radius:999px;overflow:hidden;margin-top:8px}.cj32-progress span{display:block;height:100%;background:#6fa8f5;border-radius:999px}
+.cj32-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.cj32-mode{margin:0;padding:14px;border-radius:16px;background:#f7f9fc;color:#475467;border:1px solid #dfe7f0;text-align:left}.cj32-mode.active{background:#eef5ff;color:#2f6fae;border-color:#9cc2f5}.cj32-mode strong{display:block}.cj32-mode span{display:block;font-size:11px;margin-top:4px;line-height:1.4}
+.cj32-check{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-top:1px solid #edf1f5}.cj32-check:first-child{border-top:0}.cj32-dot{width:18px;height:18px;min-width:18px;border-radius:50%;display:grid;place-items:center;background:#edf1f5;color:#98a2b3;font-size:11px;font-weight:900}.cj32-dot.good{background:#eaf8ef;color:#287b4b}
+.cj32-testbadge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#fff4dc;color:#8b6519;font-size:11px;font-weight:800}
+@media(max-width:760px){.cj32-card{grid-column:1/-1}.cj32-kpis{grid-template-columns:1fr 1fr}.cj32-mode-toggle{grid-template-columns:1fr}.cj32-head h1{font-size:23px}}
+</style>
+
+<div id="cj32DataCenter" class="cj32-hidden" aria-hidden="true">
+  <div class="cj32-shell">
+    <div class="cj32-top">
+      <div class="cj32-head">
+        <div>
+          <h1>Production Data Cutover</h1>
+          <p>Build 32 · Separate test/demo data from real customer data before launch.</p>
+        </div>
+        <button id="cj32Close" class="cj32-close" type="button">×</button>
+      </div>
+    </div>
+    <div id="cj32Content"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const STORE='cj_build32_environment_v1';
+const TEST_NAMES=['puremens','pure mens'];
+let state={mode:null,explicit:false,testBusinessNames:[],clearedAt:null,lastCheck:null};
+try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE)||'{}'))}catch(_){}
+const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}};
+const h=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt=v=>{if(!v)return'—';try{return new Date(v).toLocaleString()}catch(_){return String(v)}};
+const card=(title,body,cls='')=>`<section class="cj32-card ${cls}"><h3>${h(title)}</h3>${body}</section>`;
+const pill=(text,kind='')=>`<span class="cj32-pill ${kind}">${h(text)}</span>`;
+
+function profile(){return window.aiBusinessProfile&&typeof window.aiBusinessProfile==='object'?window.aiBusinessProfile:{}}
+function profileName(){return String(profile().businessName||'').trim()}
+function localAccount(){
+ try{return JSON.parse(localStorage.getItem('createjourney_build3_account_v1')||'null')}catch(_){return null}
+}
+function localState(){
+ try{return JSON.parse(localStorage.getItem('createjourney_build3_state_v1')||'null')}catch(_){return null}
+}
+function looksTestName(name){
+ const n=String(name||'').trim().toLowerCase();
+ return TEST_NAMES.includes(n)||state.testBusinessNames.map(x=>String(x).toLowerCase()).includes(n);
+}
+function detect(){
+ const p=profile(),acct=localAccount(),ls=localState();
+ const names=[p.businessName,acct?.setupName,ls?.aiBusinessProfile?.businessName,ls?.businessName].filter(Boolean);
+ const detected=names.find(looksTestName)||'';
+ if(!state.explicit){
+   state.mode=detected?'test':(state.mode||'production');
+   if(detected&&!state.testBusinessNames.includes(detected))state.testBusinessNames.push(detected);
+ }
+ state.lastCheck=new Date().toISOString();save();
+ return{detected,names,p,acct,ls};
+}
+function mode(){detect();return state.mode==='test'?'test':'production'}
+function boardCount(){return Array.isArray(window.boards)?window.boards.length:0}
+function miniCount(){return Array.isArray(window.boards)?window.boards.filter(b=>String(b.boardKind||b.kind||'').toLowerCase()==='miniboard').length:0}
+
+function render(){
+ const c=document.getElementById('cj32Content');if(!c)return;
+ const d=detect(),isTest=mode()==='test',name=profileName()||d.detected||d.acct?.setupName||'No business profile';
+ const productionEligible=!isTest&&!!window.backendWorkspaceId;
+ const checks=[
+   ['Test/demo identification',true,isTest?`${name} is currently isolated as test/demo data.`:'Current profile is not marked as test data.'],
+   ['Production workspace identity',!!window.backendWorkspaceId,window.backendWorkspaceId?'Authenticated workspace is available.':'Sign in and select a workspace before production cutover.'],
+   ['Runtime board model',Array.isArray(window.boards),'SmartBoard/MiniBoard runtime is available.'],
+   ['Normalized sync function',typeof window.cjSyncNormalizedBackendV27==='function','Production synchronization function is available.'],
+   ['Public customer backend',typeof window.cjPublicBackendRequestV24==='function','Public NFC/QR resolver and event backend are available.'],
+   ['Journey AI actions',typeof window.aiActionBackendRequest==='function','Journey proposal/approval execution backend is available.']
+ ];
+ const passed=checks.filter(x=>x[1]).length,pct=Math.round(passed/checks.length*100);
+ c.innerHTML=`<div class="cj32-grid">
+ ${card('Current data environment',`<p>PureMens was created during testing, so it should never count as a real CreateJourney customer, production business, revenue source, board deployment or launch KPI.</p>
+ <div class="cj32-mode-toggle">
+   <button class="cj32-mode ${isTest?'active':''}" data-cj32-mode="test"><strong>Test / Demo</strong><span>Use for onboarding experiments, fake businesses, test boards and QA.</span></button>
+   <button class="cj32-mode ${!isTest?'active':''}" data-cj32-mode="production"><strong>Production</strong><span>Use only for real businesses and real customer activity.</span></button>
+ </div>
+ <div class="${isTest?'cj32-banner':'cj32-banner good'}">${isTest?`Current local business profile “${h(name)}” is treated as TEST DATA. It is excluded from production cutover by Build 32.`:`Current workspace is in PRODUCTION mode. Only use this mode for real business/customer data.`}</div>
+ <div class="cj32-kpis"><div class="cj32-kpi"><strong>${h(name)}</strong><span>Current business/profile</span></div><div class="cj32-kpi"><strong>${boardCount()}</strong><span>Local boards</span></div><div class="cj32-kpi"><strong>${miniCount()}</strong><span>Local MiniBoards</span></div><div class="cj32-kpi"><strong>${isTest?'TEST':'LIVE'}</strong><span>Data classification</span></div></div>
+ <div class="cj32-actions"><button class="cj32-primary" data-cj32-check>Recheck environment</button>${isTest?'<button class="cj32-danger" data-cj32-clear>Clear PureMens test profile</button>':'<button class="cj32-secondary" data-cj32-sync>Run production sync</button>'}</div>
+ <div class="cj32-note">Changing the classification does not automatically delete anything. Destructive cleanup requires the separate Clear Test Profile action.</div>`,'full')}
+ ${card('Cutover health',`<p>Build 32 blocks accidental production synchronization from this Data Center while the current environment is classified as test.</p><div class="cj32-progress"><span style="width:${pct}%"></span></div><div style="margin-top:10px">${checks.map(x=>`<div class="cj32-row"><div class="cj32-row-main"><strong>${h(x[0])}</strong><small>${h(x[2])}</small></div>${pill(x[1]?'Ready':'Needs attention',x[1]?'good':'warn')}</div>`).join('')}</div>`,'full')}
+ ${card('Production rules',`<div class="cj32-check"><span class="cj32-dot good">✓</span><div><strong>Test businesses do not count</strong><small>PureMens and future demo/test businesses are excluded from real customer, board, revenue and conversion reporting.</small></div></div><div class="cj32-check"><span class="cj32-dot good">✓</span><div><strong>New real businesses start clean</strong><small>The first real customer/business onboarding should create the production profile instead of inheriting PureMens.</small></div></div><div class="cj32-check"><span class="cj32-dot good">✓</span><div><strong>Production sync requires production classification</strong><small>Build 32 prevents this screen from intentionally syncing a test-classified profile into normalized production data.</small></div></div>`)}
+ ${card('Next production flow',`<p>${productionEligible?'This workspace can proceed through the real production onboarding and board lifecycle.':'Finish or select a real production business before final cutover.'}</p><div class="cj32-row"><div class="cj32-row-main"><strong>1. Real business onboarding</strong><small>Create the actual business profile.</small></div></div><div class="cj32-row"><div class="cj32-row-main"><strong>2. Activate real SmartBoard</strong><small>Claim a physical board through its permanent identity.</small></div></div><div class="cj32-row"><div class="cj32-row-main"><strong>3. Set real Journey</strong><small>Use 1–3 actions with verified destinations.</small></div></div><div class="cj32-row"><div class="cj32-row-main"><strong>4. Physical customer tap test</strong><small>Verify public resolution, activity, feedback and returning behavior.</small></div></div>`)}
+ </div>`;
+}
+
+function setMode(next){
+ state.mode=next==='test'?'test':'production';state.explicit=true;
+ const n=profileName();if(state.mode==='test'&&n&&!state.testBusinessNames.includes(n))state.testBusinessNames.push(n);
+ save();render();
+}
+async function syncProduction(){
+ if(mode()==='test'){alert('This profile is classified as test/demo data. Build 32 will not intentionally cut it over into production.');return}
+ try{
+   if(typeof window.cjSyncNormalizedBackendV27!=='function')throw new Error('Production sync is unavailable.');
+   const r=await window.cjSyncNormalizedBackendV27(true);
+   if(r?.ok===false)throw new Error(r.error||'Production sync failed.');
+   alert('Production board synchronization completed.');
+ }catch(e){alert(`Production sync needs attention: ${e?.message||'Unknown error'}`)}
+}
+function clearPureMens(){
+ const current=profileName();
+ if(!looksTestName(current)&&!looksTestName(localAccount()?.setupName)){
+   alert('Build 32 did not identify the current business profile as PureMens test data, so nothing was cleared.');
+   return;
+ }
+ if(!confirm('Clear the PureMens TEST business profile from this device? This does not delete a real production business or Supabase account.'))return;
+ try{
+   window.aiBusinessProfile={goals:[]};
+   const acct=localAccount();
+   if(acct&&looksTestName(acct.setupName)){acct.setupName='';localStorage.setItem('createjourney_build3_account_v1',JSON.stringify(acct))}
+   const ls=localState();
+   if(ls){
+     if(ls.aiBusinessProfile&&looksTestName(ls.aiBusinessProfile.businessName))ls.aiBusinessProfile={goals:[]};
+     if(looksTestName(ls.businessName))delete ls.businessName;
+     localStorage.setItem('createjourney_build3_state_v1',JSON.stringify(ls));
+   }
+   state.clearedAt=new Date().toISOString();state.mode='production';state.explicit=false;save();
+   try{window.persistLocalState?.()}catch(_){}
+   alert('PureMens test business profile was cleared from the local prototype state. Your CreateJourney account/workspace was not deleted.');
+   render();
+ }catch(e){alert(`Test cleanup needs attention: ${e?.message||'Unknown error'}`)}
+}
+function inject(){
+ const dash=document.getElementById('dashboardApp');if(!dash||dash.querySelector('[data-cj32-entry]'))return;
+ const shell=dash.querySelector('.dashboard-shell');if(!shell)return;
+ const d=detect(),isTest=mode()==='test';
+ const section=document.createElement('div');section.className='dashboard-section';section.setAttribute('data-cj32-entry','');
+ section.innerHTML=`<div class="section-heading"><h3>Data Environment ${isTest?'<span class="cj32-testbadge">TEST DATA</span>':''}</h3><button class="section-link" type="button" data-cj32-open>Manage</button></div><div class="support-card"><div><h4>${isTest?'Test / Demo data isolated':'Production data mode'}</h4><p>${isTest?'PureMens and current test inputs are not treated as real customer production data.':'Use production mode only for real businesses and verified customer activity.'}</p></div><button class="support-button" type="button" data-cj32-open>Open</button></div>`;
+ shell.appendChild(section);
+}
+function open(){document.getElementById('cj32DataCenter')?.classList.remove('cj32-hidden');document.getElementById('cj32DataCenter')?.setAttribute('aria-hidden','false');render()}
+function close(){document.getElementById('cj32DataCenter')?.classList.add('cj32-hidden');document.getElementById('cj32DataCenter')?.setAttribute('aria-hidden','true')}
+
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.id==='cj32Close')close();
+ if(t.hasAttribute('data-cj32-open'))open();
+ if(t.dataset.cj32Mode)setMode(t.dataset.cj32Mode);
+ if(t.hasAttribute('data-cj32-check'))render();
+ if(t.hasAttribute('data-cj32-sync'))await syncProduction();
+ if(t.hasAttribute('data-cj32-clear'))clearPureMens();
+});
+const mo=new MutationObserver(inject);mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inject);else inject();
+
+window.CJBuild32={open,mode,detect,state:()=>state,isTestBusinessName:looksTestName};
+})();
+</script>
+
+<!--
+BUILD 32:
+- PureMens is explicitly treated as test/demo data when detected.
+- Test/demo business information is separated from real production reporting.
+- A production sync initiated from this Data Center is blocked while the current profile is classified as test.
+- Test cleanup is explicit and confirmation-gated; no automatic destructive deletion occurs.
+- The CreateJourney account/workspace is preserved when clearing the PureMens local test profile.
+- Production onboarding remains available for the first real business/customer.
 -->
 
 </body>
