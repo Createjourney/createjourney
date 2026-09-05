@@ -6096,5 +6096,124 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- BUILD 26: SmartBoard Control Center, grouped owner workspaces, Journey AI platform awareness, command bar, Answer/Recommend/Execute behavior, 3-day proof-of-value trial UX, verified task statuses, billing handoff UX, Visual Business Setup camera, Image Library performance context, SmartBoard Network, MiniBoards, professional profiles and Journey AI Personal Assistant. -->
 
+
+<!-- ======================================
+     BUILD 27 — PRODUCTION ACTION BACKEND BRIDGE
+     ====================================== -->
+<style id="cjBuild27Styles">
+.cj27-cloud-note{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11px;color:#667085}.cj27-cloud-dot{width:8px;height:8px;border-radius:50%;background:#98a2b3}.cj27-cloud-dot.good{background:#2c9b61}.cj27-cloud-dot.bad{background:#b94b4b}.ai-proposal-actions .ai-apply{background:#172033!important;color:#fff!important}.cj27-task-complete{margin-top:8px;border:1px solid #cdebd9;background:#f2fbf6;border-radius:11px;padding:9px 10px;color:#267b4d;font-size:12px;font-weight:700}.cj27-task-failed{margin-top:8px;border:1px solid #f0cccc;background:#fff6f6;border-radius:11px;padding:9px 10px;color:#a53d3d;font-size:12px}.cj27-syncing{opacity:.65;pointer-events:none}
+</style>
+<script>
+(function(){
+'use strict';
+const CJ27={businessId:null,lastSyncAt:0,syncing:null};
+window.CJ27=CJ27;
+
+function cj27BoardByLocal(id){return (boards||[]).find(b=>String(b.id)===String(id))||null}
+function cj27ActionSteps(board,actions){return (actions||[]).slice(0,3).map(a=>({action_type:String(a).toLowerCase(),destination_url:board?.destinations?.[a]||null}))}
+function cj27Record(title,status='complete',detail=''){try{if(typeof addActivity26==='function')addActivity26(title,status,detail)}catch(_){}try{if(typeof aiTimelineAdd==='function')aiTimelineAdd('AI Work',title,{status,detail})}catch(_){}}
+function cj27SetBackendBadge(ok,message){
+  const host=document.getElementById('cj26Command')||document.querySelector('.cj26-command');if(!host)return;
+  let n=document.getElementById('cj27CloudNote');if(!n){n=document.createElement('div');n.id='cj27CloudNote';n.className='cj27-cloud-note';host.appendChild(n)}
+  n.innerHTML=`<span class="cj27-cloud-dot ${ok===true?'good':ok===false?'bad':''}"></span><span>${esc(String(message||'CreateJourney cloud action service'))}</span>`;
+}
+
+async function cjSyncNormalizedBackendV27(force=false){
+  if(!backendReady||!sb||!backendWorkspaceId){cj27SetBackendBadge(false,'Sign in to sync live SmartBoard actions');return null}
+  if(CJ27.syncing)return CJ27.syncing;
+  if(!force&&CJ27.businessId&&Date.now()-CJ27.lastSyncAt<60000)return {ok:true,business_id:CJ27.businessId};
+  CJ27.syncing=(async()=>{
+    try{
+      cj27SetBackendBadge(null,'Syncing SmartBoards with CreateJourney cloud…');
+      const state=typeof cjCurrentStateV24==='function'?cjCurrentStateV24():null;
+      const res=await aiActionBackendRequest('sync_workspace',{state});
+      if(!res?.ok)throw new Error(res?.error||'Cloud sync failed');
+      CJ27.businessId=res.business_id||CJ27.businessId;CJ27.lastSyncAt=Date.now();
+      (res.mappings||[]).forEach(m=>{const b=cj27BoardByLocal(m.local_id);if(b){b.backendId=m.board_id;b.publicId=m.public_id}});
+      try{persistLocalState()}catch(_){ }
+      cj27SetBackendBadge(true,`${res.synced??0} SmartBoard${Number(res.synced)===1?'':'s'} synced · live actions ready`);
+      return res;
+    }catch(e){console.warn('Build 27 normalized backend sync failed',e);cj27SetBackendBadge(false,e?.message||'Cloud action sync unavailable');return null}
+    finally{CJ27.syncing=null}
+  })();
+  return CJ27.syncing;
+}
+window.cjSyncNormalizedBackendV27=cjSyncNormalizedBackendV27;
+
+async function cj27ApplyOne(a){
+  const b=cj27BoardByLocal(a.boardId);if(!b)throw new Error('Board not found');
+  const sync=await cjSyncNormalizedBackendV27(true);if(!sync?.ok||!b.backendId)throw new Error('This board is not synced to the CreateJourney action backend yet.');
+  const businessId=sync.business_id||CJ27.businessId;
+  if(a.type==='journey'){
+    const proposal=await aiActionBackendRequest('propose_journey',{business_id:businessId,board_id:b.backendId,title:`Update ${b.name} Journey`,journey_name:'Primary Journey',steps:cj27ActionSteps(b,a.actions)});
+    if(!proposal?.ok||!proposal.task?.id)throw new Error(proposal?.error||'Journey proposal could not be created');
+    const done=await aiActionBackendRequest('approve_and_execute_task',{task_id:proposal.task.id,business_id:businessId});
+    if(!done?.ok||!done.completed)throw new Error(done?.error||'Journey change was not confirmed complete');
+    const old={...(b.destinations||{})};b.actions=[...a.actions];b.destinations={};b.actions.forEach(x=>b.destinations[x]=old[x]||'');
+    logAudit(`Journey AI changed ${b.name} Journey to ${b.actions.join(' → ')}`,b.id);cj27Record(`${b.name} Journey updated`,'complete',`Verified by CreateJourney cloud · ${b.actions.join(' → ')}`);
+    return `✅ ${b.name} is now ${b.actions.join(' → ')}. The change was completed and confirmed by CreateJourney.`;
+  }
+  if(a.type==='status'){
+    const done=await aiActionBackendRequest('set_board_status',{business_id:businessId,board_id:b.backendId,status:a.active?'active':'paused'});
+    if(!done?.ok||!done.completed)throw new Error(done?.error||'Board status change was not confirmed');
+    b.active=!!a.active;logAudit(`Journey AI ${b.active?'activated':'paused'} ${b.name}`,b.id);cj27Record(`${b.name} ${b.active?'activated':'paused'}`,'complete','Verified by CreateJourney cloud');
+    return `✅ ${b.name} is now ${b.active?'active':'paused'}. CreateJourney confirmed the change.`;
+  }
+  throw new Error('This action is not yet wired to the production action executor.');
+}
+
+const applyAiPendingV26=window.applyAiPending;
+window.applyAiPending=async function applyAiPending(){
+  const a=aiPendingAction;if(!a)return;
+  const buttons=[...document.querySelectorAll('.ai-proposal .ai-apply')];buttons.forEach(x=>{x.disabled=true;x.classList.add('cj27-syncing');x.textContent='Applying…'});
+  try{
+    let messages=[];
+    if(a.type==='bulk-journey'||a.type==='bulk-status'){
+      const ids=[...(a.boardIds||[])];for(const id of ids){messages.push(await cj27ApplyOne(a.type==='bulk-journey'?{type:'journey',boardId:id,actions:a.actions}:{type:'status',boardId:id,active:a.active}))}
+    }else if(a.type==='journey'||a.type==='status')messages.push(await cj27ApplyOne(a));
+    else{
+      // Preserve the mature local prototype behavior for action types whose secure RPC is not wired yet,
+      // but never label them as cloud-confirmed.
+      buttons.forEach(x=>{x.disabled=false;x.classList.remove('cj27-syncing');x.textContent='Approve & Apply'});
+      if(typeof applyAiPendingV26==='function'){applyAiPendingV26();cj27Record('Workspace change saved locally','progress','Secure backend confirmation is still required for this action type.');}
+      return;
+    }
+    aiPendingAction=null;try{persistLocalState()}catch(_){ }try{renderDashboard();renderLibrary();renderTeamLists()}catch(_){ }
+    messages.forEach(m=>addAiMessage('ai',m));
+  }catch(e){console.error('Journey AI approved action failed',e);addAiMessage('ai',`I couldn't mark that task complete because CreateJourney did not confirm the action. ${e?.message||'No changes were confirmed.'}`);cj27Record('Journey AI action needs attention','attention',e?.message||'Backend did not confirm completion');}
+  finally{buttons.forEach(x=>{x.disabled=false;x.classList.remove('cj27-syncing');x.textContent='Approve & Apply'})}
+};
+
+// The SmartBoard Control Center command bar should enter the real Journey AI conversation,
+// rather than a separate canned modal. This makes it a genuine command layer.
+const assistant26V26=window.assistant26;
+window.assistant26=function(q){
+  const text=String(q||'').trim();if(!text)return;
+  try{if(typeof startTrial26==='function')startTrial26('Owner asked Journey AI for help')}catch(_){ }
+  if(typeof openAI==='function'&&typeof handleAiPrompt==='function'){
+    try{close26()}catch(_){ }
+    openAI();setTimeout(()=>handleAiPrompt(text,false),30);return;
+  }
+  if(typeof assistant26V26==='function')return assistant26V26(text);
+};
+
+// Proposal language should make approval meaning obvious.
+const addAiMessageV26=window.addAiMessage;
+window.addAiMessage=function(type,text,proposal=null,voiceReply=false){
+  const node=addAiMessageV26(type,text,proposal,voiceReply);
+  if(proposal&&node){const btn=node.querySelector('.ai-apply');if(btn)btn.textContent='Approve & Apply'}
+  return node;
+};
+
+// Keep the production board mapping fresh after login/dashboard restore.
+function cj27KickSync(){setTimeout(()=>cjSyncNormalizedBackendV27(false),900)}
+window.addEventListener('online',cj27KickSync);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')cj27KickSync()});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cj27KickSync);else cj27KickSync();
+
+})();
+</script>
+<!-- BUILD 27: live normalized SmartBoard backend sync + verified Journey AI Journey/status execution. -->
+
 </body>
 </html>
