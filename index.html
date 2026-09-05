@@ -1746,7 +1746,7 @@ const LOCAL_ACCOUNT_KEY="createjourney_build3_account_v1";
 let sb=null,backendWorkspaceId=null,actualRole="Owner",backendReady=false,restoring=false,signedInEmail="",isPlatformAdmin=false,adminBoards=[],adminActionBusy=false,adminHistoryBoardNumber=null,authRouting=false;
 let aiBusinessProfile={goals:[]};
 let aiTimeline=[],aiMediaLibrary=[],aiConversationSessions=[],aiWorkDrafts=[],aiTimelineFilter="All",aiTimelineView="activity",aiMediaFilter="All",aiMemoryItems=[],aiProjects=[],aiActiveProjectId=null,aiOperationQueue=[],aiOperationHistory=[],aiDismissedRecommendations=[],aiWorkspaceActiveTab="timeline",connectedAccounts=[],integrationActivity=[],integrationFilter="All",integrationCategory="All",integrationWizardProviderId=null,integrationBackendState={available:false,checked:false,error:"",lastCheckedAt:null},aiOpportunityQueue=[],aiExternalActions=[],aiCreativeJobs=[],aiMemorySignals=[],aiRecommendationFeedback=[],aiCampaigns=[],aiLearningInsights=[],aiExperiments=[],aiCampaignMetricsSyncAt=null,aiMarketingPlans=[],aiContentLibrary=[],aiScheduleQueue=[],aiMarketingPreferences={promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"},aiCalendarCursor=null,aiBusinessSnapshots=[],aiAttributionRecords=[],aiForecasts=[],aiAnomalies=[],aiAdvisorBriefs=[],aiIntelligenceSyncAt=null,aiAutomations=[],aiAutomationRuns=[],aiAutomationMaster={paused:false,backendConfirmed:false,updatedAt:null},aiAutomationSignals=[],aiAutomationPackHistory=[],billingState={planId:"core",status:"unconfirmed",source:"local_fallback",customerId:null,subscriptionId:null,currentPeriodEnd:null,cancelAtPeriodEnd:false,portalAvailable:false,lastSyncedAt:null},billingPlanCatalog=[],workspaceEntitlements={},workspaceUsage={periodStart:null,periodEnd:null,aiUnits:null,creativeGenerations:null,automationRuns:null,providerActions:null,source:"local_fallback"},billingInvoices=[],productionReadiness={lastRunAt:null,backendCheckedAt:null,backendVerified:false,backend:{},localChecks:[],securityChecks:[],qaChecks:[],releaseStatus:"unverified"},productionDiagnostics=[],releaseGateHistory=[],launchOperations={lastSyncedAt:null,backendConfirmed:false,maintenance:{enabled:null,message:null,confirmed:false},release:{version:null,commit:null,deployedAt:null,environment:null},services:[]},pilotWorkspaces=[],operationsIncidents=[],operationsMonitoring=[],featureFlags=[],supportDiagnostics=[],aiBusinessBrain={facts:[],preferences:[],decisions:[],highlights:[],updatedAt:null},aiCreativePreferences={variationCount:1,askMode:"smart",explainMode:"on"},aiLibrarySync={lastAttemptAt:null,lastSuccessAt:null,backendConfirmed:false,error:""},aiPendingLogoMeta=null;
-let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false,realtimeLastUserText="",realtimeLastUserAt=0,realtimeAssistantTurnRendered=false,realtimeMicRestoreTimer=null;
+let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false,realtimeLastUserText="",realtimeLastUserAt=0,realtimeAssistantTurnRendered=false,realtimeMicRestoreTimer=null,realtimePlaybackGraceUntil=0;
 const actions=["Pay","Review","Book","Subscribe","Deals","Social","Contact","Info","Portfolio","Event","Custom Link","Website"];
 const businessSuggested=["Pay","Review","Book"],personalSuggested=["Social","Website","Contact"];
 const actionConfig={Pay:{question:"Where should people go to pay?",example:"Example: your Square, Stripe, PayPal, Venmo, or payment link"},Review:{question:"Where should customers leave a review?",example:"Example: your Google Review link"},Book:{question:"Where should people book with you?",example:"Example: your booking or calendar link"},Subscribe:{question:"Where should people subscribe or join?",example:"Example: your membership, newsletter, or subscription link"},Deals:{question:"Where should people see your deals?",example:"Example: your offers, specials, promotions, or coupon page"},Social:{question:"Which social profile should people visit?",example:"Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"},Contact:{question:"Where should people contact you?",example:"Example: your contact page, messaging link, or digital contact card"},Info:{question:"Where should people see more information?",example:"Example: your menu, instructions, pricing, FAQ, directions, or information page"},Portfolio:{question:"Where should people view your work?",example:"Example: your portfolio, gallery, creator page, or work samples"},Event:{question:"Where should people go for your event?",example:"Example: event details, tickets, schedule, directions, or RSVP page"},"Custom Link":{question:"Where should this custom action take people?",example:"Example: any website or destination you choose"},Website:{question:"Where should people visit your website?",example:"Example: your personal, business, portfolio, or company website"}};
@@ -3798,7 +3798,56 @@ function currentScreenContext(){if(!el("adminConsoleApp").classList.contains("hi
 function updateAiContext(){if(el("aiContext"))el("aiContext").textContent=currentScreenContext()}
 function explainCurrentPage(){const c=currentScreenContext();if(c==="CreateJourney Platform Admin")return "This internal console is restricted to authorized CreateJourney platform administrators. It controls physical board inventory, claim state, status, reset operations, activation credentials, public NFC tokens, and administrative history.";if(c.startsWith("Board Management"))return "This page controls one board only: its Journey, destinations, assignment, name, status, and activity history. Changes here do not change your other boards.";if(c==="Team & Permissions")return "This page controls who can access the workspace, their role, assigned board, and whether an employee can edit a Journey.";if(c==="Journey AI Workspace")return "This is the Journey AI operating workspace. It brings together your business knowledge, AI-assisted history, creative assets and action center so Journey AI can work with context instead of starting from scratch.";if(c==="Board Library")return "This is your board directory. Open any board to manage it independently or add another official CreateJourney board.";if(c==="Add Board")return "This page activates another CreateJourney board, names it, chooses its starting Journey, and optionally assigns it to a team member.";return "This dashboard gives the owner or manager an operating view across boards, Journeys, team assignments, activity, and performance."}
 function primeVoiceOutput(){if(!("speechSynthesis" in window))return;try{const synth=window.speechSynthesis;synth.cancel();const u=new SpeechSynthesisUtterance(".");u.volume=.01;u.rate=2;synth.speak(u)}catch(_){ }}
-function speakAi(text){if(!text||!("speechSynthesis" in window))return;const clean=String(text).replace(/\s+/g," ").replace(/\s*->\s*/g,", then ").trim();if(!clean)return;const synth=window.speechSynthesis;const perform=()=>{try{synth.cancel();synth.resume();const u=new SpeechSynthesisUtterance(clean);const voices=synth.getVoices().filter(v=>/^en/i.test(v.lang));const preferred=[/Ava.*Premium/i,/Samantha.*Enhanced/i,/Samantha/i,/Ava/i,/Allison/i,/Karen/i,/Moira/i,/Evan/i,/Nathan/i];let chosen=null;for(const pattern of preferred){chosen=voices.find(v=>pattern.test(v.name));if(chosen)break}u.voice=chosen||voices.find(v=>/^en-US/i.test(v.lang))||voices[0]||null;u.lang=(u.voice&&u.voice.lang)||"en-US";u.rate=.94;u.pitch=.98;u.volume=1;u.onstart=()=>{aiVoiceSession=true};u.onend=()=>{aiVoiceSession=false};u.onerror=()=>{aiVoiceSession=false};synth.speak(u)}catch(err){aiVoiceSession=false;console.error("Journey AI voice output failed",err)}};const available=synth.getVoices();if(available.length){setTimeout(perform,120)}else{let fired=false;const ready=()=>{if(fired)return;fired=true;try{synth.removeEventListener("voiceschanged",ready)}catch(_){ }setTimeout(perform,80)};try{synth.addEventListener("voiceschanged",ready)}catch(_){ }setTimeout(ready,650)}}
+function splitJourneySpeech(text,maxLen=185){
+  const clean=String(text||"").replace(/\s+/g," ").replace(/\s*->\s*/g,", then ").trim();
+  if(!clean)return[];
+  const sentences=clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[clean];
+  const chunks=[];
+  for(const raw of sentences){
+    let s=raw.trim();
+    while(s.length>maxLen){
+      let cut=s.lastIndexOf(" ",maxLen);
+      if(cut<80)cut=maxLen;
+      chunks.push(s.slice(0,cut).trim());
+      s=s.slice(cut).trim();
+    }
+    if(s)chunks.push(s);
+  }
+  return chunks;
+}
+function speakAi(text){
+  if(!text||!("speechSynthesis" in window))return;
+  const chunks=splitJourneySpeech(text);
+  if(!chunks.length)return;
+  const synth=window.speechSynthesis;
+  const perform=()=>{
+    try{
+      synth.cancel();synth.resume();
+      const voices=synth.getVoices().filter(v=>/^en/i.test(v.lang));
+      const preferred=[/Ava.*Premium/i,/Samantha.*Enhanced/i,/Samantha/i,/Ava/i,/Allison/i,/Karen/i,/Moira/i,/Evan/i,/Nathan/i];
+      let chosen=null;for(const pattern of preferred){chosen=voices.find(v=>pattern.test(v.name));if(chosen)break}
+      let index=0,stopped=false;
+      const finish=()=>{aiVoiceSession=false};
+      const next=()=>{
+        if(stopped||index>=chunks.length){finish();return}
+        const u=new SpeechSynthesisUtterance(chunks[index++]);
+        u.voice=chosen||voices.find(v=>/^en-US/i.test(v.lang))||voices[0]||null;
+        u.lang=(u.voice&&u.voice.lang)||"en-US";u.rate=.94;u.pitch=.98;u.volume=1;
+        u.onstart=()=>{aiVoiceSession=true};
+        u.onend=()=>setTimeout(next,55);
+        u.onerror=()=>{stopped=true;finish()};
+        synth.speak(u);
+      };
+      setTimeout(next,60);
+    }catch(err){aiVoiceSession=false;console.error("Journey AI voice output failed",err)}
+  };
+  const available=synth.getVoices();
+  if(available.length){setTimeout(perform,120)}else{
+    let fired=false;const ready=()=>{if(fired)return;fired=true;try{synth.removeEventListener("voiceschanged",ready)}catch(_){}setTimeout(perform,80)};
+    try{synth.addEventListener("voiceschanged",ready)}catch(_){}setTimeout(ready,650)
+  }
+}
+
 function renderAiRecommendations(){const c=el("aiRecommendations");if(!c)return;c.innerHTML="";const recs=[],paused=boards.filter(b=>!b.active),zero=boards.filter(b=>b.analytics.taps===0),missing=boards.filter(b=>b.actions.some(a=>!b.destinations[a]));if(paused.length)recs.push({t:"Paused board",d:`${paused[0].name} is paused. Reactivate it when you want customers to use its Journey again.`});if(missing.length)recs.push({t:"Destination check",d:`${missing[0].name} has at least one Journey action without a destination.`});if(zero.length)recs.push({t:"No activity yet",d:`${zero[0].name} has zero taps. Verify placement and test the NFC/QR before judging performance.`});if(!recs.length)recs.push({t:"Workspace looks healthy",d:"No obvious prototype issues are showing. Live AI recommendations become stronger after real analytics are connected."});recs.slice(0,3).forEach(r=>{const d=document.createElement("div");d.className="ai-rec";d.innerHTML=`<strong>${esc(r.t)}</strong><span>${esc(r.d)}</span>`;c.appendChild(d)})}
 let journeyAiIntroOfferedThisSession=false;
 function showJourneyAiFirstUseWelcome(){
@@ -3961,33 +4010,31 @@ function setRealtimeMicCapture(enabled){
   }catch(_){}
 }
 
-function restoreRealtimeMicAfterPlayback(delay=1200){
+function restoreRealtimeMicAfterPlayback(delay=3200){
   try{
     if(realtimeMicRestoreTimer){
       clearTimeout(realtimeMicRestoreTimer);
       realtimeMicRestoreTimer=null;
     }
   }catch(_){}
-
+  const safeDelay=Math.max(700,Number(delay)||3200);
+  realtimePlaybackGraceUntil=Date.now()+safeDelay;
   const finish=()=>{
+    const remaining=realtimePlaybackGraceUntil-Date.now();
+    if(remaining>40){
+      realtimeMicRestoreTimer=setTimeout(finish,remaining+40);
+      return;
+    }
     try{if(realtimeAudioEl)realtimeAudioEl.muted=false}catch(_){}
     setRealtimeMicCapture(true);
     realtimeAssistantSpeaking=false;
+    realtimeMicRestoreTimer=null;
   };
-
-  try{
-    if(realtimeAudioEl){
-      const once=()=>{
-        realtimeAudioEl.removeEventListener("ended",once);
-        realtimeAudioEl.removeEventListener("pause",once);
-        finish();
-      };
-      realtimeAudioEl.addEventListener("ended",once,{once:true});
-      realtimeAudioEl.addEventListener("pause",once,{once:true});
-    }
-  }catch(_){}
-
-  realtimeMicRestoreTimer=setTimeout(finish,delay);
+  /* iPhone/Safari can still be playing buffered WebRTC audio after the model
+     reports the response complete. Keep the microphone disabled through a
+     short playback grace period so Journey's final words are not interpreted
+     as a new user interruption and cut off. */
+  realtimeMicRestoreTimer=setTimeout(finish,safeDelay);
 }
 
 function handleRealtimeEvent(event){
@@ -4062,6 +4109,15 @@ function handleRealtimeEvent(event){
     return;
   }
 
+  if(event.type==="response.output_audio.done"){
+    if(!realtimeSuppressAssistant){
+      realtimeAssistantSpeaking=true;
+      setRealtimeMicCapture(false);
+      restoreRealtimeMicAfterPlayback(3400);
+    }
+    return;
+  }
+
   if(event.type==="response.done"){
     if(realtimeSuppressAssistant){
       realtimeSuppressAssistant=false;
@@ -4084,7 +4140,7 @@ function handleRealtimeEvent(event){
     }
 
     realtimeAssistantTranscript="";
-    restoreRealtimeMicAfterPlayback(1200);
+    restoreRealtimeMicAfterPlayback(3400);
     return;
   }
 
@@ -4558,6 +4614,34 @@ handleAiPrompt=function(raw,voiceReply=false){
     addAiMessage("user",text);
     journeyAiDiscoveryMode="";
     generateJourneyAiImageFromChat(text,voiceReply);
+    return;
+  }
+
+  /* Route natural SmartBoard Journey requests into CreateJourney's real
+     action/proposal system instead of letting the generic assistant claim it
+     has no access to supported board controls. */
+  const lower=normalizeBoardText(text);
+  const journeyIntent=/\b(journey|customer flow|board flow)\b/.test(lower);
+  const actionIntent=/\b(set|setup|set up|create|build|make|change|update|edit|configure|apply|activate|handle|do)\b/.test(lower);
+  const capabilityIntent=/\b(can you|could you|are you able|actually)\b/.test(lower);
+  if(journeyIntent&&(actionIntent||capabilityIntent)){
+    const explicit=findBoardInText(text);
+    const visible=typeof visibleBoards==="function"?visibleBoards():boards;
+    const target=explicit||(visible.length===1?visible[0]:null);
+    const found=actions.filter(a=>lower.includes(a.toLowerCase()));
+    addAiMessage("user",text);
+    if(!target){
+      addAiMessage("ai",visible.length>1
+        ?`Yes. I can set up and change SmartBoard Journeys from here. You have ${visible.length} visible boards, so tell me which board you want me to work on, or open that board first.`
+        :"Yes. I can set up a SmartBoard Journey for you. Connect or activate the board first, then tell me what you want customers to do, such as Review, Book, Pay, Wi-Fi or another supported action.",null,voiceReply);
+      return;
+    }
+    if(found.length&&found.length<=3){
+      aiPendingAction={type:"journey",boardId:target.id,actions:found};
+      addAiMessage("ai",`Yes. I can configure ${target.name} for you. I prepared the Journey below so you can review and approve the change.`,{title:`Set up ${target.name}`,detail:`New Journey: ${found.join(" -> ")}`},voiceReply);
+      return;
+    }
+    addAiMessage("ai",`Yes. I can set up and change the Journey on ${target.name}. Tell me the customer goal or choose up to three actions, such as Review, Book, Pay, Wi-Fi, Subscribe or another available action. Once you choose them, I can prepare the actual board change for your approval instead of making you hunt through the settings.`,null,voiceReply);
     return;
   }
 
