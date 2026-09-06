@@ -4272,7 +4272,41 @@ async function startVoice(){
 /* EVENTS */
 el("businessChoice").addEventListener("click",()=>selectUseType("business"));el("personalChoice").addEventListener("click",()=>selectUseType("personal"));el("useContinue").addEventListener("click",()=>{if(useType)goToStep(2)});
 ["name","business","personalSetupName","email","password"].forEach(id=>el(id).addEventListener("input",()=>{updateAccountButton();const m={name:"nameError",business:"businessError",personalSetupName:"personalSetupError",email:"emailError",password:"passwordError"};clearFieldError(id,m[id])}));el("boardCode").addEventListener("input",()=>{updateActivationButton();clearFieldError("boardCode","boardCodeError")});["teamLabel","locationLabel","personalPurpose","boardName"].forEach(id=>el(id).addEventListener("input",()=>{updateCustomizeButton();const m={teamLabel:"teamLabelError",locationLabel:"locationLabelError",personalPurpose:"personalPurposeError",boardName:"boardNameError"};clearFieldError(id,m[id])}));
-el("accountContinue").addEventListener("click",attemptAccountContinue);el("activateButton").addEventListener("click",attemptActivation);el("customizeButton").addEventListener("click",attemptCustomization);el("connectButton").addEventListener("click",prepareConnections);el("finishButton").addEventListener("click",attemptFinish);el("dashboardButton").addEventListener("click",async()=>{if(backendReady&&!backendWorkspaceId){const ok=await bootstrapCloudWorkspace();if(!ok)return}persistLocalState();openDashboard()});
+el("accountContinue").addEventListener("click",attemptAccountContinue);el("activateButton").addEventListener("click",attemptActivation);el("customizeButton").addEventListener("click",attemptCustomization);el("connectButton").addEventListener("click",prepareConnections);el("finishButton").addEventListener("click",attemptFinish);el("dashboardButton").addEventListener("click",async()=>{
+  const btn=el("dashboardButton");
+  const original=btn.textContent;
+  btn.disabled=true;btn.textContent="Opening dashboard…";
+  try{
+    persistLocalState();
+
+    /* BUILD 33.3:
+       The old handler called bootstrapCloudWorkspace(), which does not exist.
+       When Supabase was available but the new account did not yet have a workspace,
+       Safari threw a ReferenceError and the success screen appeared to do nothing.
+       loadCloudWorkspace() already contains the supported bootstrap path through
+       cjBootstrapWorkspaceV24(), then opens the dashboard after membership/state load. */
+    if(backendReady&&sb&&!backendWorkspaceId){
+      const {data,error}=await sb.auth.getUser();
+      if(error)throw error;
+      if(data?.user){
+        const opened=await loadCloudWorkspace(data.user);
+        if(opened)return;
+      }
+    }
+
+    openDashboard();
+  }catch(e){
+    console.error("Continue to dashboard failed",e);
+    /* Keep onboarding usable if cloud bootstrap is temporarily unavailable.
+       Local state has already been saved and can sync later. */
+    try{
+      cjSetSyncStatusV24?.("warn","Local ready",`Dashboard opened locally. Cloud setup needs attention: ${e?.message||e}`);
+    }catch(_){}
+    openDashboard();
+  }finally{
+    btn.disabled=false;btn.textContent=original;
+  }
+});
 document.querySelectorAll(".range-tab").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".range-tab").forEach(x=>x.classList.remove("selected"));btn.classList.add("selected");const d=rangeData[btn.dataset.range],base=getTotals().taps,m=btn.dataset.range==="7"?5.9:btn.dataset.range==="30"?25.7:1;el("performanceNumber").textContent=Math.round(base*m);el("performanceCaption").textContent=d.caption;renderChart(d.bars)}));
 
 
@@ -7392,6 +7426,13 @@ window.CJBuild331={
 - Suppresses input during Safari/WebRTC playback grace.
 - Filters the known phantom CreateJourney/NFC/QR vocabulary transcript.
 - Prevents false user messages from interrupting Journey's active response.
+-->
+
+<!-- BUILD 33.3 — ONBOARDING CONTINUE-TO-DASHBOARD HOTFIX
+- Replaces a call to the nonexistent bootstrapCloudWorkspace() function.
+- Uses the supported loadCloudWorkspace() -> cjBootstrapWorkspaceV24() path.
+- Preserves local onboarding state and opens the dashboard if cloud bootstrap is temporarily unavailable.
+- Adds visible "Opening dashboard…" feedback to prevent dead-button behavior.
 -->
 </body>
 </html>
