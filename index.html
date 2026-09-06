@@ -1746,7 +1746,7 @@ const LOCAL_ACCOUNT_KEY="createjourney_build3_account_v1";
 let sb=null,backendWorkspaceId=null,actualRole="Owner",backendReady=false,restoring=false,signedInEmail="",isPlatformAdmin=false,adminBoards=[],adminActionBusy=false,adminHistoryBoardNumber=null,authRouting=false;
 let aiBusinessProfile={goals:[]};
 let aiTimeline=[],aiMediaLibrary=[],aiConversationSessions=[],aiWorkDrafts=[],aiTimelineFilter="All",aiTimelineView="activity",aiMediaFilter="All",aiMemoryItems=[],aiProjects=[],aiActiveProjectId=null,aiOperationQueue=[],aiOperationHistory=[],aiDismissedRecommendations=[],aiWorkspaceActiveTab="timeline",connectedAccounts=[],integrationActivity=[],integrationFilter="All",integrationCategory="All",integrationWizardProviderId=null,integrationBackendState={available:false,checked:false,error:"",lastCheckedAt:null},aiOpportunityQueue=[],aiExternalActions=[],aiCreativeJobs=[],aiMemorySignals=[],aiRecommendationFeedback=[],aiCampaigns=[],aiLearningInsights=[],aiExperiments=[],aiCampaignMetricsSyncAt=null,aiMarketingPlans=[],aiContentLibrary=[],aiScheduleQueue=[],aiMarketingPreferences={promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"},aiCalendarCursor=null,aiBusinessSnapshots=[],aiAttributionRecords=[],aiForecasts=[],aiAnomalies=[],aiAdvisorBriefs=[],aiIntelligenceSyncAt=null,aiAutomations=[],aiAutomationRuns=[],aiAutomationMaster={paused:false,backendConfirmed:false,updatedAt:null},aiAutomationSignals=[],aiAutomationPackHistory=[],billingState={planId:"core",status:"unconfirmed",source:"local_fallback",customerId:null,subscriptionId:null,currentPeriodEnd:null,cancelAtPeriodEnd:false,portalAvailable:false,lastSyncedAt:null},billingPlanCatalog=[],workspaceEntitlements={},workspaceUsage={periodStart:null,periodEnd:null,aiUnits:null,creativeGenerations:null,automationRuns:null,providerActions:null,source:"local_fallback"},billingInvoices=[],productionReadiness={lastRunAt:null,backendCheckedAt:null,backendVerified:false,backend:{},localChecks:[],securityChecks:[],qaChecks:[],releaseStatus:"unverified"},productionDiagnostics=[],releaseGateHistory=[],launchOperations={lastSyncedAt:null,backendConfirmed:false,maintenance:{enabled:null,message:null,confirmed:false},release:{version:null,commit:null,deployedAt:null,environment:null},services:[]},pilotWorkspaces=[],operationsIncidents=[],operationsMonitoring=[],featureFlags=[],supportDiagnostics=[],aiBusinessBrain={facts:[],preferences:[],decisions:[],highlights:[],updatedAt:null},aiCreativePreferences={variationCount:1,askMode:"smart",explainMode:"on"},aiLibrarySync={lastAttemptAt:null,lastSuccessAt:null,backendConfirmed:false,error:""},aiPendingLogoMeta=null;
-let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false,realtimeLastUserText="",realtimeLastUserAt=0,realtimeAssistantTurnRendered=false,realtimeMicRestoreTimer=null,realtimePlaybackGraceUntil=0;
+let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false,realtimeLastUserText="",realtimeLastUserAt=0,realtimeAssistantTurnRendered=false,realtimeMicRestoreTimer=null,realtimePlaybackGraceUntil=0,realtimeResponseActive=false;
 const actions=["Pay","Review","Book","Subscribe","Deals","Social","Contact","Info","Portfolio","Event","Custom Link","Website"];
 const businessSuggested=["Pay","Review","Book"],personalSuggested=["Social","Website","Contact"];
 const actionConfig={Pay:{question:"Where should people go to pay?",example:"Example: your Square, Stripe, PayPal, Venmo, or payment link"},Review:{question:"Where should customers leave a review?",example:"Example: your Google Review link"},Book:{question:"Where should people book with you?",example:"Example: your booking or calendar link"},Subscribe:{question:"Where should people subscribe or join?",example:"Example: your membership, newsletter, or subscription link"},Deals:{question:"Where should people see your deals?",example:"Example: your offers, specials, promotions, or coupon page"},Social:{question:"Which social profile should people visit?",example:"Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"},Contact:{question:"Where should people contact you?",example:"Example: your contact page, messaging link, or digital contact card"},Info:{question:"Where should people see more information?",example:"Example: your menu, instructions, pricing, FAQ, directions, or information page"},Portfolio:{question:"Where should people view your work?",example:"Example: your portfolio, gallery, creator page, or work samples"},Event:{question:"Where should people go for your event?",example:"Example: event details, tickets, schedule, directions, or RSVP page"},"Custom Link":{question:"Where should this custom action take people?",example:"Example: any website or destination you choose"},Website:{question:"Where should people visit your website?",example:"Example: your personal, business, portfolio, or company website"}};
@@ -4055,6 +4055,23 @@ function handleRealtimeEvent(event){
     if(!t)return;
 
     const now=Date.now();
+
+    /* iPhone/Safari can occasionally deliver a queued input transcription while
+       Journey is still speaking or immediately after buffered playback. Treat
+       those events as echo/phantom input, not as a real user turn. */
+    const normalized=t.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const knownPhantom=
+      normalized.includes("createjourney nfc qr board journey dashboard owner manager employee") ||
+      normalized.includes("create journey nfc qr board journey dashboard owner manager employee");
+
+    if(knownPhantom ||
+       realtimeResponseActive ||
+       realtimeAssistantSpeaking ||
+       now<realtimePlaybackGraceUntil){
+      console.warn("Journey AI ignored phantom/echo transcription",t);
+      return;
+    }
+
     if(t===realtimeLastUserText&&(now-realtimeLastUserAt)<6000)return;
     realtimeLastUserText=t;
     realtimeLastUserAt=now;
@@ -4075,6 +4092,7 @@ function handleRealtimeEvent(event){
   }
 
   if(event.type==="response.created"){
+    realtimeResponseActive=true;
     realtimeLastAssistantText="";
     realtimeAssistantTranscript="";
     realtimeAssistantSpeaking=false;
@@ -4119,6 +4137,7 @@ function handleRealtimeEvent(event){
   }
 
   if(event.type==="response.done"){
+    realtimeResponseActive=false;
     if(realtimeSuppressAssistant){
       realtimeSuppressAssistant=false;
       realtimeAssistantTranscript="";
@@ -4145,12 +4164,14 @@ function handleRealtimeEvent(event){
   }
 
   if(event.type==="response.cancelled"||event.type==="response.canceled"){
+    realtimeResponseActive=false;
     realtimeAssistantTranscript="";
     restoreRealtimeMicAfterPlayback(250);
     return;
   }
 
   if(event.type==="error"){
+    realtimeResponseActive=false;
     console.error("Journey AI Realtime error",event);
     const wasSuppressed=realtimeSuppressAssistant;
     realtimeAssistantTranscript="";
@@ -7365,5 +7386,12 @@ window.CJBuild331={
 })();
 </script>
 
+
+<!-- BUILD 33.2 — JOURNEY AI PHANTOM VOICE TRANSCRIPT HOTFIX
+- Suppresses queued/echo input transcriptions while Journey is speaking.
+- Suppresses input during Safari/WebRTC playback grace.
+- Filters the known phantom CreateJourney/NFC/QR vocabulary transcript.
+- Prevents false user messages from interrupting Journey's active response.
+-->
 </body>
 </html>
