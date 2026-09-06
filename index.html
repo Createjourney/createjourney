@@ -6617,7 +6617,7 @@ body.cj31-mobile-polish #cj2829Launcher,body.cj31-mobile-polish .ai-launcher{opa
       <div class="cj31-head">
         <div>
           <h1>Production Command Center</h1>
-          <p>Build 32 · Production cutover, Journey AI execution, integrations and release readiness</p>
+          <p>Build 33 · Production cutover, real integrations and release readiness</p>
         </div>
         <button id="cj31Close" class="cj31-close" type="button">×</button>
       </div>
@@ -7103,6 +7103,267 @@ BUILD 32:
 - The CreateJourney account/workspace is preserved when clearing the PureMens local test profile.
 - Production onboarding remains available for the first real business/customer.
 -->
+
+
+<!-- =========================================================
+     BUILD 33 — REAL EXTERNAL INTEGRATIONS + OAUTH READINESS
+     ========================================================= -->
+<style id="cjBuild33Styles">
+#cj33Integrations{position:fixed;inset:0;z-index:290;background:#f5f8fc;overflow:auto;color:#121827}
+.cj33-hidden{display:none!important}.cj33-shell{max-width:1100px;margin:0 auto;padding:18px 16px 110px}
+.cj33-top{position:sticky;top:0;z-index:5;background:rgba(245,248,252,.95);backdrop-filter:blur(16px);padding:8px 0 14px;border-bottom:1px solid #dfe7f0}
+.cj33-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.cj33-head h1{margin:0;font-size:27px}.cj33-head p{margin:5px 0 0;color:#667085;font-size:13px;line-height:1.5}
+.cj33-close{width:42px;height:42px;margin:0;padding:0;border-radius:50%;background:#fff;color:#334155;border:1px solid #dfe7f0}
+.cj33-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:16px}.cj33-card{grid-column:span 6;background:#fff;border:1px solid #dfe7f0;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.035)}.cj33-card.full{grid-column:1/-1}.cj33-card h3{margin:0 0 6px;font-size:18px}.cj33-card p{margin:0;color:#667085;font-size:13px;line-height:1.5}
+.cj33-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid #edf1f5}.cj33-row:first-of-type{border-top:0}.cj33-row-main{min-width:0}.cj33-row strong{display:block;font-size:14px}.cj33-row small{display:block;color:#667085;margin-top:3px;line-height:1.4}
+.cj33-pill{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#eef5ff;color:#3978c8}.cj33-pill.good{background:#eaf8ef;color:#287b4b}.cj33-pill.warn{background:#fff4dc;color:#8b6519}.cj33-pill.bad{background:#fff0f0;color:#a43e3e}
+.cj33-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.cj33-actions button,.cj33-small{width:auto;margin:0;padding:9px 11px;border-radius:11px;font-size:12px}.cj33-primary{background:#172033;color:#fff}.cj33-secondary{background:#edf5ff;color:#3978c8}.cj33-quiet{background:#f5f7fa;color:#475467}.cj33-danger{background:#fff0f0;color:#a43e3e}
+.cj33-note{margin-top:10px;padding:11px 12px;border-radius:13px;background:#f7f9fc;color:#667085;font-size:12px;line-height:1.45}.cj33-banner{margin-top:10px;padding:12px 13px;border-radius:13px;background:#fff4dc;color:#805f19;font-size:12px;line-height:1.45}.cj33-banner.good{background:#eaf8ef;color:#287b4b}.cj33-banner.bad{background:#fff0f0;color:#9a3131}
+.cj33-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.cj33-kpi{background:#f7f9fc;border-radius:14px;padding:13px}.cj33-kpi strong{display:block;font-size:22px}.cj33-kpi span{font-size:11px;color:#667085}
+.cj33-provider{padding:15px;border:1px solid #e3eaf3;border-radius:17px;margin-top:10px}.cj33-provider-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.cj33-provider h4{margin:0;font-size:15px}.cj33-provider p{margin:4px 0 0;font-size:12px}
+@media(max-width:760px){.cj33-card{grid-column:1/-1}.cj33-kpis{grid-template-columns:1fr 1fr}.cj33-head h1{font-size:23px}.cj33-provider-head{flex-direction:column}}
+</style>
+
+<div id="cj33Integrations" class="cj33-hidden" aria-hidden="true">
+ <div class="cj33-shell">
+  <div class="cj33-top">
+   <div class="cj33-head">
+    <div><h1>Connected Accounts</h1><p>Build 33 · Real provider authorization, verified connection state, and provider-confirmed completion rules.</p></div>
+    <button id="cj33Close" class="cj33-close" type="button">×</button>
+   </div>
+  </div>
+  <div id="cj33Content"></div>
+ </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const providers=[
+ {id:'stripe',name:'Stripe',kind:'Billing & subscriptions',desc:'Journey AI subscriptions, MiniBoard AI add-ons and customer billing portal.',oauth:false},
+ {id:'google',name:'Google Business Profile',kind:'Reviews & business presence',desc:'Connect Google Business Profile for business/review capabilities when authorized.',oauth:true},
+ {id:'square',name:'Square',kind:'Payments',desc:'Connect Square for payment and order/customer signals when authorized.',oauth:true},
+ {id:'calendly',name:'Calendly',kind:'Booking',desc:'Connect Calendly for booking activity and future confirmation signals.',oauth:true},
+ {id:'acuity',name:'Acuity',kind:'Booking',desc:'Connect Acuity Scheduling for booking activity and customer Journey destinations.',oauth:true},
+ {id:'meta',name:'Facebook / Instagram',kind:'Marketing',desc:'Connect Meta business assets for supported page and Instagram capabilities.',oauth:true}
+];
+let data={accounts:[],readiness:{},business_id:null,role:null,error:'',loading:false,lastLoaded:null};
+const h=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt=v=>{if(!v)return'—';try{return new Date(v).toLocaleString()}catch(_){return String(v)}};
+const card=(title,body,cls='')=>`<section class="cj33-card ${cls}"><h3>${h(title)}</h3>${body}</section>`;
+const pill=(txt,kind='')=>`<span class="cj33-pill ${kind}">${h(txt)}</span>`;
+async function session(){try{return typeof window.integrationSession==='function'?await window.integrationSession():null}catch(_){return null}}
+async function request(action,payload={}){
+ const s=await session();if(!s)return{ok:false,error:'Sign in is required.'};
+ try{
+  const r=await fetch(`${window.SUPABASE_URL}/functions/v1/journey-integrations`,{method:'POST',headers:{Authorization:`Bearer ${s.access_token}`,apikey:window.SUPABASE_PUBLISHABLE_KEY||'','Content-Type':'application/json'},body:JSON.stringify({action,workspace_id:window.backendWorkspaceId||null,business_id:window.CJ27?.businessId||null,...payload})});
+  const d=await r.json().catch(()=>({}));return r.ok?{ok:true,...d}:{ok:false,status:r.status,...d,error:d.error||`Integration service returned ${r.status}`};
+ }catch(e){return{ok:false,error:e?.message||'Integration service unavailable'}}
+}
+function account(id){return(data.accounts||[]).find(a=>String(a.provider).toLowerCase()===id)||null}
+function readiness(id){return data.readiness?.[id]||{configured:false}}
+function statusInfo(id){
+ const a=account(id);
+ if(a?.status==='connected')return['Connected','good'];
+ if(a?.status==='connecting')return['Connecting','warn'];
+ if(['needs_attention','expired','error'].includes(a?.status))return['Needs attention','bad'];
+ if(a?.status==='disconnected')return['Disconnected',''];
+ return readiness(id)?.configured?['Ready to connect','']:['Server setup required','warn'];
+}
+function counts(){
+ const connected=providers.filter(p=>account(p.id)?.status==='connected').length;
+ const configured=providers.filter(p=>readiness(p.id)?.configured).length;
+ const attention=providers.filter(p=>['needs_attention','expired','error'].includes(account(p.id)?.status)).length;
+ return{connected,configured,attention};
+}
+function providerBlock(p){
+ const a=account(p.id),rd=readiness(p.id),[label,kind]=statusInfo(p.id);
+ let action='';
+ if(p.id==='stripe'){
+   action=`<button class="cj33-primary" data-cj33-billing>${a?.status==='connected'?'Manage billing':'Open billing setup'}</button>`;
+ }else if(a?.status==='connected'){
+   action=`<button class="cj33-secondary" data-cj33-connect="${h(p.id)}">Reconnect</button><button class="cj33-danger" data-cj33-disconnect="${h(p.id)}">Disconnect</button>`;
+ }else{
+   action=`<button class="cj33-primary" data-cj33-connect="${h(p.id)}" ${!rd?.configured?'disabled':''}>${a?.status==='connecting'?'Continue connection':'Connect'}</button>`;
+ }
+ return `<div class="cj33-provider"><div class="cj33-provider-head"><div><h4>${h(p.name)}</h4><p>${h(p.kind)} · ${h(p.desc)}</p></div>${pill(label,kind)}</div>
+ <div class="cj33-note">${a?.last_error?`Last error: ${h(a.last_error)}`:a?.status==='connected'?`Connected ${fmt(a.connected_at)}${a.external_account_name?' · '+h(a.external_account_name):''}`:rd?.configured?'Server credentials appear configured. Authorization can begin.':'Provider credentials are not configured on the secure server yet.'}</div>
+ <div class="cj33-actions">${action}</div></div>`;
+}
+function render(){
+ const c=document.getElementById('cj33Content');if(!c)return;const k=counts();
+ c.innerHTML=`<div class="cj33-grid">
+ ${card('Integration status',`<p>CreateJourney distinguishes the UI being available from the provider actually being authorized. “Connected” appears only after CreateJourney receives a valid provider OAuth result or verified billing state.</p><div class="cj33-kpis"><div class="cj33-kpi"><strong>${k.connected}</strong><span>Connected</span></div><div class="cj33-kpi"><strong>${k.configured}</strong><span>Server-configured</span></div><div class="cj33-kpi"><strong>${k.attention}</strong><span>Need attention</span></div><div class="cj33-kpi"><strong>${h(data.role||'—')}</strong><span>Business role</span></div></div><div class="cj33-actions"><button class="cj33-primary" data-cj33-refresh>Refresh provider status</button></div>${data.error?`<div class="cj33-banner bad">${h(data.error)}</div>`:`<div class="cj33-note">Last refreshed ${fmt(data.lastLoaded)}</div>`}`,'full')}
+ ${card('Providers',providers.map(providerBlock).join(''),'full')}
+ ${card('Verification rules',`<div class="cj33-row"><div class="cj33-row-main"><strong>Connected</strong><small>Only after valid OAuth/provider authorization.</small></div>${pill('Verified','good')}</div><div class="cj33-row"><div class="cj33-row-main"><strong>Clicked / opened</strong><small>Does not equal paid, booked, reviewed or published.</small></div>${pill('Attempt only','warn')}</div><div class="cj33-row"><div class="cj33-row-main"><strong>Provider completion</strong><small>Recorded only when CreateJourney receives sufficient provider/backend confirmation.</small></div>${pill('Required','good')}</div>`)}
+ ${card('Security',`<div class="cj33-row"><div class="cj33-row-main"><strong>Secret keys</strong><small>Never stored in this index.html file.</small></div>${pill('Server-side','good')}</div><div class="cj33-row"><div class="cj33-row-main"><strong>OAuth tokens</strong><small>Build 33 backend requires a server-side token encryption key before OAuth connections can be completed.</small></div>${pill('Encrypted','good')}</div><div class="cj33-row"><div class="cj33-row-main"><strong>Disconnect</strong><small>Owner-only destructive connection change.</small></div>${pill('Owner controlled','good')}</div>`)}
+ </div>`;
+}
+async function refresh(){
+ data.loading=true;render();
+ const r=await request('status');
+ if(r?.ok)data={...data,...r,error:'',loading:false,lastLoaded:new Date().toISOString()};
+ else data={...data,error:r?.error||'Unable to load integration status.',loading:false,lastLoaded:new Date().toISOString()};
+ render();
+}
+async function connect(provider){
+ const r=await request('begin_connection',{provider});
+ if(r?.ok&&r.authorization_url){location.href=r.authorization_url;return}
+ if(r?.configuration_required){alert(`${providers.find(x=>x.id===provider)?.name||provider} is not fully configured on the secure server yet. Build 33 is ready, but the provider client ID/secret and encryption key must be added before OAuth can start.`);return}
+ alert(r?.error||'Unable to begin connection.');
+ await refresh();
+}
+async function disconnect(provider){
+ if(!confirm(`Disconnect ${providers.find(x=>x.id===provider)?.name||provider}?`))return;
+ const r=await request('disconnect',{provider});
+ if(!r?.ok)alert(r?.error||'Unable to disconnect provider.');
+ await refresh();
+}
+function billing(){
+ close();
+ try{if(typeof window.openBillingWorkspace==='function'){window.openBillingWorkspace();return}}catch(_){}
+ try{if(typeof window.openBilling26==='function'){window.openBilling26();return}}catch(_){}
+ try{window.CJBuild31?.open?.('Integrations')}catch(_){}
+}
+function open(){document.getElementById('cj33Integrations')?.classList.remove('cj33-hidden');document.getElementById('cj33Integrations')?.setAttribute('aria-hidden','false');render();refresh()}
+function close(){document.getElementById('cj33Integrations')?.classList.add('cj33-hidden');document.getElementById('cj33Integrations')?.setAttribute('aria-hidden','true')}
+async function callback(){
+ const u=new URL(location.href),provider=u.searchParams.get('integration_callback'),code=u.searchParams.get('code'),state=u.searchParams.get('state');
+ if(!provider||!code||!state)return;
+ const cleanUrl=new URL(location.href);['integration_callback','code','state','scope','authuser','prompt'].forEach(k=>cleanUrl.searchParams.delete(k));
+ history.replaceState({},'',cleanUrl.pathname+(cleanUrl.search||'')+(cleanUrl.hash||''));
+ const r=await request('complete_oauth',{provider,code,state});
+ if(r?.ok){alert(`${providers.find(x=>x.id===provider)?.name||provider} connected successfully.`);open()}
+ else{alert(r?.error||'Provider authorization could not be completed.');open()}
+}
+function inject(){
+ const dash=document.getElementById('dashboardApp');if(!dash||dash.querySelector('[data-cj33-entry]'))return;
+ const shell=dash.querySelector('.dashboard-shell');if(!shell)return;
+ const s=document.createElement('div');s.className='dashboard-section';s.setAttribute('data-cj33-entry','');
+ s.innerHTML=`<div class="section-heading"><h3>Connected Accounts</h3><button class="section-link" type="button" data-cj33-open>Manage</button></div><div class="support-card"><div><h4>Real provider connections</h4><p>Google, Square, booking, Meta and billing integrations with verified connection states.</p></div><button class="support-button" type="button" data-cj33-open>Open</button></div>`;
+ shell.appendChild(s);
+}
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.id==='cj33Close')close();
+ if(t.hasAttribute('data-cj33-open'))open();
+ if(t.hasAttribute('data-cj33-refresh'))refresh();
+ if(t.dataset.cj33Connect)connect(t.dataset.cj33Connect);
+ if(t.dataset.cj33Disconnect)disconnect(t.dataset.cj33Disconnect);
+ if(t.hasAttribute('data-cj33-billing'))billing();
+});
+const mo=new MutationObserver(inject);mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{inject();setTimeout(callback,500)});else{inject();setTimeout(callback,500)}
+window.CJBuild33={open,refresh,state:()=>data,version:'33.0'};
+})();
+</script>
+
+<!--
+BUILD 33:
+- Secure journey-integrations backend connection layer.
+- Real status model: disconnected / connecting / connected / needs attention / expired / error.
+- OAuth initiation/callback path for Google Business Profile, Square, Calendly, Acuity and Meta.
+- Server-side token encryption requirement before OAuth completion.
+- Stripe remains routed through the dedicated billing + webhook backend.
+- No external provider is labeled connected from a button click alone.
+- No provider-side business outcome is labeled complete without sufficient provider/backend confirmation.
+- Actual provider client IDs, client secrets, app-review approvals and Stripe production secrets remain deployment credentials and are never embedded in index.html.
+-->
+
+
+<!-- =========================================================
+     BUILD 33.1 — JOURNEY AI MOBILE OVERLAY + NAV HOTFIX
+     ========================================================= -->
+<style id="cj331JourneyAiMobileFix">
+/* The production bottom nav must never cover Journey AI's composer. */
+body.cj331-ai-open #cj31BottomBar{
+  display:none !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+body.cj331-ai-open #journeyAiPanel{
+  padding-bottom:max(0px, env(safe-area-inset-bottom));
+}
+body.cj331-ai-open #journeyAiPanel .ai-compose{
+  position:relative;
+  z-index:4;
+  padding-bottom:max(10px, env(safe-area-inset-bottom));
+  background:#fff;
+}
+@media(max-width:760px){
+  #journeyAiPanel:not(.hidden){
+    height:min(86vh, calc(100dvh - 28px));
+    max-height:min(86vh, calc(100dvh - 28px));
+  }
+  #journeyAiPanel .ai-thread{
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+}
+</style>
+<script>
+(function(){
+'use strict';
+function aiPanel(){return document.getElementById('journeyAiPanel')}
+function aiIsOpen(){
+  const p=aiPanel();
+  return !!p && !p.classList.contains('hidden');
+}
+function syncJourneyAiMobileUI(){
+  const open=aiIsOpen();
+  document.body.classList.toggle('cj331-ai-open',open);
+  const bar=document.getElementById('cj31BottomBar');
+  if(bar){
+    const dashboard=document.getElementById('dashboardApp');
+    const dashboardVisible=!!dashboard&&!dashboard.classList.contains('hidden');
+    bar.classList.toggle('cj31-hidden',!dashboardVisible||open);
+    bar.setAttribute('aria-hidden',dashboardVisible&&!open?'false':'true');
+  }
+}
+function focusJourneyComposer(){
+  const p=aiPanel();
+  if(!p)return;
+  p.classList.remove('hidden','collapsed');
+  p.classList.add('expanded');
+  syncJourneyAiMobileUI();
+  requestAnimationFrame(()=>{
+    const input=document.getElementById('aiInput');
+    if(input){
+      try{input.focus({preventScroll:true})}catch(_){try{input.focus()}catch(__){}}
+      try{input.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(_){}
+    }
+  });
+}
+/* Capture the Build 31 bottom Journey AI shortcut before older bubbling handlers.
+   When the sheet is already open, this produces a visible action: expand + focus the text box. */
+document.addEventListener('click',function(e){
+  const t=e.target.closest?.('[data-cj31-ai]');
+  if(!t)return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  try{
+    if(typeof window.openAI==='function')window.openAI();
+    else if(typeof openAI==='function')openAI();
+  }catch(_){}
+  focusJourneyComposer();
+},true);
+
+const start=()=>{
+  const p=aiPanel();
+  if(p)new MutationObserver(syncJourneyAiMobileUI).observe(p,{attributes:true,attributeFilter:['class']});
+  const d=document.getElementById('dashboardApp');
+  if(d)new MutationObserver(syncJourneyAiMobileUI).observe(d,{attributes:true,attributeFilter:['class']});
+  syncJourneyAiMobileUI();
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+
+window.CJBuild331={
+  version:'33.1',
+  syncJourneyAiMobileUI,
+  focusJourneyComposer
+};
+})();
+</script>
 
 </body>
 </html>
