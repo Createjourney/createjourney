@@ -9486,5 +9486,171 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+
+<!-- =========================================================
+     CREATEJOURNEY VISUAL RESTORE PATCH — screenshot baseline
+     Preserves existing application systems while restoring the
+     light premium dashboard language and interactive controls.
+     ========================================================= -->
+<style id="cjVisualRestorePatch">
+:root{
+  --cj-vr-bg:#f7f8fb;
+  --cj-vr-card:#ffffff;
+  --cj-vr-text:#121826;
+  --cj-vr-muted:#7b8494;
+  --cj-vr-blue:#4977C2;
+  --cj-vr-blue-soft:#edf3fb;
+  --cj-vr-border:#e6e9ef;
+  --cj-vr-green:#28b76b;
+}
+#dashboardApp{background:var(--cj-vr-bg)!important;color:var(--cj-vr-text)!important}
+#dashboardApp .dashboard-shell{max-width:1180px!important;margin:0 auto!important;padding:18px 18px 116px!important}
+#dashboardApp .dashboard-header{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  padding:8px 0 18px!important;align-items:center!important
+}
+#dashboardApp .dashboard-brand .cj-official-logo{width:178px!important;max-height:58px!important}
+#dashboardApp .dashboard-greeting{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  padding:6px 0 18px!important;margin:0!important
+}
+#dashboardApp .dashboard-greeting h1{font-size:28px!important;letter-spacing:-.55px!important;color:var(--cj-vr-text)!important}
+#dashboardApp .dashboard-greeting p{color:var(--cj-vr-muted)!important}
+#dashboardApp .dashboard-section,
+#dashboardApp .revenue-opportunity-shell,
+#dashboardApp .support-card,
+#dashboardApp .journey-card,
+#dashboardApp .team-card,
+#dashboardApp .stat-card,
+#dashboardApp .board-card{
+  background:var(--cj-vr-card)!important;border:1px solid var(--cj-vr-border)!important;
+  border-radius:18px!important;box-shadow:0 4px 18px rgba(18,24,38,.035)!important
+}
+#dashboardApp .dashboard-section{padding:17px!important;margin-bottom:14px!important}
+#dashboardApp .section-heading h3{color:var(--cj-vr-text)!important;font-size:16px!important}
+#dashboardApp .section-link,#dashboardApp .dashboard-performance-link{color:var(--cj-vr-blue)!important;font-weight:700!important}
+#dashboardApp button,#dashboardApp .quick-action{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer;
+}
+#dashboardApp button:focus-visible,#dashboardApp .quick-action:focus-visible{
+  outline:3px solid rgba(73,119,194,.22)!important;outline-offset:2px!important
+}
+#dashboardApp button.cj-vr-selected,#dashboardApp .quick-action.cj-vr-selected{
+  border-color:var(--cj-vr-blue)!important;background:var(--cj-vr-blue-soft)!important;
+  color:var(--cj-vr-blue)!important;transform:translateY(-1px)
+}
+#dashboardApp .quick-grid{gap:10px!important}
+#dashboardApp .quick-action{
+  min-height:82px!important;border:1px solid var(--cj-vr-border)!important;border-radius:16px!important;
+  background:#fff!important;transition:transform .14s ease,border-color .14s ease,background .14s ease!important
+}
+@media(hover:hover) and (pointer:fine){
+  #dashboardApp .quick-action:hover{border-color:#cbd8ea!important;background:#fbfdff!important;transform:translateY(-1px)}
+}
+#dashboardApp .quick-icon{color:var(--cj-vr-blue)!important}
+#dashboardApp .stats-grid{gap:10px!important}
+#dashboardApp .stat-card{padding:15px!important}
+#dashboardApp .stat-label,#dashboardApp .dashboard-performance-label{color:var(--cj-vr-muted)!important}
+#dashboardApp .stat-number,#dashboardApp .dashboard-performance-value{color:var(--cj-vr-text)!important}
+#dashboardApp .demo-pill{display:none!important}
+#dashboardApp .backend-pill,#dashboardApp .cloud-sync-pill{
+  background:#fff!important;border:1px solid var(--cj-vr-border)!important;color:#667085!important;
+  border-radius:999px!important
+}
+
+/* LIVE signal — intentionally animated only while the app reports an active/live state. */
+.cj-vr-live{
+  display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;
+  border:1px solid #d9eee3;background:#f6fcf8;color:#258657;font-size:11px;font-weight:800;
+  letter-spacing:.03em;text-transform:uppercase
+}
+.cj-vr-live-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--cj-vr-green);
+  box-shadow:0 0 0 0 rgba(40,183,107,.42);animation:cjVrLivePulse 1.45s ease-out infinite
+}
+@keyframes cjVrLivePulse{
+  0%{opacity:1;box-shadow:0 0 0 0 rgba(40,183,107,.42)}
+  55%{opacity:.42;box-shadow:0 0 0 7px rgba(40,183,107,0)}
+  100%{opacity:1;box-shadow:0 0 0 0 rgba(40,183,107,0)}
+}
+@media(prefers-reduced-motion:reduce){.cj-vr-live-dot{animation:none!important}}
+
+/* Keep Journey AI controls visually above the lower navigation, as in the supplied mobile reference. */
+#dashboardApp .ai-fab,#dashboardApp .ai-talk-fab{box-shadow:0 7px 22px rgba(18,24,38,.16)!important}
+#dashboardApp .dashboard-columns{gap:14px!important}
+@media(max-width:700px){
+  #dashboardApp .dashboard-shell{padding:14px 14px 112px!important}
+  #dashboardApp .dashboard-header{padding-bottom:12px!important}
+  #dashboardApp .dashboard-greeting h1{font-size:24px!important}
+  #dashboardApp .dashboard-columns{grid-template-columns:1fr!important}
+  #dashboardApp .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #dashboardApp .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #dashboardApp .revenue-opportunity-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+</style>
+
+<script id="cjVisualRestoreBehavior">
+(function(){
+  if(window.__cjVisualRestoreBehavior)return;
+  window.__cjVisualRestoreBehavior=true;
+
+  function dashboard(){return document.getElementById('dashboardApp')}
+  function addLiveSignal(){
+    const dash=dashboard();
+    if(!dash || dash.querySelector('[data-cj-vr-live]'))return;
+    const greeting=dash.querySelector('.dashboard-greeting');
+    if(!greeting)return;
+    const live=document.createElement('span');
+    live.className='cj-vr-live';
+    live.setAttribute('data-cj-vr-live','');
+    live.setAttribute('role','status');
+    live.setAttribute('aria-label','CreateJourney is live and on');
+    live.innerHTML='<span class="cj-vr-live-dot" aria-hidden="true"></span><span>Live</span>';
+    const status=greeting.querySelector('.cloud-sync-pill,.backend-pill');
+    if(status) status.insertAdjacentElement('afterend',live);
+    else greeting.appendChild(live);
+  }
+
+  function makeSelectionsFeelImmediate(){
+    const dash=dashboard();
+    if(!dash)return;
+    dash.addEventListener('click',function(e){
+      const btn=e.target.closest('button,.quick-action');
+      if(!btn || btn.disabled)return;
+      btn.classList.add('cj-vr-selected');
+      window.setTimeout(()=>btn.classList.remove('cj-vr-selected'),260);
+    },true);
+  }
+
+  function makeHelpClickable(){
+    document.querySelectorAll('#dashboardApp .support-button').forEach(function(btn){
+      if(btn.dataset.cjVrBound)return;
+      btn.dataset.cjVrBound='1';
+      btn.addEventListener('click',function(){
+        if(typeof window.openAI==='function'){
+          window.openAI();
+          if(typeof window.addAiMessage==='function'){
+            window.setTimeout(function(){
+              window.addAiMessage('ai','I’m here. Tell me what you need help with in CreateJourney and I’ll guide you from here.');
+            },80);
+          }
+        }
+      });
+    });
+  }
+
+  function init(){
+    addLiveSignal();
+    makeSelectionsFeelImmediate();
+    makeHelpClickable();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+
+  const observer=new MutationObserver(function(){addLiveSignal();makeHelpClickable()});
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
