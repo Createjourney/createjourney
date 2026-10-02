@@ -10799,5 +10799,184 @@ button.primary,button.secondary,.primary,.secondary{
   .auth-brand .cj-vector-brand{transform:scale(1.055)}
   .cj-vector-arrow{right:-1px;top:-14px;width:65px;height:18px}
 }
-</style></body>
+</style>
+<!-- =========================================================
+     OFFICIAL CREATEJOURNEY WORDMARK — 2026-10-02
+     Source of truth: user-supplied CreateJourney logo reference.
+     Text + dotted-arrow only; no image box; no Powered-by subline.
+     ========================================================= -->
+<style id="cjOfficialWordmarkV2Styles">
+:root{
+  --cj-logo-navy:#121826;
+  --cj-logo-blue:#4977C0;
+}
+.cj-official-wordmark-v2{
+  display:inline-flex!important;
+  position:relative!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+  margin:0 auto!important;
+  width:max-content!important;
+  max-width:100%!important;
+  overflow:visible!important;
+  white-space:nowrap!important;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif!important;
+  line-height:.88!important;
+  letter-spacing:-1.85px!important;
+}
+.cj-official-wordmark-v2 .cj-logo-create{
+  color:var(--cj-logo-navy)!important;
+  font-weight:900!important;
+}
+.cj-official-wordmark-v2 .cj-logo-journey{
+  color:var(--cj-logo-blue)!important;
+  font-weight:820!important;
+}
+.cj-official-wordmark-v2 .cj-logo-arrow{
+  position:absolute!important;
+  right:2px!important;
+  top:-22px!important;
+  width:112px!important;
+  height:31px!important;
+  overflow:visible!important;
+  color:var(--cj-logo-blue)!important;
+}
+.cj-official-wordmark-v2 .cj-logo-arrow circle{
+  fill:currentColor!important;
+}
+.cj-official-wordmark-v2 .cj-logo-arrow path{
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:6.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+
+/* Login + onboarding brand size */
+.auth-brand .cj-official-wordmark-v2{
+  font-size:38px!important;
+  margin:14px auto 20px!important;
+}
+.logo .cj-official-wordmark-v2{
+  font-size:36px!important;
+  margin:12px auto 18px!important;
+}
+
+/* App/dashboard header brand size */
+.dashboard-brand .cj-official-wordmark-v2{
+  font-size:22px!important;
+  letter-spacing:-1.05px!important;
+  margin:0!important;
+  transform:none!important;
+}
+.dashboard-brand .cj-official-wordmark-v2 .cj-logo-arrow{
+  width:67px!important;
+  height:19px!important;
+  top:-13px!important;
+  right:1px!important;
+  stroke-width:5.7!important;
+}
+
+/* Agent-center brand */
+#cj36AgentCenter .cj-official-wordmark-v2{
+  font-size:24px!important;
+  letter-spacing:-1.15px!important;
+  margin:5px 0 13px!important;
+}
+#cj36AgentCenter .cj-official-wordmark-v2 .cj-logo-arrow{
+  width:72px!important;
+  height:20px!important;
+  top:-14px!important;
+}
+
+/* Kill legacy image/subline branding wherever V2 is installed */
+.auth-brand .cj-official-logo,
+.logo .cj-official-logo,
+.dashboard-brand .cj-official-logo,
+#cj36AgentCenter .cj364-agent-logo,
+.auth-brand .cj-vector-powered,
+.logo .cj-vector-powered{
+  display:none!important;
+}
+
+@media(max-width:760px){
+  .auth-brand .cj-official-wordmark-v2{
+    font-size:37px!important;
+    margin:13px auto 19px!important;
+  }
+  .auth-brand .cj-official-wordmark-v2 .cj-logo-arrow{
+    width:106px!important;
+    height:29px!important;
+    top:-21px!important;
+  }
+  .logo .cj-official-wordmark-v2{font-size:35px!important}
+  .dashboard-brand .cj-official-wordmark-v2{font-size:20px!important}
+}
+</style>
+<script id="cjOfficialWordmarkV2Script">
+(function(){
+  if(window.__cjOfficialWordmarkV2)return;
+  window.__cjOfficialWordmarkV2=true;
+
+  function makeWordmark(){
+    const mark=document.createElement('span');
+    mark.className='cj-official-wordmark-v2';
+    mark.setAttribute('role','img');
+    mark.setAttribute('aria-label','CreateJourney');
+    mark.innerHTML=
+      '<span class="cj-logo-create">Create</span>'+
+      '<span class="cj-logo-journey">Journey</span>'+
+      '<svg class="cj-logo-arrow" viewBox="0 0 112 31" aria-hidden="true">'+
+        '<circle cx="8" cy="20" r="3.2"></circle>'+
+        '<circle cx="23" cy="19.5" r="3.8"></circle>'+
+        '<circle cx="39" cy="18.5" r="4.6"></circle>'+
+        '<circle cx="56" cy="17.1" r="5.4"></circle>'+
+        '<circle cx="74" cy="14.8" r="6.3"></circle>'+
+        '<path d="M84 12.2 C92 10.4 98.5 7.6 105 4.5"></path>'+
+        '<path d="M95.3 3.7 107 4.1 102.5 14"></path>'+
+      '</svg>';
+    return mark;
+  }
+
+  function install(node){
+    if(!node)return;
+    if(node.querySelector(':scope > .cj-official-wordmark-v2'))return;
+    node.replaceChildren(makeWordmark());
+  }
+
+  function apply(){
+    document.querySelectorAll('.auth-brand,.logo,.dashboard-brand').forEach(install);
+
+    const agentHead=document.querySelector('#cj36AgentCenter .cj36-head > div:first-child');
+    if(agentHead){
+      const old=agentHead.querySelector('.cj364-agent-logo');
+      if(old)old.remove();
+      if(!agentHead.querySelector('.cj-official-wordmark-v2')){
+        agentHead.insertBefore(makeWordmark(),agentHead.firstChild);
+      }
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',apply,{once:true});
+  }else{
+    apply();
+  }
+
+  const obs=new MutationObserver(function(records){
+    let relevant=false;
+    for(const r of records){
+      if(r.type==='childList' && r.addedNodes.length){relevant=true;break;}
+      if(r.type==='attributes'){relevant=true;break;}
+    }
+    if(relevant)apply();
+  });
+  obs.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+})();
+</script>
+</body>
 </html>
