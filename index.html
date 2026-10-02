@@ -600,7 +600,7 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 </div>
 
 <div id="cjSystemToast" class="cj-system-toast hidden"><span id="cjSystemToastText"></span><button id="cjSystemToastClose" type="button" aria-label="Dismiss">×</button></div>
-<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Local prototype mode</span></div></div></div>
+<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Connecting securely…</span></div></div></div>
 <!-- ======================================
      #10 ONBOARDING
      ====================================== -->
@@ -1863,7 +1863,51 @@ const actionConfig={Pay:{question:"Where should people go to pay?",example:"Exam
 const rangeData={today:{caption:"taps today",bars:[22,35,28,48,42,65,75,58,82,70]},"7":{caption:"taps in the last 7 days",bars:[35,52,44,68,61,76,88]},"30":{caption:"taps in the last 30 days",bars:[30,45,38,56,61,47,72,68,79,82,65,90]}};
 function el(id){return document.getElementById(id)}function esc(v){return String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}function setReady(b,r){b.classList.toggle("ready",!!r)}function nowText(){return new Date().toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}
 function backendConfigured(){return /^https:\/\/.+\.supabase\.co$/i.test(SUPABASE_URL)&&SUPABASE_PUBLISHABLE_KEY&&!SUPABASE_PUBLISHABLE_KEY.includes("PASTE_")}
-function initBackend(){if(!backendConfigured()||!window.supabase)return false;sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});backendReady=true;return true}
+async function ensureSupabaseLibrary(){
+  if(window.supabase?.createClient)return true;
+  const sources=[
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+    "https://unpkg.com/@supabase/supabase-js@2"
+  ];
+  for(const src of sources){
+    try{
+      await new Promise((resolve,reject)=>{
+        const existing=[...document.scripts].find(s=>s.src===src);
+        if(existing){
+          if(window.supabase?.createClient){resolve();return}
+          const timer=setTimeout(()=>reject(new Error("Supabase script timeout")),3500);
+          existing.addEventListener("load",()=>{clearTimeout(timer);resolve()},{once:true});
+          existing.addEventListener("error",()=>{clearTimeout(timer);reject(new Error("Supabase script failed"))},{once:true});
+          return;
+        }
+        const s=document.createElement("script");
+        s.src=src;
+        s.async=true;
+        const timer=setTimeout(()=>{s.remove();reject(new Error("Supabase script timeout"))},5000);
+        s.onload=()=>{clearTimeout(timer);resolve()};
+        s.onerror=()=>{clearTimeout(timer);s.remove();reject(new Error("Supabase script failed"))};
+        document.head.appendChild(s);
+      });
+      if(window.supabase?.createClient)return true;
+    }catch(err){
+      console.warn("Supabase client source unavailable",src,err);
+    }
+  }
+  return !!window.supabase?.createClient;
+}
+function initBackend(){
+  if(!backendConfigured()||!window.supabase?.createClient){backendReady=false;return false}
+  try{
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"createjourney-auth"}});
+    backendReady=true;
+    return true;
+  }catch(err){
+    console.error("Supabase initialization failed",err);
+    backendReady=false;
+    sb=null;
+    return false;
+  }
+}
 function setAdminMessage(text,type=""){const n=el("adminMessage");if(!n)return;n.textContent=text;n.className="admin-message"+(type?" "+type:"");n.classList.toggle("hidden",!text)}
 function updateAdminAccessUi(){const btn=el("openAdminConsole"),row=el("accountAdminRow");if(btn)btn.classList.toggle("hidden",!isPlatformAdmin);if(row)row.classList.toggle("hidden",!isPlatformAdmin)}
 async function checkPlatformAdmin(){if(!backendReady||!sb){isPlatformAdmin=false;updateAdminAccessUi();return false}try{const{data,error}=await sb.rpc("cj_is_platform_admin");if(error)throw error;isPlatformAdmin=data===true;updateAdminAccessUi();return isPlatformAdmin}catch(err){console.warn("Admin access check failed",err);isPlatformAdmin=false;updateAdminAccessUi();return false}}
@@ -2076,7 +2120,46 @@ async function handlePasswordRecoveryIfNeeded(){
   }
 }
 
-async function initializeSession(){initBackend();updateBackendBadges();if(backendReady){const{data:{session}}=await sb.auth.getSession();if(session){await handlePasswordRecoveryIfNeeded();await loadCloudWorkspace(session.user);return}sb.auth.onAuthStateChange(async(event,session)=>{if(session&&(event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")){await loadCloudWorkspace(session.user)}});showAuth();return}if(localStorage.getItem("cj_local_session")==="1"&&restoreLocalState()){openDashboard();return}showAuth();updateConditionalFields()}
+async function initializeSession(){
+  const status=el("authBackendStatus")?.querySelector("span:last-child");
+  if(status)status.textContent="Connecting securely…";
+  await ensureSupabaseLibrary();
+  initBackend();
+  updateBackendBadges();
+
+  if(backendReady&&sb){
+    try{
+      const {data,error}=await sb.auth.getSession();
+      if(error)throw error;
+      const session=data?.session||null;
+      if(session){
+        await handlePasswordRecoveryIfNeeded();
+        await loadCloudWorkspace(session.user);
+        return;
+      }
+      sb.auth.onAuthStateChange(async(event,nextSession)=>{
+        if(nextSession&&(event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")){
+          try{await loadCloudWorkspace(nextSession.user)}catch(err){console.error("Workspace restore after auth event failed",err)}
+        }
+      });
+      showAuth();
+      return;
+    }catch(err){
+      console.error("Supabase session restore failed",err);
+      const n=el("authBackendStatus")?.querySelector("span:last-child");
+      if(n)n.textContent="Supabase connected · sign in required";
+      showAuth();
+      return;
+    }
+  }
+
+  if(localStorage.getItem("cj_local_session")==="1"&&restoreLocalState()){
+    openDashboard();
+    return;
+  }
+  showAuth();
+  updateConditionalFields();
+}
 function logAudit(text,boardId=null){const item={text,time:nowText(),boardId};auditLog.unshift(item);if(boardId){const b=getBoard(boardId);if(b)b.activity.unshift(item)}renderAudits();if(!restoring)persistLocalState()}
 function showOnly(id){["authApp","onboardingApp","dashboardApp","journeyAiSetupApp","journeyAiWorkspaceApp","connectedAccountsApp","boardsLibraryApp","boardManagerApp","addBoardApp","teamManagerApp","adminConsoleApp"].forEach(x=>el(x).classList.toggle("hidden",x!==id));const showAI=!(["authApp","onboardingApp","journeyAiSetupApp","adminConsoleApp"].includes(id));el("aiLauncher").classList.toggle("hidden",!showAI);window.scrollTo(0,0);if(typeof updateAiContext==="function")updateAiContext()}
 function goToStep(step){document.querySelectorAll("#onboardingApp section").forEach(s=>s.classList.add("hidden"));el("step"+step).classList.remove("hidden");for(let i=1;i<=6;i++)el("p"+i).classList.toggle("active",i<=step);if(step===5)renderActions();window.scrollTo(0,0)}
