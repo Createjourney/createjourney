@@ -9488,167 +9488,165 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <!-- =========================================================
-     CREATEJOURNEY VISUAL RESTORE PATCH — screenshot baseline
-     Preserves existing application systems while restoring the
-     light premium dashboard language and interactive controls.
-     ========================================================= -->
-<style id="cjVisualRestorePatch">
-:root{
-  --cj-vr-bg:#f7f8fb;
-  --cj-vr-card:#ffffff;
-  --cj-vr-text:#121826;
-  --cj-vr-muted:#7b8494;
-  --cj-vr-blue:#4977C2;
-  --cj-vr-blue-soft:#edf3fb;
-  --cj-vr-border:#e6e9ef;
-  --cj-vr-green:#28b76b;
-}
-#dashboardApp{background:var(--cj-vr-bg)!important;color:var(--cj-vr-text)!important}
-#dashboardApp .dashboard-shell{max-width:1180px!important;margin:0 auto!important;padding:18px 18px 116px!important}
-#dashboardApp .dashboard-header{
-  background:transparent!important;border:0!important;box-shadow:none!important;
-  padding:8px 0 18px!important;align-items:center!important
-}
-#dashboardApp .dashboard-brand .cj-official-logo{width:178px!important;max-height:58px!important}
-#dashboardApp .dashboard-greeting{
-  background:transparent!important;border:0!important;box-shadow:none!important;
-  padding:6px 0 18px!important;margin:0!important
-}
-#dashboardApp .dashboard-greeting h1{font-size:28px!important;letter-spacing:-.55px!important;color:var(--cj-vr-text)!important}
-#dashboardApp .dashboard-greeting p{color:var(--cj-vr-muted)!important}
-#dashboardApp .dashboard-section,
-#dashboardApp .revenue-opportunity-shell,
-#dashboardApp .support-card,
-#dashboardApp .journey-card,
-#dashboardApp .team-card,
-#dashboardApp .stat-card,
-#dashboardApp .board-card{
-  background:var(--cj-vr-card)!important;border:1px solid var(--cj-vr-border)!important;
-  border-radius:18px!important;box-shadow:0 4px 18px rgba(18,24,38,.035)!important
-}
-#dashboardApp .dashboard-section{padding:17px!important;margin-bottom:14px!important}
-#dashboardApp .section-heading h3{color:var(--cj-vr-text)!important;font-size:16px!important}
-#dashboardApp .section-link,#dashboardApp .dashboard-performance-link{color:var(--cj-vr-blue)!important;font-weight:700!important}
-#dashboardApp button,#dashboardApp .quick-action{
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer;
-}
-#dashboardApp button:focus-visible,#dashboardApp .quick-action:focus-visible{
-  outline:3px solid rgba(73,119,194,.22)!important;outline-offset:2px!important
-}
-#dashboardApp button.cj-vr-selected,#dashboardApp .quick-action.cj-vr-selected{
-  border-color:var(--cj-vr-blue)!important;background:var(--cj-vr-blue-soft)!important;
-  color:var(--cj-vr-blue)!important;transform:translateY(-1px)
-}
-#dashboardApp .quick-grid{gap:10px!important}
-#dashboardApp .quick-action{
-  min-height:82px!important;border:1px solid var(--cj-vr-border)!important;border-radius:16px!important;
-  background:#fff!important;transition:transform .14s ease,border-color .14s ease,background .14s ease!important
-}
-@media(hover:hover) and (pointer:fine){
-  #dashboardApp .quick-action:hover{border-color:#cbd8ea!important;background:#fbfdff!important;transform:translateY(-1px)}
-}
-#dashboardApp .quick-icon{color:var(--cj-vr-blue)!important}
-#dashboardApp .stats-grid{gap:10px!important}
-#dashboardApp .stat-card{padding:15px!important}
-#dashboardApp .stat-label,#dashboardApp .dashboard-performance-label{color:var(--cj-vr-muted)!important}
-#dashboardApp .stat-number,#dashboardApp .dashboard-performance-value{color:var(--cj-vr-text)!important}
-#dashboardApp .demo-pill{display:none!important}
-#dashboardApp .backend-pill,#dashboardApp .cloud-sync-pill{
-  background:#fff!important;border:1px solid var(--cj-vr-border)!important;color:#667085!important;
-  border-radius:999px!important
-}
+ CREATEJOURNEY HOME — SCREENSHOT-MATCH RESTORE
+ Keeps the existing runtime dashboard in the DOM (hidden) so its
+ data/functions continue working, while rendering the restored Home.
+ ========================================================= -->
+<style id="cjScreenshotHomeStyles">
+:root{--cjh-navy:#121826;--cjh-blue:#4977C2;--cjh-bg:#f7f8fb;--cjh-border:#e4e8ef;--cjh-muted:#727b8b;--cjh-green:#22b66f}
+#dashboardApp{background:var(--cjh-bg)!important;color:var(--cjh-navy)!important}
+#dashboardApp>.dashboard-shell{max-width:100%!important;padding:0 0 108px!important}
+#dashboardApp>.dashboard-shell>.dashboard-header,
+#dashboardApp>.dashboard-shell>.dashboard-greeting,
+#dashboardApp>.dashboard-shell>#revenueOpportunitySection,
+#dashboardApp>.dashboard-shell>section,
+#dashboardApp>.dashboard-shell>.dashboard-columns,
+#dashboardApp>.dashboard-shell>[data-cj32-entry],
+#dashboardApp>.dashboard-shell>[data-cj33-entry],
+#dashboardApp>.dashboard-shell>[data-cj36],
+#dashboardApp>.dashboard-shell>[data-cj365] {display:none!important}
 
-/* LIVE signal — intentionally animated only while the app reports an active/live state. */
-.cj-vr-live{
-  display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;
-  border:1px solid #d9eee3;background:#f6fcf8;color:#258657;font-size:11px;font-weight:800;
-  letter-spacing:.03em;text-transform:uppercase
-}
-.cj-vr-live-dot{
-  width:8px;height:8px;border-radius:50%;background:var(--cj-vr-green);
-  box-shadow:0 0 0 0 rgba(40,183,107,.42);animation:cjVrLivePulse 1.45s ease-out infinite
-}
-@keyframes cjVrLivePulse{
-  0%{opacity:1;box-shadow:0 0 0 0 rgba(40,183,107,.42)}
-  55%{opacity:.42;box-shadow:0 0 0 7px rgba(40,183,107,0)}
-  100%{opacity:1;box-shadow:0 0 0 0 rgba(40,183,107,0)}
-}
-@media(prefers-reduced-motion:reduce){.cj-vr-live-dot{animation:none!important}}
-
-/* Keep Journey AI controls visually above the lower navigation, as in the supplied mobile reference. */
-#dashboardApp .ai-fab,#dashboardApp .ai-talk-fab{box-shadow:0 7px 22px rgba(18,24,38,.16)!important}
-#dashboardApp .dashboard-columns{gap:14px!important}
-@media(max-width:700px){
-  #dashboardApp .dashboard-shell{padding:14px 14px 112px!important}
-  #dashboardApp .dashboard-header{padding-bottom:12px!important}
-  #dashboardApp .dashboard-greeting h1{font-size:24px!important}
-  #dashboardApp .dashboard-columns{grid-template-columns:1fr!important}
-  #dashboardApp .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #dashboardApp .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #dashboardApp .revenue-opportunity-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-}
+#cjScreenshotHome{display:block;max-width:760px;margin:0 auto;padding:18px 17px 24px;font-family:inherit;color:var(--cjh-navy)}
+.cjh-brand-row{position:relative;display:flex;justify-content:center;align-items:flex-start;min-height:78px;padding-top:7px}
+.cjh-brand{text-align:center;line-height:1}
+.cjh-wordmark{font-size:27px;letter-spacing:-1.25px;font-weight:850;color:var(--cjh-navy)}
+.cjh-wordmark .journey{font-weight:500;color:var(--cjh-blue)}
+.cjh-powered{display:block;margin-top:5px;font-size:8.5px;letter-spacing:.02em;color:#8992a1}
+.cjh-powered strong{color:#647083;font-weight:800}
+.cjh-settings{position:absolute;right:0;top:6px;width:43px;height:43px;border:0;border-radius:50%;background:#4b79c5;color:#fff;display:grid;place-items:center;box-shadow:0 7px 18px rgba(73,119,194,.25);cursor:pointer}
+.cjh-settings svg{width:20px;height:20px}
+.cjh-title{font-size:31px;line-height:1.08;letter-spacing:-.75px;margin:12px 0 22px;font-weight:850}
+.cjh-section-title{font-size:23px;line-height:1.15;letter-spacing:-.45px;margin:27px 0 7px;font-weight:850}
+.cjh-sub{font-size:13px;line-height:1.55;color:#687385;margin:0 0 15px}
+.cjh-card{background:#fff;border:1px solid var(--cjh-border);border-radius:18px;box-shadow:0 5px 18px rgba(18,24,38,.035)}
+.cjh-platform{padding:20px 19px}
+.cjh-eyebrow{font-size:9px;font-weight:850;letter-spacing:.12em;color:#7c8797;margin-bottom:18px}
+.cjh-system h3{font-size:18px;margin:0 0 3px;font-weight:850}
+.cjh-system .tag{font-size:12px;font-weight:700;color:#4e5969;margin-bottom:10px}
+.cjh-system p{font-size:12px;line-height:1.58;color:#707a89;margin:0}
+.cjh-divider{height:1px;background:#e8ebf0;margin:18px 0}
+.cjh-platform-close{font-weight:800!important;color:#3d4654!important;margin-top:10px!important}
+.cjh-trial{margin-top:13px;padding:18px 19px;background:#121826;color:#fff;border-radius:18px;box-shadow:0 8px 22px rgba(18,24,38,.12)}
+.cjh-trial h3{margin:0 0 7px;font-size:17px}.cjh-trial p{margin:0;color:#c8ced8;font-size:11.5px;line-height:1.5}
+.cjh-setup-note{font-size:12px;line-height:1.5;color:#737d8c;margin-bottom:12px}
+.cjh-setup-grid{display:grid;gap:10px}
+.cjh-setup{width:100%;text-align:left;padding:17px 17px;border:1px solid var(--cjh-border);background:#fff;border-radius:17px;display:grid;grid-template-columns:42px 1fr 18px;gap:12px;align-items:center;cursor:pointer;color:var(--cjh-navy)}
+.cjh-setup:active,.cjh-control:active{transform:scale(.99)}
+.cjh-setup-icon{width:42px;height:42px;border-radius:13px;background:#edf3fb;color:var(--cjh-blue);display:grid;place-items:center;font-size:19px;font-weight:800}
+.cjh-setup strong{display:block;font-size:14px;margin-bottom:4px}.cjh-setup span.copy{display:block;font-size:10.8px;line-height:1.4;color:#7a8493}.cjh-chevron{font-size:20px;color:#a1a9b5}
+.cjh-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:13px}
+.cjh-metric{padding:16px 10px;text-align:center}.cjh-metric strong{display:block;font-size:23px;letter-spacing:-.5px}.cjh-metric span{font-size:9.5px;color:#788291}
+.cjh-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:28px;margin-bottom:11px}
+.cjh-heading-row .cjh-section-title{margin:0}.cjh-heading-copy{font-size:10.5px;color:#7b8493;margin-top:4px}
+.cjh-live{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #d7eee2;background:#f5fcf8;border-radius:999px;color:#218a58;font-size:9px;font-weight:850;letter-spacing:.05em}
+.cjh-live-dot{width:7px;height:7px;border-radius:50%;background:var(--cjh-green);animation:cjhPulse 1.25s ease-in-out infinite;box-shadow:0 0 0 0 rgba(34,182,111,.42)}
+@keyframes cjhPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,182,111,.4)}50%{opacity:.35;box-shadow:0 0 0 6px rgba(34,182,111,0)}}
+.cjh-feed{overflow:hidden}.cjh-feed-row{display:grid;grid-template-columns:27px 1fr;gap:10px;padding:14px 15px;border-bottom:1px solid #edf0f4}.cjh-feed-row:last-child{border-bottom:0}
+.cjh-check{width:24px;height:24px;border-radius:50%;background:#eaf8f0;color:#1fa866;display:grid;place-items:center;font-size:13px;font-weight:900}
+.cjh-feed strong{display:block;font-size:12px;margin:1px 0 3px}.cjh-feed span{font-size:9.7px;color:#858e9b}
+.cjh-analysis{width:100%;border:0;background:transparent;color:var(--cjh-blue);font-size:11px;font-weight:800;text-align:left;padding:13px 2px;cursor:pointer}
+.cjh-control-copy{font-size:10.5px;color:#7a8492;margin:4px 0 12px}
+.cjh-controls{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cjh-control{min-height:116px;text-align:left;padding:15px;border:1px solid var(--cjh-border);background:#fff;border-radius:17px;cursor:pointer;color:var(--cjh-navy)}
+.cjh-control-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;margin-bottom:13px;font-size:17px}
+.cjh-pink{background:#fff0f4}.cjh-blue{background:#eef5ff}.cjh-purple{background:#f4efff}.cjh-cyan{background:#edf7ff}
+.cjh-control strong{display:block;font-size:12px;margin-bottom:4px}.cjh-control span{font-size:9.7px;color:#818a98}
+.cjh-setup:focus-visible,.cjh-control:focus-visible,.cjh-settings:focus-visible,.cjh-analysis:focus-visible{outline:3px solid rgba(73,119,194,.22);outline-offset:2px}
+@media(min-width:800px){#cjScreenshotHome{max-width:900px;padding-top:24px}.cjh-controls{grid-template-columns:repeat(4,1fr)}.cjh-setup-grid{grid-template-columns:repeat(3,1fr)}.cjh-setup{grid-template-columns:42px 1fr}.cjh-setup .cjh-chevron{display:none}}
+@media(max-width:360px){#cjScreenshotHome{padding-left:12px;padding-right:12px}.cjh-wordmark{font-size:24px}.cjh-title{font-size:28px}.cjh-metrics{gap:6px}.cjh-metric{padding:14px 6px}}
+@media(prefers-reduced-motion:reduce){.cjh-live-dot{animation:none}}
 </style>
 
-<script id="cjVisualRestoreBehavior">
+<script id="cjScreenshotHomeScript">
 (function(){
-  if(window.__cjVisualRestoreBehavior)return;
-  window.__cjVisualRestoreBehavior=true;
+ if(window.__cjScreenshotHomeInstalled)return; window.__cjScreenshotHomeInstalled=true;
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+ function clickExisting(id){const el=$(id);if(el){el.click();return true}return false}
+ function openAIWith(text){
+   if(typeof window.openAI==='function')window.openAI();
+   if(text&&typeof window.addAiMessage==='function')setTimeout(()=>window.addAiMessage('ai',text),80);
+ }
+ function build(){
+   const shell=document.querySelector('#dashboardApp>.dashboard-shell'); if(!shell||$('cjScreenshotHome'))return;
+   const home=document.createElement('main');home.id='cjScreenshotHome';
+   home.innerHTML=`
+    <div class="cjh-brand-row">
+      <div class="cjh-brand"><div class="cjh-wordmark">Create<span class="journey">Journey</span></div><span class="cjh-powered">Powered by <strong>JourneyAI</strong></span></div>
+      <button class="cjh-settings" type="button" data-cjh="settings" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm8 3.8-.1-1.1 2-1.5-2-3.4-2.4 1a8.7 8.7 0 0 0-1.9-1.1L15.3 3h-4l-.4 2.9A8.7 8.7 0 0 0 9 7L6.6 6 4.6 9.4l2 1.5A8 8 0 0 0 6.5 12c0 .4 0 .7.1 1.1l-2 1.5 2 3.4 2.4-1a8.7 8.7 0 0 0 1.9 1.1l.4 2.9h4l.4-2.9a8.7 8.7 0 0 0 1.9-1.1l2.4 1 2-3.4-2-1.5c.1-.4.1-.7.1-1.1Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></button>
+    </div>
+    <h1 class="cjh-title">Home</h1>
+    <h2 class="cjh-section-title">Welcome to CreateJourney</h2>
+    <p class="cjh-sub">SmartBoards and Journey AI Business Team work together as the two core systems behind CreateJourney.</p>
 
-  function dashboard(){return document.getElementById('dashboardApp')}
-  function addLiveSignal(){
-    const dash=dashboard();
-    if(!dash || dash.querySelector('[data-cj-vr-live]'))return;
-    const greeting=dash.querySelector('.dashboard-greeting');
-    if(!greeting)return;
-    const live=document.createElement('span');
-    live.className='cj-vr-live';
-    live.setAttribute('data-cj-vr-live','');
-    live.setAttribute('role','status');
-    live.setAttribute('aria-label','CreateJourney is live and on');
-    live.innerHTML='<span class="cj-vr-live-dot" aria-hidden="true"></span><span>Live</span>';
-    const status=greeting.querySelector('.cloud-sync-pill,.backend-pill');
-    if(status) status.insertAdjacentElement('afterend',live);
-    else greeting.appendChild(live);
-  }
+    <section class="cjh-card cjh-platform">
+      <div class="cjh-eyebrow">TWO SYSTEMS. ONE BUSINESS PLATFORM.</div>
+      <div class="cjh-system"><h3>SmartBoards</h3><div class="tag">Your physical connection to the customer.</div><p>Turn a customer tap into the next action — reviews, bookings, payments, offers, social follows, subscriptions and more. Control what customers see, update the Journey at any time, create more review opportunities and guide customers toward what happens next.</p></div>
+      <div class="cjh-divider"></div>
+      <div class="cjh-system"><h3>Journey AI Business Team</h3><div class="tag">Your intelligence working behind the scenes.</div><p>Specialized AI agents analyze your business, SmartBoard performance, customers, marketing and operations while Journey AI coordinates the work and brings everything together into one clear plan.</p><p class="cjh-platform-close">SmartBoards connect with your customers. Journey AI Business Team helps you understand, improve, and grow what happens next.</p></div>
+    </section>
 
-  function makeSelectionsFeelImmediate(){
-    const dash=dashboard();
-    if(!dash)return;
-    dash.addEventListener('click',function(e){
-      const btn=e.target.closest('button,.quick-action');
-      if(!btn || btn.disabled)return;
-      btn.classList.add('cj-vr-selected');
-      window.setTimeout(()=>btn.classList.remove('cj-vr-selected'),260);
-    },true);
-  }
+    <section class="cjh-trial"><h3>Journey AI Trial</h3><p>Starts after setup is complete · Finish the 3 essentials below so your full trial starts with a personalized business profile.</p></section>
 
-  function makeHelpClickable(){
-    document.querySelectorAll('#dashboardApp .support-button').forEach(function(btn){
-      if(btn.dataset.cjVrBound)return;
-      btn.dataset.cjVrBound='1';
-      btn.addEventListener('click',function(){
-        if(typeof window.openAI==='function'){
-          window.openAI();
-          if(typeof window.addAiMessage==='function'){
-            window.setTimeout(function(){
-              window.addAiMessage('ai','I’m here. Tell me what you need help with in CreateJourney and I’ll guide you from here.');
-            },80);
-          }
-        }
-      });
-    });
-  }
+    <h2 class="cjh-section-title">Finish setting up CreateJourney</h2>
+    <p class="cjh-setup-note">Complete these three essentials first. Your Journey AI trial will not start until all three are done.</p>
+    <div class="cjh-setup-grid">
+      <button class="cjh-setup" type="button" data-cjh="business"><span class="cjh-setup-icon">✦</span><span><strong>Tell Us About Your Business</strong><span class="copy">Five quick sections give Journey AI the business basics, your role and your goals.</span></span><span class="cjh-chevron">›</span></button>
+      <button class="cjh-setup" type="button" data-cjh="boards"><span class="cjh-setup-icon">▣</span><span><strong>Activate Your SmartBoards</strong><span class="copy">Connect a SmartBoard or MiniBoard and prepare its customer Journey.</span></span><span class="cjh-chevron">›</span></button>
+      <button class="cjh-setup" type="button" data-cjh="accounts"><span class="cjh-setup-icon">⌁</span><span><strong>Connect Your Business Accounts</strong><span class="copy">Connect the services you use so Journey AI can support more of the business.</span></span><span class="cjh-chevron">›</span></button>
+    </div>
 
-  function init(){
-    addLiveSignal();
-    makeSelectionsFeelImmediate();
-    makeHelpClickable();
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
-  else init();
+    <div class="cjh-metrics">
+      <div class="cjh-card cjh-metric"><strong id="cjhSmartBoards">0</strong><span>SmartBoards</span></div>
+      <div class="cjh-card cjh-metric"><strong id="cjhMiniBoards">0</strong><span>MiniBoards</span></div>
+      <div class="cjh-card cjh-metric"><strong id="cjhTaps">0</strong><span>30-Day Taps</span></div>
+    </div>
 
-  const observer=new MutationObserver(function(){addLiveSignal();makeHelpClickable()});
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+    <div class="cjh-heading-row"><div><h2 class="cjh-section-title">Performance</h2><div class="cjh-heading-copy">Real-time activity and completed work across your business</div></div><span class="cjh-live" role="status"><i class="cjh-live-dot"></i>LIVE</span></div>
+    <section class="cjh-card cjh-feed">
+      <div class="cjh-feed-row"><span class="cjh-check">✓</span><div><strong>Marketing image created</strong><span>Saved to Journey AI Image Library · Recent activity</span></div></div>
+      <div class="cjh-feed-row"><span class="cjh-check">✓</span><div><strong>Business systems ready</strong><span>CreateJourney workspace · Current</span></div></div>
+      <div class="cjh-feed-row"><span class="cjh-check">✓</span><div><strong>Business Brain available</strong><span>Journey AI business context · Current</span></div></div>
+    </section>
+    <button class="cjh-analysis" type="button" data-cjh="analytics">View full analysis &amp; graphs ›</button>
+
+    <h2 class="cjh-section-title">Control Center</h2>
+    <p class="cjh-control-copy">Quick access to the tools that help run and grow the business.</p>
+    <div class="cjh-controls">
+      <button class="cjh-control" type="button" data-cjh="marketing"><span class="cjh-control-icon cjh-pink">↗</span><strong>Marketing</strong><span>Campaigns &amp; growth</span></button>
+      <button class="cjh-control" type="button" data-cjh="google"><span class="cjh-control-icon cjh-blue">G</span><strong>Google &amp; SEO</strong><span>Local search &amp; website health</span></button>
+      <button class="cjh-control" type="button" data-cjh="images"><span class="cjh-control-icon cjh-purple">▧</span><strong>Journey AI Image Library</strong><span>Generated creative assets</span></button>
+      <button class="cjh-control" type="button" data-cjh="team"><span class="cjh-control-icon cjh-cyan">♙</span><strong>Team &amp; Access</strong><span>People, roles &amp; permissions</span></button>
+    </div>`;
+   shell.insertBefore(home,shell.firstChild);
+ }
+ function sync(){
+   if(!$('cjScreenshotHome'))return;
+   const boards=Array.isArray(window.boards)?window.boards:[];
+   const smart=boards.filter(b=>!/mini/i.test(String(b.type||b.kind||b.name||''))).length;
+   const mini=boards.filter(b=>/mini/i.test(String(b.type||b.kind||b.name||''))).length;
+   const taps=$('performanceNumber')?.textContent||$('totalTapsStat')?.textContent||'0';
+   $('cjhSmartBoards').textContent=String(smart||0); $('cjhMiniBoards').textContent=String(mini||0); $('cjhTaps').textContent=taps.trim()||'0';
+ }
+ function bind(){
+   const home=$('cjScreenshotHome');if(!home||home.dataset.bound)return;home.dataset.bound='1';
+   home.addEventListener('click',e=>{
+     const b=e.target.closest('[data-cjh]');if(!b)return;
+     const a=b.dataset.cjh;
+     if(a==='boards'){if(!clickExisting('quickAddBoard'))clickExisting('viewAllBoards');}
+     else if(a==='accounts'){if(!clickExisting('quickConnectedAccounts'))document.querySelector('[data-cj33-open]')?.click();}
+     else if(a==='business'){if(!clickExisting('quickAiSetup'))openAIWith('Help me finish my business profile and Business Brain setup.');}
+     else if(a==='analytics'){if(!clickExisting('dashboardViewAnalytics'))clickExisting('quickPerformanceHub');}
+     else if(a==='team'){if(!clickExisting('manageTeamLink'))clickExisting('quickInviteTeam');}
+     else if(a==='settings'){document.getElementById('profileInitial')?.click()||openAIWith('Open my CreateJourney account and settings options.');}
+     else if(a==='images'){document.querySelector('[data-cj-image-library-open],#openImageLibrary,#aiImageLibraryButton')?.click()||openAIWith('Open my Journey AI Image Library.');}
+     else if(a==='marketing'){document.querySelector('[data-cj365-open]')?.click()||openAIWith('Open Marketing and help me with campaigns and growth.');}
+     else if(a==='google'){document.querySelector('[data-cj33-open]')?.click()||openAIWith('Help me manage Google Business and SEO.');}
+   });
+ }
+ function init(){build();bind();sync()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+ const mo=new MutationObserver(()=>{build();bind();sync()});mo.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
 })();
 </script>
 
