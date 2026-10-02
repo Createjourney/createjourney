@@ -3907,7 +3907,7 @@ function renderConnectedAccounts(){
     const r=integrationRecord(p.id),isConnected=r?.status==="connected",d=document.createElement("div");
     d.className="integration-card"+(r?.status==="needs_attention"?" needs-attention":"")+(r?.status==="expired"?" expired":"");
     const enabled=(r?.permissions||[]).filter(x=>x.enabled),lastSync=r?.lastSyncAt?formatAiTimelineTime(r.lastSyncAt):"Not synced yet";
-    d.innerHTML=`<div class="integration-card-head"><div class="integration-provider"><div class="integration-icon">${esc(p.icon)}</div><div><h3>${esc(p.name)}</h3><p>${esc(p.category)}</p></div></div><span class="integration-status ${integrationStatusClass(r)}">${esc(integrationStatusLabel(r))}</span></div>
+    d.innerHTML=`<div class="integration-card-head"><div class="integration-provider"><div class="integration-icon">${window.cjPremiumProviderIcon?window.cjPremiumProviderIcon(p.id):esc(p.icon)}</div><div><h3>${esc(p.name)}</h3><p>${esc(p.category)}</p></div></div><span class="integration-status ${integrationStatusClass(r)}">${esc(integrationStatusLabel(r))}</span></div>
     ${r?`<div style="margin-top:8px">${r.backendManaged?'<span class="integration-live-badge">Secure backend connection</span>':'<span class="integration-local-badge">Frontend setup record</span>'}</div>`:""}
     <div class="integration-detail">${esc(p.description)}</div>
     <div class="integration-scopes">${(p.permissions||[]).map(x=>`<span class="integration-scope">${esc(x.mode==="act"?"Action: ":"Read: ")}${esc(x.label)}</span>`).join("")}</div>
@@ -8270,7 +8270,7 @@ window.CJBuild331={
     const grid=$('cj36AgentGrid');if(!grid)return;grid.innerHTML='';
     for(const a of AGENTS){
       const s=perAgentStats(a.id),d=document.createElement('article');d.className='cj36-agent';
-      d.innerHTML=`<div class="cj36-agent-top"><div style="display:flex;gap:10px"><div class="cj36-agent-icon">${esc(a.icon)}</div><div><h4>${esc(a.name)}</h4><div class="cj36-agent-role">${esc(a.role)}</div></div></div><span class="cj36-agent-state">Specialist</span></div>
+      d.innerHTML=`<div class="cj36-agent-top"><div style="display:flex;gap:10px"><div class="cj36-agent-icon">${window.cjPremiumAgentIcon?window.cjPremiumAgentIcon(a.group):esc(a.icon)}</div><div><h4>${esc(a.name)}</h4><div class="cj36-agent-role">${esc(a.role)}</div></div></div><span class="cj36-agent-state">Specialist</span></div>
       <p>${esc(a.guard)}</p>
       <div class="cj36-agent-meta"><span class="cj36-chip">${esc(a.group||'Specialist')}</span>${a.learn.slice(0,3).map(x=>`<span class="cj36-chip">${esc(x)}</span>`).join('')}</div>
       <div class="cj36-agent-learning"><strong>Learns from:</strong> ${esc(a.learn.join(', '))}. Learning means retrieval and measured Business Brain updates—not hidden model retraining.</div>
@@ -10417,5 +10417,236 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
-</body>
+
+<style id="cjPremiumSystemPolish">
+:root{
+  --cj-premium-ink:#111827;
+  --cj-premium-body:#475467;
+  --cj-premium-muted:#7b8494;
+  --cj-premium-line:#e3e8ef;
+  --cj-premium-bg:#f5f7fa;
+  --cj-premium-card:#ffffff;
+  --cj-premium-blue:#3f7ecf;
+  --cj-premium-soft:#eef4fb;
+  --cj-premium-radius:18px;
+  --cj-premium-shadow:0 6px 22px rgba(15,23,42,.035);
+}
+html,body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif!important;
+  color:var(--cj-premium-ink);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body{font-size:14px;line-height:1.46}
+button,input,select,textarea{font-family:inherit}
+button{letter-spacing:-.01em}
+label{font-size:12.5px!important;font-weight:700!important;letter-spacing:-.01em}
+input,select,textarea{
+  border-color:#d9e0e8!important;
+  border-radius:13px!important;
+  box-shadow:none!important;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:#83aee0!important;
+  box-shadow:0 0 0 3px rgba(63,126,207,.12)!important;
+}
+button.primary,button.secondary,.primary,.secondary{
+  border-radius:13px!important;
+  font-size:13.5px!important;
+  font-weight:750!important;
+  min-height:42px;
+}
+.helper,.subtitle,.note,.account-meta,.sync-note,.dashboard-performance-label,
+.dashboard-insight-text,.integration-detail,.integration-security p,
+.cj26-panel p,.cj31-card p,.cj32-card p,.cj33-card p,.cj36-head p,
+.cj36-agent p,.cj365-card p{
+  color:var(--cj-premium-body)!important;
+}
+
+/* Core application pages */
+.auth-card,.card,.dashboard-card,.dashboard-performance-compact,.dashboard-insight-card,
+.library-card,.team-card,.board-card,.integration-card,.integration-security,
+.ai-workspace-card,.ai-panel-card,.admin-board-card,.cj26-panel,.cj31-card,.cj32-card,
+.cj33-card,.cj36-agent,.cj36-council-card,.cj36-evaluator,.cj365-card{
+  border-color:var(--cj-premium-line)!important;
+  box-shadow:var(--cj-premium-shadow)!important;
+}
+.auth-card{border-radius:24px!important;padding:30px 24px!important}
+.auth-brand{font-size:31px!important;margin-bottom:5px!important}
+.auth-sub{font-size:13.5px!important;line-height:1.45!important;margin-bottom:21px!important}
+.auth-tabs{border-radius:12px!important;margin-bottom:17px!important}
+.auth-tab{font-size:13.5px!important;padding:9px!important}
+.auth-message{font-size:12.5px!important}
+.backend-pill{font-size:10.5px!important}
+
+/* Onboarding and primary app shells */
+#onboardingApp h2,.quick-screen h2,.board-manager h2,.library-screen h2,.team-screen h2,
+.ai-setup-screen h2,.ai-workspace-screen h2,.admin-screen h2{
+  font-size:21px!important;
+  line-height:1.15!important;
+  letter-spacing:-.035em!important;
+}
+#onboardingApp h3,.quick-screen h3,.board-manager h3,.library-screen h3,.team-screen h3,
+.ai-setup-screen h3,.ai-workspace-screen h3,.admin-screen h3{
+  font-size:15.5px!important;
+  letter-spacing:-.02em!important;
+}
+#onboardingApp p,.quick-screen p,.board-manager p,.library-screen p,.team-screen p,
+.ai-setup-screen p,.ai-workspace-screen p,.admin-screen p{
+  font-size:13px!important;
+  line-height:1.48!important;
+}
+.use-choice{padding:18px 13px!important;border-radius:16px!important}
+.use-choice strong{font-size:15px!important}
+.use-choice span{font-size:12px!important}
+.action,.board-editor-option{font-size:13px!important;border-radius:13px!important;padding:14px 9px!important}
+
+/* Dashboard/Home */
+#cjScreenshotHome{font-size:13px}
+#cjScreenshotHome .cjh-title{font-size:34px!important;letter-spacing:-1.1px!important}
+#cjScreenshotHome .cjh-section-title{font-size:21px!important;letter-spacing:-.45px!important}
+#cjScreenshotHome .cjh-sub{font-size:14px!important}
+#cjScreenshotHome .cjh-system h3{font-size:20px!important}
+#cjScreenshotHome .cjh-system .tag{font-size:13px!important}
+#cjScreenshotHome .cjh-system p{font-size:13px!important}
+#cjScreenshotHome .cjh-trial h3{font-size:19px!important}
+#cjScreenshotHome .cjh-trial p{font-size:13px!important}
+#cjScreenshotHome .cjh-setup strong{font-size:16px!important}
+#cjScreenshotHome .cjh-setup .copy{font-size:12.5px!important}
+#cjScreenshotHome .cjh-metric strong{font-size:27px!important}
+#cjScreenshotHome .cjh-metric span{font-size:12px!important}
+#cjScreenshotHome .cjh-feed strong{font-size:13px!important}
+#cjScreenshotHome .cjh-feed span.meta{font-size:11.5px!important}
+#cjScreenshotHome .cjh-control strong{font-size:13.5px!important}
+#cjScreenshotHome .cjh-control span.copy{font-size:11.5px!important}
+#cjScreenshotHome .cjh-control{border-radius:17px!important;box-shadow:0 4px 18px rgba(15,23,42,.025)!important}
+
+/* Connected accounts / integrations */
+.integration-head h1{font-size:24px!important;letter-spacing:-.035em!important}
+.integration-provider h3{font-size:15px!important}
+.integration-provider p{font-size:11px!important}
+.integration-icon{
+  width:40px!important;height:40px!important;border-radius:12px!important;
+  background:#f3f6fa!important;color:#3f7ecf!important;
+}
+.integration-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.integration-status{font-size:9.5px!important}
+.integration-detail{font-size:11.5px!important;line-height:1.45!important}
+.integration-scope{font-size:9.5px!important}
+.integration-actions button{font-size:11.5px!important;padding:8px 10px!important}
+
+/* Journey AI setup/workspace */
+.ai-setup-shell h1,.ai-workspace-shell h1{font-size:24px!important;letter-spacing:-.04em!important}
+.ai-setup-shell h2,.ai-workspace-shell h2{font-size:18px!important}
+.ai-workspace-tab,.ai-setup-tab{font-size:11.5px!important}
+.ai-media-card h4,.ai-project-card h4{font-size:14px!important}
+.ai-media-card p,.ai-project-card p{font-size:11.5px!important}
+.ai-thread,.ai-message{font-size:13px!important}
+.ai-compose input{font-size:16px!important}
+
+/* Boards / team / admin */
+.library-title h1,.team-title h1,.admin-title h1,.board-manager-title h1{font-size:24px!important;letter-spacing:-.035em!important}
+.library-card h3,.team-card h3,.admin-board-card h3,.board-card h3{font-size:15px!important}
+.library-card p,.team-card p,.admin-board-card p,.board-card p{font-size:11.5px!important}
+
+/* Production / advanced centers */
+.cj26-control-title,.cj31-head h1,.cj32-head h1,.cj33-head h1,.cj36-head h1{font-size:23px!important;letter-spacing:-.035em!important}
+.cj26-modal-head h2,.cj31-card h3,.cj32-card h3,.cj33-card h3,.cj36-section-head h3{font-size:16px!important}
+.cj26-panel h3{font-size:14px!important}
+.cj31-card p,.cj32-card p,.cj33-card p,.cj36-head p,.cj36-section-head p{font-size:11px!important;line-height:1.45!important}
+.cj31-tabs button,.cj32-tabs button,.cj33-tabs button{font-size:11px!important}
+.cj31-pill,.cj32-pill,.cj33-pill,.cj36-badge,.cj36-chip{font-size:9px!important}
+.cj36-agent{padding:14px!important;border-radius:17px!important}
+.cj36-agent h4{font-size:14px!important}
+.cj36-agent-role{font-size:10px!important}
+.cj36-agent p{font-size:11px!important}
+.cj36-agent-icon{
+  width:39px!important;height:39px!important;border-radius:12px!important;
+  background:#f1f5fa!important;color:#3f7ecf!important;font-size:0!important;
+}
+.cj36-agent-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* Social center and future cards */
+#cj365SocialCenter h1{font-size:23px!important}
+#cj365SocialCenter h2{font-size:18px!important}
+#cj365SocialCenter h3{font-size:15px!important}
+#cj365SocialCenter p{font-size:11.5px!important;line-height:1.45!important}
+
+/* One consistent icon language */
+.choice-icon,.quick-icon,.integration-icon,.cj26-category-icon,.cjh-control-icon,.cjh-nav-icon,.cj36-agent-icon{
+  box-shadow:none!important;
+}
+.choice-svg,.quick-svg,.nav-svg,.mic-svg,.send-svg,.close-svg,.success-svg,
+.cj26-category-icon svg,.cjh-control-icon svg,.cjh-nav-icon svg,.integration-icon svg,.cj36-agent-icon svg{
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+.quick-icon,.cj26-category-icon,.cjh-control-icon,.integration-icon,.cj36-agent-icon{
+  background-color:#f3f6fa!important;
+}
+.cj26-category-icon,.cjh-control-icon,.integration-icon,.cj36-agent-icon{
+  color:#477fbd!important;
+}
+
+/* Compact controls and cards */
+.account-row{font-size:12.5px!important}
+.account-actions button{font-size:12px!important}
+.cj26-category strong{font-size:13px!important}
+.cj26-category span{font-size:11px!important}
+.cj26-category{padding:11px 12px!important;border-radius:13px!important}
+.cj31-bottombar button{font-size:11px!important}
+.cj31-bottombar .cj31-mic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* Keep iPhone fields usable and prevent zoom */
+@media(max-width:760px){
+  input,select,textarea{font-size:16px!important}
+  .auth-card{padding:27px 20px!important}
+  .auth-brand{font-size:29px!important}
+  .auth-sub{font-size:13px!important}
+  #cjScreenshotHome .cjh-title{font-size:32px!important}
+  #cjScreenshotHome .cjh-section-title{font-size:20px!important}
+  .cj31-head h1,.cj32-head h1,.cj33-head h1,.cj36-head h1{font-size:21px!important}
+}
+</style>
+<script id="cjPremiumIconSystem">
+(function(){
+  if(window.__cjPremiumIconSystem)return;
+  window.__cjPremiumIconSystem=true;
+  const svg=(paths)=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+paths+'</svg>';
+
+  window.cjPremiumProviderIcon=function(id){
+    const map={
+      google_business:svg('<path d="M12 3a8.5 8.5 0 1 0 8.2 10.8H12v-3.3h11"></path><path d="M18 6.3A8.4 8.4 0 0 0 12 3"></path>'),
+      instagram:svg('<rect x="4" y="4" width="16" height="16" rx="5"></rect><circle cx="12" cy="12" r="3.5"></circle><circle cx="17.3" cy="6.8" r=".8" fill="currentColor" stroke="none"></circle>'),
+      facebook:svg('<path d="M13.5 20v-7h2.5l.4-3h-2.9V8.1c0-.9.3-1.6 1.7-1.6H17V3.8c-.3 0-1.4-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H8v3h2.3v7"></path>'),
+      website:svg('<circle cx="12" cy="12" r="8.5"></circle><path d="M3.8 12h16.4M12 3.5c2 2.3 3 5.1 3 8.5s-1 6.2-3 8.5M12 3.5c-2 2.3-3 5.1-3 8.5s1 6.2 3 8.5"></path>'),
+      email:svg('<rect x="3.5" y="5.5" width="17" height="13" rx="2.5"></rect><path d="m5 7 7 5.3L19 7"></path>'),
+      calendar:svg('<rect x="4" y="5" width="16" height="15" rx="2.5"></rect><path d="M8 3.5V7M16 3.5V7M4 9.5h16"></path>'),
+      stripe:svg('<path d="M7 16.5c1.1.8 2.6 1.2 4.2 1.2 2.4 0 4-1 4-2.8 0-1.5-1.1-2.3-3.4-3-1.8-.5-2.4-.8-2.4-1.5 0-.6.6-1 1.7-1 1.3 0 2.5.4 3.4.9V7.4c-.9-.4-2-.7-3.5-.7-2.5 0-4.2 1.2-4.2 3 0 1.5 1 2.4 3.3 3 1.7.5 2.4.8 2.4 1.5 0 .7-.7 1-1.8 1-1.4 0-2.8-.5-3.7-1.1Z"></path>'),
+      square:svg('<rect x="4.5" y="4.5" width="15" height="15" rx="3"></rect><rect x="8.5" y="8.5" width="7" height="7" rx="1.2"></rect>'),
+      calendly:svg('<circle cx="12" cy="12" r="8.5"></circle><path d="M15.7 8.7A5 5 0 1 0 16.5 15"></path>'),
+      acuity:svg('<path d="M4 18 12 4l8 14"></path><path d="M7.5 13h9"></path>')
+    };
+    return map[id]||svg('<circle cx="12" cy="12" r="8.5"></circle><path d="M8.5 12h7M12 8.5v7"></path>');
+  };
+
+  window.cjPremiumAgentIcon=function(group){
+    const map={
+      'Growth & Sales':svg('<path d="M4 17 10 11l4 4 6-8"></path><path d="M15 7h5v5"></path>'),
+      'Marketing & Media':svg('<path d="M4.5 13.5h3l8 4v-11l-8 4h-3z"></path><path d="M8 14v4"></path><path d="M18 9.5c1 .7 1.5 1.6 1.5 2.5S19 13.8 18 14.5"></path>'),
+      'Customer & Reputation':svg('<circle cx="9" cy="9" r="3"></circle><path d="M4 19c.7-3.7 2.3-5.5 5-5.5s4.3 1.8 5 5.5"></path><path d="m17 8 1 2 2.2.3-1.6 1.6.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.6 2.2-.3Z"></path>'),
+      'Revenue & Commerce':svg('<rect x="4" y="6" width="16" height="12" rx="2.5"></rect><path d="M4 10h16M8 14h3"></path>'),
+      'Operations & Intelligence':svg('<circle cx="12" cy="12" r="3"></circle><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"></path>')
+    };
+    return map[group]||map['Operations & Intelligence'];
+  };
+
+  const start=()=>{
+    document.querySelectorAll('[data-cj31-mic]').forEach(btn=>{
+      btn.innerHTML=svg('<rect x="9" y="3.5" width="6" height="10.5" rx="3"></rect><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v3.5M9.5 20.5h5"></path>');
+    });
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script></body>
 </html>
