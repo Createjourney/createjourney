@@ -8864,10 +8864,31 @@ window.CJBuild331={
     return img;
   }
 
+  function vectorBrand(){
+    const wrap=document.createElement('div');
+    wrap.className='cj-vector-brand';
+    wrap.setAttribute('aria-label','CreateJourney — Powered by JourneyAI');
+    wrap.innerHTML=`
+      <div class="cj-vector-wordmark">
+        <span class="cj-vector-create">Create</span><span class="cj-vector-journey">Journey</span>
+        <svg class="cj-vector-arrow" viewBox="0 0 68 19" aria-hidden="true">
+          <circle cx="7" cy="13" r="2.1" fill="#4977C2"></circle>
+          <circle cx="16" cy="12.5" r="2.1" fill="#4977C2"></circle>
+          <circle cx="25" cy="12" r="2.2" fill="#4977C2"></circle>
+          <circle cx="34" cy="11" r="2.3" fill="#4977C2"></circle>
+          <circle cx="43" cy="9.8" r="2.4" fill="#4977C2"></circle>
+          <path d="M47 9.3c6-1.2 10.2-3.3 14.4-6.1" fill="none" stroke="#4977C2" stroke-width="3.4" stroke-linecap="round"></path>
+          <path d="M57 2.8l6 .2-1.7 5.5" fill="none" stroke="#4977C2" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="cj-vector-powered">Powered by <strong>JourneyAI</strong></div>`;
+    return wrap;
+  }
+
   function applyOfficialLogo(){
     document.querySelectorAll('.auth-brand,.logo').forEach(node=>{
-      if(node.querySelector('.cj-official-logo'))return;
-      node.replaceChildren(logoImg());
+      if(node.querySelector('.cj-vector-brand'))return;
+      node.replaceChildren(vectorBrand());
     });
     document.querySelectorAll('.dashboard-brand').forEach(node=>{
       if(node.querySelector('.cj-official-logo'))return;
@@ -10759,5 +10780,24 @@ button.primary,button.secondary,.primary,.secondary{
   const observer=new MutationObserver(()=>apply());
   observer.observe(document.documentElement,{subtree:true,childList:true});
 })();
-</script></body>
+</script>
+<style id="cjTransparentBrandPatch">
+.cj-vector-brand{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 auto!important;overflow:visible!important}
+.cj-vector-wordmark{position:relative;display:inline-flex;align-items:flex-end;line-height:1;letter-spacing:-1.35px;white-space:nowrap;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+.cj-vector-create{color:#121826;font-weight:900}
+.cj-vector-journey{color:#4977C2;font-weight:560}
+.cj-vector-arrow{position:absolute;right:-2px;top:-15px;width:68px;height:19px;overflow:visible}
+.cj-vector-powered{margin-top:8px;color:#8b95a7;font-size:10px;line-height:1;letter-spacing:.055em;font-weight:700}
+.cj-vector-powered strong{color:#3978c8;font-weight:900}
+.auth-brand{line-height:1!important;margin-bottom:12px!important}
+.auth-brand .cj-vector-wordmark{font-size:34px!important}
+.auth-brand .cj-vector-brand{transform:scale(1.06);transform-origin:center center}
+.logo .cj-vector-wordmark{font-size:33px!important}
+.logo .cj-vector-brand{transform:scale(1.04)}
+@media(max-width:760px){
+  .auth-brand .cj-vector-wordmark{font-size:33px!important}
+  .auth-brand .cj-vector-brand{transform:scale(1.055)}
+  .cj-vector-arrow{right:-1px;top:-14px;width:65px;height:18px}
+}
+</style></body>
 </html>
