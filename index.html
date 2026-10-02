@@ -10294,9 +10294,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     let taps='0';
     const tapSource=$('performanceNumber')||$('totalTapsStat')||$('revTaps');
     if(tapSource&&String(tapSource.textContent||'').trim())taps=String(tapSource.textContent).trim();
-    $('cjhSmartBoards').textContent=String(Math.max(0,smart));
-    $('cjhMiniBoards').textContent=String(Math.max(0,mini));
-    $('cjhTaps').textContent=taps;
+    const smartText=String(Math.max(0,smart)),miniText=String(Math.max(0,mini));
+    if($('cjhSmartBoards')?.textContent!==smartText)$('cjhSmartBoards').textContent=smartText;
+    if($('cjhMiniBoards')?.textContent!==miniText)$('cjhMiniBoards').textContent=miniText;
+    if($('cjhTaps')?.textContent!==taps)$('cjhTaps').textContent=taps;
   }
 
   function syncAiLauncher(){
@@ -10357,13 +10358,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 
-  const observer=new MutationObserver(()=>{
-    build();
-    bind();
-    syncMetrics();
-    syncAiLauncher();
-  });
-  observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class']});
+  const dashboard=document.getElementById('dashboardApp');
+  if(dashboard){
+    const observer=new MutationObserver(()=>{
+      build();
+      bind();
+      syncMetrics();
+      syncAiLauncher();
+    });
+    observer.observe(dashboard,{attributes:true,attributeFilter:['class']});
+  }
+  window.addEventListener('focus',()=>{syncMetrics();syncAiLauncher()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncMetrics();syncAiLauncher()}});
 })();
 </script>
 
