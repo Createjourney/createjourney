@@ -10648,5 +10648,116 @@ button.primary,button.secondary,.primary,.secondary{
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+</script><style id="cjTransparentAuthBrand">
+.auth-brand .cj-vector-brand,
+.logo .cj-vector-brand{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+  margin:0 auto 10px;
+  width:auto;
+}
+.cj-vector-wordmark{
+  position:relative;
+  display:inline-flex;
+  align-items:flex-end;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+  line-height:1;
+  letter-spacing:-1.25px;
+  white-space:nowrap;
+}
+.cj-vector-wordmark .create{
+  color:#121826;
+  font-size:34px;
+  font-weight:900;
+}
+.cj-vector-wordmark .journey{
+  color:#4977C2;
+  font-size:34px;
+  font-weight:560;
+}
+.cj-vector-mark{
+  position:absolute;
+  right:-4px;
+  top:-16px;
+  width:72px;
+  height:22px;
+  overflow:visible;
+}
+.cj-vector-mark circle{
+  fill:#4977C2;
+}
+.cj-vector-mark path{
+  fill:none;
+  stroke:#4977C2;
+  stroke-width:3.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.cj-vector-powered{
+  margin-top:7px;
+  color:#8b95a7;
+  font-size:9.5px;
+  line-height:1;
+  font-weight:700;
+  letter-spacing:.045em;
+}
+.cj-vector-powered strong{
+  color:#3978c8;
+  font-weight:850;
+}
+.auth-brand .cj-official-logo,
+.logo .cj-official-logo{
+  display:none!important;
+}
+@media(max-width:600px){
+  .cj-vector-wordmark .create,
+  .cj-vector-wordmark .journey{font-size:36px}
+  .cj-vector-mark{right:-3px;top:-17px;width:76px;height:23px}
+  .cj-vector-powered{font-size:9.5px;margin-top:8px}
+}
+</style><script id="cjTransparentAuthBrandScript">
+(function(){
+  if(window.__cjTransparentAuthBrand)return;
+  window.__cjTransparentAuthBrand=true;
+
+  function vectorBrand(){
+    const wrap=document.createElement('span');
+    wrap.className='cj-vector-brand';
+    wrap.setAttribute('aria-label','CreateJourney');
+    wrap.innerHTML=
+      '<span class="cj-vector-wordmark">'+
+        '<span class="create">Create</span><span class="journey">Journey</span>'+
+        '<svg class="cj-vector-mark" viewBox="0 0 76 24" aria-hidden="true">'+
+          '<circle cx="8" cy="16" r="2.7"></circle>'+
+          '<circle cx="17" cy="15.5" r="2.7"></circle>'+
+          '<circle cx="26" cy="14.6" r="2.7"></circle>'+
+          '<circle cx="35" cy="13.4" r="2.7"></circle>'+
+          '<circle cx="44" cy="11.8" r="2.7"></circle>'+
+          '<path d="M48 10.6 C56 8.5 61 6.8 66 4.5 M59.8 3.7 67 4.4 63.6 10.3"></path>'+
+        '</svg>'+
+      '</span>'+
+      '<span class="cj-vector-powered">Powered by <strong>JourneyAI</strong></span>';
+    return wrap;
+  }
+
+  function apply(){
+    document.querySelectorAll('.auth-brand,.logo').forEach(node=>{
+      if(node.querySelector('.cj-vector-brand'))return;
+      node.replaceChildren(vectorBrand());
+    });
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});
+  else apply();
+
+  const observer=new MutationObserver(()=>apply());
+  observer.observe(document.documentElement,{subtree:true,childList:true});
+})();
 </script></body>
 </html>
