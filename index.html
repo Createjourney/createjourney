@@ -46,7 +46,16 @@
 /* ========================================
    #02 BUILD 3 ACCOUNTS + BACKEND UI
    ======================================== */
-.auth-screen{min-height:100vh;background:#f5f8fc;display:flex;align-items:center;justify-content:center;padding:24px}.auth-card{width:100%;max-width:520px;background:#fff;border-radius:28px;padding:34px 26px;box-shadow:0 18px 50px rgba(15,23,42,.08)}.auth-brand{text-align:center;font-size:36px;font-weight:850;margin-bottom:6px}.auth-brand span{color:#6fa8f5;font-weight:500}.auth-sub{text-align:center;color:#667085;line-height:1.5;margin-bottom:26px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f4f7fb;padding:5px;border-radius:13px;margin-bottom:20px}.auth-tab{margin:0;padding:10px;background:transparent;color:#667085}.auth-tab.selected{background:#fff;color:#3978c8;box-shadow:0 2px 8px rgba(15,23,42,.08)}.auth-message{margin-top:12px;padding:11px 12px;border-radius:11px;background:#f7f9fc;color:#667085;font-size:13px;line-height:1.4}.auth-message.bad{background:#fff0f0;color:#b33a3a}.auth-message.good{background:#eaf8ef;color:#2f7f48}.backend-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 9px;border-radius:999px;background:#eef5ff;color:#3978c8;font-size:11px;font-weight:700}.backend-dot{width:7px;height:7px;border-radius:50%;background:#6fa8f5}.backend-pill.cloud .backend-dot{background:#2f9b55}.account-circle{cursor:pointer}.account-panel{position:fixed;inset:0;z-index:140;background:rgba(15,23,42,.28);display:flex;align-items:flex-end;justify-content:center}.account-sheet{width:100%;max-width:560px;background:#fff;border-radius:24px 24px 0 0;padding:22px 20px 28px;box-shadow:0 -18px 45px rgba(15,23,42,.16)}.account-sheet h3{margin:0 0 5px;font-size:22px}.account-meta{color:#667085;font-size:13px;line-height:1.5}.account-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eef2f7}.account-row span:first-child{color:#667085}.account-row span:last-child{font-weight:700;text-align:right}.account-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.account-actions button{margin-top:16px}.sync-note{font-size:11px;color:#667085;margin-top:7px}.setup-warning{margin-top:12px;padding:12px;border-radius:12px;background:#fff8e8;color:#875f16;font-size:13px;line-height:1.4}
+.auth-screen{min-height:100vh;background:#f5f8fc;display:flex;align-items:center;justify-content:center;padding:24px}.auth-card{width:100%;max-width:520px;background:#fff;border-radius:28px;padding:34px 26px;box-shadow:0 18px 50px rgba(15,23,42,.08)}.auth-brand{text-align:center;font-size:36px;font-weight:850;margin-bottom:6px}.auth-brand span{color:#6fa8f5;font-weight:500}.auth-sub{text-align:center;color:#667085;line-height:1.5;margin-bottom:26px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f4f7fb;padding:5px;border-radius:13px;margin-bottom:20px}.auth-tab{margin:0;padding:10px;background:transparent;color:#667085}.auth-tab.selected{background:#fff;color:#3978c8;box-shadow:0 2px 8px rgba(15,23,42,.08)}.auth-message{margin-top:12px;padding:11px 12px;border-radius:11px;background:#f7f9fc;color:#667085;font-size:13px;line-height:1.4}.auth-message.bad{background:#fff0f0;color:#b33a3a}.auth-message.good{background:#eaf8ef;color:#2f7f48}
+.auth-remember-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px}
+.auth-remember{display:inline-flex;align-items:center;gap:8px;margin:0!important;color:#4b5565;font-size:13px;font-weight:700;cursor:pointer;user-select:none}
+.auth-remember input{position:absolute;opacity:0;pointer-events:none}
+.auth-checkmark{width:19px;height:19px;border-radius:6px;border:1.5px solid #cbd5e1;background:#fff;display:inline-grid;place-items:center;transition:.16s ease;flex:0 0 19px}
+.auth-remember input:checked + .auth-checkmark{background:#4f8bd8;border-color:#4f8bd8}
+.auth-remember input:checked + .auth-checkmark:after{content:"";width:8px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px)}
+.auth-help-row{display:none}
+.auth-security-note{margin-top:10px;color:#8a94a6;font-size:11px;line-height:1.45}
+.backend-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 9px;border-radius:999px;background:#eef5ff;color:#3978c8;font-size:11px;font-weight:700}.backend-dot{width:7px;height:7px;border-radius:50%;background:#6fa8f5}.backend-pill.cloud .backend-dot{background:#2f9b55}.account-circle{cursor:pointer}.account-panel{position:fixed;inset:0;z-index:140;background:rgba(15,23,42,.28);display:flex;align-items:flex-end;justify-content:center}.account-sheet{width:100%;max-width:560px;background:#fff;border-radius:24px 24px 0 0;padding:22px 20px 28px;box-shadow:0 -18px 45px rgba(15,23,42,.16)}.account-sheet h3{margin:0 0 5px;font-size:22px}.account-meta{color:#667085;font-size:13px;line-height:1.5}.account-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eef2f7}.account-row span:first-child{color:#667085}.account-row span:last-child{font-weight:700;text-align:right}.account-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.account-actions button{margin-top:16px}.sync-note{font-size:11px;color:#667085;margin-top:7px}.setup-warning{margin-top:12px;padding:12px;border-radius:12px;background:#fff8e8;color:#875f16;font-size:13px;line-height:1.4}
 
 /* ========================================
    #03 PLATFORM ADMIN CONSOLE
@@ -600,7 +609,7 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 </div>
 
 <div id="cjSystemToast" class="cj-system-toast hidden"><span id="cjSystemToastText"></span><button id="cjSystemToastClose" type="button" aria-label="Dismiss">×</button></div>
-<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-help-row"><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Connecting securely…</span></div></div></div>
+<div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><span class="cj-brand-lockup"><span class="cj-wordmark">Create<span>Journey</span></span><span class="cj-powered-by">Powered by <strong>JourneyAI</strong></span></span></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" name="username" type="email" autocomplete="username" inputmode="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-remember-row"><label class="auth-remember"><input id="rememberLogin" type="checkbox" checked><span class="auth-checkmark" aria-hidden="true"></span><span>Remember me on this device</span></label><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div class="auth-security-note">Your password is handled by your browser/password manager. CreateJourney does not store your password in plain text.</div><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Connecting securely…</span></div></div></div>
 <!-- ======================================
      #10 ONBOARDING
      ====================================== -->
@@ -5982,6 +5991,7 @@ async function loadCloudWorkspace(user){
 async function loginUser(){
   if(cjAuthLoadingV24)return;
   const email=String(el("loginEmail").value||"").trim().toLowerCase(),password=String(el("loginPassword").value||"");
+  const remember=el("rememberLogin")?.checked!==false;
   if(!validEmail(email)||!password){setAuthMessage("Enter a valid email and password.","bad");return}
   cjAuthLoadingV24=true;setAuthBusy(true,"Signing in securely...");
   try{
@@ -5989,6 +5999,15 @@ async function loginUser(){
     if(backendReady&&sb){
       const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;
       if(!data?.user)throw new Error("Authenticated user was not returned.");
+      try{
+        if(remember){
+          localStorage.setItem("cj_remember_login","1");
+          localStorage.setItem("cj_remember_email",email);
+        }else{
+          localStorage.removeItem("cj_remember_login");
+          localStorage.removeItem("cj_remember_email");
+        }
+      }catch(_){}
       await loadCloudWorkspace(data.user);setAuthMessage("");return;
     }
     const a=localAccount();if(!a||a.email!==email)throw new Error("No local account was found on this device.");
@@ -6357,6 +6376,12 @@ try{
   console.warn("CreateJourney runtime bridge could not initialize",runtimeBridgeError);
 }
 
+try{
+  const remember=localStorage.getItem("cj_remember_login")!=="0";
+  const rememberedEmail=localStorage.getItem("cj_remember_email")||"";
+  if(el("rememberLogin"))el("rememberLogin").checked=remember;
+  if(remember&&rememberedEmail&&el("loginEmail")&&!el("loginEmail").value)el("loginEmail").value=rememberedEmail;
+}catch(_){}
 updateConditionalFields();updateAccountButton();updateActivationButton();updateCustomizeButton();updateJourney();initializeSession();
 setTimeout(()=>{handleIntegrationOAuthReturn().catch(()=>{});},800);
 });
@@ -9649,7 +9674,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 .cjh-account-float,
 .cjh-settings{
-  position:fixed;
+  position:fixed!important;
   right:20px;
   border:1px solid #e1e7ef;
   display:grid;
@@ -9659,17 +9684,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   -webkit-tap-highlight-color:transparent;
 }
 .cjh-account-float{
-  top:84px;
-  width:43px;height:43px;
+  top:calc(env(safe-area-inset-top) + 14px);
+  width:44px;height:44px;
   border-radius:50%;
   background:#fff;
-  color:#3f7ecf;
+  color:#24334a;
   font-size:15px;
   font-weight:800;
-  box-shadow:0 2px 8px rgba(15,23,42,.04);
+  box-shadow:0 8px 20px rgba(15,23,42,.12);
 }
+.cjh-account-float svg{width:22px;height:22px;stroke:currentColor}
 .cjh-settings{
-  top:106px;
+  top:calc(env(safe-area-inset-top) + 68px);
   width:53px;height:53px;
   border-radius:50%;
   background:#1f95e9;
@@ -9984,6 +10010,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   font-size:21px;
   font-weight:900;
 }
+.cjh-control-icon svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .cjh-pink{background:#ffe9f1;color:#ee3d83}
 .cjh-blue{background:#e8f4ff;color:#278fe8}
 .cjh-purple{background:#eee7ff;color:#7954f3}
@@ -10085,13 +10112,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .cjh-nav-icon{
   width:34px;height:31px;
   display:grid;place-items:center;
-  font-size:28px;
   line-height:1;
 }
-.cjh-nav-btn[data-cjh-nav="journeys"] .cjh-nav-icon{
-  font-size:25px;
-  letter-spacing:-7px;
-}
+.cjh-nav-icon svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.cjh-nav-btn.active .cjh-nav-icon svg{stroke-width:2.1}
 .cjh-nav-label{font-size:12px;line-height:1.1;font-weight:850}
 .cjh-setup:focus-visible,.cjh-control:focus-visible,.cjh-settings:focus-visible,.cjh-account-float:focus-visible,.cjh-analysis:focus-visible,.cjh-nav-btn:focus-visible{
   outline:3px solid rgba(63,126,207,.24);
@@ -10166,7 +10190,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </div>
       </div>
 
-      <button class="cjh-account-float" type="button" data-cjh="account" aria-label="Account">○</button>
+      <button class="cjh-account-float" type="button" data-cjh="account" aria-label="Account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"></circle><path d="M5.5 19c.9-4 3-6 6.5-6s5.6 2 6.5 6"></path></svg></button>
       <button class="cjh-settings" type="button" data-cjh="settings" aria-label="Settings">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm8 3.8-.1-1.1 2-1.5-2-3.4-2.4 1a8.7 8.7 0 0 0-1.9-1.1L15.3 3h-4l-.4 2.9A8.7 8.7 0 0 0 9 7L6.6 6 4.6 9.4l2 1.5A8 8 0 0 0 6.5 12c0 .4 0 .7.1 1.1l-2 1.5 2 3.4 2.4-1a8.7 8.7 0 0 0 1.9 1.1l.4 2.9h4l.4-2.9a8.7 8.7 0 0 0 1.9-1.1l2.4 1 2-3.4-2-1.5c.1-.4.1-.7.1-1.1Z" fill="currentColor"/>
@@ -10256,31 +10280,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <p class="cjh-control-copy">Quick access to the tools that help run and grow the business.</p>
       <div class="cjh-controls">
         <button class="cjh-control" type="button" data-cjh="marketing">
-          <span class="cjh-control-icon cjh-pink">▥</span>
+          <span class="cjh-control-icon cjh-pink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18v-5M10 18V9M15 18V6M20 18V3"></path></svg></span>
           <span><strong>Marketing</strong><span class="copy">Campaigns &amp; growth</span></span>
           <span class="cjh-row-chevron">›</span>
         </button>
         <button class="cjh-control" type="button" data-cjh="google">
-          <span class="cjh-control-icon cjh-blue">G</span>
+          <span class="cjh-control-icon cjh-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12.2h-7.8"></path><path d="M20 12.2c0 4.8-3.1 7.8-7.8 7.8A8 8 0 1 1 18 6.5"></path></svg></span>
           <span><strong>Google &amp; SEO</strong><span class="copy">Local search &amp; website health</span></span>
           <span class="cjh-row-chevron">›</span>
         </button>
         <button class="cjh-control" type="button" data-cjh="images">
-          <span class="cjh-control-icon cjh-purple">▧</span>
+          <span class="cjh-control-icon cjh-purple"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"></rect><circle cx="9" cy="9" r="1.4"></circle><path d="m5.8 17 4.3-4.3 3.1 3.1 2.2-2.2 2.8 3.4"></path></svg></span>
           <span><strong>Journey AI Image Library</strong><span class="copy">Generated creative assets</span></span>
           <span class="cjh-row-chevron">›</span>
         </button>
         <button class="cjh-control" type="button" data-cjh="team">
-          <span class="cjh-control-icon cjh-cyan">●●●</span>
+          <span class="cjh-control-icon cjh-cyan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="2.6"></circle><circle cx="16" cy="8.5" r="2.2"></circle><path d="M3.8 18c.5-3.7 2.3-5.7 5-5.7s4.6 2 5.1 5.7"></path><path d="M13.4 13c.8-.7 1.8-1 2.9-1 2.3 0 3.7 1.7 4 5"></path></svg></span>
           <span><strong>Team &amp; Access</strong><span class="copy">People, roles &amp; permissions</span></span>
           <span class="cjh-row-chevron">›</span>
         </button>
       </div>
 
       <nav class="cjh-bottom-nav" aria-label="Primary">
-        <button class="cjh-nav-btn active" type="button" data-cjh-nav="home"><span class="cjh-nav-icon">⌂</span><span class="cjh-nav-label">Home</span></button>
-        <button class="cjh-nav-btn" type="button" data-cjh-nav="journeys"><span class="cjh-nav-icon">••••➤</span><span class="cjh-nav-label">Journeys</span></button>
-        <button class="cjh-nav-btn" type="button" data-cjh-nav="explore"><span class="cjh-nav-icon">◉</span><span class="cjh-nav-label">Explore</span></button>
+        <button class="cjh-nav-btn active" type="button" data-cjh-nav="home"><span class="cjh-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20H5.8A1.8 1.8 0 0 1 4 18.2Z"></path><path d="M9.5 20v-6h5v6"></path></svg></span><span class="cjh-nav-label">Home</span></button>
+        <button class="cjh-nav-btn" type="button" data-cjh-nav="journeys"><span class="cjh-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="4.5" cy="12" r="1.2"></circle><circle cx="8.5" cy="12" r="1.2"></circle><circle cx="12.5" cy="12" r="1.2"></circle><path d="M15.5 8.5 20 12l-4.5 3.5"></path></svg></span><span class="cjh-nav-label">Journeys</span></button>
+        <button class="cjh-nav-btn" type="button" data-cjh-nav="explore"><span class="cjh-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="m15.6 8.4-2.2 5-5 2.2 2.2-5Z"></path></svg></span><span class="cjh-nav-label">Explore</span></button>
       </nav>
     `;
     shell.insertBefore(home,shell.firstChild);
