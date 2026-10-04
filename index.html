@@ -1905,6 +1905,7 @@ async function ensureSupabaseLibrary(){
   return !!window.supabase?.createClient;
 }
 function initBackend(){
+  if(backendReady&&sb)return true;
   if(!backendConfigured()||!window.supabase?.createClient){backendReady=false;return false}
   try{
     sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"createjourney-auth"}});
@@ -2131,14 +2132,32 @@ async function handlePasswordRecoveryIfNeeded(){
 
 async function initializeSession(){
   const status=el("authBackendStatus")?.querySelector("span:last-child");
+  showAuth();
   if(status)status.textContent="Connecting securely…";
-  await ensureSupabaseLibrary();
+
+  const libraryReady=await Promise.race([
+    ensureSupabaseLibrary(),
+    new Promise(resolve=>setTimeout(()=>resolve(false),4500))
+  ]);
+
+  if(!libraryReady){
+    backendReady=false;
+    updateBackendBadges();
+    if(status)status.textContent="Cloud connection delayed · sign-in form is ready";
+    return;
+  }
+
   initBackend();
   updateBackendBadges();
+  if(status&&backendReady)status.textContent="Supabase connected · checking session…";
 
   if(backendReady&&sb){
     try{
-      const {data,error}=await sb.auth.getSession();
+      const result=await Promise.race([
+        sb.auth.getSession(),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error("Session check timed out")),5000))
+      ]);
+      const {data,error}=result||{};
       if(error)throw error;
       const session=data?.session||null;
       if(session){
@@ -2151,12 +2170,12 @@ async function initializeSession(){
           try{await loadCloudWorkspace(nextSession.user)}catch(err){console.error("Workspace restore after auth event failed",err)}
         }
       });
+      if(status)status.textContent="Supabase connected · sign in ready";
       showAuth();
       return;
     }catch(err){
-      console.error("Supabase session restore failed",err);
-      const n=el("authBackendStatus")?.querySelector("span:last-child");
-      if(n)n.textContent="Supabase connected · sign in required";
+      console.warn("Supabase session restore delayed",err);
+      if(status)status.textContent="Supabase connected · sign in ready";
       showAuth();
       return;
     }
@@ -5997,7 +6016,11 @@ async function loginUser(){
   try{
     initBackend();
     if(backendReady&&sb){
-      const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;
+      const loginResult=await Promise.race([
+        sb.auth.signInWithPassword({email,password}),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error("Secure sign-in timed out. Please try again.")),10000))
+      ]);
+      const {data,error}=loginResult||{};if(error)throw error;
       if(!data?.user)throw new Error("Authenticated user was not returned.");
       try{
         if(remember){
@@ -11270,5 +11293,23 @@ button.primary,button.secondary,.primary,.secondary{
 })();
 </script>
 
+
+<style id="cjAuthResponsivenessHotfix">
+#authApp,#authApp .auth-card,#authApp input,#authApp button,#authApp label{pointer-events:auto!important}
+#loginEmail,#loginPassword{touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important}
+</style>
+<script id="cjAuthResponsivenessHotfixScript">
+(function(){
+  function unlock(){
+    ['loginEmail','loginPassword'].forEach(id=>{
+      const n=document.getElementById(id);
+      if(n){n.disabled=false;n.readOnly=false;n.style.pointerEvents='auto'}
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',unlock,{once:true});else unlock();
+  setTimeout(unlock,1200);
+  setTimeout(unlock,4000);
+})();
+</script>
 </body>
 </html>
