@@ -11311,5 +11311,125 @@ button.primary,button.secondary,.primary,.secondary{
   setTimeout(unlock,4000);
 })();
 </script>
+
+<!-- =========================================================
+     CREATEJOURNEY LOGIN LOGO V4 — USE OFFICIAL IMAGE DIRECTLY
+     Fixes prior oversized/reconstructed logo variants.
+     ========================================================= -->
+<style id="cjAuthLogoV4Styles">
+#authApp .auth-brand{
+  min-height:0!important;
+  margin:0 auto 10px!important;
+  padding:0!important;
+  width:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+}
+#authApp .cj-auth-logo-v4{
+  display:block!important;
+  width:min(76vw,300px)!important;
+  max-width:300px!important;
+  height:auto!important;
+  max-height:112px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:0 auto!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#authApp .cj-auth-powered-v4{
+  margin-top:-1px!important;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif!important;
+  font-size:10px!important;
+  line-height:1.2!important;
+  letter-spacing:.035em!important;
+  font-weight:700!important;
+  color:#8b95a7!important;
+  white-space:nowrap!important;
+}
+#authApp .cj-auth-powered-v4 strong{
+  color:#3978c8!important;
+  font-weight:850!important;
+}
+#authApp .cj-auth-logo-v2,
+#authApp .cj-auth-logo-v3,
+#authApp .auth-brand>.cj-official-wordmark-v2,
+#authApp .auth-brand>.cj-vector-brand{
+  display:none!important;
+}
+@media(max-width:600px){
+  #authApp .auth-brand{margin-bottom:10px!important}
+  #authApp .cj-auth-logo-v4{width:min(74vw,284px)!important;max-width:284px!important;max-height:104px!important}
+  #authApp .cj-auth-powered-v4{font-size:9px!important}
+}
+@media(max-width:390px){
+  #authApp .cj-auth-logo-v4{width:min(72vw,262px)!important;max-width:262px!important}
+}
+</style>
+<script id="cjAuthLogoV4Script">
+(function(){
+  if(window.__cjAuthLogoV4)return;
+  window.__cjAuthLogoV4=true;
+
+  function render(){
+    const host=document.querySelector('#authApp .auth-brand');
+    if(!host)return;
+    const src=window.CJ_OFFICIAL_BRAND?.logoDataUri;
+    if(!src)return;
+
+    if(host.querySelector('.cj-auth-logo-v4'))return;
+
+    const img=document.createElement('img');
+    img.className='cj-auth-logo-v4';
+    img.src=src;
+    img.alt='CreateJourney';
+    img.decoding='async';
+
+    const powered=document.createElement('div');
+    powered.className='cj-auth-powered-v4';
+    powered.innerHTML='Powered by <strong>JourneyAI</strong>';
+
+    const guardVector=document.createElement('span');
+    guardVector.className='cj-vector-brand';
+    guardVector.setAttribute('aria-hidden','true');
+    guardVector.style.setProperty('display','none','important');
+
+    const guardOfficial=document.createElement('span');
+    guardOfficial.className='cj-official-wordmark-v2';
+    guardOfficial.setAttribute('aria-hidden','true');
+    guardOfficial.style.setProperty('display','none','important');
+
+    const guardV2=document.createElement('span');
+    guardV2.className='cj-auth-logo-v2';
+    guardV2.setAttribute('aria-hidden','true');
+    guardV2.style.setProperty('display','none','important');
+
+    const guardV3=document.createElement('span');
+    guardV3.className='cj-auth-logo-v3';
+    guardV3.setAttribute('aria-hidden','true');
+    guardV3.style.setProperty('display','none','important');
+
+    host.replaceChildren(img,powered,guardVector,guardOfficial,guardV2,guardV3);
+  }
+
+  function start(){
+    render();
+    setTimeout(render,50);
+    setTimeout(render,250);
+    setTimeout(render,1000);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+
+  new MutationObserver(render).observe(document.documentElement,{subtree:true,childList:true});
+})();
+</script>
+
 </body>
 </html>
