@@ -1,0 +1,19 @@
+name: CJ Inspect Performance
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-inspect-performance.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect performance section
+        shell: bash
+        run: |
+          echo "=== PERFORMANCE CSS ==="
+          grep -n -m 80 -E "cjx-performance|cjx-live-head|cjx-live-pill|cjx-feed|cjx-feed-row|cjx-check" index.html || true
+          echo "=== ACTIVE FUNCTION AREA ==="
+          sed -n '11190,11235p' index.html
