@@ -1930,7 +1930,7 @@ function initBackend(){
 }
 function setAdminMessage(text,type=""){const n=el("adminMessage");if(!n)return;n.textContent=text;n.className="admin-message"+(type?" "+type:"");n.classList.toggle("hidden",!text)}
 function updateAdminAccessUi(){const btn=el("openAdminConsole"),row=el("accountAdminRow");if(btn)btn.classList.toggle("hidden",!isPlatformAdmin);if(row)row.classList.toggle("hidden",!isPlatformAdmin)}
-async function checkPlatformAdmin(){if(!backendReady||!sb){isPlatformAdmin=false;window.CJ_PLATFORM_ADMIN=false;updateAdminAccessUi();return false}try{const{data,error}=await sb.rpc("cj_is_platform_admin");if(error)throw error;isPlatformAdmin=data===true;window.CJ_PLATFORM_ADMIN=isPlatformAdmin;updateAdminAccessUi();return isPlatformAdmin}catch(err){console.warn("Admin access check failed",err);isPlatformAdmin=false;window.CJ_PLATFORM_ADMIN=false;updateAdminAccessUi();return false}}
+async function checkPlatformAdmin(){if(!backendReady||!sb){isPlatformAdmin=false;window.CJ_PLATFORM_ADMIN=false;updateAdminAccessUi();try{window.dispatchEvent(new CustomEvent("cj:platform-admin",{detail:{isPlatformAdmin:false}}))}catch(_){}return false}try{const{data,error}=await sb.rpc("cj_is_platform_admin");if(error)throw error;isPlatformAdmin=data===true;window.CJ_PLATFORM_ADMIN=isPlatformAdmin;updateAdminAccessUi();try{window.dispatchEvent(new CustomEvent("cj:platform-admin",{detail:{isPlatformAdmin:isPlatformAdmin}}))}catch(_){}return isPlatformAdmin}catch(err){console.warn("Admin access check failed",err);isPlatformAdmin=false;window.CJ_PLATFORM_ADMIN=false;updateAdminAccessUi();try{window.dispatchEvent(new CustomEvent("cj:platform-admin",{detail:{isPlatformAdmin:false}}))}catch(_){}return false}}
 
 const CJ_TRIAL_LOCAL_KEY="cj_journey_trial_v1";
 function cjReadJourneyTrialV1(){try{return JSON.parse(localStorage.getItem(CJ_TRIAL_LOCAL_KEY)||"null")}catch(_){return null}}
@@ -11123,7 +11123,7 @@ button.primary,button.secondary,.primary,.secondary{
   if(window.__cjExactHomeV1)return;window.__cjExactHomeV1=true;
   var MODE_KEY='cj_exact_home_mode_v1';
   var ADMIN_PREVIEW_KEY='cj_admin_preview_v1';
-  function isPlatformAdminPreview(){try{return !!window.CJ_PLATFORM_CONTEXT?.isPlatformAdmin?.()}catch(_){return false}}
+  function isPlatformAdminPreview(){try{return window.CJ_PLATFORM_ADMIN===true||!!window.CJ_PLATFORM_CONTEXT?.isPlatformAdmin?.()}catch(_){return window.CJ_PLATFORM_ADMIN===true}}
   function getAdminPreview(){if(!isPlatformAdminPreview())return null;try{var v=sessionStorage.getItem(ADMIN_PREVIEW_KEY);return /^(admin|owner|setup)$/.test(v||'')?v:'admin'}catch(_){return'admin'}}
   function setAdminPreview(v){if(!isPlatformAdminPreview())return;try{sessionStorage.setItem(ADMIN_PREVIEW_KEY,/^(admin|owner|setup)$/.test(v)?v:'admin')}catch(_){}}
   function $(id){return document.getElementById(id)}
@@ -11281,6 +11281,7 @@ button.primary,button.secondary,.primary,.secondary{
     if(e.target.closest('[data-cjx-ai]')){e.preventDefault();e.stopPropagation();openAI()}
   }
   document.addEventListener('click',onClick,true);
+  window.addEventListener('cj:platform-admin',function(e){try{if(e&&e.detail&&e.detail.isPlatformAdmin===true)render()}catch(_){}});
   function boot(){if(render())return;var tries=0;var t=setInterval(function(){tries++;if(render()||tries>80)clearInterval(t)},100)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
   window.CJExactHome={version:'1.1',showSetup:function(){if(isPlatformAdminPreview())setAdminPreview('setup');else localStorage.setItem(MODE_KEY,'setup');render()},showCommandCenter:function(){if(isPlatformAdminPreview())setAdminPreview('admin');else localStorage.setItem(MODE_KEY,'active');render()},showOwnerPreview:function(){setAdminPreview('owner');render()},showAdminPreview:function(){setAdminPreview('admin');render()},render:render};
@@ -12755,6 +12756,56 @@ html,body{overscroll-behavior-y:auto}
   #cjScreenshotHome .cjx-view-button span{display:none!important}
   #dashboardApp #cjScreenshotHome .cjx-profile{right:9px!important}
   #dashboardApp #cjScreenshotHome .cjx-ai-dock{right:8px!important}
+}
+</style>
+
+<style id="cjAdminHeaderAndSmartBoardTightV7">
+/* Requested correction: profile higher in the upper-right. */
+#dashboardApp #cjScreenshotHome .cjx-profile{
+  top:2px!important;
+  right:9px!important;
+}
+
+/* Keep the admin view switch tightly aligned to the profile icon. */
+#cjScreenshotHome .cjx-view-switch{
+  top:4px!important;
+  right:57px!important;
+  z-index:30!important;
+}
+#cjScreenshotHome .cjx-view-button{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+/* SmartBoard cards should read as one tight stack with almost no wasted space. */
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-boards{
+  row-gap:2px!important;
+  column-gap:2px!important;
+  gap:2px!important;
+  margin-top:5px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-board{
+  margin:0!important;
+  margin-block:0!important;
+}
+
+/* On phone layouts, keep stacked SmartBoards close together. */
+@media(max-width:760px){
+  #dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-boards{
+    grid-template-columns:1fr!important;
+    gap:2px!important;
+  }
+}
+@media(max-width:390px){
+  #dashboardApp #cjScreenshotHome .cjx-profile{
+    top:1px!important;
+    right:7px!important;
+  }
+  #cjScreenshotHome .cjx-view-switch{
+    top:3px!important;
+    right:54px!important;
+  }
 }
 </style>
 </body>
