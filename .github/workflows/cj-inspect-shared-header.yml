@@ -1,0 +1,21 @@
+name: CJ Inspect Shared Header
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-inspect-shared-header.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect shared header markup and CSS
+        shell: bash
+        run: |
+          echo "=== HEADER FUNCTION ==="
+          grep -n -A45 -B5 -m 1 "function chrome(showProfile)" index.html || true
+          echo "=== BRAND FUNCTION ==="
+          grep -n -A35 -B5 -m 1 "function brand()" index.html || true
+          echo "=== HEADER/DIVIDER CSS ==="
+          grep -n -m 120 -E "cjx-brand|cjx-chrome|cjx-divider|border-bottom|cjx-profile-wrap|cjx-page-title|cjScreenshotHome" index.html || true
