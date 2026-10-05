@@ -12962,13 +12962,25 @@ html,body{overscroll-behavior-y:auto}
 </style>
 <style id="cj-bottom-nav-visibility-v1">
 #cjScreenshotHome .cjx-ai-dock{
-  bottom:calc(env(safe-area-inset-bottom) + 88px)!important;
+  bottom:calc(env(safe-area-inset-bottom) + 94px)!important;
 }
 #cjScreenshotHome .cjx-bottom{
   height:78px!important;
   padding:0!important;
   box-sizing:border-box!important;
   align-items:start!important;
+  border-top:0!important;
+  position:fixed!important;
+}
+#cjScreenshotHome .cjx-bottom::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:54px;
+  height:1px;
+  background:#dfe5ec;
+  pointer-events:none;
 }
 #cjScreenshotHome .cjx-bottom button{
   display:flex!important;
