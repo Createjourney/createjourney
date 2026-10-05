@@ -1,45 +1,42 @@
-name: CJ Patch Setup Profile Header
+name: CJ Verify Setup Profile Header
 on:
   push:
     paths:
       - '.github/workflows/cj-patch-setup-profile.yml'
 permissions:
-  contents: write
+  contents: read
 jobs:
-  patch:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Switch Setup header to shared profile menu
+      - name: Verify final Setup header
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          p=Path("index.html")
-          s=p.read_text()
-          old="return brand()+chrome(false)+"
-          new="return brand()+chrome(true)+"
-          n=s.count(old)
-          if n!=1:
-              raise SystemExit(f"Expected exactly one setup chrome(false) target, found {n}")
-          s=s.replace(old,new,1)
-          p.write_text(s)
-          print("PATCH_OK")
-          print("chrome_false_remaining",s.count("return brand()+chrome(false)+"))
-          print("chrome_true_count",s.count("return brand()+chrome(true)+"))
+          s=Path("index.html").read_text()
+          start=s.find("function setup()")
+          end=s.find("function active()",start)
+          if start<0 or end<0:
+              raise SystemExit("Could not isolate setup renderer")
+          block=s[start:end]
+          checks={
+            "setup_uses_profile_header":"return brand()+chrome(true)+" in block,
+            "setup_no_standalone_header_call":"chrome(false)" not in block,
+            "shared_profile_toggle":"data-cjx-profile-toggle" in s,
+            "account_option":"Account &amp; Workspace" in s,
+            "settings_option":"Settings &amp; Integrations" in s,
+            "admin_option":"data-cjx-admin-toggle" in s,
+            "owner_preview":"Owner / Command Center View" in s,
+            "setup_preview":"Setup / Onboarding View" in s,
+            "platform_admin":"Platform Admin Console" in s,
+            "help_option":"Help &amp; Support" in s,
+            "signout_option":"Sign Out" in s,
+          }
+          for k,v in checks.items():
+              print(k,"PASS" if v else "FAIL")
+          if not all(checks.values()):
+              raise SystemExit("Setup profile header verification failed")
           PY
           git diff --check
-          echo "=== VERIFY SETUP HEADER ==="
-          grep -n -m 6 -E "return brand\(\)\+chrome\((true|false)\)" index.html || true
-          echo "=== VERIFY PROFILE MENU ==="
-          grep -n -m 6 -E "data-cjx-profile-toggle|data-cjx-admin-toggle|Setup / Onboarding View" index.html || true
-      - name: Commit
-        shell: bash
-        run: |
-          git config user.name "createjourney-dev"
-          git config user.email "dev@gocreatejourney.com"
-          git add index.html
-          git commit -m "Use profile menu on Setup page header"
-          git push origin HEAD:main
