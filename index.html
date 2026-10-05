@@ -13038,5 +13038,51 @@ html,body{overscroll-behavior-y:auto}
   transform:none!important;
 }
 </style>
+<!-- CJ REFERENCE BOTTOM DOCK MATCH — 2026-10-05 START -->
+<style id="cj-reference-bottom-dock-match">
+/*
+  Reference-match only:
+  - lowers the white bottom-nav top edge closer to the nav icons
+  - keeps Journey AI + microphone floating immediately above that edge
+  - preserves existing sizes, colors, horizontal alignment, routes and behavior
+  - safe-area aware so the relationship stays consistent on iPhone/Safari
+*/
+:root{
+  --cj-ref-nav-core-height:58px;
+  --cj-ref-nav-gap:10px;
+}
+
+.cjh-bottom-nav{
+  height:calc(var(--cj-ref-nav-core-height) + env(safe-area-inset-bottom, 0px))!important;
+  padding-top:7px!important;
+  padding-right:24px!important;
+  padding-bottom:max(7px, env(safe-area-inset-bottom, 0px))!important;
+  padding-left:24px!important;
+  align-items:start!important;
+}
+
+/* Keep the shared AI controls locked to the nav divider on every software view
+   where the launcher is visible. */
+.ai-launcher,
+#dashboardApp .ai-launcher{
+  bottom:calc(var(--cj-ref-nav-core-height) + env(safe-area-inset-bottom, 0px) + var(--cj-ref-nav-gap))!important;
+  right:18px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+
+/* Preserve the approved reference geometry. */
+#journeyAiFab,
+#dashboardApp #journeyAiFab{
+  height:50px!important;
+}
+#aiTalkFab,
+#dashboardApp #aiTalkFab{
+  width:50px!important;
+  height:50px!important;
+}
+</style>
+<!-- CJ REFERENCE BOTTOM DOCK MATCH — 2026-10-05 END -->
 </body>
 </html>
