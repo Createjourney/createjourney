@@ -1,0 +1,19 @@
+name: CJ Inspect Bottom Divider Rules
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-inspect-bottom-divider.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect effective bottom-nav rules
+        run: |
+          sed -n '12710,12810p' index.html
+          echo "=== EARLIER BOTTOM RULES ==="
+          sed -n '12245,12320p' index.html
+          echo "=== FINAL OVERRIDE ==="
+          sed -n '12955,13035p' index.html
