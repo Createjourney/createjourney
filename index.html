@@ -11312,7 +11312,20 @@ button.primary,button.secondary,.primary,.secondary{
       try{if(window.CJ_PLATFORM_CONTEXT?.startJourneyTrial)await window.CJ_PLATFORM_CONTEXT.startJourneyTrial()}catch(err){console.warn('Trial persistence delayed',err)}
       localStorage.setItem(MODE_KEY,'active');render();window.scrollTo({top:0,behavior:'smooth'});return;
     }
-    if(e.target.closest('[data-cjx-ai]')){e.preventDefault();e.stopPropagation();openAI()}
+    if(e.target.closest('[data-cjx-ai]')){
+      e.preventDefault();
+      e.stopPropagation();
+      const aiControl=e.target.closest('[data-cjx-ai]');
+      if(aiControl?.classList.contains('cjx-mic')){
+        const voiceButton=document.getElementById('aiTalkFab');
+        if(voiceButton){voiceButton.click();return}
+        if(typeof window.startVoice==='function'){window.startVoice();return}
+      }
+      const chatButton=document.getElementById('journeyAiFab');
+      if(chatButton){chatButton.click();return}
+      if(typeof window.openAI==='function')window.openAI();
+      return;
+    }
   }
   document.addEventListener('click',onClick,true);
   window.addEventListener('cj:platform-admin',function(e){try{if(e&&e.detail&&e.detail.isPlatformAdmin===true)render()}catch(_){}});
@@ -13322,5 +13335,30 @@ html,body{overscroll-behavior-y:auto}
 }
 </style>
 <!-- CJ AI DOCK ALIGNMENT FIX V3 END -->
+<!-- CJ AI CLICKABILITY FIX V4 START -->
+<style id="cj-ai-clickability-fix-v4">
+/* Keep the visual dock above every bottom-nav hit layer and make both buttons tappable on iPhone/Safari. */
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-ai-dock{
+  z-index:160!important;
+  pointer-events:auto!important;
+  isolation:isolate!important;
+}
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-pill,
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-mic,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-ai-pill,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-mic{
+  position:relative!important;
+  z-index:161!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-bottom,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-bottom{
+  z-index:80!important;
+}
+</style>
+<!-- CJ AI CLICKABILITY FIX V4 END -->
 </body>
 </html>
