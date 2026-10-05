@@ -3,7 +3,6 @@ on:
   push:
     paths:
       - '.github/workflows/cj-inspect.yml'
-  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -11,12 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect current setup and dashboard hooks
+      - name: Verify admin preview behavior
         shell: bash
         run: |
-          echo "=== SETUP JS ==="
-          sed -n '11120,11270p' index.html
-          echo "=== LATEST TAIL ==="
-          sed -n '12450,12884p' index.html
-          echo "=== CJX HOOKS ==="
-          grep -ni -m 120 -E "cjScreenshotHome|cjx-|data-cjh|data-cjx|render.*CJ|setup.*home|home.*setup|dashboard.*home|admin.*view|profile.*icon|account.*panel" index.html || true
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("index.html").read_text()
+          checks={
+            "preview_key": "cj_admin_preview_v1" in s,
+            "setup_uses_no_profile_chrome": "return brand()+chrome(false)+" in s,
+            "command_center_uses_profile_chrome": "return brand()+chrome(true)+" in s,
+            "profile_is_conditional": "if(showProfile)controls+='<button class=\"cjx-profile\"" in s,
+            "setup_preview_option": 'data-cjx-preview="setup"' in s,
+            "owner_preview_option": 'data-cjx-preview="owner"' in s,
+            "admin_preview_option": 'data-cjx-preview="admin"' in s,
+            "preview_click_handler": "data-cjx-preview" in s and "setAdminPreview" in s,
+          }
+          for k,v in checks.items(): print(k, "PASS" if v else "FAIL")
+          if not all(checks.values()): raise SystemExit("verification failed")
+          PY
+          echo "=== PREVIEW HANDLERS ==="
+          grep -n -m 12 -E "data-cjx-preview|setAdminPreview\(" index.html
+          echo "=== HEADER CALLS ==="
+          grep -n -m 8 -E "chrome\(false\)|chrome\(true\)|if\(showProfile\)controls" index.html
