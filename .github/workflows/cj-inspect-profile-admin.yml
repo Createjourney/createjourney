@@ -1,27 +1,41 @@
-name: CJ Patch Profile Admin Menu
+name: CJ Verify Profile Admin Menu
 on:
   push:
     paths:
       - '.github/workflows/cj-inspect-profile-admin.yml'
 permissions:
-  contents: write
+  contents: read
 jobs:
-  patch:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Apply profile admin patch
-        run: python scripts/cj_patch_profile_admin.py
-      - name: Verify patch
+      - name: Verify profile admin menu
         run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("index.html").read_text()
+          start=s.find("function chrome(showProfile)")
+          end=s.find("function setup()",start)
+          chrome=s[start:end]
+          checks={
+            "profile_menu_present": 'data-cjx-profile-toggle' in chrome,
+            "account_item": 'Account &amp; Workspace' in chrome,
+            "settings_item": 'Settings &amp; Integrations' in chrome,
+            "admin_nested": 'data-cjx-admin-toggle' in chrome,
+            "owner_option": 'Owner / Command Center View' in chrome,
+            "setup_option": 'Setup / Onboarding View' in chrome,
+            "platform_admin_option": 'Platform Admin Console' in chrome,
+            "help_item": 'Help &amp; Support' in chrome,
+            "signout_item": 'Sign Out' in chrome,
+            "command_center_no_standalone_admin": "if(showProfile){" in chrome and "}else if(admin){" in chrome,
+            "profile_css": 'cj-profile-admin-menu-v1' in s,
+            "profile_action_handler": "data-cjx-profile-action" in s,
+            "preview_handler": "setAdminPreview(previewChoice.getAttribute('data-cjx-preview')" in s,
+          }
+          for k,v in checks.items():
+              print(k,"PASS" if v else "FAIL")
+          if not all(checks.values()):
+              raise SystemExit("verification failed")
+          PY
           git diff --check
-          grep -n -m 6 -E "data-cjx-profile-toggle|data-cjx-admin-toggle|cj-profile-admin-menu-v1|else if\(admin\)" index.html
-      - name: Commit
-        run: |
-          git config user.name "createjourney-dev"
-          git config user.email "dev@gocreatejourney.com"
-          git add index.html
-          git commit -m "Move Command Center admin views into profile menu"
-          git push origin HEAD:main
