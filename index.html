@@ -1930,7 +1930,36 @@ function initBackend(){
 }
 function setAdminMessage(text,type=""){const n=el("adminMessage");if(!n)return;n.textContent=text;n.className="admin-message"+(type?" "+type:"");n.classList.toggle("hidden",!text)}
 function updateAdminAccessUi(){const btn=el("openAdminConsole"),row=el("accountAdminRow");if(btn)btn.classList.toggle("hidden",!isPlatformAdmin);if(row)row.classList.toggle("hidden",!isPlatformAdmin)}
-async function checkPlatformAdmin(){if(!backendReady||!sb){isPlatformAdmin=false;updateAdminAccessUi();return false}try{const{data,error}=await sb.rpc("cj_is_platform_admin");if(error)throw error;isPlatformAdmin=data===true;updateAdminAccessUi();return isPlatformAdmin}catch(err){console.warn("Admin access check failed",err);isPlatformAdmin=false;updateAdminAccessUi();return false}}
+async function checkPlatformAdmin(){if(!backendReady||!sb){isPlatformAdmin=false;window.CJ_PLATFORM_ADMIN=false;updateAdminAccessUi();return false}try{const{data,error}=await sb.rpc("cj_is_platform_admin");if(error)throw error;isPlatformAdmin=data===true;window.CJ_PLATFORM_ADMIN=isPlatformAdmin;updateAdminAccessUi();return isPlatformAdmin}catch(err){console.warn("Admin access check failed",err);isPlatformAdmin=false;window.CJ_PLATFORM_ADMIN=false;updateAdminAccessUi();return false}}
+
+const CJ_TRIAL_LOCAL_KEY="cj_journey_trial_v1";
+function cjReadJourneyTrialV1(){try{return JSON.parse(localStorage.getItem(CJ_TRIAL_LOCAL_KEY)||"null")}catch(_){return null}}
+function cjHasJourneyTrialV1(){const t=cjReadJourneyTrialV1();return !!(t&&t.startedAt)}
+async function cjStartJourneyTrialV1(){
+  if(isPlatformAdmin){
+    window.CJ_PLATFORM_ADMIN=true;
+    return{ok:true,admin:true,startedAt:null};
+  }
+  let trial=cjReadJourneyTrialV1();
+  if(!trial?.startedAt)trial={startedAt:new Date().toISOString(),durationDays:3,status:"active",source:"setup"};
+  try{localStorage.setItem(CJ_TRIAL_LOCAL_KEY,JSON.stringify(trial))}catch(_){}
+  if(backendReady&&sb&&backendWorkspaceId){
+    try{
+      const {data:row,error:readErr}=await sb.from("workspace_state").select("state").eq("workspace_id",backendWorkspaceId).maybeSingle();
+      if(readErr)throw readErr;
+      const current=row?.state&&typeof row.state==="object"?row.state:{};
+      const state={...current,createJourneyAccess:{...(current.createJourneyAccess||{}),journeyAiTrial:trial},savedAt:new Date().toISOString()};
+      const {error:writeErr}=await sb.from("workspace_state").upsert({workspace_id:backendWorkspaceId,state},{onConflict:"workspace_id"});
+      if(writeErr)throw writeErr;
+    }catch(err){console.warn("Journey AI trial cloud persistence delayed",err)}
+  }
+  return{ok:true,admin:false,startedAt:trial.startedAt};
+}
+window.CJ_PLATFORM_CONTEXT={
+  isPlatformAdmin:()=>!!isPlatformAdmin,
+  hasJourneyTrial:()=>cjHasJourneyTrialV1(),
+  startJourneyTrial:()=>cjStartJourneyTrialV1()
+};
 async function openAdminConsole(){if(!backendReady){alert("Supabase must be connected before Platform Admin can open.");return}const allowed=isPlatformAdmin||await checkPlatformAdmin();if(!allowed){alert("Platform Admin access is not authorized for this account.");return}el("accountPanel").classList.add("hidden");showOnly("adminConsoleApp");setAdminMessage("");await loadAdminBoards()}
 async function loadAdminBoards(){if(!isPlatformAdmin&&!await checkPlatformAdmin())return;const list=el("adminBoardList");list.classList.add("admin-loading");setAdminMessage("Loading secure board inventory...");try{const{data,error}=await sb.rpc("cj_admin_list_boards");if(error)throw error;adminBoards=Array.isArray(data)?data:[];renderAdminBoards();setAdminMessage(`Loaded ${adminBoards.length} board${adminBoards.length===1?"":"s"}.`,"good")}catch(err){console.error(err);adminBoards=[];renderAdminBoards();setAdminMessage(err.message||"Could not load board inventory.","bad")}finally{list.classList.remove("admin-loading")}}
 function renderAdminBoards(){const list=el("adminBoardList");const total=adminBoards.length,claimed=adminBoards.filter(b=>b.claimed).length,unclaimed=adminBoards.filter(b=>!b.claimed).length,inactive=adminBoards.filter(b=>b.status==="paused"||b.status==="disabled").length;el("adminTotalBoards").textContent=total;el("adminClaimedBoards").textContent=claimed;el("adminUnclaimedBoards").textContent=unclaimed;el("adminInactiveBoards").textContent=inactive;list.innerHTML="";if(!adminBoards.length){list.innerHTML='<div class="admin-empty">No boards were returned.</div>';return}adminBoards.forEach(b=>{const card=document.createElement("div");card.className="admin-board-card";const canActivate=b.status==="paused"||b.status==="disabled"||b.status==="replacement";const canPause=b.status==="active";const waiting=b.status==="unclaimed"&&!b.claimed;const stateButton=canPause?'<button class="secondary admin-state" data-status="paused">Pause</button>':canActivate?'<button class="secondary admin-state" data-status="active">Activate</button>':waiting?'<button class="secondary" disabled>Ready for claim</button>':'<button class="secondary" disabled>No status change</button>';card.innerHTML=`<div class="admin-board-head"><div><div class="admin-board-number">${esc(b.board_number)}</div><div class="admin-board-name">${esc(b.board_name||"Unnamed board")}</div></div><div class="admin-status ${esc(b.status)}">${esc(b.status)}</div></div><div class="admin-board-grid"><div class="admin-info"><div class="admin-info-label">Ownership</div><div class="admin-info-value">${b.claimed?"Claimed":"Unclaimed"}${b.claimed_at?" - "+esc(new Date(b.claimed_at).toLocaleString()):""}</div></div><div class="admin-info"><div class="admin-info-label">Activation code</div><div class="admin-info-value admin-sensitive">${esc(b.activation_code)}</div></div><div class="admin-info"><div class="admin-info-label">Public NFC / QR token</div><div class="admin-info-value admin-sensitive">${esc(b.public_token)}</div></div><div class="admin-info"><div class="admin-info-label">Created</div><div class="admin-info-value">${b.created_at?esc(new Date(b.created_at).toLocaleString()):"-"}</div></div></div><div class="admin-actions">${stateButton}<button class="danger admin-disable" ${b.status==="disabled"||adminActionBusy?"disabled":""}>Disable</button><button class="secondary admin-history-btn" ${adminActionBusy?"disabled":""}>History</button><button class="danger admin-reset" ${adminActionBusy?"disabled":""}>Reset / Unclaim</button></div>`;card.querySelectorAll("button").forEach(btn=>{if(adminActionBusy)btn.disabled=true});const state=card.querySelector(".admin-state");if(state)state.addEventListener("click",()=>adminSetBoardStatus(b.board_number,state.dataset.status));card.querySelector(".admin-disable").addEventListener("click",()=>adminSetBoardStatus(b.board_number,"disabled"));card.querySelector(".admin-history-btn").addEventListener("click",()=>loadAdminHistory(b.board_number));card.querySelector(".admin-reset").addEventListener("click",()=>adminResetBoard(b.board_number));list.appendChild(card)})}
@@ -6027,6 +6056,7 @@ async function loadCloudWorkspace(user){
     const {data:stateRow,error:stateErr}=await sb.from("workspace_state").select("state").eq("workspace_id",backendWorkspaceId).maybeSingle();
     if(stateErr)throw stateErr;
     const remote=cjNormalizeStateV24(stateRow?.state||null),local=cjLocalStateV24();
+    try{const cloudTrial=remote?.createJourneyAccess?.journeyAiTrial;if(cloudTrial?.startedAt)localStorage.setItem(CJ_TRIAL_LOCAL_KEY,JSON.stringify(cloudTrial))}catch(_){}
     if(remote&&(!local||cjStateTimestampV24(remote)>=cjStateTimestampV24(local)))await cjApplyCloudStateV24(remote);
     else if(local&&actualRole!=="Employee")cjScheduleCloudSyncV24();
 
@@ -11097,11 +11127,11 @@ button.primary,button.secondary,.primary,.secondary{
   function svg(type){
     var s={
       gear:'<svg viewBox="0 0 24 24"><path d="M12 8.3a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Zm8 3.7-.1-1.1 2-1.5-2-3.4-2.4 1a9 9 0 0 0-1.9-1.1L15.3 3h-4l-.4 2.9A9 9 0 0 0 9 7L6.6 6 4.6 9.4l2 1.5A8 8 0 0 0 6.5 12c0 .4 0 .7.1 1.1l-2 1.5 2 3.4 2.4-1a9 9 0 0 0 1.9 1.1l.4 2.9h4l.4-2.9a9 9 0 0 0 1.9-1.1l2.4 1 2-3.4-2-1.5c.1-.4.1-.7.1-1.1Z"/></svg>',
-      store:'<svg viewBox="0 0 24 24"><path d="M4 9h16M5 9v10h14V9M3.5 9 5 4h14l1.5 5M8 19v-6h8v6"/></svg>',
-      board:'<svg viewBox="0 0 24 24"><rect x="8" y="6" width="8" height="13" rx="1.8"/><path d="M6 5c1.4-1.4 3.4-2.2 6-2.2S16.6 3.6 18 5M4.2 3.3C6.2 1.2 8.8.3 12 .3s5.8.9 7.8 3"/></svg>',
-      link:'<svg viewBox="0 0 24 24"><path d="m9.5 14.5-2 2a4 4 0 0 1-5.7-5.7l3.5-3.5A4 4 0 0 1 11 7m3.5 2.5 2-2a4 4 0 1 1 5.7 5.7l-3.5 3.5A4 4 0 0 1 13 17m-4-5h6"/></svg>',
-      tap:'<svg viewBox="0 0 24 24"><path d="M5 9c4.7-4.7 9.3-4.7 14 0M8 12c2.7-2.7 5.3-2.7 8 0M11 15c.7-.7 1.3-.7 2 0"/></svg>',
-      spark:'<svg viewBox="0 0 24 24"><path d="m12 2 1.8 4.6L18 8.5l-4.2 1.9L12 15l-1.8-4.6L6 8.5l4.2-1.9L12 2Zm7 11 .9 2.1L22 16l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 13Z"/></svg>',
+      store:'<svg viewBox="0 0 24 24"><path d="M4.5 9.2h15M5.5 9.2v9.3h13V9.2M4 9.2l1.7-4.4h12.6L20 9.2"/><path d="M9 18.5v-5.2h6v5.2M7 4.8v2.1M17 4.8v2.1"/></svg>',
+      board:'<svg viewBox="0 0 24 24"><rect x="7.5" y="5.5" width="9" height="14" rx="2.2"/><path d="M10 9h4M10 12h4M10 15h2.5"/><path d="M4.4 7.5c1.2-2.2 3.7-3.6 7.6-3.6s6.4 1.4 7.6 3.6"/></svg>',
+      link:'<svg viewBox="0 0 24 24"><path d="M8.8 14.8 6.7 17a3.6 3.6 0 0 1-5.1-5.1l3.1-3.1a3.6 3.6 0 0 1 5.1 0"/><path d="m15.2 9.2 2.1-2.1a3.6 3.6 0 0 1 5.1 5.1l-3.1 3.1a3.6 3.6 0 0 1-5.1 0M8.6 12h6.8"/></svg>',
+      tap:'<svg viewBox="0 0 24 24"><rect x="9" y="9.2" width="6" height="10.3" rx="2"/><path d="M7.1 8.2a6.5 6.5 0 0 1 9.8 0M4.6 5.6a10 10 0 0 1 14.8 0"/><path d="M12 12.2v3.2"/></svg>',
+      spark:'<svg viewBox="0 0 24 24"><path d="M12 3.2 13.7 7 17.5 8.7 13.7 10.4 12 14.2 10.3 10.4 6.5 8.7 10.3 7 12 3.2Z"/><circle cx="18.2" cy="16.4" r="2.4"/><path d="M14.2 21c.4-2.5 1.8-3.9 4-3.9s3.6 1.4 4 3.9"/></svg>',
       bolt:'<svg viewBox="0 0 24 24"><path d="M13.5 2 5 13h6l-1 9 9-12h-6l.5-8Z"/></svg>',
       chart:'<svg viewBox="0 0 24 24"><path d="M5 19v-7M10 19V8M15 19V5M20 19V2"/></svg>',
       target:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m12 12 7-7M16.5 5H19v2.5"/></svg>',
@@ -11111,22 +11141,45 @@ button.primary,button.secondary,.primary,.secondary{
       people:'<svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="2.6"/><circle cx="16" cy="8.5" r="2.2"/><path d="M3.8 18c.5-3.7 2.3-5.7 5-5.7s4.6 2 5.1 5.7M13.4 13c.8-.7 1.8-1 2.9-1 2.3 0 3.7 1.7 4 5"/></svg>',
       flow:'<svg viewBox="0 0 24 24"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><path d="M7 5h10M5 7v4c0 2 1 3 3 3h4M19 7v4c0 2-1 3-3 3h-4v3"/></svg>',
       mic:'<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg>',
-      home:'<svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H5.8A1.8 1.8 0 0 1 4 18.2Z"/><path d="M9.5 20v-6h5v6"/></svg>',
-      explore:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m15.6 8.4-2.2 5-5 2.2 2.2-5Z"/></svg>',
-      dots:'<svg viewBox="0 0 42 24"><circle cx="6" cy="12" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="27" cy="12" r="2"/><path d="m31 8 6 4-6 4"/></svg>',
+      home:'<svg viewBox="0 0 24 24"><path d="M4.2 10.7 12 4.4l7.8 6.3v8.1a1.6 1.6 0 0 1-1.6 1.6H5.8a1.6 1.6 0 0 1-1.6-1.6Z"/><path d="M9.2 20.4v-6h5.6v6"/></svg>',
+      explore:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="m15.7 8.3-2.35 5.05L8.3 15.7l2.35-5.05Z"/><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"/></svg>',
+      dots:'<svg viewBox="300 0 520 130" class="cjx-journey-mark" aria-hidden="true"><path fill="currentColor" stroke="none" d="M320 100 316 104 315 109 318 114 320 115 326 115 328 114 331 110 331 103 327 100ZM370 89 365 92 363 96 363 101 367 106 369 107 375 107 381 103 383 97 381 92 377 89ZM417 83 414 90 415 98 417 101 425 105 429 105 435 103 439 99 441 95 441 89 440 86 436 81 432 79 423 79ZM491 83 482 86 478 89 474 95 474 105 477 111 480 114 487 117 493 117 500 114 505 109 508 102 508 97 505 90 499 85 492 84ZM563 78 555 79 549 82 543 88 539 96 539 105 543 114 549 120 558 123 564 123 567 122 577 116 582 109 583 103 584 102 583 94 579 86 574 82 568 79 564 79ZM636 63 628 63 619 66 610 74 606 83 606 95 611 105 615 109 627 114 637 113 645 109 652 102 656 93 656 81 654 78 654 76 646 67ZM714 0 710 2 706 6 704 10 704 17 706 22 710 26 714 28 743 34 745 36 743 38 729 45 727 45 716 51 707 54 686 64 679 72 679 75 678 76 679 83 684 89 688 91 696 91 709 85 711 85 726 77 728 77 735 73 737 73 748 67 750 67 756 64 757 65 756 71 744 94 743 100 746 108 749 111 754 113 761 113 769 108 772 104 776 95 778 93 808 34 808 25 802 18 790 14 786 14 785 13 782 13 777 11 773 11 768 9 764 9 763 8 758 8 757 7 749 6 744 4 740 4 731 1Z"/></svg>',
       device:'<svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>'
     };return s[type]||'';
   }
   function brand(){return '<div class="cjx-brandline"><div class="cjx-brand-wrap"><img class="cjx-brand-logo" src="assets/createjourney-logo.svg?v=20261004b" alt="CreateJourney"><span class="cjx-powered">Powered by <b>JourneyAI</b></span></div></div>'}
-  function chrome(){return '<button class="cjx-gear" type="button" data-cjh="settings" aria-label="Settings">'+svg('gear')+'</button><div class="cjx-ai-dock"><button class="cjx-ai-pill" type="button" data-cjx-ai><span class="cjx-ai-j">J</span>Journey AI</button><button class="cjx-mic" type="button" data-cjx-ai aria-label="Voice Journey AI">'+svg('mic')+'</button></div><nav class="cjx-bottom" aria-label="Primary"><button class="active" type="button" data-cjh-nav="home">'+svg('home')+'<span>Home</span></button><button type="button" data-cjh-nav="journeys"><span class="dots-icon">'+svg('dots')+'</span><span>Journeys</span></button><button type="button" data-cjh-nav="explore">'+svg('explore')+'<span>Explore</span></button></nav>'}
-  function setup(){return brand()+chrome()+'<h1 class="cjx-page-title">Set Up CreateJourney</h1><p class="cjx-page-sub">Complete these essentials first. Then unlock your live business dashboard.</p><div class="cjx-setup-list"><button class="cjx-setup-card" type="button" data-cjh="business"><span class="cjx-num">1</span><span class="cjx-iconbox cjx-pink">'+svg('store')+'</span><span><strong>Tell Us About Your Business</strong><span class="cjx-copy">Five quick sections give Journey AI the business basics, your role and goals.</span></span><span class="cjx-chevron">›</span></button><button class="cjx-setup-card" type="button" data-cjh="boards"><span class="cjx-num">2</span><span class="cjx-iconbox cjx-green">'+svg('board')+'</span><span><strong>Activate Your SmartBoards</strong><span class="cjx-copy">Connect a SmartBoard or MiniBoard and prepare its customer Journey.</span></span><span class="cjx-chevron">›</span></button><button class="cjx-setup-card" type="button" data-cjh="accounts"><span class="cjx-num">3</span><span class="cjx-iconbox cjx-blue">'+svg('link')+'</span><span><strong>Connect Your Business Accounts</strong><span class="cjx-copy">Connect the services you use so Journey AI can support more of the business.</span></span><span class="cjx-chevron">›</span></button></div><h2 class="cjx-section-title">How CreateJourney Works</h2><p class="cjx-section-sub">Two powerful systems. One complete business platform.</p><div class="cjx-how-grid"><button class="cjx-card cjx-how-card" type="button" data-cjh="boards"><span class="cjx-iconbox cjx-blue">'+svg('tap')+'</span><span><strong>SmartBoards</strong><span class="cjx-copy">Your physical tap point that turns visits into reviews, bookings, payments, offers, and more.</span></span><span class="cjx-chevron">›</span></button><button class="cjx-card cjx-how-card" type="button" data-cjx-ai><span class="cjx-iconbox cjx-purple">'+svg('spark')+'</span><span><strong>Journey AI Business Team</strong><span class="cjx-copy">Your AI business assistant that analyzes performance, customers, marketing, and operations and recommends what to do next.</span></span><span class="cjx-chevron">›</span></button></div><section class="cjx-trial"><span class="cjx-trial-icon">'+svg('bolt')+'</span><span><h3>Start Your 3-Day Journey AI Trial</h3><p>Your trial begins after setup is complete and gives you full access to Journey AI guidance tailored to your business.</p></span><button class="cjx-trial-btn" type="button" data-cjx-start>Start Trial ›</button></section>'}
+  function chrome(showGear){return (showGear?'<button class="cjx-gear" type="button" data-cjh="settings" aria-label="Settings">'+svg('gear')+'</button>':'')+'<div class="cjx-ai-dock"><button class="cjx-ai-pill" type="button" data-cjx-ai><span class="cjx-ai-j">J</span>Journey AI</button><button class="cjx-mic" type="button" data-cjx-ai aria-label="Voice Journey AI">'+svg('mic')+'</button></div><nav class="cjx-bottom" aria-label="Primary"><button class="active" type="button" data-cjh-nav="home">'+svg('home')+'<span>Home</span></button><button type="button" data-cjh-nav="journeys"><span class="dots-icon">'+svg('dots')+'</span><span>Journeys</span></button><button type="button" data-cjh-nav="explore">'+svg('explore')+'<span>Explore</span></button></nav>'}
+  function setup(){
+    return brand()+chrome(false)+
+    '<div class="cjx-brand-divider" aria-hidden="true"></div>'+
+    '<h1 class="cjx-page-title">Set Up CreateJourney</h1>'+
+    '<p class="cjx-page-sub">Complete these essentials first. Then unlock your live business dashboard.</p>'+
+    '<div class="cjx-setup-list">'+
+      '<button class="cjx-setup-card" type="button" data-cjh="business"><span class="cjx-num">1</span><span class="cjx-iconbox cjx-pink">'+svg('store')+'</span><span><strong>Tell Us About Your Business</strong><span class="cjx-copy">Give Journey AI the business basics, your role, services, customers, and goals.</span></span><span class="cjx-chevron">›</span></button>'+
+      '<button class="cjx-setup-card" type="button" data-cjh="boards"><span class="cjx-num">2</span><span class="cjx-iconbox cjx-green">'+svg('board')+'</span><span><strong>Activate Your SmartBoards</strong><span class="cjx-copy">Connect your SmartBoard or MiniBoard and prepare its customer Journey.</span></span><span class="cjx-chevron">›</span></button>'+
+      '<button class="cjx-setup-card" type="button" data-cjh="accounts"><span class="cjx-num">3</span><span class="cjx-iconbox cjx-blue">'+svg('link')+'</span><span><strong>Connect Your Business Accounts</strong><span class="cjx-copy">Connect approved services so Journey AI can support more of your business.</span></span><span class="cjx-chevron">›</span></button>'+
+    '</div>'+
+    '<h2 class="cjx-section-title cjx-how-title">How CreateJourney Works</h2>'+
+    '<p class="cjx-section-sub">Two powerful systems. One complete business platform.</p>'+
+    '<div class="cjx-how-grid">'+
+      '<div class="cjx-expand-wrap">'+
+        '<button class="cjx-card cjx-how-card cjx-expand-trigger" type="button" data-cjx-expand="smartboards" aria-expanded="false"><span class="cjx-iconbox cjx-blue">'+svg('tap')+'</span><span><strong>SmartBoards</strong><span class="cjx-copy">Your physical tap point that turns visits into reviews, bookings, payments, offers, and more.</span><span class="cjx-learn-more">See how SmartBoards work</span></span><span class="cjx-chevron">›</span></button>'+
+        '<div class="cjx-expand-panel" data-cjx-panel="smartboards" aria-hidden="true"><div class="cjx-expand-inner"><p><strong>Turn an in-person visit into measurable customer action.</strong> Customers tap NFC or scan the QR code and instantly enter the Journey you configure — no CreateJourney account required.</p><div class="cjx-feature-grid"><div><b>NFC + QR access</b><span>Fast physical-to-digital entry from a permanent SmartBoard identity.</span></div><div><b>Custom Journeys</b><span>Guide customers through reviews, bookings, payments, subscriptions, offers, social, and more.</span></div><div><b>Smart customer experience</b><span>Journeys can adapt to returning visitors and avoid repeatedly showing the same optional prompts.</span></div><div><b>Tracking + analytics</b><span>Measure taps, Journey actions, returning activity, and confirmed outcomes when connected providers support them.</span></div></div><p class="cjx-expand-value">The result: everyday customer traffic becomes useful, measurable business growth instead of a missed opportunity.</p></div></div>'+
+      '</div>'+
+      '<div class="cjx-expand-wrap">'+
+        '<button class="cjx-card cjx-how-card cjx-expand-trigger" type="button" data-cjx-expand="journeyai" aria-expanded="false"><span class="cjx-iconbox cjx-purple">'+svg('spark')+'</span><span><strong>Journey AI Business Team</strong><span class="cjx-copy">Your AI-powered business partner that analyzes performance, customers, marketing, and operations and helps decide what to do next.</span><span class="cjx-learn-more">See how Journey AI works</span></span><span class="cjx-chevron">›</span></button>'+
+        '<div class="cjx-expand-panel" data-cjx-panel="journeyai" aria-hidden="true"><div class="cjx-expand-inner"><p><strong>A business team built into CreateJourney.</strong> Journey AI uses your Business Brain, SmartBoard activity, connected accounts, goals, and performance signals to help run and grow the business.</p><div class="cjx-feature-grid"><div><b>Business intelligence</b><span>Understand what is happening, what changed, and where the strongest opportunities are.</span></div><div><b>Marketing + growth</b><span>Plan campaigns, creative, offers, content, rebooking, retention, and customer-growth actions.</span></div><div><b>SmartBoard optimization</b><span>Find weak Journey steps, compare board performance, and recommend better customer flows.</span></div><div><b>Specialist AI capabilities</b><span>Journey AI can coordinate specialized capabilities for marketing, research, creative work, customers, operations, and more.</span></div><div><b>Recommendations</b><span>Prioritize the highest-value next actions instead of making the owner figure out where to start.</span></div><div><b>Execution support</b><span>Help prepare and perform supported approved actions — not just answer questions.</span></div></div><p class="cjx-expand-value">The goal is simple: give the owner a knowledgeable business partner that turns data into useful decisions and action.</p></div></div>'+
+      '</div>'+
+    '</div>'+
+    '<section class="cjx-trial"><span class="cjx-trial-icon">'+svg('bolt')+'</span><span><h3>Start Your 3-Day Journey AI Trial</h3><p>Start the trial when you are ready. Once activated, your Business Command Center becomes your main CreateJourney home.</p></span><button class="cjx-trial-btn" type="button" data-cjx-start>Start Trial ›</button></section>';
+  }
   function val(ids,fallback){for(var i=0;i<ids.length;i++){var n=$(ids[i]);if(n&&String(n.textContent||'').trim())return String(n.textContent).trim()}return fallback}
   function boards(){try{if(Array.isArray(window.boards))return window.boards;if(typeof window.visibleBoards==='function')return window.visibleBoards()||[]}catch(e){}return []}
   function boardCard(b,i){var name=esc(b&&((b.name||b.boardName||b.label))||('SmartBoard '+String(i+1).padStart(2,'0')));var kind=String((b&&(b.boardKind||b.kind||b.type))||'Board');var id=esc((b&&(b.boardId||b.id||b.code))||('0'+(i+1)));var taps=esc((b&&(b.taps||b.tapCount||b.totalTaps))||0);var reviews=esc((b&&(b.reviews||b.reviewCount))||0);var books=esc((b&&(b.bookings||b.bookingCount))||0);var needs=!!(b&&(b.needsAttention||b.alert||b.status==='attention'));var route=esc((b&&(b.route||b.journeyName||b.journey))||'Pay → Review → Book');return '<button class="cjx-card cjx-board" type="button" data-cjh="boards"><div class="cjx-board-top"><span class="cjx-board-thumb">'+svg('device')+'</span><span><strong>'+name+'</strong><span class="cjx-board-id">'+esc(kind)+' '+id+'</span><span class="cjx-status '+(needs?'amber':'green')+'"><i></i>'+(needs?'Needs Attention':'Active')+'</span></span>'+(needs?'<span class="cjx-board-alert">!</span>':'<span class="cjx-arrow">›</span>')+'</div><div class="cjx-route">'+route+'</div><div class="cjx-board-metrics"><div><span>Taps</span><b>'+taps+'</b></div><div><span>Reviews</span><b>'+reviews+'</b></div><div><span>Bookings</span><b>'+books+'</b></div></div></button>'}
   function spark(){return '<div class="cjx-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M1 21 C12 16 17 18 26 12 S42 16 50 10 S67 15 76 8 S89 9 99 4"/></svg></div>'}
   function slide(a,b,c,goal){function metric(x){return '<button type="button" class="cjx-stat" data-cjx-metric="'+esc(x[0])+'" aria-label="Open '+esc(x[0])+' analytics"><span class="cjx-stat-label">'+x[0]+'</span><strong>'+x[1]+'</strong><div class="cjx-trend">'+x[2]+'</div>'+spark()+'</button>'}return '<div class="cjx-slide">'+metric(a)+metric(b)+metric(c)+'<button type="button" class="cjx-goal" data-cjx-metric="Next-week goal" aria-label="Open goal analysis">'+svg('target')+'<span>'+goal[0]+'<b>'+goal[1]+'</b></span></button></div>'}
-  function active(){var bs=boards();var boardHtml=bs.slice(0,2).map(boardCard).join('');if(!boardHtml)boardHtml=boardCard({name:'Reception Board',boardId:'01',taps:0,reviews:0,bookings:0,journey:'Pay → Review → Book'},0)+boardCard({name:'Station Board',boardId:'02',taps:0,reviews:0,bookings:0,journey:'Pay → Review'},1);var taps=val(['revTaps','totalTapsStat','performanceNumber'],'0');var clicks=val(['revBookingClicks'],'—');var revenue=val(['revPotentialRevenue','revRevenueGenerated','revAttributedRevenue'],'—');return brand()+chrome()+'<h1 class="cjx-page-title">Business Command Center</h1><p class="cjx-page-sub">Your most important numbers, priorities, and board activity — all in one place.</p><section class="cjx-card cjx-snapshot"><div class="cjx-snapshot-head"><div class="cjx-snapshot-title"><span class="cjx-mini-icon">'+svg('chart')+'</span>This Week\'s Business Snapshot</div><span class="cjx-period">Last 7 Days⌄</span></div><div class="cjx-carousel" data-cjx-carousel>'+slide(['Taps',taps,'Live'],['Booking Clicks',clicks,'Tracked'],['Potential Revenue',revenue,'Opportunity'],['Next-week goal:','+12% bookings'])+slide(['Bookings',val(['revConfirmedBookings'],'—'),'Confirmed'],['Conversion',val(['revBookingConversion'],'—'),'Tracked'],['Returning',val(['revReturning'],'0'),'Visitors'],['Focus:','Rebooking'])+slide(['Customers Due',val(['revDueCustomers'],'—'),'Return'],['Service Value',val(['revAverageServiceValue'],'—'),'Average'],['Opportunity',val(['revRebookingOpportunity'],'—'),'Potential'],['Focus:','Retention'])+slide(['Boards',String(bs.length),'Connected'],['Taps',taps,'Live'],['Actions',val(['revJourneyActions'],'—'),'Tracked'],['Focus:','Board impact'])+'</div></section><div class="cjx-dots"><i class="cjx-dot active"></i><i class="cjx-dot"></i><i class="cjx-dot"></i><i class="cjx-dot"></i></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">Journey AI Top 3 Priorities</h2><span class="cjx-rank">Ranked by impact</span></div><div class="cjx-priorities"><button class="cjx-priority" type="button" data-cjh="marketing"><span class="cjx-num">1</span><span class="cjx-iconbox cjx-pink">'+svg('megaphone')+'</span><span><strong>Launch a Rebooking Campaign</strong><span class="cjx-copy">Your repeat visit window is opening. Follow up with recent customers to increase next-week bookings.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="images"><span class="cjx-num">2</span><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Post Today’s Marketing Image</strong><span class="cjx-copy">Journey AI can prepare a social image to help generate attention and new visits.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="boards"><span class="cjx-num">3</span><span class="cjx-iconbox cjx-green">'+svg('growth')+'</span><span><strong>Improve Review Route on a Board</strong><span class="cjx-copy">Journey AI can identify a board getting taps but fewer completed actions and recommend an adjustment.</span></span><span class="cjx-arrow">›</span></button></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">SmartBoards</h2><button class="cjx-link" type="button" data-cjh="analytics">View full board analysis ›</button></div><p class="cjx-section-sub">Track each board, its route, and live performance.</p><div class="cjx-boards">'+boardHtml+'</div><div class="cjx-live-head"><h2 class="cjx-section-title">Live Performance</h2><span class="cjx-live-pill"><i></i>LIVE</span></div><section class="cjx-card cjx-feed"><button class="cjx-feed-row" type="button" data-cjh="marketing"><span class="cjx-check">✓</span><span><strong>Rebooking campaign prepared</strong><span class="cjx-copy">Journey AI activity and approved work appears here</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="images"><span class="cjx-check">✓</span><span><strong>Journey AI marketing image saved</strong><span class="cjx-copy">Saved to Journey AI Image Library</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="boards"><span class="cjx-check">✓</span><span><strong>SmartBoard Journey activity</strong><span class="cjx-copy">Recent tracked changes and outcomes</span></span><span class="cjx-arrow">›</span></button></section><h2 class="cjx-section-title">Control Center</h2><p class="cjx-section-sub">Quick access to the tools that help run and grow the business.</p><div class="cjx-controls"><button class="cjx-control" type="button" data-cjh="marketing"><span class="cjx-iconbox cjx-pink">'+svg('growth')+'</span><span><strong>Marketing</strong><span class="cjx-copy">Campaigns &amp; growth</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="google"><span class="cjx-iconbox cjx-blue" style="font-size:24px;font-weight:900">G</span><span><strong>Google &amp; SEO</strong><span class="cjx-copy">Local search &amp; website health</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="images"><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Journey AI Image Library</strong><span class="cjx-copy">Generated creative assets</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="team"><span class="cjx-iconbox cjx-cyan">'+svg('people')+'</span><span><strong>Team &amp; Access</strong><span class="cjx-copy">People, roles &amp; permissions</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="boards"><span class="cjx-iconbox cjx-green">'+svg('flow')+'</span><span><strong>Journeys</strong><span class="cjx-copy">Build &amp; manage experiences</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="accounts"><span class="cjx-iconbox cjx-pink">'+svg('gear')+'</span><span><strong>Accounts &amp; Integrations</strong><span class="cjx-copy">Connect your business tools</span></span><span class="cjx-arrow">›</span></button></div>'}
-  function render(){var h=$('cjScreenshotHome');if(!h)return false;var mode=localStorage.getItem(MODE_KEY)||'setup';h.innerHTML=mode==='active'?active():setup();h.dataset.cjxMode=mode;var dash=$('dashboardApp');if(dash)dash.dataset.cjxExactMode=mode;bindCarousel(h);return true}
+  function active(){var bs=boards();var boardHtml=bs.slice(0,2).map(boardCard).join('');if(!boardHtml)boardHtml=boardCard({name:'Reception Board',boardId:'01',taps:0,reviews:0,bookings:0,journey:'Pay → Review → Book'},0)+boardCard({name:'Station Board',boardId:'02',taps:0,reviews:0,bookings:0,journey:'Pay → Review'},1);var taps=val(['revTaps','totalTapsStat','performanceNumber'],'0');var clicks=val(['revBookingClicks'],'—');var revenue=val(['revPotentialRevenue','revRevenueGenerated','revAttributedRevenue'],'—');return brand()+chrome(true)+'<h1 class="cjx-page-title">Business Command Center</h1><p class="cjx-page-sub">Your most important numbers, priorities, and board activity — all in one place.</p><section class="cjx-card cjx-snapshot"><div class="cjx-snapshot-head"><div class="cjx-snapshot-title"><span class="cjx-mini-icon">'+svg('chart')+'</span>This Week\'s Business Snapshot</div><span class="cjx-period">Last 7 Days⌄</span></div><div class="cjx-carousel" data-cjx-carousel>'+slide(['Taps',taps,'Live'],['Booking Clicks',clicks,'Tracked'],['Potential Revenue',revenue,'Opportunity'],['Next-week goal:','+12% bookings'])+slide(['Bookings',val(['revConfirmedBookings'],'—'),'Confirmed'],['Conversion',val(['revBookingConversion'],'—'),'Tracked'],['Returning',val(['revReturning'],'0'),'Visitors'],['Focus:','Rebooking'])+slide(['Customers Due',val(['revDueCustomers'],'—'),'Return'],['Service Value',val(['revAverageServiceValue'],'—'),'Average'],['Opportunity',val(['revRebookingOpportunity'],'—'),'Potential'],['Focus:','Retention'])+slide(['Boards',String(bs.length),'Connected'],['Taps',taps,'Live'],['Actions',val(['revJourneyActions'],'—'),'Tracked'],['Focus:','Board impact'])+'</div></section><div class="cjx-dots"><i class="cjx-dot active"></i><i class="cjx-dot"></i><i class="cjx-dot"></i><i class="cjx-dot"></i></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">Journey AI Top 3 Priorities</h2><span class="cjx-rank">Ranked by impact</span></div><div class="cjx-priorities"><button class="cjx-priority" type="button" data-cjh="marketing"><span class="cjx-num">1</span><span class="cjx-iconbox cjx-pink">'+svg('megaphone')+'</span><span><strong>Launch a Rebooking Campaign</strong><span class="cjx-copy">Your repeat visit window is opening. Follow up with recent customers to increase next-week bookings.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="images"><span class="cjx-num">2</span><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Post Today’s Marketing Image</strong><span class="cjx-copy">Journey AI can prepare a social image to help generate attention and new visits.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="boards"><span class="cjx-num">3</span><span class="cjx-iconbox cjx-green">'+svg('growth')+'</span><span><strong>Improve Review Route on a Board</strong><span class="cjx-copy">Journey AI can identify a board getting taps but fewer completed actions and recommend an adjustment.</span></span><span class="cjx-arrow">›</span></button></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">SmartBoards</h2><button class="cjx-link" type="button" data-cjh="analytics">View full board analysis ›</button></div><p class="cjx-section-sub">Track each board, its route, and live performance.</p><div class="cjx-boards">'+boardHtml+'</div><div class="cjx-live-head"><h2 class="cjx-section-title">Live Performance</h2><span class="cjx-live-pill"><i></i>LIVE</span></div><section class="cjx-card cjx-feed"><button class="cjx-feed-row" type="button" data-cjh="marketing"><span class="cjx-check">✓</span><span><strong>Rebooking campaign prepared</strong><span class="cjx-copy">Journey AI activity and approved work appears here</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="images"><span class="cjx-check">✓</span><span><strong>Journey AI marketing image saved</strong><span class="cjx-copy">Saved to Journey AI Image Library</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="boards"><span class="cjx-check">✓</span><span><strong>SmartBoard Journey activity</strong><span class="cjx-copy">Recent tracked changes and outcomes</span></span><span class="cjx-arrow">›</span></button></section><h2 class="cjx-section-title">Control Center</h2><p class="cjx-section-sub">Quick access to the tools that help run and grow the business.</p><div class="cjx-controls"><button class="cjx-control" type="button" data-cjh="marketing"><span class="cjx-iconbox cjx-pink">'+svg('growth')+'</span><span><strong>Marketing</strong><span class="cjx-copy">Campaigns &amp; growth</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="google"><span class="cjx-iconbox cjx-blue" style="font-size:24px;font-weight:900">G</span><span><strong>Google &amp; SEO</strong><span class="cjx-copy">Local search &amp; website health</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="images"><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Journey AI Image Library</strong><span class="cjx-copy">Generated creative assets</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="team"><span class="cjx-iconbox cjx-cyan">'+svg('people')+'</span><span><strong>Team &amp; Access</strong><span class="cjx-copy">People, roles &amp; permissions</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="boards"><span class="cjx-iconbox cjx-green">'+svg('flow')+'</span><span><strong>Journeys</strong><span class="cjx-copy">Build &amp; manage experiences</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="accounts"><span class="cjx-iconbox cjx-pink">'+svg('gear')+'</span><span><strong>Accounts &amp; Integrations</strong><span class="cjx-copy">Connect your business tools</span></span><span class="cjx-arrow">›</span></button></div>'}
+  function render(){var h=$('cjScreenshotHome');if(!h)return false;var mode=localStorage.getItem(MODE_KEY)||'setup';try{if(window.CJ_PLATFORM_CONTEXT?.hasJourneyTrial?.())mode='active'}catch(_){}h.innerHTML=mode==='active'?active():setup();h.dataset.cjxMode=mode;var dash=$('dashboardApp');if(dash)dash.dataset.cjxExactMode=mode;bindCarousel(h);return true}
   function bindCarousel(h){var c=h.querySelector('[data-cjx-carousel]');if(!c)return;var dots=[].slice.call(h.querySelectorAll('.cjx-dot'));var timer=0;c.addEventListener('scroll',function(){clearTimeout(timer);timer=setTimeout(function(){var idx=Math.round(c.scrollLeft/Math.max(1,c.clientWidth));dots.forEach(function(d,i){d.classList.toggle('active',i===idx)})},60)})}
   function openAI(){var b=$('aiLauncher');if(b){b.click();return}var panel=$('journeyAiPanel');if(panel)panel.classList.remove('hidden')}
   function setupReadiness(){
@@ -11145,7 +11198,7 @@ button.primary,button.secondary,.primary,.secondary{
     try{if(typeof window.openAiWorkspace==='function'){window.openAiWorkspace();if(typeof window.switchAiWorkspaceTab72==='function')window.switchAiWorkspaceTab72('intelligence');return true}}catch(_){}
     return false;
   }
-  function onClick(e){
+  async function onClick(e){
     var metric=e.target.closest('[data-cjx-metric]');
     if(metric){
       e.preventDefault();e.stopPropagation();
@@ -11158,15 +11211,27 @@ button.primary,button.secondary,.primary,.secondary{
       openAnalyticsFocus('date-range');
       return;
     }
+    var exp=e.target.closest('[data-cjx-expand]');
+    if(exp){
+      e.preventDefault();e.stopPropagation();
+      var key=exp.getAttribute('data-cjx-expand'),panel=document.querySelector('#cjScreenshotHome [data-cjx-panel="'+key+'"]');
+      var opening=exp.getAttribute('aria-expanded')!=='true';
+      exp.setAttribute('aria-expanded',opening?'true':'false');
+      if(panel){panel.setAttribute('aria-hidden',opening?'false':'true');panel.classList.toggle('open',opening)}
+      return;
+    }
     var start=e.target.closest('[data-cjx-start]');
     if(start){
       e.preventDefault();e.stopPropagation();
+      var admin=false;try{admin=!!window.CJ_PLATFORM_CONTEXT?.isPlatformAdmin?.()}catch(_){}
       var r=setupReadiness();
-      if(!r.all){
+      if(!admin&&!r.all){
         if(!r.business){document.querySelector('#cjScreenshotHome [data-cjh="business"]')?.click();return}
         if(!r.boards){document.querySelector('#cjScreenshotHome [data-cjh="boards"]')?.click();return}
         if(!r.accounts){document.querySelector('#cjScreenshotHome [data-cjh="accounts"]')?.click();return}
       }
+      start.disabled=true;start.textContent=admin?'Opening Command Center…':'Starting Trial…';
+      try{if(window.CJ_PLATFORM_CONTEXT?.startJourneyTrial)await window.CJ_PLATFORM_CONTEXT.startJourneyTrial()}catch(err){console.warn('Trial persistence delayed',err)}
       localStorage.setItem(MODE_KEY,'active');render();window.scrollTo({top:0,behavior:'smooth'});return;
     }
     if(e.target.closest('[data-cjx-ai]')){e.preventDefault();e.stopPropagation();openAI()}
@@ -11811,6 +11876,208 @@ button.primary,button.secondary,.primary,.secondary{
     font-size:12.5px!important;
   }
   #cjScreenshotHome .cjx-mic{width:46px!important;height:46px!important}
+}
+</style>
+
+<style id="cjSetupCoordinatedRedesignV2">
+/* Brand hierarchy */
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-brandline{
+  min-height:76px!important;
+  margin:0!important;
+  padding:5px 0 8px!important;
+}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-brand-logo{
+  width:min(45vw,176px)!important;
+  max-width:176px!important;
+}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-powered{margin-top:3px!important}
+#cjScreenshotHome .cjx-brand-divider{
+  height:1px!important;
+  width:100%!important;
+  margin:0 0 14px!important;
+  background:#e3e8ef!important;
+}
+
+/* Setup page spacing rhythm */
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-page-title{margin:0 0 5px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-page-sub{margin:0 0 11px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-setup-list{gap:7px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-setup-card{
+  min-height:68px!important;
+  padding:8px 11px!important;
+  gap:7px!important;
+  grid-template-columns:36px 45px 1fr 13px!important;
+  border-radius:16px!important;
+}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-num{width:34px!important;height:34px!important;font-size:15px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-iconbox{width:42px!important;height:42px!important;border-radius:11px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-iconbox svg{width:23px!important;height:23px!important;stroke-width:1.85!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-setup-card strong{font-size:14.8px!important;margin-bottom:2px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-setup-card .cjx-copy{font-size:11.2px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-how-title{margin-top:15px!important}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-section-sub{margin-bottom:7px!important}
+
+/* Expandable product education cards */
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-how-grid{gap:7px!important}
+#cjScreenshotHome .cjx-expand-wrap{display:block!important}
+#cjScreenshotHome .cjx-expand-trigger{
+  width:100%!important;
+  min-height:66px!important;
+  padding:8px 11px!important;
+  grid-template-columns:47px 1fr 14px!important;
+  gap:8px!important;
+  text-align:left!important;
+}
+#cjScreenshotHome .cjx-expand-trigger .cjx-iconbox{width:44px!important;height:44px!important}
+#cjScreenshotHome .cjx-expand-trigger strong{font-size:14.8px!important;margin-bottom:2px!important}
+#cjScreenshotHome .cjx-learn-more{
+  display:block;
+  margin-top:4px;
+  color:#3978c8;
+  font-size:10.5px;
+  line-height:1.2;
+  font-weight:800;
+}
+#cjScreenshotHome .cjx-expand-trigger .cjx-chevron{
+  transition:transform .2s ease;
+  transform-origin:center;
+}
+#cjScreenshotHome .cjx-expand-trigger[aria-expanded="true"] .cjx-chevron{transform:rotate(90deg)}
+#cjScreenshotHome .cjx-expand-panel{
+  display:grid;
+  grid-template-rows:0fr;
+  opacity:0;
+  overflow:hidden;
+  transition:grid-template-rows .2s ease,opacity .18s ease,margin .2s ease;
+  margin:0 3px;
+}
+#cjScreenshotHome .cjx-expand-panel.open{
+  grid-template-rows:1fr;
+  opacity:1;
+  margin:6px 3px 1px;
+}
+#cjScreenshotHome .cjx-expand-inner{
+  min-height:0;
+  overflow:hidden;
+  padding:0 12px;
+  border:1px solid transparent;
+  border-radius:14px;
+  background:#f8fafc;
+  transition:padding .2s ease,border-color .2s ease;
+}
+#cjScreenshotHome .cjx-expand-panel.open .cjx-expand-inner{
+  padding:12px;
+  border-color:#e2e7ee;
+}
+#cjScreenshotHome .cjx-expand-inner p{
+  margin:0;
+  color:#657084;
+  font-size:11.4px;
+  line-height:1.5;
+}
+#cjScreenshotHome .cjx-expand-inner p strong{color:#1d2939}
+#cjScreenshotHome .cjx-feature-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin:10px 0;
+}
+#cjScreenshotHome .cjx-feature-grid>div{
+  padding:9px;
+  border-radius:10px;
+  background:#fff;
+  border:1px solid #e5eaf0;
+}
+#cjScreenshotHome .cjx-feature-grid b{
+  display:block;
+  margin-bottom:3px;
+  color:#26364c;
+  font-size:10.8px;
+}
+#cjScreenshotHome .cjx-feature-grid span{
+  display:block;
+  color:#758094;
+  font-size:9.8px;
+  line-height:1.38;
+}
+#cjScreenshotHome .cjx-expand-value{
+  padding-top:9px!important;
+  border-top:1px solid #e2e7ee;
+  color:#344054!important;
+  font-weight:700;
+}
+
+/* Trial is final content and follows expanded cards naturally */
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-trial{
+  margin-top:9px!important;
+  margin-bottom:0!important;
+}
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome{
+  padding-bottom:calc(118px + env(safe-area-inset-bottom))!important;
+}
+
+/* Setup has no settings gear. Business Command Center still may use it. */
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-gear{display:none!important}
+
+/* Fixed AI controls: bottom-right as one aligned system */
+#cjScreenshotHome .cjx-ai-dock{
+  left:auto!important;
+  right:12px!important;
+  transform:none!important;
+  bottom:calc(env(safe-area-inset-bottom) + 51px)!important;
+  gap:6px!important;
+  z-index:112!important;
+}
+#cjScreenshotHome .cjx-ai-pill{
+  height:44px!important;
+  padding:0 12px 0 6px!important;
+  border-radius:22px!important;
+  font-size:12.5px!important;
+}
+#cjScreenshotHome .cjx-ai-j{width:30px!important;height:30px!important;font-size:12px!important}
+#cjScreenshotHome .cjx-mic{width:44px!important;height:44px!important}
+#cjScreenshotHome .cjx-mic svg{width:21px!important;height:21px!important}
+
+/* Compact navigation */
+#cjScreenshotHome .cjx-bottom{
+  height:calc(47px + env(safe-area-inset-bottom))!important;
+  padding:0 0 env(safe-area-inset-bottom)!important;
+  align-items:start!important;
+}
+#cjScreenshotHome .cjx-bottom button{
+  height:47px!important;
+  min-height:47px!important;
+  padding:4px 0 2px!important;
+  gap:0!important;
+  font-size:9px!important;
+}
+#cjScreenshotHome .cjx-bottom svg,
+#cjScreenshotHome .cjx-bottom .dots-icon{
+  display:block!important;
+  width:23px!important;
+  height:23px!important;
+  max-width:23px!important;
+  max-height:23px!important;
+  margin:0 auto!important;
+}
+#cjScreenshotHome .cjx-bottom .dots-icon{overflow:visible!important}
+#cjScreenshotHome .cjx-bottom .cjx-journey-mark{
+  width:23px!important;
+  height:23px!important;
+  overflow:visible!important;
+  color:currentColor!important;
+}
+#cjScreenshotHome .cjx-bottom button.active{color:#2f83dc!important}
+#cjScreenshotHome .cjx-bottom button:not(.active){color:#7b8595!important}
+
+@media(max-width:390px){
+  #cjScreenshotHome .cjx-feature-grid{grid-template-columns:1fr}
+  #cjScreenshotHome .cjx-ai-dock{right:9px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #cjScreenshotHome .cjx-expand-panel,
+  #cjScreenshotHome .cjx-expand-inner,
+  #cjScreenshotHome .cjx-expand-trigger .cjx-chevron{transition:none!important}
 }
 </style>
 </body>
