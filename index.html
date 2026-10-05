@@ -13496,12 +13496,12 @@ html,body{overscroll-behavior-y:auto}
 <!-- CJ CHAT ATTACHMENTS V1 END -->
 <!-- CJ AI DOCK POSITION ONLY V5 START -->
 <style id="cj-ai-dock-position-only-v5">
-/* Position-only adjustment requested from screenshot:
-   move Journey AI + microphone down toward the bottom-nav divider.
-   No sizing, colors, functionality, cards, nav, or other UI are changed. */
+/* Position-only correction from live iPhone screenshot:
+   dock bottom edge sits 3px above the bottom-nav divider. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock,
 #dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-ai-dock{
-  transform:translateY(34px)!important;
+  bottom:calc(81px + env(safe-area-inset-bottom, 0px))!important;
+  transform:none!important;
 }
 </style>
 <!-- CJ AI DOCK POSITION ONLY V5 END -->
@@ -13970,9 +13970,7 @@ const FEATURES=[
   {section:'Growth & Marketing',cat:'growth',name:'Review Growth',desc:'Improve review opportunities without review gating.',icon:'★',tone:'green',prompt:'Review my current review Journey and recommend compliant ways to increase review participation without review gating.',tags:'reviews reputation google feedback'},
   {section:'Growth & Marketing',cat:'growth',name:'Referral Programs',desc:'Create measurable referral and word-of-mouth programs.',icon:'↗',tone:'green',prompt:'Create a referral program for my business and show how CreateJourney should measure it.',tags:'referrals ambassadors word of mouth'},
   {section:'Growth & Marketing',cat:'growth',name:'Offers & Promotions',desc:'Design offers tied to measurable business goals.',icon:'%',tone:'orange',prompt:'Create offer and promotion options for my business, explain the tradeoffs and tell me what to measure.',tags:'offers promotions discounts packages'},
-  {section:'Growth & Marketing',cat:'growth',name:'Sales & Lead Growth',desc:'Lead capture, follow-up, pipeline and conversion.',icon:'
-</html>
-,tone:'green',prompt:'Analyze how CreateJourney can improve lead capture, follow-up and sales conversion for my business.',tags:'sales leads crm pipeline conversion'},
+  {section:'Growth & Marketing',cat:'growth',name:'Sales & Lead Growth',desc:'Lead capture, follow-up, pipeline and conversion.',icon:'$',tone:'green',prompt:'Analyze how CreateJourney can improve lead capture, follow-up and sales conversion for my business.',tags:'sales leads crm pipeline conversion'},
 
   {section:'Creative Studio',cat:'creative',name:'Create Images',desc:'Generate branded promotional images with Journey AI.',icon:'▧',tone:'purple',action:'create-image',tags:'image generate graphic design photo'},
   {section:'Creative Studio',cat:'creative',name:'Journey AI Image Library',desc:'Browse generated creative assets.',icon:'▣',tone:'purple',action:'image-library',tags:'image library media assets'},
@@ -13983,9 +13981,7 @@ const FEATURES=[
   {section:'Creative Studio',cat:'creative',name:'Website Creative',desc:'Landing-page copy, CTAs and conversion messaging.',icon:'W',tone:'orange',prompt:'Review my website and landing-page goals and help improve structure, copy, calls to action and conversion.',tags:'website landing page copy cta seo'},
 
   {section:'Analytics & Intelligence',cat:'analytics',name:'Performance Hub',desc:'Performance, conversion and opportunity intelligence.',icon:'↗',tone:'green',action:'performance',tags:'performance analytics metrics conversion'},
-  {section:'Analytics & Intelligence',cat:'analytics',name:'Revenue & ROI',desc:'Revenue opportunity, attribution and ROI analysis.',icon:'
-</html>
-,tone:'green',prompt:'Analyze my revenue, ROI and opportunity data. Separate measured revenue from estimates and tell me what matters most.',tags:'revenue roi money attribution'},
+  {section:'Analytics & Intelligence',cat:'analytics',name:'Revenue & ROI',desc:'Revenue opportunity, attribution and ROI analysis.',icon:'$',tone:'green',prompt:'Analyze my revenue, ROI and opportunity data. Separate measured revenue from estimates and tell me what matters most.',tags:'revenue roi money attribution'},
   {section:'Analytics & Intelligence',cat:'analytics',name:'Attribution',desc:'Understand which Journeys and campaigns drive outcomes.',icon:'A',tone:'green',workspace:'attribution',tags:'attribution outcomes campaigns revenue'},
   {section:'Analytics & Intelligence',cat:'analytics',name:'Board Comparison',desc:'Compare SmartBoards and Journeys side by side.',icon:'≋',tone:'green',prompt:'Compare all active SmartBoards side by side and show the most important performance differences and opportunities.',tags:'boards compare smartboards metrics'},
   {section:'Analytics & Intelligence',cat:'analytics',name:'Customer Behavior',desc:'Returning visitors, Journey activity and drop-off signals.',icon:'C',tone:'green',prompt:'Analyze customer behavior across my Journeys, including returning activity, drop-offs and next-best actions.',tags:'customer behavior visitors returning dropoff'},
@@ -14000,9 +13996,7 @@ const FEATURES=[
 
   {section:'Connected Apps & Business Tools',cat:'integrations',name:'Connected Accounts',desc:'Manage authorized business integrations and providers.',icon:'∞',tone:'blue',action:'accounts',tags:'integrations connected accounts oauth providers'},
   {section:'Connected Apps & Business Tools',cat:'integrations',name:'Google Business & SEO',desc:'Local presence, Google Business and website health.',icon:'G',tone:'blue',action:'accounts',tags:'google business seo local search'},
-  {section:'Connected Apps & Business Tools',cat:'integrations',name:'Payments',desc:'Stripe, Square and payment completion signals.',icon:'
-</html>
-,tone:'blue',action:'accounts',tags:'stripe square payments'},
+  {section:'Connected Apps & Business Tools',cat:'integrations',name:'Payments',desc:'Stripe, Square and payment completion signals.',icon:'$',tone:'blue',action:'accounts',tags:'stripe square payments'},
   {section:'Connected Apps & Business Tools',cat:'integrations',name:'Booking Platforms',desc:'Connect scheduling providers and confirmed bookings.',icon:'B',tone:'blue',action:'accounts',tags:'booking calendly acuity appointments'},
   {section:'Connected Apps & Business Tools',cat:'integrations',name:'Social Accounts',desc:'Connect approved social providers for publishing and analytics.',icon:'S',tone:'blue',action:'accounts',tags:'instagram facebook tiktok social accounts'},
   {section:'Connected Apps & Business Tools',cat:'integrations',name:'CRM & Customer Data',desc:'Prepare for stronger customer identity and lifecycle context.',icon:'C',tone:'blue',action:'accounts',tags:'crm customer data identity'},
