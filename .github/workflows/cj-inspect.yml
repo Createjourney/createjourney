@@ -14,13 +14,9 @@ jobs:
       - name: Inspect current index targets
         shell: bash
         run: |
-          echo "=== FILE INFO ==="
-          wc -c -l index.html
-          echo "=== BUSINESS COMMAND CENTER ==="
-          grep -ni -m 12 -E "Business Command Center|Command Center|This Week.?s Business Records|Top 3 Priorities" index.html || true
-          echo "=== SETUP ==="
-          grep -ni -m 20 -E "Set Up CreateJourney|Tell Us About Your Business|Activate Your SmartBoards|Connect Your Business Accounts|How CreateJourney Works|3-Day Journey AI Trial" index.html || true
-          echo "=== PROFILE / ADMIN ==="
-          grep -ni -m 30 -E "profile|account.*icon|Admin View|admin.*preview|platform.*admin|cj_admin_preview|settings" index.html || true
-          echo "=== ROUTING / SCREEN IDS ==="
-          grep -ni -m 30 -E "showScreen|showView|setupScreen|dashboardScreen|setup-page|dashboard|homeScreen|command" index.html || true
+          echo "=== SETUP RANGE ==="
+          sed -n '11080,11320p' index.html
+          echo "=== DASHBOARD TERMS ==="
+          grep -ni -m 80 -E "important numbers|This Week|Business Records|Top 3|Priorities|SmartBoards|Performance|Control Center|profileInitial|account-circle|rolePreview|Platform Admin|platformAdmin|isPlatformAdmin" index.html || true
+          echo "=== ROUTE FUNCTIONS ==="
+          grep -ni -m 80 -E "function .*dashboard|function .*setup|showOnly\(|openDashboard|renderDashboard|renderSetup|setup.*render|dashboard.*render|dashboardButton|trial.*start|start.*trial" index.html || true
