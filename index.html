@@ -13266,5 +13266,61 @@ html,body{overscroll-behavior-y:auto}
 }
 </style>
 <!-- CJ EXACT REFERENCE BOTTOM UI V2 END -->
+<!-- CJ AI DOCK ALIGNMENT FIX V3 START -->
+<style id="cj-ai-dock-alignment-fix-v3">
+/*
+  Screenshot-verified correction:
+  - the higher-specificity exact-mode rule was still winning over the prior dock offset
+  - lock BOTH controls to one shared flex baseline
+  - place their bottom edge 10px above the actual nav-panel divider
+*/
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-ai-dock{
+  position:fixed!important;
+  right:18px!important;
+  bottom:calc(88px + env(safe-area-inset-bottom, 0px))!important;
+  z-index:80!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+}
+
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-pill,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-ai-pill{
+  height:50px!important;
+  min-height:50px!important;
+  max-height:50px!important;
+  margin:0!important;
+  align-self:center!important;
+  transform:none!important;
+}
+
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-mic,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-mic{
+  width:50px!important;
+  height:50px!important;
+  min-width:50px!important;
+  min-height:50px!important;
+  max-width:50px!important;
+  max-height:50px!important;
+  margin:0!important;
+  padding:0!important;
+  align-self:center!important;
+  transform:none!important;
+}
+
+@media(max-width:390px){
+  #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock,
+  #dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-ai-dock{
+    right:10px!important;
+  }
+}
+</style>
+<!-- CJ AI DOCK ALIGNMENT FIX V3 END -->
 </body>
 </html>
