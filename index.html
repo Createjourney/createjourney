@@ -13833,5 +13833,298 @@ window.CJJourneysCommandCenter={open,close,render,version:'1.0'};
 })();
 </script>
 <!-- CJ JOURNEYS COMMAND CENTER V1 END -->
+<!-- CJ EXPLORE FEATURE DIRECTORY V1 START -->
+<style id="cj-explore-feature-directory-v1">
+#cjExploreDirectory{
+  position:fixed;inset:0;z-index:235;background:#f4f7fb;color:#111827;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+}
+#cjExploreDirectory.cje-hidden{display:none!important}
+#cjExploreDirectory *{box-sizing:border-box}
+.cje-shell{width:min(100%,860px);margin:0 auto;padding:18px 18px calc(36px + env(safe-area-inset-bottom))}
+.cje-top{
+  position:sticky;top:0;z-index:8;margin:0 -18px 14px;
+  padding:calc(9px + env(safe-area-inset-top)) 18px 12px;
+  background:rgba(244,247,251,.97);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid #e2e8f0;display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center
+}
+.cje-back{width:42px;height:42px;margin:0;padding:0;border-radius:50%;border:1px solid #dce3eb;background:#fff;color:#25364a;font-size:26px;display:grid;place-items:center;cursor:pointer}
+.cje-title h1{margin:0;font-size:25px;line-height:1.05;letter-spacing:-.7px;font-weight:900}
+.cje-title p{margin:4px 0 0;color:#788397;font-size:11.5px;font-weight:650}
+.cje-search-wrap{position:relative;margin-bottom:12px}
+.cje-search{
+  width:100%;height:48px;padding:0 44px 0 42px!important;border:1px solid #dbe3ec!important;border-radius:16px!important;
+  background:#fff!important;color:#111827!important;font-size:14px!important;font-weight:650!important;box-shadow:0 3px 14px rgba(15,23,42,.035)!important
+}
+.cje-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:#718096;pointer-events:none}
+.cje-clear{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:0;border-radius:50%;background:#eef2f6;color:#667085;font-size:15px}
+.cje-filters{display:flex;gap:7px;overflow-x:auto;padding:2px 0 9px;scrollbar-width:none}
+.cje-filters::-webkit-scrollbar{display:none}
+.cje-filter{flex:0 0 auto;margin:0;padding:8px 11px;border:1px solid #dce4ed;border-radius:999px;background:#fff;color:#667085;font-size:10.5px;font-weight:800;white-space:nowrap}
+.cje-filter.active{background:#172033;color:#fff;border-color:#172033}
+.cje-featured{margin:7px 0 16px;padding:16px;border-radius:19px;background:linear-gradient(135deg,#111827,#20324b);color:#fff}
+.cje-featured-kicker{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8fc4ff;font-weight:900}
+.cje-featured h2{margin:5px 0 6px;font-size:19px;line-height:1.12;letter-spacing:-.35px}
+.cje-featured p{margin:0;color:#d4dce7;font-size:11.5px;line-height:1.5}
+.cje-featured-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.cje-featured-actions button{min-height:36px;margin:0;padding:0 11px;border-radius:10px;border:0;font-size:10.5px;font-weight:850}
+.cje-featured-actions .primary{background:#3b8ddd;color:#fff}
+.cje-featured-actions .secondary{background:#fff;color:#223047}
+.cje-section{margin:17px 0 0}
+.cje-section.hidden{display:none!important}
+.cje-section-head{display:flex;justify-content:space-between;align-items:end;gap:10px;margin-bottom:8px}
+.cje-section-head h2{margin:0;font-size:18px;line-height:1.08;letter-spacing:-.35px;font-weight:900}
+.cje-section-head span{font-size:9.5px;color:#8a94a4;font-weight:750}
+.cje-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.cje-item{
+  width:100%;margin:0;padding:13px;border:1px solid #dfe6ee;border-radius:16px;background:#fff;
+  display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;text-align:left;color:#111827;
+  box-shadow:0 3px 14px rgba(15,23,42,.022);cursor:pointer
+}
+.cje-item.hidden{display:none!important}
+.cje-icon{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:16px;font-weight:900;background:#edf5ff;color:#277fda}
+.cje-item[data-tone="purple"] .cje-icon{background:#f1ebff;color:#7550da}
+.cje-item[data-tone="green"] .cje-icon{background:#e9f8ef;color:#19995a}
+.cje-item[data-tone="pink"] .cje-icon{background:#ffeaf2;color:#de3f7b}
+.cje-item[data-tone="orange"] .cje-icon{background:#fff2df;color:#c27816}
+.cje-copy{min-width:0}
+.cje-copy strong{display:block;font-size:12.5px;line-height:1.14;font-weight:900}
+.cje-copy span{display:block;margin-top:3px;color:#7d8797;font-size:9.8px;line-height:1.32}
+.cje-chevron{color:#8994a5;font-size:20px;font-weight:500}
+.cje-empty{display:none;padding:26px 14px;text-align:center;color:#7c8797;font-size:12px}
+.cje-empty.show{display:block}
+body.cje-open #dashboardApp #cjScreenshotHome .cjx-ai-dock,
+body.cje-open #dashboardApp #cjScreenshotHome .cjx-bottom,
+body.cje-open #dashboardApp .ai-launcher,
+body.cje-open .cjh-bottom-nav{visibility:hidden!important;pointer-events:none!important}
+@media(max-width:560px){
+  .cje-shell{padding-left:14px;padding-right:14px}.cje-top{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}
+  .cje-grid{grid-template-columns:1fr 1fr}
+  .cje-item{grid-template-columns:38px 1fr auto;padding:12px 10px;gap:8px}
+  .cje-icon{width:38px;height:38px}
+  .cje-copy strong{font-size:11.8px}.cje-copy span{font-size:9.2px}
+}
+</style>
+
+<div id="cjExploreDirectory" class="cje-hidden" aria-hidden="true">
+  <div class="cje-shell">
+    <header class="cje-top">
+      <button class="cje-back" type="button" data-cje-back aria-label="Back to Home">‹</button>
+      <div class="cje-title"><h1>Explore CreateJourney</h1><p>Every tool, AI specialist and business feature in one searchable place.</p></div>
+    </header>
+
+    <div class="cje-search-wrap">
+      <svg class="cje-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="cjeSearch" class="cje-search" type="search" placeholder="Search features, agents, tools or business goals">
+      <button id="cjeClear" class="cje-clear" type="button" aria-label="Clear search">×</button>
+    </div>
+
+    <div id="cjeFilters" class="cje-filters">
+      <button class="cje-filter active" data-cje-filter="all">All</button>
+      <button class="cje-filter" data-cje-filter="ai">AI Team</button>
+      <button class="cje-filter" data-cje-filter="growth">Growth</button>
+      <button class="cje-filter" data-cje-filter="creative">Creative</button>
+      <button class="cje-filter" data-cje-filter="analytics">Analytics</button>
+      <button class="cje-filter" data-cje-filter="automation">Automation</button>
+      <button class="cje-filter" data-cje-filter="integrations">Integrations</button>
+      <button class="cje-filter" data-cje-filter="operations">Operations</button>
+    </div>
+
+    <section class="cje-featured">
+      <div class="cje-featured-kicker">Journey AI Business Team</div>
+      <h2>25 Specialized AI Agents</h2>
+      <p>Choose a specialist yourself or let Journey AI automatically assemble the right team for the business goal.</p>
+      <div class="cje-featured-actions">
+        <button class="primary" type="button" data-cje-action="agents">Explore all AI Agents</button>
+        <button class="secondary" type="button" data-cje-action="ask-ai">Ask Journey AI</button>
+      </div>
+    </section>
+
+    <div id="cjeSections"></div>
+    <div id="cjeEmpty" class="cje-empty">No matching CreateJourney feature was found. Try a broader search.</div>
+  </div>
+</div>
+
+<script id="cj-explore-feature-directory-v1-script">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let activeFilter='all';
+
+const FEATURES=[
+  {section:'AI Business Team',cat:'ai',name:'AI Agent Directory',desc:'Browse all 25 specialized Journey AI agents.',icon:'AI',tone:'purple',action:'agents',tags:'specialists marketing sales research retention operations social website revenue'},
+  {section:'AI Business Team',cat:'ai',name:'Journey AI Chat',desc:'Business partner for questions, strategy and actions.',icon:'J',tone:'purple',action:'ask-ai',tags:'chat voice assistant business partner'},
+  {section:'AI Business Team',cat:'ai',name:'Business Brain',desc:'Teach Journey AI your business, goals, brand and preferences.',icon:'B',tone:'purple',action:'business-brain',tags:'knowledge memory profile services goals brand'},
+  {section:'AI Business Team',cat:'ai',name:'Growth Copilot',desc:'Opportunities, recommendations and next-best actions.',icon:'G',tone:'purple',workspace:'copilot',tags:'growth recommendations opportunities'},
+  {section:'AI Business Team',cat:'ai',name:'Advisor',desc:'Strategic business advice using verified context.',icon:'A',tone:'purple',workspace:'advisor',tags:'strategy advice business director'},
+  {section:'AI Business Team',cat:'ai',name:'AI Learning',desc:'Review what Journey AI has learned from outcomes and feedback.',icon:'L',tone:'purple',workspace:'learning',tags:'learning feedback experiments intelligence'},
+  {section:'AI Business Team',cat:'ai',name:'Action Center',desc:'Review prepared AI actions before execution.',icon:'✓',tone:'purple',workspace:'actions',tags:'approvals actions queue execution'},
+
+  {section:'Growth & Marketing',cat:'growth',name:'Marketing Center',desc:'Campaign planning, offers, promotions and growth.',icon:'M',tone:'pink',workspace:'marketing',tags:'marketing campaigns growth offers'},
+  {section:'Growth & Marketing',cat:'growth',name:'Campaigns',desc:'Build and manage measurable campaigns.',icon:'C',tone:'pink',workspace:'campaigns',tags:'campaign promotion acquisition'},
+  {section:'Growth & Marketing',cat:'growth',name:'Social Publishing',desc:'Plan, schedule and publish approved social campaigns.',icon:'S',tone:'pink',action:'social',tags:'instagram facebook tiktok social publishing scheduler'},
+  {section:'Growth & Marketing',cat:'growth',name:'Rebooking Growth',desc:'Increase future bookings and returning customers.',icon:'R',tone:'green',prompt:'Analyze my rebooking opportunities and build the highest-value plan using verified CreateJourney data.',tags:'rebook booking appointments returning customers'},
+  {section:'Growth & Marketing',cat:'growth',name:'Customer Retention',desc:'Retention, loyalty, follow-up and win-back strategies.',icon:'↻',tone:'green',prompt:'Build a customer retention and win-back plan using my Business Brain, customer Journey and verified data.',tags:'retention loyalty winback follow up'},
+  {section:'Growth & Marketing',cat:'growth',name:'Review Growth',desc:'Improve review opportunities without review gating.',icon:'★',tone:'green',prompt:'Review my current review Journey and recommend compliant ways to increase review participation without review gating.',tags:'reviews reputation google feedback'},
+  {section:'Growth & Marketing',cat:'growth',name:'Referral Programs',desc:'Create measurable referral and word-of-mouth programs.',icon:'↗',tone:'green',prompt:'Create a referral program for my business and show how CreateJourney should measure it.',tags:'referrals ambassadors word of mouth'},
+  {section:'Growth & Marketing',cat:'growth',name:'Offers & Promotions',desc:'Design offers tied to measurable business goals.',icon:'%',tone:'orange',prompt:'Create offer and promotion options for my business, explain the tradeoffs and tell me what to measure.',tags:'offers promotions discounts packages'},
+  {section:'Growth & Marketing',cat:'growth',name:'Sales & Lead Growth',desc:'Lead capture, follow-up, pipeline and conversion.',icon:'
+</html>
+,tone:'green',prompt:'Analyze how CreateJourney can improve lead capture, follow-up and sales conversion for my business.',tags:'sales leads crm pipeline conversion'},
+
+  {section:'Creative Studio',cat:'creative',name:'Create Images',desc:'Generate branded promotional images with Journey AI.',icon:'▧',tone:'purple',action:'create-image',tags:'image generate graphic design photo'},
+  {section:'Creative Studio',cat:'creative',name:'Journey AI Image Library',desc:'Browse generated creative assets.',icon:'▣',tone:'purple',action:'image-library',tags:'image library media assets'},
+  {section:'Creative Studio',cat:'creative',name:'Creative Studio',desc:'Create promotions, content and branded assets.',icon:'✦',tone:'purple',workspace:'content',tags:'creative studio content promotion'},
+  {section:'Creative Studio',cat:'creative',name:'Media Library',desc:'Organize saved media and AI-generated assets.',icon:'M',tone:'purple',workspace:'media',tags:'media files images assets library'},
+  {section:'Creative Studio',cat:'creative',name:'Social Content',desc:'Build posts, captions, hooks and content plans.',icon:'#',tone:'pink',prompt:'Build a social content plan with post ideas, captions, hooks and a measurable objective for my business.',tags:'social content captions hooks posts reels'},
+  {section:'Creative Studio',cat:'creative',name:'Video Concepts',desc:'Scripts, hooks and concepts for short-form video.',icon:'▶',tone:'pink',prompt:'Create short-form video concepts, hooks and scripts for my business based on my goals and brand.',tags:'video reels scripts hooks creative'},
+  {section:'Creative Studio',cat:'creative',name:'Website Creative',desc:'Landing-page copy, CTAs and conversion messaging.',icon:'W',tone:'orange',prompt:'Review my website and landing-page goals and help improve structure, copy, calls to action and conversion.',tags:'website landing page copy cta seo'},
+
+  {section:'Analytics & Intelligence',cat:'analytics',name:'Performance Hub',desc:'Performance, conversion and opportunity intelligence.',icon:'↗',tone:'green',action:'performance',tags:'performance analytics metrics conversion'},
+  {section:'Analytics & Intelligence',cat:'analytics',name:'Revenue & ROI',desc:'Revenue opportunity, attribution and ROI analysis.',icon:'
+</html>
+,tone:'green',prompt:'Analyze my revenue, ROI and opportunity data. Separate measured revenue from estimates and tell me what matters most.',tags:'revenue roi money attribution'},
+  {section:'Analytics & Intelligence',cat:'analytics',name:'Attribution',desc:'Understand which Journeys and campaigns drive outcomes.',icon:'A',tone:'green',workspace:'attribution',tags:'attribution outcomes campaigns revenue'},
+  {section:'Analytics & Intelligence',cat:'analytics',name:'Board Comparison',desc:'Compare SmartBoards and Journeys side by side.',icon:'≋',tone:'green',prompt:'Compare all active SmartBoards side by side and show the most important performance differences and opportunities.',tags:'boards compare smartboards metrics'},
+  {section:'Analytics & Intelligence',cat:'analytics',name:'Customer Behavior',desc:'Returning visitors, Journey activity and drop-off signals.',icon:'C',tone:'green',prompt:'Analyze customer behavior across my Journeys, including returning activity, drop-offs and next-best actions.',tags:'customer behavior visitors returning dropoff'},
+  {section:'Analytics & Intelligence',cat:'analytics',name:'Experiments & Testing',desc:'Plan measurable tests before scaling changes.',icon:'T',tone:'orange',prompt:'Design a measurable CreateJourney experiment to improve my most important business metric and define success criteria.',tags:'experiments testing ab tests optimization'},
+
+  {section:'Automation & Workflows',cat:'automation',name:'Automations',desc:'Build recurring and event-driven business workflows.',icon:'⚙',tone:'orange',workspace:'automation',tags:'automation triggers recurring workflow'},
+  {section:'Automation & Workflows',cat:'automation',name:'Workflow Builder',desc:'Design multi-step operational workflows.',icon:'W',tone:'orange',workspace:'workflows',tags:'workflows process triggers actions'},
+  {section:'Automation & Workflows',cat:'automation',name:'Follow-up Automation',desc:'Automate approved customer follow-up sequences.',icon:'F',tone:'orange',prompt:'Help me design a customer follow-up automation with safe triggers, approval rules and measurement.',tags:'follow up automation customers'},
+  {section:'Automation & Workflows',cat:'automation',name:'Rebooking Reminders',desc:'Create return-timing and rebooking reminder logic.',icon:'R',tone:'orange',prompt:'Design a rebooking reminder workflow with return timing, cooldown rules and measurable outcomes.',tags:'rebooking reminder schedule'},
+  {section:'Automation & Workflows',cat:'automation',name:'Review Prompt Logic',desc:'Neutral review prompts, cooldowns and suppression rules.',icon:'★',tone:'orange',prompt:'Review my proactive review prompt logic and help configure neutral cooldown and suppression behavior.',tags:'review cooldown suppression automation'},
+  {section:'Automation & Workflows',cat:'automation',name:'Calendar & Scheduling',desc:'Manage AI planning and scheduled business activity.',icon:'▦',tone:'orange',workspace:'calendar',tags:'calendar scheduling plans content schedule'},
+
+  {section:'Connected Apps & Business Tools',cat:'integrations',name:'Connected Accounts',desc:'Manage authorized business integrations and providers.',icon:'∞',tone:'blue',action:'accounts',tags:'integrations connected accounts oauth providers'},
+  {section:'Connected Apps & Business Tools',cat:'integrations',name:'Google Business & SEO',desc:'Local presence, Google Business and website health.',icon:'G',tone:'blue',action:'accounts',tags:'google business seo local search'},
+  {section:'Connected Apps & Business Tools',cat:'integrations',name:'Payments',desc:'Stripe, Square and payment completion signals.',icon:'
+</html>
+,tone:'blue',action:'accounts',tags:'stripe square payments'},
+  {section:'Connected Apps & Business Tools',cat:'integrations',name:'Booking Platforms',desc:'Connect scheduling providers and confirmed bookings.',icon:'B',tone:'blue',action:'accounts',tags:'booking calendly acuity appointments'},
+  {section:'Connected Apps & Business Tools',cat:'integrations',name:'Social Accounts',desc:'Connect approved social providers for publishing and analytics.',icon:'S',tone:'blue',action:'accounts',tags:'instagram facebook tiktok social accounts'},
+  {section:'Connected Apps & Business Tools',cat:'integrations',name:'CRM & Customer Data',desc:'Prepare for stronger customer identity and lifecycle context.',icon:'C',tone:'blue',action:'accounts',tags:'crm customer data identity'},
+
+  {section:'Operations & Workspace',cat:'operations',name:'Team & Access',desc:'People, roles, permissions and assignments.',icon:'T',tone:'blue',action:'team',tags:'team employees access permissions roles'},
+  {section:'Operations & Workspace',cat:'operations',name:'Operations',desc:'Business workflows, bottlenecks and execution consistency.',icon:'O',tone:'blue',workspace:'operations',tags:'operations process staff efficiency'},
+  {section:'Operations & Workspace',cat:'operations',name:'Business Brain Setup',desc:'Update business facts, goals, services and preferences.',icon:'B',tone:'purple',action:'business-brain',tags:'business profile brain setup knowledge'},
+  {section:'Operations & Workspace',cat:'operations',name:'Journey AI Workspace',desc:'Timeline, projects, conversations, assets and AI work.',icon:'J',tone:'purple',action:'workspace',tags:'journey ai workspace projects timeline'},
+  {section:'Operations & Workspace',cat:'operations',name:'Command Center',desc:'Advanced Journey AI business command tools.',icon:'C',tone:'blue',workspace:'command',tags:'command center admin operations'},
+  {section:'Operations & Workspace',cat:'operations',name:'Plans & Billing',desc:'Plan, usage and billing management.',icon:'P',tone:'blue',workspace:'billing',tags:'plans billing subscription'},
+  {section:'Operations & Workspace',cat:'operations',name:'Usage',desc:'Review AI, creative and provider usage.',icon:'U',tone:'blue',workspace:'usage',tags:'usage costs api'},
+  {section:'Operations & Workspace',cat:'operations',name:'Production',desc:'Production readiness and backend health.',icon:'P',tone:'blue',workspace:'production',tags:'production readiness backend'},
+  {section:'Operations & Workspace',cat:'operations',name:'Security',desc:'Security posture, permissions and connection status.',icon:'S',tone:'blue',workspace:'security',tags:'security permissions auth'},
+  {section:'Operations & Workspace',cat:'operations',name:'QA & Release',desc:'Quality checks and release readiness.',icon:'Q',tone:'blue',workspace:'qa',tags:'qa testing release'},
+  {section:'Operations & Workspace',cat:'operations',name:'Launch Control',desc:'Launch readiness, services and operational state.',icon:'L',tone:'blue',workspace:'launch',tags:'launch release monitoring'},
+  {section:'Operations & Workspace',cat:'operations',name:'Support Ops',desc:'Support diagnostics and operational troubleshooting.',icon:'?',tone:'blue',workspace:'supportops',tags:'support diagnostics help'}
+];
+
+function render(){
+  const host=$('cjeSections');if(!host)return;
+  const groups=[...new Set(FEATURES.map(f=>f.section))];
+  host.innerHTML=groups.map(section=>{
+    const items=FEATURES.filter(f=>f.section===section);
+    return '<section class="cje-section" data-cje-section="'+esc(section)+'"><div class="cje-section-head"><h2>'+esc(section)+'</h2><span>'+items.length+' tools</span></div><div class="cje-grid">'+items.map(f=>
+      '<button class="cje-item" type="button" data-cje-name="'+esc(f.name.toLowerCase())+'" data-cje-cat="'+esc(f.cat)+'" data-cje-tags="'+esc((f.tags||'').toLowerCase())+'" data-cje-index="'+FEATURES.indexOf(f)+'" data-tone="'+esc(f.tone||'blue')+'"><span class="cje-icon">'+esc(f.icon||'•')+'</span><span class="cje-copy"><strong>'+esc(f.name)+'</strong><span>'+esc(f.desc)+'</span></span><span class="cje-chevron">›</span></button>'
+    ).join('')+'</div></section>';
+  }).join('');
+  filter();
+}
+function filter(){
+  const q=String($('cjeSearch')?.value||'').trim().toLowerCase();
+  let shown=0;
+  document.querySelectorAll('#cjExploreDirectory .cje-item').forEach(item=>{
+    const matchFilter=activeFilter==='all'||item.dataset.cjeCat===activeFilter;
+    const hay=(item.dataset.cjeName+' '+item.dataset.cjeTags+' '+item.textContent).toLowerCase();
+    const matchSearch=!q||hay.includes(q);
+    const visible=matchFilter&&matchSearch;
+    item.classList.toggle('hidden',!visible);if(visible)shown++;
+  });
+  document.querySelectorAll('#cjExploreDirectory .cje-section').forEach(sec=>{
+    sec.classList.toggle('hidden',!sec.querySelector('.cje-item:not(.hidden)'));
+  });
+  $('cjeEmpty')?.classList.toggle('show',shown===0);
+}
+function open(){
+  const p=$('cjExploreDirectory');if(!p)return;
+  p.classList.remove('cje-hidden');p.setAttribute('aria-hidden','false');document.body.classList.add('cje-open');
+  activeFilter='all';
+  document.querySelectorAll('#cjeFilters .cje-filter').forEach((b,i)=>b.classList.toggle('active',i===0));
+  if($('cjeSearch'))$('cjeSearch').value='';
+  filter();p.scrollTop=0;
+}
+function close(){
+  const p=$('cjExploreDirectory');if(!p)return;
+  p.classList.add('cje-hidden');p.setAttribute('aria-hidden','true');document.body.classList.remove('cje-open');
+}
+function click(id){const n=$(id);if(n){n.click();return true}return false}
+function openWorkspaceTab(tab){
+  close();
+  if(!click('openAiWorkspaceDashboard')){
+    if(click('aiOpenWorkspace')){}
+  }
+  setTimeout(()=>{
+    const direct=document.querySelector('.ai-workspace-tab[data-ai-workspace-tab="'+CSS.escape(tab)+'"]');
+    if(direct){direct.click();return}
+    const more=document.querySelector('[data-workspace-more="'+CSS.escape(tab)+'"]');
+    if(more){more.click();return}
+  },120);
+}
+function ask(prompt){
+  close();
+  const visible=$('journeyAiFab');if(visible)visible.click();
+  setTimeout(()=>{
+    const input=$('aiInput');if(input){input.value=prompt||'';input.focus()}
+  },120);
+}
+function executeFeature(f){
+  if(!f)return;
+  if(f.workspace){openWorkspaceTab(f.workspace);return}
+  if(f.prompt){ask(f.prompt);return}
+  switch(f.action){
+    case'agents': close();window.CJBuild364?.openAgentDirectory?.();break;
+    case'ask-ai': ask('');break;
+    case'business-brain': close();if(!click('quickAiSetup'))click('aiWorkspaceEditProfile');break;
+    case'social': close();if(window.CJBuild365?.social?.open)window.CJBuild365.social.open();else document.querySelector('[data-cj365-open]')?.click();break;
+    case'create-image': ask('Create an image for my business. Ask me what I want the image to accomplish, then use my Business Brain and brand preferences.');break;
+    case'image-library':
+      close();
+      (document.querySelector('[data-cj-image-library-open],#openImageLibrary,#aiImageLibraryButton')||null)?.click();
+      if(!document.querySelector('[data-cj-image-library-open],#openImageLibrary,#aiImageLibraryButton'))ask('Open my Journey AI Image Library.');
+      break;
+    case'performance': close();if(!click('quickPerformanceHub'))click('dashboardViewAnalytics');break;
+    case'accounts': close();if(!click('quickConnectedAccounts'))document.querySelector('[data-cj33-open]')?.click();break;
+    case'team': close();if(!click('manageTeamLink'))click('quickInviteTeam');break;
+    case'workspace': close();click('openAiWorkspaceDashboard');break;
+    default: ask('Help me use '+f.name+' in CreateJourney.');
+  }
+}
+document.addEventListener('click',e=>{
+  const nav=e.target.closest?.('[data-cjh-nav="explore"]');
+  if(nav){e.preventDefault();e.stopImmediatePropagation();open();return}
+  if(e.target.closest?.('[data-cje-back]')){e.preventDefault();close();window.scrollTo({top:0,behavior:'smooth'});return}
+  const featured=e.target.closest?.('[data-cje-action]');
+  if(featured){
+    const action=featured.dataset.cjeAction;
+    executeFeature(FEATURES.find(f=>f.action===action)||{name:'Journey AI',action});return
+  }
+  const item=e.target.closest?.('.cje-item[data-cje-index]');
+  if(item){executeFeature(FEATURES[Number(item.dataset.cjeIndex)]);return}
+},true);
+$('cjeSearch')?.addEventListener('input',filter);
+$('cjeClear')?.addEventListener('click',()=>{if($('cjeSearch'))$('cjeSearch').value='';filter();$('cjeSearch')?.focus()});
+$('cjeFilters')?.addEventListener('click',e=>{
+  const b=e.target.closest?.('[data-cje-filter]');if(!b)return;
+  activeFilter=b.dataset.cjeFilter;
+  document.querySelectorAll('#cjeFilters .cje-filter').forEach(x=>x.classList.toggle('active',x===b));
+  filter();
+});
+render();
+window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
+})();
+</script>
+<!-- CJ EXPLORE FEATURE DIRECTORY V1 END -->
 </body>
 </html>
