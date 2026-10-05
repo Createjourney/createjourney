@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect login logo CSS
+      - name: Inspect all login logo rules
         shell: bash
         run: |
-          grep -n -A45 -B5 -m 1 "cjExactLoginLogoV2Styles" index.html
+          grep -n -m 80 -E "cj-auth-logo-v2|cj-auth-logo-text|cj-auth-logo-arrow|cj-powered|auth-brand" index.html || true
