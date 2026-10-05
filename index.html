@@ -11122,6 +11122,10 @@ button.primary,button.secondary,.primary,.secondary{
 (function(){
   if(window.__cjExactHomeV1)return;window.__cjExactHomeV1=true;
   var MODE_KEY='cj_exact_home_mode_v1';
+  var ADMIN_PREVIEW_KEY='cj_admin_preview_v1';
+  function isPlatformAdminPreview(){try{return !!window.CJ_PLATFORM_CONTEXT?.isPlatformAdmin?.()}catch(_){return false}}
+  function getAdminPreview(){if(!isPlatformAdminPreview())return null;try{var v=sessionStorage.getItem(ADMIN_PREVIEW_KEY);return /^(admin|owner|setup)$/.test(v||'')?v:'admin'}catch(_){return'admin'}}
+  function setAdminPreview(v){if(!isPlatformAdminPreview())return;try{sessionStorage.setItem(ADMIN_PREVIEW_KEY,/^(admin|owner|setup)$/.test(v)?v:'admin')}catch(_){}}
   function $(id){return document.getElementById(id)}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]})}
   function svg(type){
@@ -11149,7 +11153,18 @@ button.primary,button.secondary,.primary,.secondary{
     };return s[type]||'';
   }
   function brand(){return '<div class="cjx-brandline"><div class="cjx-brand-wrap"><img class="cjx-brand-logo" src="assets/createjourney-logo.svg?v=20261004b" alt="CreateJourney"><span class="cjx-powered">Powered by <b>JourneyAI</b></span></div></div>'}
-  function chrome(showProfile){return (showProfile?'<button class="cjx-profile" type="button" data-cjh="account" aria-label="Profile">'+svg('profile')+'</button>':'')+'<div class="cjx-ai-dock"><button class="cjx-ai-pill" type="button" data-cjx-ai><span class="cjx-ai-j">J</span>Journey AI</button><button class="cjx-mic" type="button" data-cjx-ai aria-label="Voice Journey AI">'+svg('mic')+'</button></div><nav class="cjx-bottom" aria-label="Primary"><button class="active" type="button" data-cjh-nav="home">'+svg('home')+'<span>Home</span></button><button type="button" data-cjh-nav="journeys"><span class="dots-icon cjx-brand-nav-icon">'+svg('dots')+'</span><span>Journeys</span></button><button type="button" data-cjh-nav="explore">'+svg('explore')+'<span>Explore</span></button></nav>'}
+  function chrome(showProfile){
+    var admin=isPlatformAdminPreview(),preview=getAdminPreview()||'admin';
+    var controls='';
+    if(showProfile||admin){
+      if(admin){
+        var label=preview==='setup'?'Setup':(preview==='owner'?'Owner':'Admin');
+        controls+='<div class="cjx-view-switch"><button class="cjx-view-button" type="button" data-cjx-view-toggle aria-expanded="false" aria-label="Change preview view"><span>View:</span><b>'+label+'</b><i>⌄</i></button><div class="cjx-view-menu" role="menu"><button type="button" data-cjx-preview="admin"'+(preview==='admin'?' class="selected"':'')+'>Main Admin View</button><button type="button" data-cjx-preview="owner"'+(preview==='owner'?' class="selected"':'')+'>Owner View</button><button type="button" data-cjx-preview="setup"'+(preview==='setup'?' class="selected"':'')+'>Setup / Onboarding View</button></div></div>';
+      }
+      controls+='<button class="cjx-profile" type="button" data-cjh="account" aria-label="Profile">'+svg('profile')+'</button>';
+    }
+    return controls+'<div class="cjx-ai-dock"><button class="cjx-ai-pill" type="button" data-cjx-ai><span class="cjx-ai-j">J</span>Journey AI</button><button class="cjx-mic" type="button" data-cjx-ai aria-label="Voice Journey AI">'+svg('mic')+'</button></div><nav class="cjx-bottom" aria-label="Primary"><button class="active" type="button" data-cjh-nav="home">'+svg('home')+'<span>Home</span></button><button type="button" data-cjh-nav="journeys"><span class="dots-icon cjx-brand-nav-icon">'+svg('dots')+'</span><span>Journeys</span></button><button type="button" data-cjh-nav="explore">'+svg('explore')+'<span>Explore</span></button></nav>';
+  }
   function setup(){
     return brand()+chrome(false)+
     '<div class="cjx-brand-divider" aria-hidden="true"></div>'+
@@ -11180,8 +11195,22 @@ button.primary,button.secondary,.primary,.secondary{
   function recordSeries(key){try{var src=window.CJ_RECORD_SERIES&&window.CJ_RECORD_SERIES[key];if(Array.isArray(src)&&src.length){return src.slice(-7).map(function(v){v=Number(v);return Number.isFinite(v)&&v>=0?v:0})}}catch(_){}return null}
   function recordBars(key){var data=recordSeries(key);var vals=data&&data.length?data:null;var max=vals?Math.max.apply(null,vals.concat([1])):1;var html='<div class="cjx-mini-bars'+(vals?'':' is-empty')+'" aria-label="'+(vals?'7-day trend':'Daily trend will appear when day-level data is available')+'">';for(var i=0;i<7;i++){var v=vals?(vals[i]||0):0;var h=vals?Math.max(v>0?16:4,Math.round((v/max)*100)):0;html+='<span class="cjx-mini-bar"><i style="height:'+h+'%"></i></span>'}return html+'</div>'}
   function slide(a,b,c,goal){function metric(x){return '<button type="button" class="cjx-stat" data-cjx-metric="'+esc(x[0])+'" aria-label="Open '+esc(x[0])+' analytics"><span class="cjx-stat-label">'+x[0]+'</span><strong>'+x[1]+'</strong><div class="cjx-trend">'+x[2]+'</div>'+recordBars(x[3]||String(x[0]).toLowerCase().replace(/[^a-z0-9]+/g,'_'))+'</button>'}return '<div class="cjx-slide">'+metric(a)+metric(b)+metric(c)+'<button type="button" class="cjx-goal" data-cjx-metric="'+esc(goal[0])+'" aria-label="Open '+esc(goal[0])+' analysis">'+svg('target')+'<span>'+goal[0]+'<b>'+goal[1]+'</b></span></button></div>'}
-  function active(){var bs=boards();var boardHtml=bs.slice(0,2).map(boardCard).join('');if(!boardHtml)boardHtml=boardCard({name:'Reception Board',boardId:'01',taps:0,reviews:0,bookings:0,journey:'Pay → Review → Book'},0)+boardCard({name:'Station Board',boardId:'02',taps:0,reviews:0,bookings:0,journey:'Pay → Review'},1);var taps=val(['revTaps','totalTapsStat','performanceNumber'],'0');var clicks=val(['revBookingClicks'],'—');var revenue=val(['revPotentialRevenue','revRevenueGenerated','revAttributedRevenue'],'—');return brand()+chrome(true)+'<h1 class="cjx-page-title">Business Command Center</h1><p class="cjx-page-sub">Your most important numbers, priorities, and board activity — all in one place.</p><section class="cjx-card cjx-snapshot"><div class="cjx-snapshot-head"><div class="cjx-snapshot-title"><span class="cjx-mini-icon">'+svg('chart')+'</span>This Week\'s Business Records</div><span class="cjx-period">Last 7 Days⌄</span></div><div class="cjx-carousel" data-cjx-carousel>'+slide(['Taps',taps,'Live','taps'],['Booking Clicks',clicks,'Tracked','booking_clicks'],['Potential Revenue',revenue,'Opportunity','potential_revenue'],['Next-week goal:','+12% bookings'])+slide(['Bookings',val(['revConfirmedBookings'],'—'),'Confirmed','bookings'],['Conversion',val(['revBookingConversion'],'—'),'Tracked','conversion'],['Returning',val(['revReturning'],'0'),'Visitors','returning'],['Focus:','Rebooking'])+slide(['Customers Due',val(['revDueCustomers'],'—'),'Return','customers_due'],['Service Value',val(['revAverageServiceValue'],'—'),'Average','service_value'],['Opportunity',val(['revRebookingOpportunity'],'—'),'Potential','opportunity'],['Focus:','Retention'])+slide(['Boards',String(bs.length),'Connected','boards'],['Taps',taps,'Live','taps'],['Actions',val(['revJourneyActions'],'—'),'Tracked','actions'],['Focus:','Board impact'])+'</div></section><div class="cjx-dots"><i class="cjx-dot active"></i><i class="cjx-dot"></i><i class="cjx-dot"></i><i class="cjx-dot"></i></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">Journey AI Top 3 Priorities</h2><span class="cjx-rank">Ranked by impact</span></div><div class="cjx-priorities"><button class="cjx-priority" type="button" data-cjh="marketing"><span class="cjx-num">1</span><span class="cjx-iconbox cjx-pink">'+svg('megaphone')+'</span><span><strong>Launch a Rebooking Campaign</strong><span class="cjx-copy">Your repeat visit window is opening. Follow up with recent customers to increase next-week bookings.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="images"><span class="cjx-num">2</span><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Post Today’s Marketing Image</strong><span class="cjx-copy">Journey AI can prepare a social image to help generate attention and new visits.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="boards"><span class="cjx-num">3</span><span class="cjx-iconbox cjx-green">'+svg('growth')+'</span><span><strong>Improve Review Route on a Board</strong><span class="cjx-copy">Journey AI can identify a board getting taps but fewer completed actions and recommend an adjustment.</span></span><span class="cjx-arrow">›</span></button></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">SmartBoards</h2><button class="cjx-link" type="button" data-cjh="analytics">View full board analysis ›</button></div><p class="cjx-section-sub">Track each board, its route, and live performance.</p><div class="cjx-boards">'+boardHtml+'</div><div class="cjx-live-head"><h2 class="cjx-section-title">Live Performance</h2><span class="cjx-live-pill"><i></i>LIVE</span></div><section class="cjx-card cjx-feed"><button class="cjx-feed-row" type="button" data-cjh="marketing"><span class="cjx-check">✓</span><span><strong>Rebooking campaign prepared</strong><span class="cjx-copy">Journey AI activity and approved work appears here</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="images"><span class="cjx-check">✓</span><span><strong>Journey AI marketing image saved</strong><span class="cjx-copy">Saved to Journey AI Image Library</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="boards"><span class="cjx-check">✓</span><span><strong>SmartBoard Journey activity</strong><span class="cjx-copy">Recent tracked changes and outcomes</span></span><span class="cjx-arrow">›</span></button></section><h2 class="cjx-section-title">Control Center</h2><p class="cjx-section-sub">Quick access to the tools that help run and grow the business.</p><div class="cjx-controls"><button class="cjx-control" type="button" data-cjh="marketing"><span class="cjx-iconbox cjx-pink">'+svg('growth')+'</span><span><strong>Marketing</strong><span class="cjx-copy">Campaigns &amp; growth</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="google"><span class="cjx-iconbox cjx-blue" style="font-size:24px;font-weight:900">G</span><span><strong>Google &amp; SEO</strong><span class="cjx-copy">Local search &amp; website health</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="images"><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Journey AI Image Library</strong><span class="cjx-copy">Generated creative assets</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="team"><span class="cjx-iconbox cjx-cyan">'+svg('people')+'</span><span><strong>Team &amp; Access</strong><span class="cjx-copy">People, roles &amp; permissions</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="boards"><span class="cjx-iconbox cjx-green">'+svg('flow')+'</span><span><strong>Journeys</strong><span class="cjx-copy">Build &amp; manage experiences</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="accounts"><span class="cjx-iconbox cjx-pink">'+svg('gear')+'</span><span><strong>Accounts &amp; Integrations</strong><span class="cjx-copy">Connect your business tools</span></span><span class="cjx-arrow">›</span></button></div>'}
-  function render(){var h=$('cjScreenshotHome');if(!h)return false;var mode=localStorage.getItem(MODE_KEY)||'setup';try{if(window.CJ_PLATFORM_CONTEXT?.hasJourneyTrial?.())mode='active'}catch(_){}h.innerHTML=mode==='active'?active():setup();h.dataset.cjxMode=mode;var dash=$('dashboardApp');if(dash)dash.dataset.cjxExactMode=mode;bindCarousel(h);return true}
+  function active(){var bs=boards();var boardHtml=bs.slice(0,2).map(boardCard).join('');if(!boardHtml)boardHtml=boardCard({name:'Reception Board',boardId:'01',taps:0,reviews:0,bookings:0,journey:'Pay → Review → Book'},0)+boardCard({name:'Station Board',boardId:'02',taps:0,reviews:0,bookings:0,journey:'Pay → Review'},1);var taps=val(['revTaps','totalTapsStat','performanceNumber'],'0');var clicks=val(['revBookingClicks'],'—');var revenue=val(['revPotentialRevenue','revRevenueGenerated','revAttributedRevenue'],'—');return brand()+chrome(true)+'<h1 class="cjx-page-title">Business Command Center</h1><p class="cjx-page-sub">Your most important numbers, priorities, and board activity — all in one place.</p><section class="cjx-card cjx-snapshot"><div class="cjx-snapshot-head"><div class="cjx-snapshot-title"><span class="cjx-mini-icon">'+svg('chart')+'</span>This Week\'s Business Records</div><span class="cjx-period">Last 7 Days⌄</span></div><div class="cjx-carousel" data-cjx-carousel>'+slide(['Taps',taps,'Live','taps'],['Booking Clicks',clicks,'Tracked','booking_clicks'],['Potential Revenue',revenue,'Opportunity','potential_revenue'],['Next-week goal:','+12% bookings'])+slide(['Bookings',val(['revConfirmedBookings'],'—'),'Confirmed','bookings'],['Conversion',val(['revBookingConversion'],'—'),'Tracked','conversion'],['Returning',val(['revReturning'],'0'),'Visitors','returning'],['Focus:','Rebooking'])+slide(['Customers Due',val(['revDueCustomers'],'—'),'Return','customers_due'],['Service Value',val(['revAverageServiceValue'],'—'),'Average','service_value'],['Opportunity',val(['revRebookingOpportunity'],'—'),'Potential','opportunity'],['Focus:','Retention'])+slide(['Boards',String(bs.length),'Connected','boards'],['Taps',taps,'Live','taps'],['Actions',val(['revJourneyActions'],'—'),'Tracked','actions'],['Focus:','Board impact'])+'</div></section><div class="cjx-dots"><i class="cjx-dot active"></i><i class="cjx-dot"></i><i class="cjx-dot"></i><i class="cjx-dot"></i></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">Journey AI Top 3 Priorities</h2><span class="cjx-rank">Ranked by impact</span></div><div class="cjx-priorities"><button class="cjx-priority" type="button" data-cjh="marketing"><span class="cjx-num">1</span><span class="cjx-iconbox cjx-pink">'+svg('megaphone')+'</span><span><strong>Launch a Rebooking Campaign</strong><span class="cjx-copy">Your repeat visit window is opening. Follow up with recent customers to increase next-week bookings.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="images"><span class="cjx-num">2</span><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Post Today’s Marketing Image</strong><span class="cjx-copy">Journey AI can prepare a social image to help generate attention and new visits.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjh="boards"><span class="cjx-num">3</span><span class="cjx-iconbox cjx-green">'+svg('growth')+'</span><span><strong>Improve Review Route on a Board</strong><span class="cjx-copy">Journey AI can identify a board getting taps but fewer completed actions and recommend an adjustment.</span></span><span class="cjx-arrow">›</span></button></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">SmartBoards</h2><button class="cjx-link" type="button" data-cjh="analytics">View full board analysis ›</button></div><p class="cjx-section-sub">Track each board, its route, and live performance.</p><div class="cjx-boards">'+boardHtml+'</div><div class="cjx-performance-head"><div><h2 class="cjx-section-title">Performance</h2><p class="cjx-performance-sub">Real-time activity and completed work across your business</p></div><span class="cjx-live-pill"><i></i>LIVE</span></div><section class="cjx-card cjx-feed cjx-performance-card"><button class="cjx-feed-row" type="button" data-cjh="marketing"><span class="cjx-check">✓</span><span><strong>Rebooking campaign prepared</strong><span class="cjx-copy">Journey AI activity and approved work appears here</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="images"><span class="cjx-check">✓</span><span><strong>Journey AI marketing image saved</strong><span class="cjx-copy">Saved to Journey AI Image Library</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjh="boards"><span class="cjx-check">✓</span><span><strong>SmartBoard Journey activity</strong><span class="cjx-copy">Recent tracked changes and outcomes</span></span><span class="cjx-arrow">›</span></button><button class="cjx-performance-link" type="button" data-cjh="analytics">View full analysis &amp; graphs <span>›</span></button></section><div class="cjx-control-heading"><h2 class="cjx-section-title">Control Center</h2><p class="cjx-section-sub">Quick access to the tools that help run and grow the business.</p></div><div class="cjx-controls"><button class="cjx-control" type="button" data-cjh="marketing"><span class="cjx-iconbox cjx-pink">'+svg('growth')+'</span><span><strong>Marketing</strong><span class="cjx-copy">Campaigns &amp; growth</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="google"><span class="cjx-iconbox cjx-blue" style="font-size:24px;font-weight:900">G</span><span><strong>Google &amp; SEO</strong><span class="cjx-copy">Local search &amp; website health</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="images"><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Journey AI Image Library</strong><span class="cjx-copy">Generated creative assets</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="team"><span class="cjx-iconbox cjx-cyan">'+svg('people')+'</span><span><strong>Team &amp; Access</strong><span class="cjx-copy">People, roles &amp; permissions</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="boards"><span class="cjx-iconbox cjx-green">'+svg('flow')+'</span><span><strong>Journeys</strong><span class="cjx-copy">Build &amp; manage experiences</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjh="accounts"><span class="cjx-iconbox cjx-pink">'+svg('gear')+'</span><span><strong>Accounts &amp; Integrations</strong><span class="cjx-copy">Connect your business tools</span></span><span class="cjx-arrow">›</span></button></div>'}
+  function render(){
+    var h=$('cjScreenshotHome');if(!h)return false;
+    var preview=getAdminPreview();
+    var mode=localStorage.getItem(MODE_KEY)||'setup';
+    if(preview==='setup')mode='setup';
+    else if(preview==='owner'||preview==='admin')mode='active';
+    else{try{if(window.CJ_PLATFORM_CONTEXT?.hasJourneyTrial?.())mode='active'}catch(_){}}
+    h.innerHTML=mode==='active'?active():setup();
+    h.dataset.cjxMode=mode;
+    h.dataset.cjxPreview=preview||'customer';
+    var dash=$('dashboardApp');
+    if(dash){dash.dataset.cjxExactMode=mode;dash.dataset.cjxPreview=preview||'customer'}
+    bindCarousel(h);
+    return true
+  }
   function bindCarousel(h){var c=h.querySelector('[data-cjx-carousel]');if(!c)return;var dots=[].slice.call(h.querySelectorAll('.cjx-dot'));var timer=0;c.addEventListener('scroll',function(){clearTimeout(timer);timer=setTimeout(function(){var idx=Math.round(c.scrollLeft/Math.max(1,c.clientWidth));dots.forEach(function(d,i){d.classList.toggle('active',i===idx)})},60)})}
   function openAI(){var b=$('aiLauncher');if(b){b.click();return}var panel=$('journeyAiPanel');if(panel)panel.classList.remove('hidden')}
   function setupReadiness(){
@@ -11201,6 +11230,19 @@ button.primary,button.secondary,.primary,.secondary{
     return false;
   }
   async function onClick(e){
+    var previewChoice=e.target.closest('[data-cjx-preview]');
+    if(previewChoice){
+      e.preventDefault();e.stopPropagation();
+      setAdminPreview(previewChoice.getAttribute('data-cjx-preview')||'admin');
+      render();window.scrollTo({top:0,behavior:'smooth'});return;
+    }
+    var viewToggle=e.target.closest('[data-cjx-view-toggle]');
+    if(viewToggle){
+      e.preventDefault();e.stopPropagation();
+      var wrap=viewToggle.closest('.cjx-view-switch');
+      if(wrap){var open=!wrap.classList.contains('open');wrap.classList.toggle('open',open);viewToggle.setAttribute('aria-expanded',open?'true':'false')}
+      return;
+    }
     var metric=e.target.closest('[data-cjx-metric]');
     if(metric){
       e.preventDefault();e.stopPropagation();
@@ -11241,7 +11283,7 @@ button.primary,button.secondary,.primary,.secondary{
   document.addEventListener('click',onClick,true);
   function boot(){if(render())return;var tries=0;var t=setInterval(function(){tries++;if(render()||tries>80)clearInterval(t)},100)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  window.CJExactHome={version:'1.0',showSetup:function(){localStorage.setItem(MODE_KEY,'setup');render()},showCommandCenter:function(){localStorage.setItem(MODE_KEY,'active');render()},render:render};
+  window.CJExactHome={version:'1.1',showSetup:function(){if(isPlatformAdminPreview())setAdminPreview('setup');else localStorage.setItem(MODE_KEY,'setup');render()},showCommandCenter:function(){if(isPlatformAdminPreview())setAdminPreview('admin');else localStorage.setItem(MODE_KEY,'active');render()},showOwnerPreview:function(){setAdminPreview('owner');render()},showAdminPreview:function(){setAdminPreview('admin');render()},render:render};
 })();
 </script>
 
@@ -12420,6 +12462,299 @@ html,body{overscroll-behavior-y:auto}
 #dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-priority{
   margin:0!important;
   margin-block:0!important;
+}
+</style>
+
+<style id="cjReferenceMatchLowerHomeV6">
+/* Do not touch Business Records graph/carousel styling in this lock. */
+
+/* Header controls: higher upper-right placement, admin switch immediately to profile's left. */
+#dashboardApp #cjScreenshotHome .cjx-profile{
+  top:8px!important;
+  right:12px!important;
+  width:40px!important;
+  height:40px!important;
+  border-radius:50%!important;
+  border:1px solid #d9e1ea!important;
+  background:#fff!important;
+  box-shadow:0 5px 14px rgba(15,23,42,.07)!important;
+}
+#dashboardApp #cjScreenshotHome .cjx-profile svg{width:21px!important;height:21px!important}
+#cjScreenshotHome .cjx-view-switch{
+  position:absolute!important;
+  top:10px!important;
+  right:60px!important;
+  z-index:14!important;
+}
+#cjScreenshotHome .cjx-view-button{
+  height:36px!important;
+  min-height:36px!important;
+  padding:0 10px!important;
+  border:1px solid #d9e1ea!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  color:#667085!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  box-shadow:0 4px 12px rgba(15,23,42,.045)!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  white-space:nowrap!important;
+}
+#cjScreenshotHome .cjx-view-button b{color:#1d2939!important;font-size:10.5px!important}
+#cjScreenshotHome .cjx-view-button i{font-style:normal!important;color:#8791a2!important;font-size:11px!important}
+#cjScreenshotHome .cjx-view-menu{
+  position:absolute!important;
+  top:42px!important;
+  right:0!important;
+  width:174px!important;
+  padding:6px!important;
+  border:1px solid #dfe5ec!important;
+  border-radius:14px!important;
+  background:#fff!important;
+  box-shadow:0 14px 34px rgba(15,23,42,.15)!important;
+  display:none!important;
+}
+#cjScreenshotHome .cjx-view-switch.open .cjx-view-menu{display:grid!important;gap:2px!important}
+#cjScreenshotHome .cjx-view-menu button{
+  min-height:35px!important;
+  padding:8px 9px!important;
+  border:0!important;
+  border-radius:9px!important;
+  background:transparent!important;
+  color:#475467!important;
+  text-align:left!important;
+  font-size:10.5px!important;
+  font-weight:750!important;
+}
+#cjScreenshotHome .cjx-view-menu button.selected{background:#edf5ff!important;color:#1f78d1!important}
+
+/* Consistent vertical rhythm below Records / Priorities / SmartBoards. */
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-heading-flex{
+  margin-top:18px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-priorities{
+  margin-top:9px!important;
+  gap:4px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-priorities + .cjx-heading-flex{
+  margin-top:18px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-heading-flex + .cjx-section-sub{
+  margin:4px 0 8px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-boards{
+  margin-top:8px!important;
+  gap:8px!important;
+}
+
+/* Performance layout: reference image geometry and hierarchy. */
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-performance-head{
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  margin-top:20px!important;
+  margin-bottom:9px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-performance-head .cjx-section-title{
+  margin:0 0 4px!important;
+  font-size:24px!important;
+  line-height:1.08!important;
+  letter-spacing:-.55px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-performance-sub{
+  margin:0!important;
+  color:#6f7a8d!important;
+  font-size:11.5px!important;
+  line-height:1.35!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-live-pill{
+  flex:0 0 auto!important;
+  margin-bottom:1px!important;
+  padding:5px 9px!important;
+  border-radius:999px!important;
+  background:#e9f8ef!important;
+  color:#11894a!important;
+  font-size:9px!important;
+  font-weight:900!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-live-pill i{
+  width:7px!important;
+  height:7px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-performance-card{
+  margin-top:0!important;
+  padding:8px 14px 7px!important;
+  border-radius:18px!important;
+  border:1px solid #dfe5ec!important;
+  box-shadow:0 4px 14px rgba(15,23,42,.025)!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-feed-row{
+  grid-template-columns:33px 1fr 15px!important;
+  gap:9px!important;
+  min-height:48px!important;
+  padding:9px 0!important;
+  border-bottom:1px solid #e7ebf0!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-check{
+  width:28px!important;
+  height:28px!important;
+  font-size:15px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-feed-row strong{
+  font-size:11.7px!important;
+  line-height:1.2!important;
+  margin:0!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-feed-row .cjx-copy{
+  display:block!important;
+  margin-top:2px!important;
+  color:#6f7a8d!important;
+  font-size:9.7px!important;
+  line-height:1.25!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-feed-row .cjx-arrow{
+  font-size:21px!important;
+  color:#7b8494!important;
+}
+#cjScreenshotHome .cjx-performance-link{
+  width:100%!important;
+  min-height:34px!important;
+  padding:8px 0 4px!important;
+  border:0!important;
+  background:transparent!important;
+  color:#247dcc!important;
+  text-align:left!important;
+  font-size:10.5px!important;
+  font-weight:850!important;
+}
+#cjScreenshotHome .cjx-performance-link span{font-size:16px!important;vertical-align:-1px!important}
+
+/* Control Center: reference-image two-column cards and spacing. */
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control-heading{
+  margin-top:20px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control-heading .cjx-section-title{
+  margin:0 0 4px!important;
+  font-size:24px!important;
+  line-height:1.08!important;
+  letter-spacing:-.55px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control-heading .cjx-section-sub{
+  margin:0!important;
+  font-size:11.5px!important;
+  line-height:1.35!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-controls{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin-top:10px!important;
+  margin-bottom:0!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control{
+  min-height:80px!important;
+  padding:10px!important;
+  border-radius:16px!important;
+  border:1px solid #dfe5ec!important;
+  grid-template-columns:44px 1fr 12px!important;
+  gap:8px!important;
+  box-shadow:0 4px 12px rgba(15,23,42,.02)!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control .cjx-iconbox{
+  width:42px!important;
+  height:42px!important;
+  border-radius:12px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control .cjx-iconbox svg{
+  width:23px!important;
+  height:23px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control strong{
+  font-size:11.7px!important;
+  line-height:1.15!important;
+  margin-bottom:4px!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control .cjx-copy{
+  font-size:9.8px!important;
+  line-height:1.3!important;
+  color:#6f7a8d!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-control .cjx-arrow{
+  font-size:20px!important;
+}
+
+/* Bottom navigation: compact, premium, equal icon sizing; divider close to icons. */
+#cjScreenshotHome .cjx-bottom{
+  height:calc(48px + env(safe-area-inset-bottom))!important;
+  min-height:calc(48px + env(safe-area-inset-bottom))!important;
+  padding:0 0 env(safe-area-inset-bottom)!important;
+  border-top:1px solid #dfe5ec!important;
+  background:rgba(255,255,255,.985)!important;
+  align-items:start!important;
+}
+#cjScreenshotHome .cjx-bottom button{
+  height:48px!important;
+  min-height:48px!important;
+  padding:3px 0 2px!important;
+  gap:1px!important;
+  font-size:9.2px!important;
+}
+#cjScreenshotHome .cjx-bottom button>svg,
+#cjScreenshotHome .cjx-bottom .dots-icon{
+  width:24px!important;
+  height:24px!important;
+  max-width:24px!important;
+  max-height:24px!important;
+  flex:0 0 24px!important;
+}
+#cjScreenshotHome .cjx-bottom .cjx-brand-nav-icon .cjx-journey-mark{
+  width:23px!important;
+  height:23px!important;
+  max-width:23px!important;
+  max-height:23px!important;
+}
+#cjScreenshotHome .cjx-bottom button.active{color:#2b82d7!important}
+#cjScreenshotHome .cjx-bottom button:not(.active){color:#7a8595!important}
+
+/* Journey AI controls move with the nav divider, never touching it. */
+#dashboardApp #cjScreenshotHome .cjx-ai-dock{
+  right:10px!important;
+  bottom:calc(env(safe-area-inset-bottom) + 55px)!important;
+  gap:6px!important;
+}
+#dashboardApp #cjScreenshotHome .cjx-ai-pill{
+  height:44px!important;
+  min-height:44px!important;
+  border-radius:22px!important;
+}
+#dashboardApp #cjScreenshotHome .cjx-mic{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  min-height:44px!important;
+}
+
+/* Control Center is the final content. Stop above fixed AI controls with no dead scroll area. */
+#dashboardApp[data-cjx-exact-mode="active"]>.dashboard-shell{
+  padding-bottom:0!important;
+  min-height:0!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome{
+  padding-bottom:calc(112px + env(safe-area-inset-bottom))!important;
+  min-height:0!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"]>.dashboard-shell>#cjScreenshotHome~*{
+  display:none!important;
+}
+
+@media(max-width:390px){
+  #cjScreenshotHome .cjx-view-switch{right:57px!important}
+  #cjScreenshotHome .cjx-view-button{padding:0 8px!important}
+  #cjScreenshotHome .cjx-view-button span{display:none!important}
+  #dashboardApp #cjScreenshotHome .cjx-profile{right:9px!important}
+  #dashboardApp #cjScreenshotHome .cjx-ai-dock{right:8px!important}
 }
 </style>
 </body>
