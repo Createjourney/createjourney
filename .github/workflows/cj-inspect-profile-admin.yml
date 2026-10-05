@@ -10,14 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect exact profile menu targets
+      - name: Inspect exact handlers
         shell: bash
         run: |
-          echo "=== ACCOUNT HTML ==="
-          sed -n '1775,1845p' index.html
-          echo "=== ACCOUNT FUNCTIONS ==="
-          grep -n -m 80 -E "function .*Account|function .*account|accountPanel|accountClose|accountSign|signOut|logout|logOut" index.html || true
-          echo "=== CJX CLICK HANDLER ==="
-          sed -n '11220,11290p' index.html
-          echo "=== CJX CSS ==="
-          sed -n '11070,11130p' index.html
+          sed -n '11218,11258p' index.html
+          echo "=== ACCOUNT OPEN/CLOSE ==="
+          grep -n -m 30 -E "profileInitial.*addEventListener|closeAccountPanel.*addEventListener|logoutButton.*addEventListener|openAccountPanel|renderAccount|accountPanel.classList" index.html || true
