@@ -1,0 +1,95 @@
+from pathlib import Path
+
+p = Path("index.html")
+s = p.read_text()
+
+old = """    if(showProfile||admin){
+      if(admin){
+        var label=preview==='setup'?'Setup':(preview==='owner'?'Owner':'Admin');
+        controls+='<div class="cjx-view-switch"><button class="cjx-view-button" type="button" data-cjx-view-toggle aria-expanded="false" aria-label="Change preview view"><span>View:</span><b>'+label+'</b><i>⌄</i></button><div class="cjx-view-menu" role="menu"><button type="button" data-cjx-preview="admin"'+(preview==='admin'?' class="selected"':'')+'>Main Admin View</button><button type="button" data-cjx-preview="owner"'+(preview==='owner'?' class="selected"':'')+'>Owner View</button><button type="button" data-cjx-preview="setup"'+(preview==='setup'?' class="selected"':'')+'>Setup / Onboarding View</button></div></div>';
+      }
+      if(showProfile)controls+='<button class="cjx-profile" type="button" data-cjh="account" aria-label="Profile">'+svg('profile')+'</button>';
+    }"""
+
+new = """    if(showProfile){
+      controls+='<div class="cjx-profile-wrap"><button class="cjx-profile" type="button" data-cjx-profile-toggle aria-expanded="false" aria-label="Profile and account menu">'+svg('profile')+'</button><div class="cjx-profile-menu" role="menu"><button type="button" data-cjx-profile-action="account"><span>Account &amp; Workspace</span><i>›</i></button><button type="button" data-cjx-profile-action="settings"><span>Settings &amp; Integrations</span><i>›</i></button>'+(admin?'<div class="cjx-profile-admin"><button type="button" data-cjx-admin-toggle aria-expanded="false"><span>Admin View</span><i>›</i></button><div class="cjx-profile-admin-menu"><button type="button" data-cjx-preview="admin"'+(preview==='admin'?' class="selected"':'')+'>Main Admin View</button><button type="button" data-cjx-preview="owner"'+(preview==='owner'?' class="selected"':'')+'>Owner / Command Center View</button><button type="button" data-cjx-preview="setup"'+(preview==='setup'?' class="selected"':'')+'>Setup / Onboarding View</button><button type="button" data-cjx-profile-action="platform-admin">Platform Admin Console</button></div></div>':'')+'<button type="button" data-cjx-profile-action="help"><span>Help &amp; Support</span><i>›</i></button><button class="cjx-profile-signout" type="button" data-cjx-profile-action="signout"><span>Sign Out</span></button></div></div>';
+    }else if(admin){
+      var label=preview==='setup'?'Setup':(preview==='owner'?'Owner':'Admin');
+      controls+='<div class="cjx-view-switch"><button class="cjx-view-button" type="button" data-cjx-view-toggle aria-expanded="false" aria-label="Change preview view"><span>View:</span><b>'+label+'</b><i>⌄</i></button><div class="cjx-view-menu" role="menu"><button type="button" data-cjx-preview="admin"'+(preview==='admin'?' class="selected"':'')+'>Main Admin View</button><button type="button" data-cjx-preview="owner"'+(preview==='owner'?' class="selected"':'')+'>Owner View</button><button type="button" data-cjx-preview="setup"'+(preview==='setup'?' class="selected"':'')+'>Setup / Onboarding View</button></div></div>';
+    }"""
+
+if s.count(old) != 1:
+    raise SystemExit(f"chrome target mismatch: {s.count(old)}")
+s = s.replace(old, new, 1)
+
+anchor = """  async function onClick(e){
+    var previewChoice=e.target.closest('[data-cjx-preview]');"""
+
+replacement = """  async function onClick(e){
+    var profileAction=e.target.closest('[data-cjx-profile-action]');
+    if(profileAction){
+      e.preventDefault();e.stopPropagation();
+      var action=profileAction.getAttribute('data-cjx-profile-action')||'';
+      if(action==='account'){
+        var legacyProfile=$('profileInitial');if(legacyProfile)legacyProfile.click();
+      }else if(action==='settings'){
+        var settingsBtn=$('quickConnectedAccounts');if(settingsBtn)settingsBtn.click();else{var legacyProfile=$('profileInitial');if(legacyProfile)legacyProfile.click()}
+      }else if(action==='platform-admin'){
+        try{if(typeof window.openAdminConsole==='function')await window.openAdminConsole();else{var adminBtn=$('openAdminConsole');if(adminBtn)adminBtn.click()}}catch(err){console.warn('Admin console unavailable',err)}
+      }else if(action==='help'){
+        try{openAI()}catch(_){}
+      }else if(action==='signout'){
+        var logout=$('logoutButton');if(logout)logout.click();
+      }
+      var pw=profileAction.closest('.cjx-profile-wrap');if(pw)pw.classList.remove('open');
+      return;
+    }
+    var adminToggle=e.target.closest('[data-cjx-admin-toggle]');
+    if(adminToggle){
+      e.preventDefault();e.stopPropagation();
+      var aw=adminToggle.closest('.cjx-profile-admin'),opening=!!aw&&!aw.classList.contains('open');
+      if(aw)aw.classList.toggle('open',opening);
+      adminToggle.setAttribute('aria-expanded',opening?'true':'false');
+      return;
+    }
+    var profileToggle=e.target.closest('[data-cjx-profile-toggle]');
+    if(profileToggle){
+      e.preventDefault();e.stopPropagation();
+      var pw=profileToggle.closest('.cjx-profile-wrap'),opening=!!pw&&!pw.classList.contains('open');
+      document.querySelectorAll('.cjx-profile-wrap.open').forEach(function(n){n.classList.remove('open')});
+      if(pw)pw.classList.toggle('open',opening);
+      profileToggle.setAttribute('aria-expanded',opening?'true':'false');
+      return;
+    }
+    var previewChoice=e.target.closest('[data-cjx-preview]');"""
+
+if s.count(anchor) != 1:
+    raise SystemExit(f"handler target mismatch: {s.count(anchor)}")
+s = s.replace(anchor, replacement, 1)
+
+marker = "cj-profile-admin-menu-v1"
+if marker not in s:
+    css = """<style id="cj-profile-admin-menu-v1">
+#cjScreenshotHome .cjx-profile-wrap{position:fixed;top:calc(env(safe-area-inset-top) + 18px);right:max(18px,calc((100vw - 920px)/2 + 26px));z-index:118}
+#cjScreenshotHome .cjx-profile-wrap .cjx-profile{position:static!important;top:auto!important;right:auto!important}
+#cjScreenshotHome .cjx-profile-menu{position:absolute;top:calc(100% + 10px);right:0;width:260px;padding:8px;background:rgba(255,255,255,.98);border:1px solid #dfe5ec;border-radius:16px;box-shadow:0 16px 42px rgba(15,23,42,.16);display:none;overflow:visible}
+#cjScreenshotHome .cjx-profile-wrap.open .cjx-profile-menu{display:block}
+#cjScreenshotHome .cjx-profile-menu>button,#cjScreenshotHome .cjx-profile-admin>button,#cjScreenshotHome .cjx-profile-admin-menu>button{width:100%;margin:0;padding:12px;border:0;border-radius:11px;background:transparent;color:#172033;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;font-size:13px;font-weight:750;cursor:pointer}
+#cjScreenshotHome .cjx-profile-menu>button:hover,#cjScreenshotHome .cjx-profile-admin>button:hover,#cjScreenshotHome .cjx-profile-admin-menu>button:hover{background:#f4f8fc}
+#cjScreenshotHome .cjx-profile-menu button i{font-style:normal;color:#7b8798;font-size:18px;line-height:1}
+#cjScreenshotHome .cjx-profile-admin-menu{display:none;margin:2px 0 4px 8px;padding:5px;border-left:2px solid #dce8f6;background:#f8fbff;border-radius:0 10px 10px 0}
+#cjScreenshotHome .cjx-profile-admin.open .cjx-profile-admin-menu{display:block}
+#cjScreenshotHome .cjx-profile-admin-menu>button{font-size:12px;padding:10px}
+#cjScreenshotHome .cjx-profile-admin-menu>button.selected{background:#eaf4ff;color:#176fc7}
+#cjScreenshotHome .cjx-profile-signout{margin-top:5px!important;border-top:1px solid #edf0f4!important;border-radius:0 0 10px 10px!important;color:#b42318!important}
+@media(max-width:560px){#cjScreenshotHome .cjx-profile-wrap{top:calc(env(safe-area-inset-top) + 13px);right:16px}#cjScreenshotHome .cjx-profile-menu{width:min(270px,calc(100vw - 32px))}}
+</style>"""
+    if "</body>" not in s:
+        raise SystemExit("body close missing")
+    s = s.replace("</body>", css + "\n</body>", 1)
+
+p.write_text(s)
+print("PATCH_OK")
+print("profile_toggle", s.count("data-cjx-profile-toggle"))
+print("admin_nested", s.count("data-cjx-admin-toggle"))
+print("setup_switch", s.count("cjx-view-switch"))
