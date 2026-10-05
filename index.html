@@ -1855,7 +1855,7 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
      #70 JOURNEY AI
      ====================================== -->
 <div id="aiLauncher" class="ai-launcher hidden"><button id="journeyAiFab" class="ai-fab"><span class="ai-logo"><svg class="ai-logo-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 12h5M15 8l-2 3M15 16l-2-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>Journey AI</span></button><button id="aiTalkFab" class="ai-talk-fab" aria-label="Talk to Journey AI" title="Talk to Journey AI"><svg class="mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4M9 21h6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button></div>
-<div id="journeyAiPanel" class="ai-panel hidden"><div id="aiHandle" class="ai-handle"></div><div class="ai-head"><div class="ai-head-main"><strong>Journey AI</strong><div id="aiContext" class="ai-context">Dashboard context</div></div><button id="aiOpenWorkspace" class="ai-close ai-workspace-chat-label" aria-label="Open Journey AI Workspace" title="Open Workspace">Workspace</button><button id="aiClose" class="ai-close" aria-label="Close Journey AI"><svg class="close-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div><div id="aiThread" class="ai-thread"></div><div class="ai-quick"><button class="ai-chip" data-prompt="What does this page do?">Explain page</button><button class="ai-chip" data-prompt="What needs my attention today?">Needs attention</button><button class="ai-chip" data-prompt="Compare my boards">Compare boards</button><button class="ai-chip" data-prompt="Show me boards with missing destinations">Missing links</button><button class="ai-chip" data-prompt="What can I improve?">Improve results</button></div><div class="ai-compose"><input id="aiInput" placeholder="Ask Journey AI or give a command..."><button id="aiMic" class="ai-mic" aria-label="Talk to Journey AI" title="Talk to Journey AI"><svg class="mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4M9 21h6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button><button id="aiSend" class="ai-send" aria-label="Send message"><svg class="send-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5l16 7-16 7 3-7-3-7zM7 12h13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
+<div id="journeyAiPanel" class="ai-panel hidden"><div id="aiHandle" class="ai-handle"></div><div class="ai-head"><div class="ai-head-main"><strong>Journey AI</strong><div id="aiContext" class="ai-context">Dashboard context</div></div><button id="aiOpenWorkspace" class="ai-close ai-workspace-chat-label" aria-label="Open Journey AI Workspace" title="Open Workspace">Workspace</button><button id="aiClose" class="ai-close" aria-label="Close Journey AI"><svg class="close-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div><div id="aiThread" class="ai-thread"></div><div class="ai-quick"><button class="ai-chip" data-prompt="What does this page do?">Explain page</button><button class="ai-chip" data-prompt="What needs my attention today?">Needs attention</button><button class="ai-chip" data-prompt="Compare my boards">Compare boards</button><button class="ai-chip" data-prompt="Show me boards with missing destinations">Missing links</button><button class="ai-chip" data-prompt="What can I improve?">Improve results</button></div><div id="aiAttachmentTray" class="ai-attachment-tray hidden" aria-live="polite"></div><div class="ai-compose"><button id="aiAttach" class="ai-attach" type="button" aria-label="Add photo or file" title="Add photo or file"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><div id="aiAttachMenu" class="ai-attach-menu hidden" role="menu"><button type="button" data-ai-attach="photos">Photo Library</button><button type="button" data-ai-attach="camera">Take Photo</button><button type="button" data-ai-attach="file">Upload File</button></div><input id="aiPhotoInput" class="ai-hidden-file" type="file" accept="image/*" multiple><input id="aiCameraInput" class="ai-hidden-file" type="file" accept="image/*" capture="environment"><input id="aiFileInput" class="ai-hidden-file" type="file" accept=".pdf,.txt,.md,.csv,.json,application/pdf,text/plain,text/markdown,text/csv,application/json" multiple><input id="aiInput" placeholder="Ask Journey AI or give a command..."><button id="aiMic" class="ai-mic" aria-label="Talk to Journey AI" title="Talk to Journey AI"><svg class="mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4M9 21h6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button><button id="aiSend" class="ai-send" aria-label="Send message"><svg class="send-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5l16 7-16 7 3-7-3-7zM7 12h13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
 <script>
 /* BUILD 16.0 STARTUP REPAIR: Sections 9-15 runtime logic restored to the application script.
    Fixes startup event binding, Supabase initialization, Sign In, and later-section runtime handlers. */
@@ -9580,6 +9580,8 @@ function isDeterministicCommand(text){
 
 function shouldHandle(text){
   const q=clean(text);
+  const hasAttachments=Array.isArray(window.CJ_CHAT_ATTACHMENTS)&&window.CJ_CHAT_ATTACHMENTS.length>0;
+  if(hasAttachments)return true;
   if(!q)return false;
   return !isDeterministicCommand(q);
 }
@@ -9634,10 +9636,15 @@ function renderOptions(options=defaultOptions()){
 }
 
 async function ask(text,voiceReply=false,opts={}){
-  const prompt=clean(text);if(!prompt||busy)return false;
+  const attachments=Array.isArray(window.CJ_CHAT_ATTACHMENTS)?window.CJ_CHAT_ATTACHMENTS.map(a=>({...a})).slice(0,4):[];
+  const prompt=clean(text)||(attachments.length?'Please analyze the attached item'+(attachments.length===1?'':'s')+' and tell me what is useful or important.':'');
+  if(!prompt||busy)return false;
   busy=true;
   const input=$('aiInput');if(input)input.disabled=true;
-  if(!opts.userAlreadyAdded)appendMessage('user',prompt);
+  if(!opts.userAlreadyAdded){
+    appendMessage('user',prompt);
+    try{window.CJChatAttachmentsRenderSent?.(attachments)}catch(_){}
+  }
   appendMessage('ai','Thinking through your business…','cj366-thinking');
   try{
     const s=await session();
@@ -9647,11 +9654,12 @@ async function ask(text,voiceReply=false,opts={}){
     const r=await fetch(`${url}/functions/v1/${EDGE}`,{
       method:'POST',
       headers:{Authorization:`Bearer ${s.access_token}`,apikey:key,'Content-Type':'application/json'},
-      body:JSON.stringify({prompt,context:buildContext()})
+      body:JSON.stringify({prompt,context:buildContext(),attachments})
     });
     const data=await r.json().catch(()=>({}));
     if(!r.ok||!data?.reply)throw new Error(data?.error||`Journey AI returned ${r.status}.`);
     removeThinking();appendMessage('ai',data.reply);
+    try{window.CJChatAttachmentsClear?.()}catch(_){}
     renderOptions(followUpOptions(prompt));
     return true;
   }catch(error){
@@ -9676,14 +9684,14 @@ document.addEventListener('click',e=>{
     ask(option.dataset.cj366Prompt||option.textContent||'');return;
   }
   const send=e.target.closest?.('#aiSend');if(!send)return;
-  const input=$('aiInput'),text=clean(input?.value);
-  if(!text||!shouldHandle(text))return;
+  const input=$('aiInput'),text=clean(input?.value),hasAttachments=Array.isArray(window.CJ_CHAT_ATTACHMENTS)&&window.CJ_CHAT_ATTACHMENTS.length>0;
+  if((!text&&!hasAttachments)||!shouldHandle(text))return;
   e.preventDefault();e.stopImmediatePropagation();if(input)input.value='';ask(text);
 },true);
 
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter'||e.shiftKey||e.target?.id!=='aiInput')return;
-  const text=clean(e.target.value);if(!text||!shouldHandle(text))return;
+  const text=clean(e.target.value),hasAttachments=Array.isArray(window.CJ_CHAT_ATTACHMENTS)&&window.CJ_CHAT_ATTACHMENTS.length>0;if((!text&&!hasAttachments)||!shouldHandle(text))return;
   e.preventDefault();e.stopImmediatePropagation();e.target.value='';ask(text);
 },true);
 
@@ -13360,5 +13368,131 @@ html,body{overscroll-behavior-y:auto}
 }
 </style>
 <!-- CJ AI CLICKABILITY FIX V4 END -->
+<!-- CJ CHAT ATTACHMENTS V1 START -->
+<style id="cj-chat-attachments-v1">
+#journeyAiPanel .ai-compose{position:relative}
+#journeyAiPanel .ai-attach{
+  width:38px;height:38px;min-width:38px;margin:0;padding:0;border:0;border-radius:50%;
+  display:grid;place-items:center;background:#eef3f8;color:#475569;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+#journeyAiPanel .ai-attach svg{width:20px;height:20px}
+#journeyAiPanel .ai-attach-menu{
+  position:absolute;left:10px;bottom:calc(100% + 8px);z-index:20;
+  width:174px;padding:6px;border:1px solid #dfe5ed;border-radius:14px;background:#fff;
+  box-shadow:0 14px 36px rgba(15,23,42,.16);
+}
+#journeyAiPanel .ai-attach-menu button{
+  width:100%;margin:0;padding:10px 11px;border:0;border-radius:9px;background:transparent;
+  color:#172033;text-align:left;font-size:13px;font-weight:750;
+}
+#journeyAiPanel .ai-attach-menu button:active{background:#f1f5f9}
+#journeyAiPanel .ai-hidden-file{display:none!important}
+#journeyAiPanel .ai-attachment-tray{
+  display:flex;gap:7px;overflow-x:auto;padding:7px 10px 0;background:#fff;
+  scrollbar-width:none;
+}
+#journeyAiPanel .ai-attachment-tray.hidden{display:none!important}
+#journeyAiPanel .ai-attachment-tray::-webkit-scrollbar{display:none}
+#journeyAiPanel .ai-attachment-chip{
+  position:relative;flex:0 0 auto;max-width:154px;min-height:44px;padding:6px 26px 6px 7px;
+  border:1px solid #dfe5ed;border-radius:12px;background:#f8fafc;
+  display:flex;align-items:center;gap:7px;color:#334155;
+}
+#journeyAiPanel .ai-attachment-thumb{
+  width:32px;height:32px;flex:0 0 32px;border-radius:8px;object-fit:cover;background:#e8eef5;
+  display:grid;place-items:center;font-size:10px;font-weight:900;color:#4b647f;
+}
+#journeyAiPanel .ai-attachment-meta{min-width:0}
+#journeyAiPanel .ai-attachment-name{
+  display:block;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:10.5px;line-height:1.15;font-weight:800;
+}
+#journeyAiPanel .ai-attachment-size{display:block;margin-top:2px;font-size:9px;color:#8b95a7}
+#journeyAiPanel .ai-attachment-remove{
+  position:absolute;top:4px;right:4px;width:20px;height:20px;margin:0;padding:0;border:0;border-radius:50%;
+  background:#e8edf3;color:#566274;font-size:15px;line-height:20px;
+}
+#journeyAiPanel .msg.user .cj-sent-attachments{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+#journeyAiPanel .cj-sent-attachment{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 7px;border-radius:9px;
+  background:rgba(255,255,255,.16);font-size:10px;font-weight:700;
+}
+#journeyAiPanel .cj-sent-attachment img{width:34px;height:34px;border-radius:7px;object-fit:cover}
+@media(max-width:520px){
+  #journeyAiPanel .ai-compose{gap:7px}
+  #journeyAiPanel .ai-attach{width:36px;height:36px;min-width:36px}
+}
+</style>
+<script id="cj-chat-attachments-v1-script">
+(function(){
+  'use strict';
+  const MAX_FILES=4,MAX_TOTAL=6*1024*1024,MAX_EACH=3*1024*1024;
+  window.CJ_CHAT_ATTACHMENTS=Array.isArray(window.CJ_CHAT_ATTACHMENTS)?window.CJ_CHAT_ATTACHMENTS:[];
+  const $=id=>document.getElementById(id);
+  const humanSize=n=>n<1024?String(n)+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
+  const isText=f=>/^text\//.test(f.type)||['application/json'].includes(f.type)||/\.(txt|md|csv|json)$/i.test(f.name);
+  const readDataUrl=f=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=reject;r.readAsDataURL(f)});
+  const readText=f=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=reject;r.readAsText(f)});
+  function render(){
+    const tray=$('aiAttachmentTray');if(!tray)return;
+    tray.innerHTML='';
+    const items=window.CJ_CHAT_ATTACHMENTS;
+    tray.classList.toggle('hidden',!items.length);
+    items.forEach((a,i)=>{
+      const chip=document.createElement('div');chip.className='ai-attachment-chip';
+      const visual=a.kind==='image'&&a.data_url?'<img class="ai-attachment-thumb" src="'+a.data_url+'" alt="">':'<span class="ai-attachment-thumb">'+(a.kind==='pdf'?'PDF':'FILE')+'</span>';
+      chip.innerHTML=visual+'<span class="ai-attachment-meta"><span class="ai-attachment-name"></span><span class="ai-attachment-size"></span></span><button class="ai-attachment-remove" type="button" aria-label="Remove attachment">×</button>';
+      chip.querySelector('.ai-attachment-name').textContent=a.name;
+      chip.querySelector('.ai-attachment-size').textContent=humanSize(a.size||0);
+      chip.querySelector('button').addEventListener('click',()=>{window.CJ_CHAT_ATTACHMENTS.splice(i,1);render()});
+      tray.appendChild(chip);
+    });
+  }
+  async function addFiles(fileList){
+    const files=[...(fileList||[])];
+    let total=window.CJ_CHAT_ATTACHMENTS.reduce((n,a)=>n+(a.size||0),0);
+    for(const f of files){
+      if(window.CJ_CHAT_ATTACHMENTS.length>=MAX_FILES)break;
+      if(f.size>MAX_EACH||total+f.size>MAX_TOTAL){alert('Each attachment must be 3 MB or smaller, with a 6 MB total per message.');continue}
+      const kind=f.type.startsWith('image/')?'image':f.type==='application/pdf'?'pdf':isText(f)?'text':'file';
+      if(!['image','pdf','text'].includes(kind)){alert('Journey AI currently supports images, PDFs, TXT, Markdown, CSV and JSON files.');continue}
+      const item={id:'cja_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:f.name,type:f.type||'application/octet-stream',size:f.size,kind};
+      if(kind==='text')item.text=(await readText(f)).slice(0,50000);
+      else item.data_url=await readDataUrl(f);
+      window.CJ_CHAT_ATTACHMENTS.push(item);total+=f.size;
+    }
+    render();
+  }
+  window.CJChatAttachmentsClear=function(){window.CJ_CHAT_ATTACHMENTS=[];render()};
+  window.CJChatAttachmentsRenderSent=function(items){
+    if(!items?.length)return;
+    const msgs=[...document.querySelectorAll('#aiThread .msg.user')],last=msgs[msgs.length-1];if(!last)return;
+    const row=document.createElement('div');row.className='cj-sent-attachments';
+    items.forEach(a=>{
+      const x=document.createElement('span');x.className='cj-sent-attachment';
+      if(a.kind==='image'&&a.data_url){const img=document.createElement('img');img.src=a.data_url;img.alt='';x.appendChild(img)}
+      const label=document.createElement('span');label.textContent=a.name;x.appendChild(label);row.appendChild(x);
+    });
+    last.appendChild(row);
+  };
+  function boot(){
+    const attach=$('aiAttach'),menu=$('aiAttachMenu'),photos=$('aiPhotoInput'),camera=$('aiCameraInput'),file=$('aiFileInput');
+    if(!attach||attach.dataset.bound)return;
+    attach.dataset.bound='1';
+    attach.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();menu?.classList.toggle('hidden')});
+    menu?.addEventListener('click',e=>{
+      const action=e.target.closest('[data-ai-attach]')?.dataset.aiAttach;if(!action)return;
+      e.preventDefault();e.stopPropagation();menu.classList.add('hidden');
+      if(action==='photos')photos?.click();else if(action==='camera')camera?.click();else file?.click();
+    });
+    [photos,camera,file].forEach(input=>input?.addEventListener('change',async()=>{await addFiles(input.files);input.value=''}));
+    document.addEventListener('click',e=>{if(!e.target.closest('#aiAttachMenu')&&!e.target.closest('#aiAttach'))menu?.classList.add('hidden')});
+    render();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+</script>
+<!-- CJ CHAT ATTACHMENTS V1 END -->
 </body>
 </html>
