@@ -10,12 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect profile and admin preview hooks
+      - name: Inspect exact profile menu targets
         shell: bash
         run: |
-          echo "=== HEADER CSS ==="
-          grep -n -m 80 -E "cjx-view-switch|cjx-view-button|cjx-view-menu|cjx-profile|accountPanel|account-circle|profile" index.html || true
-          echo "=== CHROME / HANDLERS ==="
-          sed -n '11145,11260p' index.html
-          echo "=== ACCOUNT PANEL ==="
-          grep -n -m 100 -E 'id="accountPanel"|openAccount|accountPanel|settings|Sign Out|sign out|Help|Support|Workspace' index.html || true
+          echo "=== ACCOUNT HTML ==="
+          sed -n '1775,1845p' index.html
+          echo "=== ACCOUNT FUNCTIONS ==="
+          grep -n -m 80 -E "function .*Account|function .*account|accountPanel|accountClose|accountSign|signOut|logout|logOut" index.html || true
+          echo "=== CJX CLICK HANDLER ==="
+          sed -n '11220,11290p' index.html
+          echo "=== CJX CSS ==="
+          sed -n '11070,11130p' index.html
