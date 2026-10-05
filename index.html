@@ -11161,7 +11161,7 @@ button.primary,button.secondary,.primary,.secondary{
         var label=preview==='setup'?'Setup':(preview==='owner'?'Owner':'Admin');
         controls+='<div class="cjx-view-switch"><button class="cjx-view-button" type="button" data-cjx-view-toggle aria-expanded="false" aria-label="Change preview view"><span>View:</span><b>'+label+'</b><i>⌄</i></button><div class="cjx-view-menu" role="menu"><button type="button" data-cjx-preview="admin"'+(preview==='admin'?' class="selected"':'')+'>Main Admin View</button><button type="button" data-cjx-preview="owner"'+(preview==='owner'?' class="selected"':'')+'>Owner View</button><button type="button" data-cjx-preview="setup"'+(preview==='setup'?' class="selected"':'')+'>Setup / Onboarding View</button></div></div>';
       }
-      controls+='<button class="cjx-profile" type="button" data-cjh="account" aria-label="Profile">'+svg('profile')+'</button>';
+      if(showProfile)controls+='<button class="cjx-profile" type="button" data-cjh="account" aria-label="Profile">'+svg('profile')+'</button>';
     }
     return controls+'<div class="cjx-ai-dock"><button class="cjx-ai-pill" type="button" data-cjx-ai><span class="cjx-ai-j">J</span>Journey AI</button><button class="cjx-mic" type="button" data-cjx-ai aria-label="Voice Journey AI">'+svg('mic')+'</button></div><nav class="cjx-bottom" aria-label="Primary"><button class="active" type="button" data-cjh-nav="home">'+svg('home')+'<span>Home</span></button><button type="button" data-cjh-nav="journeys"><span class="dots-icon cjx-brand-nav-icon">'+svg('dots')+'</span><span>Journeys</span></button><button type="button" data-cjh-nav="explore">'+svg('explore')+'<span>Explore</span></button></nav>';
   }
