@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect current index targets
+      - name: Inspect current setup and dashboard hooks
         shell: bash
         run: |
-          echo "=== SETUP RANGE ==="
-          sed -n '11080,11320p' index.html
-          echo "=== DASHBOARD TERMS ==="
-          grep -ni -m 80 -E "important numbers|This Week|Business Records|Top 3|Priorities|SmartBoards|Performance|Control Center|profileInitial|account-circle|rolePreview|Platform Admin|platformAdmin|isPlatformAdmin" index.html || true
-          echo "=== ROUTE FUNCTIONS ==="
-          grep -ni -m 80 -E "function .*dashboard|function .*setup|showOnly\(|openDashboard|renderDashboard|renderSetup|setup.*render|dashboard.*render|dashboardButton|trial.*start|start.*trial" index.html || true
+          echo "=== SETUP JS ==="
+          sed -n '11120,11270p' index.html
+          echo "=== LATEST TAIL ==="
+          sed -n '12450,12884p' index.html
+          echo "=== CJX HOOKS ==="
+          grep -ni -m 120 -E "cjScreenshotHome|cjx-|data-cjh|data-cjx|render.*CJ|setup.*home|home.*setup|dashboard.*home|admin.*view|profile.*icon|account.*panel" index.html || true
