@@ -1,0 +1,16 @@
+name: CJ Inspect Login Logo
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-inspect-login-logo.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect login logo CSS
+        shell: bash
+        run: |
+          grep -n -A45 -B5 -m 1 "cjExactLoginLogoV2Styles" index.html
