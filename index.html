@@ -14120,5 +14120,47 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 })();
 </script>
 <!-- CJ EXPLORE FEATURE DIRECTORY V1 END -->
+<!-- CJ AI DOCK NAV-ANCHOR V6 START -->
+<style id="cj-ai-dock-nav-anchor-v6">
+/* Screenshot-verified position lock.
+   JS below anchors the dock to the ACTUAL rendered nav-panel top edge,
+   so iPhone/Safari safe-area or browser chrome cannot lift it too high. */
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock,
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-ai-dock{
+  transform:none!important;
+}
+</style>
+<script id="cj-ai-dock-nav-anchor-v6-script">
+(function(){
+  'use strict';
+  function alignDock(){
+    const home=document.getElementById('cjScreenshotHome');
+    const dock=home?.querySelector('.cjx-ai-dock');
+    const nav=home?.querySelector('.cjx-bottom');
+    if(!dock||!nav)return;
+    const rect=nav.getBoundingClientRect();
+    const viewportH=window.visualViewport?.height||window.innerHeight;
+    const viewportTop=window.visualViewport?.offsetTop||0;
+    const navTopInVisual=rect.top-viewportTop;
+    const gap=3;
+    const bottom=Math.max(0,viewportH-navTopInVisual+gap);
+    dock.style.setProperty('bottom',bottom+'px','important');
+    dock.style.setProperty('transform','none','important');
+  }
+  function schedule(){requestAnimationFrame(()=>requestAnimationFrame(alignDock))}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+  window.addEventListener('resize',schedule,{passive:true});
+  window.addEventListener('orientationchange',schedule,{passive:true});
+  window.addEventListener('focus',schedule,{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
+  window.visualViewport?.addEventListener('resize',schedule,{passive:true});
+  window.visualViewport?.addEventListener('scroll',schedule,{passive:true});
+  const mo=new MutationObserver(schedule);
+  const root=document.getElementById('dashboardApp');
+  if(root)mo.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
+  window.CJAlignAiDockToNav=alignDock;
+})();
+</script>
+<!-- CJ AI DOCK NAV-ANCHOR V6 END -->
 </body>
 </html>
