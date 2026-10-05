@@ -1,0 +1,46 @@
+name: CJ Patch Admin View Header
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-patch-admin-view.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Patch admin switcher/profile behavior
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("index.html")
+          s=p.read_text()
+          old="""      controls+='<button class="cjx-profile" type="button" data-cjh="account" aria-label="Profile">'+svg('profile')+'</button>';"""
+          new="""      if(showProfile)controls+='<button class="cjx-profile" type="button" data-cjh="account" aria-label="Profile">'+svg('profile')+'</button>';"""
+          n=s.count(old)
+          if n != 1:
+              raise SystemExit(f"Expected exactly 1 profile-control target, found {n}")
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          print("patched profile control:", n)
+          print("chrome(false) count:", s.count("chrome(false)"))
+          print("chrome(true) count:", s.count("chrome(true)"))
+          print("admin preview key count:", s.count("cj_admin_preview_v1"))
+          PY
+          git diff --check
+          echo "=== HEADER VERIFY ==="
+          grep -n -A18 -B3 "function chrome(showProfile)" index.html
+          echo "=== PAGE CHROME CALLS ==="
+          grep -n "chrome(false)\|chrome(true)" index.html
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "createjourney-dev"
+          git config user.email "dev@gocreatejourney.com"
+          git add index.html
+          git commit -m "Fix admin switcher and setup profile visibility"
+          git push origin HEAD:main
