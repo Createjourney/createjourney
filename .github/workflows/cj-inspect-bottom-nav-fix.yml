@@ -1,17 +1,129 @@
-name: CJ Inspect Bottom Nav Fix
+name: CJ Fix Bottom Nav Visibility
 on:
   push:
     paths:
       - '.github/workflows/cj-inspect-bottom-nav-fix.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
-  inspect:
+  patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect current bottom-nav CSS
+        with:
+          fetch-depth: 1
+      - name: Fix bottom nav visibility and AI dock spacing
+        shell: bash
         run: |
-          grep -n -A70 -B15 "cj-bottom-nav-visibility-v1" index.html
-          echo "=== BASE RULES ==="
-          grep -n -m 80 -E "\.cjx-bottom\{|\.cjx-bottom button|\.cjx-ai-dock\{|\.cjx-mic\{" index.html
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path("index.html")
+          s=p.read_text()
+          pattern=r'<style id="cj-bottom-nav-visibility-v1">.*?</style>'
+          replacement='''<style id="cj-bottom-nav-visibility-v1">
+#cjScreenshotHome .cjx-ai-dock{
+  bottom:calc(env(safe-area-inset-bottom) + 88px)!important;
+}
+#cjScreenshotHome .cjx-bottom{
+  height:78px!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+  align-items:start!important;
+}
+#cjScreenshotHome .cjx-bottom button{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  align-self:start!important;
+  height:54px!important;
+  min-height:54px!important;
+  padding:5px 0!important;
+  gap:3px!important;
+  color:#198df3!important;
+}
+#cjScreenshotHome .cjx-bottom button>svg{
+  width:27px!important;
+  height:27px!important;
+  color:#198df3!important;
+  stroke:#198df3!important;
+  stroke-width:2.2!important;
+}
+#cjScreenshotHome .cjx-bottom .dots-icon,
+#cjScreenshotHome .cjx-bottom .cjx-brand-nav-icon{
+  width:42px!important;
+  height:33px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  color:#198df3!important;
+}
+#cjScreenshotHome .cjx-bottom .cjx-brand-nav-icon svg{
+  width:33px!important;
+  height:33px!important;
+  color:#198df3!important;
+  fill:#198df3!important;
+  stroke:none!important;
+}
+#cjScreenshotHome .cjx-bottom button>span:last-child{
+  display:block!important;
+  margin:0!important;
+  color:#198df3!important;
+  opacity:1!important;
+  visibility:visible!important;
+  line-height:1.05!important;
+}
+#cjScreenshotHome .cjx-mic{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#cjScreenshotHome .cjx-mic svg{
+  width:29px!important;
+  height:29px!important;
+  display:block!important;
+  margin:0!important;
+  transform:none!important;
+}
+</style>'''
+          ns,n=re.subn(pattern,replacement,s,count=1,flags=re.S)
+          if n!=1:
+              raise SystemExit(f"Expected one bottom-nav override block, found {n}")
+          p.write_text(ns)
+          print("PATCH_OK")
+          PY
+
+          git diff --check
+
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("index.html").read_text()
+          start=s.index('<style id="cj-bottom-nav-visibility-v1">')
+          end=s.index('</style>',start)+8
+          b=s[start:end]
+          checks={
+            "dock_above_nav_with_gap":"+ 88px" in b,
+            "nav_line_height_preserved":"height:78px!important" in b,
+            "nav_content_moved_up":"height:54px!important" in b and "align-self:start!important" in b,
+            "labels_forced_visible":"visibility:visible!important" in b and "opacity:1!important" in b,
+            "all_nav_blue":"color:#198df3!important" in b,
+            "home_explore_larger":"width:27px!important" in b,
+            "journeys_mark_larger":"width:33px!important" in b,
+            "mic_centered":"align-items:center!important" in b and "justify-content:center!important" in b,
+            "mic_larger":"width:29px!important" in b,
+          }
+          for k,v in checks.items():
+              print(k, "PASS" if v else "FAIL")
+          if not all(checks.values()):
+              raise SystemExit("verification failed")
+          print(b)
+          PY
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "createjourney-dev"
+          git config user.email "dev@gocreatejourney.com"
+          git add index.html
+          git commit -m "Fix bottom navigation visibility and AI dock spacing"
+          git push origin HEAD:main
