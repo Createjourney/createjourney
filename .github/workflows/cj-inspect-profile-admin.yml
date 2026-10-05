@@ -1,0 +1,21 @@
+name: CJ Inspect Profile Admin Menu
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-inspect-profile-admin.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect profile and admin preview hooks
+        shell: bash
+        run: |
+          echo "=== HEADER CSS ==="
+          grep -n -m 80 -E "cjx-view-switch|cjx-view-button|cjx-view-menu|cjx-profile|accountPanel|account-circle|profile" index.html || true
+          echo "=== CHROME / HANDLERS ==="
+          sed -n '11145,11260p' index.html
+          echo "=== ACCOUNT PANEL ==="
+          grep -n -m 100 -E 'id="accountPanel"|openAccount|accountPanel|settings|Sign Out|sign out|Help|Support|Workspace' index.html || true
