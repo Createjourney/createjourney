@@ -14139,11 +14139,11 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
     const nav=home?.querySelector('.cjx-bottom');
     if(!dock||!nav)return;
     const rect=nav.getBoundingClientRect();
-    const viewportH=window.visualViewport?.height||window.innerHeight;
-    const viewportTop=window.visualViewport?.offsetTop||0;
-    const navTopInVisual=rect.top-viewportTop;
+    /* Fixed-position bottom offsets are resolved against the layout viewport.
+       Using visualViewport here lifted the dock too high inside iPhone in-app Safari. */
+    const viewportH=window.innerHeight;
     const gap=3;
-    const bottom=Math.max(0,viewportH-navTopInVisual+gap);
+    const bottom=Math.max(0,viewportH-rect.top+gap);
     dock.style.setProperty('bottom',bottom+'px','important');
     dock.style.setProperty('transform','none','important');
   }
