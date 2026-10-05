@@ -1,0 +1,17 @@
+name: CJ Inspect Bottom Nav Fix
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-inspect-bottom-nav-fix.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect current bottom-nav CSS
+        run: |
+          grep -n -A70 -B15 "cj-bottom-nav-visibility-v1" index.html
+          echo "=== BASE RULES ==="
+          grep -n -m 80 -E "\.cjx-bottom\{|\.cjx-bottom button|\.cjx-ai-dock\{|\.cjx-mic\{" index.html
