@@ -10,9 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect exact handlers
+      - name: Inspect route handler tail
         shell: bash
         run: |
-          sed -n '11218,11258p' index.html
-          echo "=== ACCOUNT OPEN/CLOSE ==="
-          grep -n -m 30 -E "profileInitial.*addEventListener|closeAccountPanel.*addEventListener|logoutButton.*addEventListener|openAccountPanel|renderAccount|accountPanel.classList" index.html || true
+          sed -n '11255,11320p' index.html
