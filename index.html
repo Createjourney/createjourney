@@ -13505,5 +13505,333 @@ html,body{overscroll-behavior-y:auto}
 }
 </style>
 <!-- CJ AI DOCK POSITION ONLY V5 END -->
+<!-- CJ JOURNEYS COMMAND CENTER V1 START -->
+<style id="cj-journeys-command-center-v1">
+#cjJourneysCommandCenter{
+  position:fixed;inset:0;z-index:230;background:#f4f7fb;color:#111827;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+}
+#cjJourneysCommandCenter.cjj-hidden{display:none!important}
+#cjJourneysCommandCenter *{box-sizing:border-box}
+.cjj-shell{width:min(100%,820px);margin:0 auto;padding:18px 18px calc(34px + env(safe-area-inset-bottom))}
+.cjj-top{
+  position:sticky;top:0;z-index:5;margin:0 -18px 16px;padding:calc(9px + env(safe-area-inset-top)) 18px 12px;
+  background:rgba(244,247,251,.96);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid #e2e8f0;display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px
+}
+.cjj-back,.cjj-add{
+  border:0;margin:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent
+}
+.cjj-back{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid #dce3eb;color:#24334a;font-size:26px;line-height:1;display:grid;place-items:center}
+.cjj-title h1{margin:0;font-size:25px;line-height:1.06;letter-spacing:-.75px;font-weight:900}
+.cjj-title p{margin:4px 0 0;color:#788397;font-size:11.5px;font-weight:650}
+.cjj-add{min-height:40px;padding:0 13px;border-radius:12px;background:#111827;color:#fff;font-size:12px;font-weight:850}
+.cjj-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.cjj-stat{background:#fff;border:1px solid #e0e6ee;border-radius:16px;padding:13px 10px;min-width:0}
+.cjj-stat strong{display:block;font-size:20px;line-height:1;font-weight:900;color:#1f86e5}
+.cjj-stat span{display:block;margin-top:5px;font-size:9.5px;line-height:1.25;color:#7a8597;font-weight:750}
+.cjj-section{margin-top:16px}
+.cjj-section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:8px}
+.cjj-section-head h2{margin:0;font-size:20px;line-height:1.08;letter-spacing:-.45px;font-weight:900}
+.cjj-section-head p{margin:3px 0 0;color:#7c8798;font-size:11px}
+.cjj-section-head button{border:0;background:transparent;color:#2e81d6;font-size:11px;font-weight:800;padding:6px}
+.cjj-card{background:#fff;border:1px solid #dfe6ee;border-radius:18px;box-shadow:0 4px 16px rgba(15,23,42,.025)}
+.cjj-board-list{display:grid;gap:10px}
+.cjj-board{padding:14px}
+.cjj-board-top{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start}
+.cjj-select{width:20px;height:20px;margin:4px 0 0;accent-color:#2d86df}
+.cjj-board-icon{width:44px;height:44px;border-radius:12px;background:#eaf3ff;color:#2a82d9;display:grid;place-items:center}
+.cjj-board-icon svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9}
+.cjj-board-copy{min-width:0}
+.cjj-board-copy strong{display:block;font-size:15px;font-weight:900;line-height:1.15}
+.cjj-board-meta{margin-top:3px;color:#7b8596;font-size:10.5px;font-weight:650}
+.cjj-status{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:850;background:#e9f8ef;color:#16844b}
+.cjj-status.paused{background:#fff5df;color:#9a6a15}
+.cjj-status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.cjj-journey{
+  margin:12px 0 10px;padding:10px 11px;border-radius:12px;background:#f7f9fc;
+  color:#26364b;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.cjj-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+.cjj-metric{padding:8px;border:1px solid #ebeff4;border-radius:11px;background:#fff}
+.cjj-metric b{display:block;font-size:13px;font-weight:900}
+.cjj-metric span{display:block;margin-top:2px;font-size:8.7px;color:#8993a3;font-weight:750}
+.cjj-board-actions{display:flex;gap:7px;flex-wrap:wrap}
+.cjj-board-actions button,.cjj-bulk-actions button,.cjj-ai-actions button{
+  min-height:36px;margin:0;padding:0 11px;border-radius:11px;border:1px solid #dce4ed;background:#fff;color:#334155;font-size:10.5px;font-weight:800
+}
+.cjj-board-actions button.primary,.cjj-bulk-actions button.primary,.cjj-ai-actions button.primary{background:#172033;border-color:#172033;color:#fff}
+.cjj-bulk{padding:14px}
+.cjj-bulk-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.cjj-bulk-title strong{font-size:13px;font-weight:900}
+.cjj-bulk-title span{font-size:10px;color:#7a8597}
+.cjj-bulk-actions{display:flex;gap:7px;flex-wrap:wrap}
+.cjj-ai{padding:15px;background:linear-gradient(180deg,#111827,#0d1521);color:#fff;border:0}
+.cjj-ai-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cjj-ai-head strong{font-size:15px;font-weight:900}
+.cjj-ai-badge{padding:5px 8px;border-radius:999px;background:#1f8be9;color:#fff;font-size:9px;font-weight:850}
+.cjj-ai p{margin:8px 0 11px;color:#d3dbe6;font-size:11.5px;line-height:1.48}
+.cjj-ai-actions{display:flex;gap:7px;flex-wrap:wrap}
+.cjj-ai-actions button{background:#fff;border-color:#fff;color:#1f2a3a}
+.cjj-ai-actions button.primary{background:#3988d9;border-color:#3988d9;color:#fff}
+.cjj-control-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.cjj-control{padding:13px;display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center}
+.cjj-control-icon{width:38px;height:38px;border-radius:11px;background:#edf5ff;color:#2e83d7;display:grid;place-items:center;font-size:17px;font-weight:900}
+.cjj-control strong{display:block;font-size:12px;font-weight:900}
+.cjj-control span{display:block;margin-top:2px;font-size:9.5px;color:#7d8797;line-height:1.3}
+.cjj-control i{font-style:normal;color:#7c8795;font-size:20px}
+.cjj-empty{padding:22px;text-align:center;color:#7b8596;font-size:12px}
+body.cjj-open #dashboardApp #cjScreenshotHome .cjx-ai-dock,
+body.cjj-open #dashboardApp #cjScreenshotHome .cjx-bottom,
+body.cjj-open #dashboardApp .ai-launcher,
+body.cjj-open .cjh-bottom-nav{visibility:hidden!important;pointer-events:none!important}
+@media(max-width:560px){
+  .cjj-shell{padding-left:14px;padding-right:14px}.cjj-top{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}
+  .cjj-summary{grid-template-columns:repeat(2,1fr)}
+  .cjj-control-grid{grid-template-columns:1fr 1fr}
+  .cjj-metrics{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+
+<div id="cjJourneysCommandCenter" class="cjj-hidden" aria-hidden="true">
+  <div class="cjj-shell">
+    <header class="cjj-top">
+      <button class="cjj-back" type="button" data-cjj-back aria-label="Back to Home">‹</button>
+      <div class="cjj-title"><h1>Journeys &amp; SmartBoards</h1><p>Control every customer touchpoint from one place.</p></div>
+      <button class="cjj-add" type="button" data-cjj-add>Add Board</button>
+    </header>
+    <div id="cjjContent"></div>
+  </div>
+</div>
+
+<script id="cj-journeys-command-center-v1-script">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const state={selected:new Set()};
+
+function localStateBoards(){
+  try{
+    const raw=JSON.parse(localStorage.getItem('createjourney_build3_state_v1')||'{}');
+    return Array.isArray(raw.boards)?raw.boards:[];
+  }catch(_){return[]}
+}
+function ownerBoards(){
+  try{
+    const d=window.CJBuild29?.ownerData?.();
+    if(Array.isArray(d?.boards)&&d.boards.length)return d.boards;
+  }catch(_){}
+  return localStateBoards().map(b=>({
+    id:b.backendId||b.id,source_key:b.id,name:b.name,status:b.active===false?'paused':'active',
+    board_kind:b.boardKind||b.kind||'smartboard',placement_label:b.location||b.placementLabel||'',
+    actions:b.actions||[],analytics:b.analytics||{},assignedTo:b.assignedTo||null,destinations:b.destinations||{}
+  }));
+}
+function localFor(b){
+  const local=localStateBoards();
+  return local.find(x=>String(x.id)===String(b.source_key||b.id)||String(x.backendId||'')===String(b.id))||{};
+}
+function boardData(){
+  return ownerBoards().map(b=>{
+    const l=localFor(b),a=l.analytics||b.analytics||{};
+    const taps=Number(a.taps||0),actions=Number(a.actionsTaken??a.actions??0),visitors=Number(a.visitors||0),bookings=Number(a.confirmedBookings||a.bookingsConfirmed||0);
+    return {
+      ...b,
+      key:String(b.source_key||l.id||b.id||''),
+      name:b.name||l.name||'SmartBoard',
+      status:String(b.status||(l.active===false?'paused':'active')).toLowerCase(),
+      kind:b.board_kind||l.boardKind||l.kind||'smartboard',
+      placement:b.placement_label||l.location||l.placementLabel||'Placement not set',
+      journey:(l.actions||b.actions||[]),
+      assigned:l.assignedTo||b.assignedTo||null,
+      taps,actions,visitors,bookings,
+      conversion:taps>0?Math.round((bookings/taps)*1000)/10:null
+    };
+  });
+}
+function totals(rows){
+  const active=rows.filter(b=>b.status==='active').length;
+  const taps=rows.reduce((n,b)=>n+b.taps,0);
+  const bookings=rows.reduce((n,b)=>n+b.bookings,0);
+  const needs=rows.filter(b=>b.status!=='active'||!b.journey?.length).length;
+  return{active,taps,bookings,needs};
+}
+function boardIcon(){
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="4" width="11" height="16" rx="2"/><path d="M9.5 8h5M9.5 11.5h5M9.5 15h3.5"/></svg>';
+}
+function render(){
+  const c=$('cjjContent');if(!c)return;
+  const rows=boardData(),t=totals(rows);
+  const best=[...rows].sort((a,b)=>b.taps-a.taps)[0];
+  const cards=rows.map(b=>`
+    <article class="cjj-card cjj-board">
+      <div class="cjj-board-top">
+        <input class="cjj-select" type="checkbox" data-cjj-select="${esc(b.key)}" ${state.selected.has(b.key)?'checked':''} aria-label="Select ${esc(b.name)}">
+        <div style="display:flex;gap:10px;min-width:0">
+          <span class="cjj-board-icon">${boardIcon()}</span>
+          <div class="cjj-board-copy"><strong>${esc(b.name)}</strong><div class="cjj-board-meta">${esc(String(b.kind).toLowerCase()==='miniboard'?'MiniBoard':'SmartBoard')} · ${esc(b.placement)}${b.assigned?' · Assigned':''}</div></div>
+        </div>
+        <span class="cjj-status ${b.status==='active'?'':'paused'}">${esc(b.status==='active'?'Active':'Paused')}</span>
+      </div>
+      <div class="cjj-journey">${esc(b.journey?.length?b.journey.join(' → '):'No Journey configured')}</div>
+      <div class="cjj-metrics">
+        <div class="cjj-metric"><b>${b.taps}</b><span>Taps</span></div>
+        <div class="cjj-metric"><b>${b.visitors}</b><span>Visitors</span></div>
+        <div class="cjj-metric"><b>${b.bookings||'—'}</b><span>Bookings</span></div>
+        <div class="cjj-metric"><b>${b.conversion==null?'—':b.conversion+'%'}</b><span>Conversion</span></div>
+      </div>
+      <div class="cjj-board-actions">
+        <button class="primary" type="button" data-cjj-manage="${esc(b.key)}">Manage</button>
+        <button type="button" data-cjj-performance="${esc(b.name)}">Performance</button>
+        <button type="button" data-cjj-test="${esc(b.key)}">Test Journey</button>
+        <button type="button" data-cjj-ai="${esc(b.name)}">Ask Journey AI</button>
+      </div>
+    </article>`).join('');
+
+  c.innerHTML=`
+    <section class="cjj-summary">
+      <div class="cjj-stat"><strong>${rows.length}</strong><span>Total boards</span></div>
+      <div class="cjj-stat"><strong>${t.active}</strong><span>Active boards</span></div>
+      <div class="cjj-stat"><strong>${t.taps}</strong><span>Total taps</span></div>
+      <div class="cjj-stat"><strong>${t.needs}</strong><span>Need attention</span></div>
+    </section>
+
+    <section class="cjj-section">
+      <div class="cjj-section-head"><div><h2>SmartBoard Network</h2><p>Journeys, status, placement and performance at a glance.</p></div><button type="button" data-cjj-refresh>Refresh</button></div>
+      <div class="cjj-board-list">${cards||'<div class="cjj-card cjj-empty">No SmartBoards are connected yet.</div>'}</div>
+    </section>
+
+    <section class="cjj-section">
+      <div class="cjj-section-head"><div><h2>Bulk Management</h2><p>Control multiple boards without editing them one at a time.</p></div></div>
+      <div class="cjj-card cjj-bulk">
+        <div class="cjj-bulk-title"><strong>${state.selected.size} board${state.selected.size===1?'':'s'} selected</strong><span>Select boards above</span></div>
+        <div class="cjj-bulk-actions">
+          <button class="primary" type="button" data-cjj-bulk="journey">Apply Journey</button>
+          <button type="button" data-cjj-bulk="pause">Pause / Activate</button>
+          <button type="button" data-cjj-bulk="assign">Assign Team</button>
+          <button type="button" data-cjj-bulk="booking">Change Booking Link</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cjj-section">
+      <div class="cjj-section-head"><div><h2>Journey AI Recommendations</h2><p>Evidence-backed opportunities, not generic advice.</p></div></div>
+      <div class="cjj-card cjj-ai">
+        <div class="cjj-ai-head"><strong>Journey AI</strong><span class="cjj-ai-badge">BUSINESS PARTNER</span></div>
+        <p>${rows.length?esc(best?.name||'Your top board')+' currently leads your available board activity. I can compare Journeys, identify weak steps, find missing destinations and recommend the highest-value next move using verified CreateJourney data.':'Connect your first SmartBoard and Journey AI will begin building board-level recommendations.'}</p>
+        <div class="cjj-ai-actions">
+          <button class="primary" type="button" data-cjj-ai-global="opportunities">Show opportunities</button>
+          <button type="button" data-cjj-ai-global="compare">Compare boards</button>
+          <button type="button" data-cjj-ai-global="weekly">Build weekly plan</button>
+          <button type="button" data-cjj-ai-global="journeys">Improve Journeys</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cjj-section">
+      <div class="cjj-section-head"><div><h2>SmartBoard Controls</h2><p>Fast access to deeper owner tools.</p></div></div>
+      <div class="cjj-control-grid">
+        ${[
+          ['Journey Builder','Reorder Pay, Review, Book and other actions.','builder'],
+          ['Destinations','Manage booking, review, payment and custom URLs.','destinations'],
+          ['Assignments','Connect boards to employees, stations or locations.','assignments'],
+          ['Customer Logic','Returning visitor rules, prompts and review cooldowns.','logic'],
+          ['Performance','Compare boards, conversion and confirmed outcomes.','performance'],
+          ['Board Settings','Rename, activate, reassign, test or reset a board.','settings']
+        ].map(x=>`<button class="cjj-card cjj-control" type="button" data-cjj-control="${x[2]}"><span class="cjj-control-icon">J</span><span><strong>${x[0]}</strong><span>${x[1]}</span></span><i>›</i></button>`).join('')}
+      </div>
+    </section>`;
+}
+function open(){
+  const p=$('cjJourneysCommandCenter');if(!p)return;
+  p.classList.remove('cjj-hidden');p.setAttribute('aria-hidden','false');document.body.classList.add('cjj-open');
+  state.selected.clear();render();p.scrollTop=0;
+  try{window.CJBuild29?.refresh?.()}catch(_){}
+  setTimeout(render,500);
+}
+function close(){
+  const p=$('cjJourneysCommandCenter');if(!p)return;
+  p.classList.add('cjj-hidden');p.setAttribute('aria-hidden','true');document.body.classList.remove('cjj-open');
+}
+function openAI(prompt){
+  close();
+  const visible=document.getElementById('journeyAiFab');
+  if(visible){visible.click();setTimeout(()=>{const input=$('aiInput');if(input){input.value=prompt;input.focus()}},120);return}
+  try{window.CJJourneyPartnerAsk?.(prompt)}catch(_){}
+}
+function selectedNames(){
+  const rows=boardData();return rows.filter(b=>state.selected.has(b.key)).map(b=>b.name);
+}
+function existingClick(id){const n=$(id);if(n){n.click();return true}return false}
+
+document.addEventListener('click',e=>{
+  const nav=e.target.closest?.('[data-cjh-nav="journeys"]');
+  if(nav){
+    e.preventDefault();e.stopImmediatePropagation();open();return;
+  }
+  const back=e.target.closest?.('[data-cjj-back]');
+  if(back){e.preventDefault();close();window.scrollTo({top:0,behavior:'smooth'});return}
+  if(e.target.closest?.('[data-cjj-add]')){e.preventDefault();close();if(!existingClick('quickAddBoard'))document.querySelector('[data-cj2829-addmini]')?.click();return}
+  if(e.target.closest?.('[data-cjj-refresh]')){render();try{window.CJBuild29?.refresh?.()}catch(_){}setTimeout(render,500);return}
+
+  const sel=e.target.closest?.('[data-cjj-select]');
+  if(sel){const id=sel.dataset.cjjSelect;if(sel.checked)state.selected.add(id);else state.selected.delete(id);render();return}
+
+  const manage=e.target.closest?.('[data-cjj-manage]');
+  if(manage){const id=manage.dataset.cjjManage;close();const btn=document.querySelector('[data-cj2829-board="'+CSS.escape(id)+'"]');if(btn){btn.click();return}if(!existingClick('quickEditJourney'))existingClick('viewAllBoards');return}
+
+  const perf=e.target.closest?.('[data-cjj-performance]');
+  if(perf){openAI('Compare '+perf.dataset.cjjPerformance+' against my other SmartBoards. Show taps, action performance, confirmed outcomes where available, weak Journey steps and the highest-value improvement. Do not invent missing metrics.');return}
+
+  const test=e.target.closest?.('[data-cjj-test]');
+  if(test){close();try{window.CJBuild29?.open?.('Public Journey QA');return}catch(_){}return}
+
+  const ai=e.target.closest?.('[data-cjj-ai]');
+  if(ai){openAI('Analyze '+ai.dataset.cjjAi+' as a business partner. Review its Journey, placement, activity and available conversion evidence, then recommend the single highest-value next action.');return}
+
+  const bulk=e.target.closest?.('[data-cjj-bulk]');
+  if(bulk){
+    const names=selectedNames();if(!names.length){alert('Select at least one board first.');return}
+    const label=names.join(', ');
+    const prompts={
+      journey:'Prepare a bulk Journey change for these boards: '+label+'. Show me the best 1-3 action Journey and ask for approval before applying it.',
+      pause:'Help me review activation status for these boards: '+label+'. Recommend which should be active or paused and prepare the changes for approval.',
+      assign:'Help me assign these boards to the right team members or stations: '+label+'. Show the proposed assignments before applying them.',
+      booking:'Help me update the booking destination for these boards: '+label+'. Ask me for the new booking link, then prepare the bulk change for approval.'
+    };
+    openAI(prompts[bulk.dataset.cjjBulk]||('Help me manage these boards: '+label));return
+  }
+
+  const global=e.target.closest?.('[data-cjj-ai-global]');
+  if(global){
+    const p={
+      opportunities:'Review all my SmartBoards and show the three highest-value business opportunities using verified CreateJourney data.',
+      compare:'Compare all active SmartBoards side by side. Tell me what is performing best, what is weak, and what I should change first.',
+      weekly:'Build a one-week SmartBoard and customer Journey improvement plan aimed at increasing bookings, return visits and measurable revenue.',
+      journeys:'Review all current SmartBoard Journeys. Recommend where to simplify, reorder or substitute actions while keeping customer Journeys to 1-3 visible actions.'
+    };
+    openAI(p[global.dataset.cjjAiGlobal]);return
+  }
+
+  const control=e.target.closest?.('[data-cjj-control]');
+  if(control){
+    const type=control.dataset.cjjControl;
+    if(type==='performance'){openAI('Open a board-by-board performance review and compare taps, visitors, actions, confirmed bookings, conversion and opportunity estimates where available.');return}
+    if(type==='logic'){openAI('Help me configure customer logic across SmartBoards: first vs returning visitors, optional booking prompts, review cooldowns, repeated-decline suppression and dynamic Journey substitutions.');return}
+    close();
+    if(type==='builder'&&existingClick('quickEditJourney'))return;
+    if(type==='assignments'&&existingClick('manageTeamLink'))return;
+    if(type==='destinations'&&existingClick('quickEditJourney'))return;
+    if(type==='settings'&&existingClick('viewAllBoards'))return;
+    existingClick('quickEditJourney');return
+  }
+},true);
+
+window.CJJourneysCommandCenter={open,close,render,version:'1.0'};
+})();
+</script>
+<!-- CJ JOURNEYS COMMAND CENTER V1 END -->
 </body>
 </html>
