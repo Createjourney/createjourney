@@ -1,4 +1,4 @@
-name: CJ Inspect Performance
+name: CJ Verify Live Performance
 on:
   push:
     paths:
@@ -6,14 +6,32 @@ on:
 permissions:
   contents: read
 jobs:
-  inspect:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect performance section
+      - name: Verify final Live Performance implementation
         shell: bash
         run: |
-          echo "=== PERFORMANCE CSS ==="
-          grep -n -m 80 -E "cjx-performance|cjx-live-head|cjx-live-pill|cjx-feed|cjx-feed-row|cjx-check" index.html || true
-          echo "=== ACTIVE FUNCTION AREA ==="
-          sed -n '11190,11235p' index.html
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("index.html").read_text()
+          checks={
+            "title": '<h2 class="cjx-section-title">Live Performance</h2>' in s,
+            "live_badge": '<span class="cjx-live-pill"><i></i>LIVE</span>' in s,
+            "row_1": 'Rebooking campaign created' in s,
+            "row_2": 'Journey AI marketing image saved' in s,
+            "row_3": 'Board 01 route updated' in s,
+            "row_marketing_route": 'data-cjh="marketing"' in s,
+            "row_images_route": 'data-cjh="images"' in s,
+            "row_boards_route": 'data-cjh="boards"' in s,
+            "old_subtitle_removed": 'Real-time activity and completed work across your business' not in s,
+            "old_analysis_link_removed": 'View full analysis &amp; graphs' not in s,
+            "reference_css": 'cj-live-performance-reference-v1' in s,
+          }
+          for k,v in checks.items():
+              print(k, "PASS" if v else "FAIL")
+          if not all(checks.values()):
+              raise SystemExit("Live Performance verification failed")
+          PY
+          git diff --check
