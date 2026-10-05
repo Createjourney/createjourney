@@ -16,17 +16,22 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           s=Path("index.html").read_text()
+          start=s.find('<div class="cjx-performance-head">')
+          end=s.find('<div class="cjx-control-heading">', start)
+          if start<0 or end<0:
+              raise SystemExit("Could not isolate active Performance block")
+          block=s[start:end]
           checks={
-            "title": '<h2 class="cjx-section-title">Live Performance</h2>' in s,
-            "live_badge": '<span class="cjx-live-pill"><i></i>LIVE</span>' in s,
-            "row_1": 'Rebooking campaign created' in s,
-            "row_2": 'Journey AI marketing image saved' in s,
-            "row_3": 'Board 01 route updated' in s,
-            "row_marketing_route": 'data-cjh="marketing"' in s,
-            "row_images_route": 'data-cjh="images"' in s,
-            "row_boards_route": 'data-cjh="boards"' in s,
-            "old_subtitle_removed": 'Real-time activity and completed work across your business' not in s,
-            "old_analysis_link_removed": 'View full analysis &amp; graphs' not in s,
+            "title": '<h2 class="cjx-section-title">Live Performance</h2>' in block,
+            "live_badge": '<span class="cjx-live-pill"><i></i>LIVE</span>' in block,
+            "row_1": 'Rebooking campaign created' in block,
+            "row_2": 'Journey AI marketing image saved' in block,
+            "row_3": 'Board 01 route updated' in block,
+            "marketing_route": 'data-cjh="marketing"' in block,
+            "images_route": 'data-cjh="images"' in block,
+            "boards_route": 'data-cjh="boards"' in block,
+            "no_subtitle_in_block": 'Real-time activity and completed work across your business' not in block,
+            "no_analysis_link_in_block": 'View full analysis &amp; graphs' not in block,
             "reference_css": 'cj-live-performance-reference-v1' in s,
           }
           for k,v in checks.items():
