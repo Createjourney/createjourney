@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect final login logo rules
+      - name: Inspect canonical login logo rules
         shell: bash
         run: |
-          sed -n '11468,11585p' index.html
+          sed -n '11535,11635p' index.html
