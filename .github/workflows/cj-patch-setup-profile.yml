@@ -1,0 +1,45 @@
+name: CJ Patch Setup Profile Header
+on:
+  push:
+    paths:
+      - '.github/workflows/cj-patch-setup-profile.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Switch Setup header to shared profile menu
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("index.html")
+          s=p.read_text()
+          old="return brand()+chrome(false)+"
+          new="return brand()+chrome(true)+"
+          n=s.count(old)
+          if n!=1:
+              raise SystemExit(f"Expected exactly one setup chrome(false) target, found {n}")
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          print("PATCH_OK")
+          print("chrome_false_remaining",s.count("return brand()+chrome(false)+"))
+          print("chrome_true_count",s.count("return brand()+chrome(true)+"))
+          PY
+          git diff --check
+          echo "=== VERIFY SETUP HEADER ==="
+          grep -n -m 6 -E "return brand\(\)\+chrome\((true|false)\)" index.html || true
+          echo "=== VERIFY PROFILE MENU ==="
+          grep -n -m 6 -E "data-cjx-profile-toggle|data-cjx-admin-toggle|Setup / Onboarding View" index.html || true
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "createjourney-dev"
+          git config user.email "dev@gocreatejourney.com"
+          git add index.html
+          git commit -m "Use profile menu on Setup page header"
+          git push origin HEAD:main
