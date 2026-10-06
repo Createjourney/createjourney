@@ -11232,7 +11232,7 @@ button.primary,button.secondary,.primary,.secondary{
     var viewportHeight=vv&&vv.height?vv.height:window.innerHeight;
     var navHeightFromBottom=Math.max(0,Math.round(viewportHeight-rect.top));
     dock.style.setProperty('top','auto','important');
-    dock.style.setProperty('bottom',(navHeightFromBottom+2)+'px','important');
+    dock.style.setProperty('bottom',(navHeightFromBottom+0)+'px','important');
   }
   function bindCarousel(h){var c=h.querySelector('[data-cjx-carousel]');if(!c)return;var dots=[].slice.call(h.querySelectorAll('.cjx-dot'));var timer=0;c.addEventListener('scroll',function(){clearTimeout(timer);timer=setTimeout(function(){var idx=Math.round(c.scrollLeft/Math.max(1,c.clientWidth));dots.forEach(function(d,i){d.classList.toggle('active',i===idx)})},60)})}
   function openExistingJourneyAI(){
@@ -13856,10 +13856,10 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 /* Shared geometry variables keep the dock tied to the nav instead of relying on unrelated offsets. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome{
   --cjx-nav-core-height:58px;
-  --cjx-ai-nav-gap:1px;
+  --cjx-ai-nav-gap:0px;
 }
 
-/* Journey AI + mic: fixed as one unit. CSS provides a fallback; runtime geometry pins it 2px above the actual rendered nav divider. */
+/* Journey AI + mic: fixed as one unit. CSS provides a fallback; runtime geometry pins it flush to the actual rendered nav divider with a 0px gap. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock{
   position:fixed!important;
   left:auto!important;
