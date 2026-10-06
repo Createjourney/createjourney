@@ -4644,7 +4644,8 @@ async function startVoice(){
     addAiMessage("ai","Live voice ended. Tap the microphone whenever you want to start another conversation.");
     return;
   }
-  await startRealtimeVoice();
+  const started=await startRealtimeVoice();
+  if(!started)startBrowserVoiceFallback();
 }
 /* EVENTS */
 el("businessChoice").addEventListener("click",()=>selectUseType("business"));el("personalChoice").addEventListener("click",()=>selectUseType("personal"));el("useContinue").addEventListener("click",()=>{if(useType)goToStep(2)});
