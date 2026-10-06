@@ -11217,7 +11217,18 @@ button.primary,button.secondary,.primary,.secondary{
     var dash=$('dashboardApp');
     if(dash){dash.dataset.cjxExactMode=mode;dash.dataset.cjxPreview=preview||'customer'}
     bindCarousel(h);
+    requestAnimationFrame(positionAiDockToNav);
     return true
+  }
+  function positionAiDockToNav(){
+    var h=$('cjScreenshotHome');if(!h)return;
+    var dock=h.querySelector('.cjx-ai-dock'),nav=h.querySelector('.cjx-bottom');
+    if(!dock||!nav)return;
+    var navTop=nav.getBoundingClientRect().top;
+    var dockHeight=dock.getBoundingClientRect().height||48;
+    var top=Math.max(0,Math.round(navTop-dockHeight-2));
+    dock.style.setProperty('top',top+'px','important');
+    dock.style.setProperty('bottom','auto','important');
   }
   function bindCarousel(h){var c=h.querySelector('[data-cjx-carousel]');if(!c)return;var dots=[].slice.call(h.querySelectorAll('.cjx-dot'));var timer=0;c.addEventListener('scroll',function(){clearTimeout(timer);timer=setTimeout(function(){var idx=Math.round(c.scrollLeft/Math.max(1,c.clientWidth));dots.forEach(function(d,i){d.classList.toggle('active',i===idx)})},60)})}
   function openExistingJourneyAI(){
@@ -11443,6 +11454,13 @@ button.primary,button.secondary,.primary,.secondary{
   window.addEventListener('cj:platform-admin',function(e){try{if(e&&e.detail&&e.detail.isPlatformAdmin===true)render()}catch(_){}});
   function boot(){if(render())return;var tries=0;var t=setInterval(function(){tries++;if(render()||tries>80)clearInterval(t)},100)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+  var cjDockReposition=function(){requestAnimationFrame(positionAiDockToNav)};
+  window.addEventListener('resize',cjDockReposition,{passive:true});
+  window.addEventListener('orientationchange',cjDockReposition,{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',cjDockReposition,{passive:true});
+    window.visualViewport.addEventListener('scroll',cjDockReposition,{passive:true});
+  }
   window.CJExactHome={version:'1.1',showSetup:function(){if(isPlatformAdminPreview())setAdminPreview('setup');else localStorage.setItem(MODE_KEY,'setup');render()},showCommandCenter:function(){if(isPlatformAdminPreview())setAdminPreview('admin');else localStorage.setItem(MODE_KEY,'active');render()},showOwnerPreview:function(){setAdminPreview('owner');render()},showAdminPreview:function(){setAdminPreview('admin');render()},render:render};
 })();
 </script>
@@ -13837,7 +13855,7 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
   --cjx-ai-nav-gap:1px;
 }
 
-/* Journey AI + mic: fixed as one unit, 1px above the rendered nav panel top so it nearly touches without overlapping. */
+/* Journey AI + mic: fixed as one unit. CSS provides a fallback; runtime geometry pins it 2px above the actual rendered nav divider. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock{
   position:fixed!important;
   left:auto!important;
