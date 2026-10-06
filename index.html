@@ -13084,84 +13084,7 @@ html,body{overscroll-behavior-y:auto}
   transform-origin:center center!important;
 }
 </style>
-<style id="cj-bottom-nav-visibility-v1">
-#cjScreenshotHome .cjx-ai-dock{
-  bottom:calc(env(safe-area-inset-bottom) + 94px)!important;
-}
-#cjScreenshotHome .cjx-bottom{
-  height:78px!important;
-  padding:0!important;
-  box-sizing:border-box!important;
-  align-items:start!important;
-  border-top:0!important;
-  position:fixed!important;
-}
-#cjScreenshotHome .cjx-bottom::before{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  top:54px;
-  height:1px;
-  background:#dfe5ec;
-  pointer-events:none;
-}
-#cjScreenshotHome .cjx-bottom button{
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-  align-self:start!important;
-  height:54px!important;
-  min-height:54px!important;
-  padding:5px 0!important;
-  gap:3px!important;
-  color:#198df3!important;
-}
-#cjScreenshotHome .cjx-bottom button>svg{
-  width:27px!important;
-  height:27px!important;
-  color:#198df3!important;
-  stroke:#198df3!important;
-  stroke-width:2.2!important;
-}
-#cjScreenshotHome .cjx-bottom .dots-icon,
-#cjScreenshotHome .cjx-bottom .cjx-brand-nav-icon{
-  width:42px!important;
-  height:33px!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  color:#198df3!important;
-}
-#cjScreenshotHome .cjx-bottom .cjx-brand-nav-icon svg{
-  width:33px!important;
-  height:33px!important;
-  color:#198df3!important;
-  fill:#198df3!important;
-  stroke:none!important;
-}
-#cjScreenshotHome .cjx-bottom button>span:last-child{
-  display:block!important;
-  margin:0!important;
-  color:#198df3!important;
-  opacity:1!important;
-  visibility:visible!important;
-  line-height:1.05!important;
-}
-#cjScreenshotHome .cjx-mic{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-}
-#cjScreenshotHome .cjx-mic svg{
-  width:29px!important;
-  height:29px!important;
-  display:block!important;
-  margin:0!important;
-  transform:none!important;
-}
-</style>
+
 <!-- CJ CHAT ATTACHMENTS V1 START -->
 <style id="cj-chat-attachments-v1">
 #journeyAiPanel .ai-compose{position:relative}
@@ -13907,13 +13830,18 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 <style id="cj-homepage-correction-contract-v9">
 /* One authoritative homepage correction layer. No additional dock/nav patches should be added below this. */
 
-/* Journey AI + mic: fixed as one unit, exactly 3px above the rendered nav panel top.
-   Nav core height is 58px, therefore dock bottom = 61px + safe area. */
+/* Shared geometry variables keep the dock tied to the nav instead of relying on unrelated offsets. */
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome{
+  --cjx-nav-core-height:58px;
+  --cjx-ai-nav-gap:3px;
+}
+
+/* Journey AI + mic: fixed as one unit, exactly 3px above the rendered nav panel top. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock{
   position:fixed!important;
   left:auto!important;
   right:10px!important;
-  bottom:calc(61px + env(safe-area-inset-bottom,0px))!important;
+  bottom:calc(var(--cjx-nav-core-height) + var(--cjx-ai-nav-gap) + env(safe-area-inset-bottom,0px))!important;
   z-index:220!important;
   display:flex!important;
   flex-direction:row!important;
@@ -13948,8 +13876,8 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 #dashboardApp #cjScreenshotHome .cjx-bottom{
   position:fixed!important;left:0!important;right:0!important;bottom:0!important;
   z-index:200!important;
-  height:calc(58px + env(safe-area-inset-bottom,0px))!important;
-  min-height:calc(58px + env(safe-area-inset-bottom,0px))!important;
+  height:calc(var(--cjx-nav-core-height) + env(safe-area-inset-bottom,0px))!important;
+  min-height:calc(var(--cjx-nav-core-height) + env(safe-area-inset-bottom,0px))!important;
   padding:0 0 env(safe-area-inset-bottom,0px)!important;
   box-sizing:border-box!important;
   border-top:1px solid #dfe5ec!important;
