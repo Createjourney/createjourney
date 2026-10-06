@@ -14155,9 +14155,12 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
   window.visualViewport?.addEventListener('resize',schedule,{passive:true});
   window.visualViewport?.addEventListener('scroll',schedule,{passive:true});
+  /* Do not observe descendant style mutations here.
+     alignDock() writes dock.style; observing style+subtree caused a self-triggering
+     MutationObserver loop on iPhone that could starve click/touch handlers. */
   const mo=new MutationObserver(schedule);
   const root=document.getElementById('dashboardApp');
-  if(root)mo.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
+  if(root)mo.observe(root,{attributes:true,attributeFilter:['class']});
   window.CJAlignAiDockToNav=alignDock;
 })();
 </script>
