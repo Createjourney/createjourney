@@ -11463,7 +11463,7 @@ button.primary,button.secondary,.primary,.secondary{
     window.visualViewport.addEventListener('resize',cjDockReposition,{passive:true});
     window.visualViewport.addEventListener('scroll',cjDockReposition,{passive:true});
   }
-  window.CJExactHome={version:'1.1',showSetup:function(){if(isPlatformAdminPreview())setAdminPreview('setup');else localStorage.setItem(MODE_KEY,'setup');render()},showCommandCenter:function(){if(isPlatformAdminPreview())setAdminPreview('admin');else localStorage.setItem(MODE_KEY,'active');render()},showOwnerPreview:function(){setAdminPreview('owner');render()},showAdminPreview:function(){setAdminPreview('admin');render()},render:render};
+  window.CJExactHome={version:'1.2',showSetup:function(){if(isPlatformAdminPreview())setAdminPreview('setup');else localStorage.setItem(MODE_KEY,'setup');render()},showCommandCenter:function(){if(isPlatformAdminPreview())setAdminPreview('admin');else localStorage.setItem(MODE_KEY,'active');render()},showOwnerPreview:function(){setAdminPreview('owner');render()},showAdminPreview:function(){setAdminPreview('admin');render()},render:render,routeHomeAction:routeHomeAction,openAnalyticsFocus:openAnalyticsFocus,openJourneyAI:openExistingJourneyAI};
 })();
 </script>
 
@@ -14034,5 +14034,146 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 }
 </style>
 <!-- CJ HOMEPAGE CORRECTION CONTRACT V10 END -->
+<!-- CJ HOMEPAGE INTERACTION CONTROLLER V1 START -->
+<style id="cj-homepage-interaction-controller-v1-styles">
+/* Retire the legacy homepage/nav hit layer while the exact homepage is active. */
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjh-bottom-nav,
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjh-account-float,
+#dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjh-settings{
+  display:none!important;
+  pointer-events:none!important;
+}
+</style>
+<script id="cjHomepageInteractionControllerV1">
+(function(){
+  if(window.__cjHomepageInteractionControllerV1)return;
+  window.__cjHomepageInteractionControllerV1=true;
+
+  function byId(id){return document.getElementById(id)}
+  function clickId(id){var n=byId(id);if(n){n.click();return true}return false}
+
+  function route(action){
+    try{
+      if(window.CJExactHome&&typeof window.CJExactHome.routeHomeAction==='function'){
+        return window.CJExactHome.routeHomeAction(action)!==false;
+      }
+    }catch(err){console.warn('CJ homepage route failed',action,err)}
+    return false;
+  }
+
+  function analytics(metric){
+    try{
+      if(window.CJExactHome&&typeof window.CJExactHome.openAnalyticsFocus==='function'){
+        return window.CJExactHome.openAnalyticsFocus(metric)!==false;
+      }
+    }catch(err){console.warn('CJ homepage analytics failed',metric,err)}
+    return false;
+  }
+
+  function openAI(){
+    try{
+      if(typeof window.openAI==='function'){window.openAI();return true}
+    }catch(err){console.warn('Journey AI open failed',err)}
+    try{
+      if(window.CJExactHome&&typeof window.CJExactHome.openJourneyAI==='function'){
+        return window.CJExactHome.openJourneyAI()!==false;
+      }
+    }catch(_){}
+    var panel=byId('journeyAiPanel');
+    if(panel){
+      panel.classList.remove('hidden','collapsed');
+      panel.classList.add('expanded');
+      return true;
+    }
+    return false;
+  }
+
+  function startVoice(){
+    try{
+      if(typeof window.startVoice==='function'){window.startVoice();return true}
+    }catch(err){console.warn('Journey AI voice failed',err)}
+    return clickId('aiTalkFab')||clickId('aiMic');
+  }
+
+  function handleProfileToggle(btn){
+    var wrap=btn.closest('.cjx-profile-wrap');
+    if(!wrap)return;
+    var opening=!wrap.classList.contains('open');
+    document.querySelectorAll('.cjx-profile-wrap.open').forEach(function(n){if(n!==wrap)n.classList.remove('open')});
+    wrap.classList.toggle('open',opening);
+    btn.setAttribute('aria-expanded',opening?'true':'false');
+  }
+
+  function handleProfileAction(btn){
+    var action=btn.getAttribute('data-cjx-profile-action')||'';
+    if(action==='account')clickId('profileInitial');
+    else if(action==='settings')clickId('quickConnectedAccounts')||clickId('profileInitial');
+    else if(action==='platform-admin'){
+      try{if(typeof window.openAdminConsole==='function')window.openAdminConsole();else clickId('openAdminConsole')}catch(_){}
+    }else if(action==='help')openAI();
+    else if(action==='signout')clickId('logoutButton');
+    var wrap=btn.closest('.cjx-profile-wrap');if(wrap)wrap.classList.remove('open');
+  }
+
+  function handleExpand(btn){
+    var key=btn.getAttribute('data-cjx-expand');
+    var panel=document.querySelector('#cjScreenshotHome [data-cjx-panel="'+key+'"]');
+    var opening=btn.getAttribute('aria-expanded')!=='true';
+    btn.setAttribute('aria-expanded',opening?'true':'false');
+    if(panel){panel.setAttribute('aria-hidden',opening?'false':'true');panel.classList.toggle('open',opening)}
+  }
+
+  /* Window capture executes before the legacy document/container click listeners. */
+  window.addEventListener('click',function(e){
+    var home=document.getElementById('cjScreenshotHome');
+    if(!home||!home.contains(e.target))return;
+
+    /* Preserve the three known-good bottom navigation routes exactly as they are. */
+    if(e.target.closest&&e.target.closest('.cjx-bottom [data-cjh-nav]'))return;
+
+    var target=e.target.closest&&e.target.closest(
+      '[data-cjx-home-action],[data-cjx-metric],.cjx-period,[data-cjx-ai],[data-cjx-profile-toggle],[data-cjx-profile-action],[data-cjx-expand],[data-cjx-start]'
+    );
+    if(!target)return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    if(target.hasAttribute('data-cjx-home-action')){
+      route(target.getAttribute('data-cjx-home-action'));return;
+    }
+    if(target.hasAttribute('data-cjx-metric')){
+      analytics(target.getAttribute('data-cjx-metric')||'overview');return;
+    }
+    if(target.classList.contains('cjx-period')){
+      analytics('date-range');return;
+    }
+    if(target.hasAttribute('data-cjx-ai')){
+      if(target.classList.contains('cjx-mic'))startVoice();
+      else openAI();
+      return;
+    }
+    if(target.hasAttribute('data-cjx-profile-toggle')){
+      handleProfileToggle(target);return;
+    }
+    if(target.hasAttribute('data-cjx-profile-action')){
+      handleProfileAction(target);return;
+    }
+    if(target.hasAttribute('data-cjx-expand')){
+      handleExpand(target);return;
+    }
+    if(target.hasAttribute('data-cjx-start')){
+      /* Setup/trial keeps its existing exact-home implementation. Re-dispatch directly to its controller. */
+      try{
+        var evt=new CustomEvent('cj:exact-home-start',{bubbles:false});
+        target.dispatchEvent(evt);
+      }catch(_){}
+      return;
+    }
+  },true);
+})();
+</script>
+<!-- CJ HOMEPAGE INTERACTION CONTROLLER V1 END -->
 </body>
 </html>
