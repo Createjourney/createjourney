@@ -11206,6 +11206,15 @@ button.primary,button.secondary,.primary,.secondary{
   function active(){var bs=boards();var boardHtml=bs.slice(0,2).map(boardCard).join('');if(!boardHtml)boardHtml=boardCard({name:'Reception Board',boardId:'01',taps:0,reviews:0,bookings:0,journey:'Pay → Review → Book'},0)+boardCard({name:'Station Board',boardId:'02',taps:0,reviews:0,bookings:0,journey:'Pay → Review'},1);var taps=val(['revTaps','totalTapsStat','performanceNumber'],'0');var clicks=val(['revBookingClicks'],'—');var revenue=val(['revPotentialRevenue','revRevenueGenerated','revAttributedRevenue'],'—');return brand()+chrome(true)+'<div class="cjx-brand-divider" aria-hidden="true"></div><h1 class="cjx-page-title">Business Command Center</h1><p class="cjx-page-sub">Your most important numbers, priorities, and board activity — all in one place.</p><section class="cjx-card cjx-snapshot"><div class="cjx-snapshot-head"><div class="cjx-snapshot-title"><span class="cjx-mini-icon">'+svg('chart')+'</span>This Week\'s Business Records</div><span class="cjx-period">Last 7 Days⌄</span></div><div class="cjx-carousel" data-cjx-carousel>'+slide(['Taps',taps,'Live','taps'],['Booking Clicks',clicks,'Tracked','booking_clicks'],['Potential Revenue',revenue,'Opportunity','potential_revenue'],['Next-week goal:','+12% bookings'])+slide(['Bookings',val(['revConfirmedBookings'],'—'),'Confirmed','bookings'],['Conversion',val(['revBookingConversion'],'—'),'Tracked','conversion'],['Returning',val(['revReturning'],'0'),'Visitors','returning'],['Focus:','Rebooking'])+slide(['Customers Due',val(['revDueCustomers'],'—'),'Return','customers_due'],['Service Value',val(['revAverageServiceValue'],'—'),'Average','service_value'],['Opportunity',val(['revRebookingOpportunity'],'—'),'Potential','opportunity'],['Focus:','Retention'])+slide(['Boards',String(bs.length),'Connected','boards'],['Taps',taps,'Live','taps'],['Actions',val(['revJourneyActions'],'—'),'Tracked','actions'],['Focus:','Board impact'])+'</div></section><div class="cjx-dots"><i class="cjx-dot active"></i><i class="cjx-dot"></i><i class="cjx-dot"></i><i class="cjx-dot"></i></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">Journey AI Top 3 Priorities</h2><span class="cjx-rank">Ranked by impact</span></div><div class="cjx-priorities"><button class="cjx-priority" type="button" data-cjx-home-action="marketing"><span class="cjx-num">1</span><span class="cjx-iconbox cjx-pink">'+svg('megaphone')+'</span><span><strong>Launch a Rebooking Campaign</strong><span class="cjx-copy">Your repeat visit window is opening. Follow up with recent customers to increase next-week bookings.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjx-home-action="images"><span class="cjx-num">2</span><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Post Today’s Marketing Image</strong><span class="cjx-copy">Journey AI can prepare a social image to help generate attention and new visits.</span></span><span class="cjx-arrow">›</span></button><button class="cjx-priority" type="button" data-cjx-home-action="boards"><span class="cjx-num">3</span><span class="cjx-iconbox cjx-green">'+svg('growth')+'</span><span><strong>Improve Review Route on a Board</strong><span class="cjx-copy">Journey AI can identify a board getting taps but fewer completed actions and recommend an adjustment.</span></span><span class="cjx-arrow">›</span></button></div><div class="cjx-heading-flex"><h2 class="cjx-section-title">SmartBoards</h2><button class="cjx-link" type="button" data-cjx-home-action="analytics">View full board analysis ›</button></div><p class="cjx-section-sub">Track each board, its route, and live performance.</p><div class="cjx-boards">'+boardHtml+'</div><div class="cjx-performance-head"><h2 class="cjx-section-title">Live Performance</h2><span class="cjx-live-pill"><i></i>LIVE</span></div><section class="cjx-card cjx-feed cjx-performance-card" data-cjx-home-action="analytics"><button class="cjx-feed-row" type="button" data-cjx-home-action="marketing"><span class="cjx-check">✓</span><span><strong>Rebooking campaign created</strong><span class="cjx-copy">Sent to 127 recent customers • 2 hours ago</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjx-home-action="images"><span class="cjx-check">✓</span><span><strong>Journey AI marketing image saved</strong><span class="cjx-copy">Saved to Journey AI Image Library • 4 hours ago</span></span><span class="cjx-arrow">›</span></button><button class="cjx-feed-row" type="button" data-cjx-home-action="boards"><span class="cjx-check">✓</span><span><strong>Board 01 route updated</strong><span class="cjx-copy">Pay → Review → Book • 6 hours ago</span></span><span class="cjx-arrow">›</span></button></section><div class="cjx-control-heading"><h2 class="cjx-section-title">Control Center</h2><p class="cjx-section-sub">Quick access to the tools that help run and grow the business.</p></div><div class="cjx-controls"><button class="cjx-control" type="button" data-cjx-home-action="marketing"><span class="cjx-iconbox cjx-pink">'+svg('growth')+'</span><span><strong>Marketing</strong><span class="cjx-copy">Campaigns &amp; growth</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjx-home-action="google"><span class="cjx-iconbox cjx-blue" style="font-size:24px;font-weight:900">G</span><span><strong>Google &amp; SEO</strong><span class="cjx-copy">Local search &amp; website health</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjx-home-action="images"><span class="cjx-iconbox cjx-purple">'+svg('image')+'</span><span><strong>Journey AI Image Library</strong><span class="cjx-copy">Generated creative assets</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjx-home-action="team"><span class="cjx-iconbox cjx-cyan">'+svg('people')+'</span><span><strong>Team &amp; Access</strong><span class="cjx-copy">People, roles &amp; permissions</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjx-home-action="boards"><span class="cjx-iconbox cjx-green">'+svg('flow')+'</span><span><strong>Journeys</strong><span class="cjx-copy">Build &amp; manage experiences</span></span><span class="cjx-arrow">›</span></button><button class="cjx-control" type="button" data-cjx-home-action="accounts"><span class="cjx-iconbox cjx-pink">'+svg('gear')+'</span><span><strong>Accounts &amp; Integrations</strong><span class="cjx-copy">Connect your business tools</span></span><span class="cjx-arrow">›</span></button></div>'}
   function render(){
     var h=$('cjScreenshotHome');if(!h)return false;
+    /* The legacy screenshot-home build attached click listeners directly to this same DOM node.
+       Replace it once with an identical listener-free clone before rendering the current homepage. */
+    if(h.dataset.cjxCleanNode!=='1'){
+      var clean=h.cloneNode(false);
+      clean.id='cjScreenshotHome';
+      clean.dataset.cjxCleanNode='1';
+      h.replaceWith(clean);
+      h=clean;
+    }
     var preview=getAdminPreview();
     var mode=localStorage.getItem(MODE_KEY)||'setup';
     if(preview==='setup')mode='setup';
@@ -11259,12 +11268,15 @@ button.primary,button.secondary,.primary,.secondary{
     try{
       if(typeof window.openAiWorkspace==='function'){
         window.openAiWorkspace();
-        if(typeof window.switchAiWorkspaceTab72==='function')window.switchAiWorkspaceTab72('intelligence');
+        setTimeout(function(){
+          try{
+            if(typeof window.switchAiWorkspaceTab72==='function')window.switchAiWorkspaceTab72('intelligence');
+            else if(typeof window.switchAiWorkspaceTab==='function')window.switchAiWorkspaceTab('intelligence');
+          }catch(_){}
+        },40);
         return true;
       }
     }catch(_){}
-    var btn=$('quickPerformanceHub')||$('dashboardViewAnalytics');
-    if(btn){btn.click();return true}
     return false;
   }
   function clickReal(id){
@@ -11291,55 +11303,66 @@ button.primary,button.secondary,.primary,.secondary{
 
     if(action==='business'){
       try{if(typeof window.openAiBusinessSetup==='function'){window.openAiBusinessSetup();return true}}catch(_){}
-      return clickReal('quickAiSetup')||clickReal('aiWorkspaceTeachBusiness');
+      return false;
     }
 
     if(action==='boards'){
-      try{if(window.CJJourneysCommandCenter?.open){window.CJJourneysCommandCenter.open();return true}}catch(_){}
+      try{if(window.CJJourneysCommandCenter&&typeof window.CJJourneysCommandCenter.open==='function'){window.CJJourneysCommandCenter.open();return true}}catch(_){}
       try{
         if(typeof window.visibleBoards==='function'&&typeof window.openBoardManager==='function'){
           var bs=window.visibleBoards()||[];
           if(bs.length){
-            try{window.currentBoardId=bs[0].id}catch(_){}
+            window.currentBoardId=bs[0].id;
             window.openBoardManager(false);
             return true;
           }
         }
       }catch(_){}
-      return clickReal('quickEditJourney')||clickReal('viewAllBoards')||clickReal('quickAddBoard');
+      return false;
     }
 
     if(action==='accounts'||action==='google'){
       try{if(typeof window.openConnectedAccounts==='function'){window.openConnectedAccounts();return true}}catch(_){}
-      var integ=document.querySelector('[data-cj33-open]');
-      if(integ){integ.click();return true}
-      return clickReal('quickConnectedAccounts');
+      return false;
     }
 
-    if(action==='analytics')return openAnalyticsFocus('boards');
+    if(action==='analytics'){
+      return openAnalyticsFocus('boards');
+    }
 
     if(action==='team'){
       try{if(typeof window.openTeamManager==='function'){window.openTeamManager();return true}}catch(_){}
-      return clickReal('manageTeamLink')||clickReal('quickInviteTeam');
+      return false;
     }
 
     if(action==='marketing'){
-      try{if(window.CJBuild365?.social?.open){window.CJBuild365.social.open();return true}}catch(_){}
+      try{
+        if(window.CJBuild365&&window.CJBuild365.social&&typeof window.CJBuild365.social.open==='function'){
+          window.CJBuild365.social.open();return true;
+        }
+      }catch(_){}
       return openWorkspaceTool('marketing');
     }
 
     if(action==='images'){
       try{if(typeof window.openImageLibrary26==='function'){window.openImageLibrary26();return true}}catch(_){}
-      var lib=document.querySelector('[data-cj-image-library-open],#openImageLibrary,#aiImageLibraryButton');
-      if(lib){lib.click();return true}
       return openWorkspaceTool('library');
     }
 
-    if(action==='account'||action==='settings'){
-      var legacyProfile=$('profileInitial');
-      if(legacyProfile){legacyProfile.click();return true}
+    if(action==='account'){
+      try{
+        if(typeof window.fillAccountPanel==='function')window.fillAccountPanel();
+        var panel=document.getElementById('accountPanel');
+        if(panel){panel.classList.remove('hidden');return true}
+      }catch(_){}
       return false;
     }
+
+    if(action==='settings'){
+      try{if(typeof window.openConnectedAccounts==='function'){window.openConnectedAccounts();return true}}catch(_){}
+      return false;
+    }
+
     return false;
   }
   async function onClick(e){
