@@ -14132,7 +14132,7 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
     if(e.target.closest&&e.target.closest('.cjx-bottom [data-cjh-nav]'))return;
 
     var target=e.target.closest&&e.target.closest(
-      '[data-cjx-home-action],[data-cjx-metric],.cjx-period,[data-cjx-ai],[data-cjx-profile-toggle],[data-cjx-profile-action],[data-cjx-expand],[data-cjx-start]'
+      '[data-cjx-home-action],[data-cjx-metric],.cjx-period,[data-cjx-ai],[data-cjx-profile-toggle],[data-cjx-profile-action],[data-cjx-expand]'
     );
     if(!target)return;
 
@@ -14162,14 +14162,6 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
     }
     if(target.hasAttribute('data-cjx-expand')){
       handleExpand(target);return;
-    }
-    if(target.hasAttribute('data-cjx-start')){
-      /* Setup/trial keeps its existing exact-home implementation. Re-dispatch directly to its controller. */
-      try{
-        var evt=new CustomEvent('cj:exact-home-start',{bubbles:false});
-        target.dispatchEvent(evt);
-      }catch(_){}
-      return;
     }
   },true);
 })();
