@@ -11224,15 +11224,13 @@ button.primary,button.secondary,.primary,.secondary{
     var h=$('cjScreenshotHome');if(!h)return;
     var dock=h.querySelector('.cjx-ai-dock'),nav=h.querySelector('.cjx-bottom');
     if(!dock||!nav)return;
-    /* iPhone Safari can shift the visual viewport relative to the layout viewport.
-       Anchor from the bottom instead of using a fixed top coordinate so the dock
-       follows the actual rendered nav edge while browser chrome expands/collapses. */
-    var rect=nav.getBoundingClientRect();
-    var vv=window.visualViewport;
-    var viewportHeight=vv&&vv.height?vv.height:window.innerHeight;
-    var navHeightFromBottom=Math.max(0,Math.round(viewportHeight-rect.top));
+    /* Both controls are fixed to the same viewport. The nav itself is fixed at bottom:0,
+       so its rendered height is the exact distance from the viewport bottom to the
+       navigation panel's top divider. Use that height directly; do not mix
+       visualViewport.height with getBoundingClientRect() coordinates. */
+    var navHeight=Math.round(nav.getBoundingClientRect().height||nav.offsetHeight||58);
     dock.style.setProperty('top','auto','important');
-    dock.style.setProperty('bottom',(navHeightFromBottom+0)+'px','important');
+    dock.style.setProperty('bottom',navHeight+'px','important');
   }
   function bindCarousel(h){var c=h.querySelector('[data-cjx-carousel]');if(!c)return;var dots=[].slice.call(h.querySelectorAll('.cjx-dot'));var timer=0;c.addEventListener('scroll',function(){clearTimeout(timer);timer=setTimeout(function(){var idx=Math.round(c.scrollLeft/Math.max(1,c.clientWidth));dots.forEach(function(d,i){d.classList.toggle('active',i===idx)})},60)})}
   function openExistingJourneyAI(){
