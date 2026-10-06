@@ -4299,7 +4299,11 @@ function addAiMessage(type,text,proposal=null,voiceReply=false){
   }
 
   thread.appendChild(d);
-  thread.scrollTop=thread.scrollHeight;
+  if(window.CJJourneyScroll&&typeof window.CJJourneyScroll.afterAppend==="function"){
+    window.CJJourneyScroll.afterAppend(thread,d,type);
+  }else{
+    thread.scrollTop=thread.scrollHeight;
+  }
   if(type==="ai"&&voiceReply)speakAi(text);
   try{persistLocalState()}catch{}
   return d;
@@ -4354,6 +4358,7 @@ function setRealtimeUi(active){
 }
 function disconnectRealtimeVoice(){
   realtimeConnecting=false;
+  try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("off")}catch(_){};
   realtimeAssistantTranscript="";
   try{if(realtimeDataChannel)realtimeDataChannel.close()}catch(_){}
   realtimeDataChannel=null;
@@ -4406,6 +4411,7 @@ function restoreRealtimeMicAfterPlayback(delay=3200){
     setRealtimeMicCapture(true);
     realtimeAssistantSpeaking=false;
     realtimeMicRestoreTimer=null;
+    try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("listening")}catch(_){};
   };
   /* iPhone/Safari can still be playing buffered WebRTC audio after the model
      reports the response complete. Keep the microphone disabled through a
@@ -4419,10 +4425,12 @@ function handleRealtimeEvent(event){
 
   if(event.type==="input_audio_buffer.speech_started"){
     setRealtimeUi(true);
+    try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("listening")}catch(_){}
     return;
   }
 
   if(event.type==="input_audio_buffer.speech_stopped"){
+    try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("thinking")}catch(_){}
     return;
   }
 
@@ -4469,6 +4477,7 @@ function handleRealtimeEvent(event){
   }
 
   if(event.type==="response.created"){
+    try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("thinking")}catch(_){}
     realtimeResponseActive=true;
     realtimeLastAssistantText="";
     realtimeAssistantTranscript="";
@@ -4481,6 +4490,7 @@ function handleRealtimeEvent(event){
     if(realtimeSuppressAssistant)return;
     if(!realtimeAssistantSpeaking){
       realtimeAssistantSpeaking=true;
+      try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("speaking")}catch(_){}
       setRealtimeMicCapture(false);
     }
     realtimeAssistantTranscript+=(event.delta||"");
@@ -4638,7 +4648,7 @@ function startBrowserVoiceFallback(){
   try{r.start()}catch(err){el("aiMic").classList.remove("listening");el("aiTalkFab").classList.remove("listening");aiPendingVoiceTranscript="";addAiMessage("ai","Voice could not start. Try again in a moment.")}
 }
 async function startVoice(){
-  openAI();
+  try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("connecting")}catch(_){}
   if(realtimePeer&&realtimeDataChannel?.readyState==="open"){
     disconnectRealtimeVoice();
     addAiMessage("ai","Live voice ended. Tap the microphone whenever you want to start another conversation.");
@@ -14173,6 +14183,11 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
       analytics('date-range');return;
     }
     if(target.hasAttribute('data-cjx-ai')){
+      if(window.CJJourneyUxV2){
+        if(target.classList.contains('cjx-mic'))window.CJJourneyUxV2.toggleVoice();
+        else window.CJJourneyUxV2.openText();
+        return;
+      }
       if(target.classList.contains('cjx-mic'))startVoice();
       else openAI();
       return;
@@ -14190,5 +14205,732 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 })();
 </script>
 <!-- CJ HOMEPAGE INTERACTION CONTROLLER V1 END -->
+
+<!-- CJ JOURNEY UX V2 START -->
+<style id="cjJourneyUxV2Styles">
+/* =========================================================
+   CreateJourney Journey AI / Voice UX V2
+   Requirements 1-37, 2026-10-06
+   ========================================================= */
+
+/* Panel: exactly two visible heights plus closed. */
+#journeyAiPanel.cj-journey-v2{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100%!important;
+  height:45dvh!important;
+  min-height:330px!important;
+  max-height:45dvh!important;
+  border-radius:22px 22px 0 0!important;
+  background:#fff!important;
+  box-shadow:0 -12px 36px rgba(15,23,42,.16)!important;
+  z-index:205!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  transition:height .28s cubic-bezier(.2,.8,.2,1),max-height .28s cubic-bezier(.2,.8,.2,1),border-radius .28s ease!important;
+  pointer-events:auto!important;
+}
+#journeyAiPanel.cj-journey-v2.hidden{display:none!important}
+#journeyAiPanel.cj-journey-v2.cj-full{
+  height:100dvh!important;
+  min-height:100dvh!important;
+  max-height:100dvh!important;
+  border-radius:0!important;
+  z-index:1000!important;
+}
+#journeyAiPanel.cj-journey-v2 .ai-handle{
+  width:46px!important;
+  height:5px!important;
+  min-height:5px!important;
+  border-radius:999px!important;
+  background:#cbd5e1!important;
+  margin:8px auto 4px!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+}
+
+/* Header hierarchy: Journey AI + subtle real status, centered Owner Dashboard, blue X. */
+#journeyAiPanel.cj-journey-v2 .ai-head{
+  position:relative!important;
+  min-height:48px!important;
+  padding:5px 50px 7px 14px!important;
+  display:flex!important;
+  align-items:center!important;
+  border-bottom:1px solid #eef2f6!important;
+}
+#journeyAiPanel.cj-journey-v2 .ai-head-main{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-width:0!important;
+}
+#journeyAiPanel.cj-journey-v2 .ai-head-main>strong{
+  font-size:15px!important;
+  line-height:1!important;
+  color:#111827!important;
+  white-space:nowrap!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiContext{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  margin:0!important;
+  max-width:42vw!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#667085!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  pointer-events:none!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiOpenWorkspace{display:none!important}
+#journeyAiPanel.cj-journey-v2 #aiClose{
+  position:absolute!important;
+  right:12px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:38px!important;
+  height:38px!important;
+  padding:8px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#2f80d8!important;
+  box-shadow:none!important;
+  display:grid!important;
+  place-items:center!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiClose svg{width:21px!important;height:21px!important}
+.cj-ai-live{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  font-size:9.5px!important;
+  line-height:1!important;
+  font-weight:800!important;
+  letter-spacing:.04em!important;
+  color:#20a464!important;
+  white-space:nowrap!important;
+}
+.cj-ai-live i{
+  position:relative!important;
+  width:8px!important;
+  height:8px!important;
+  border-radius:50%!important;
+  background:currentColor!important;
+  display:inline-block!important;
+}
+.cj-ai-live.live i:after{
+  content:""!important;
+  position:absolute!important;
+  inset:-4px!important;
+  border:1px solid currentColor!important;
+  border-radius:50%!important;
+  animation:cjLiveSignal 1.5s ease-out infinite!important;
+}
+.cj-ai-live.connecting{color:#d18b19!important}
+.cj-ai-live.offline{color:#98a2b3!important}
+@keyframes cjLiveSignal{0%{transform:scale(.65);opacity:.8}75%,100%{transform:scale(1.45);opacity:0}}
+
+/* Conversation is the independently scrollable region. */
+#journeyAiPanel.cj-journey-v2 #aiThread{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:10px 14px 12px!important;
+  scroll-behavior:smooth!important;
+}
+
+/* Composer: + on left, long field, tiny red dictation mic inside. */
+#journeyAiPanel.cj-journey-v2 .ai-compose{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:38px minmax(0,1fr) 38px!important;
+  align-items:center!important;
+  gap:7px!important;
+  padding:8px 12px 6px!important;
+  margin:0!important;
+  border-top:1px solid #eef2f6!important;
+  background:#fff!important;
+}
+#journeyAiPanel.cj-journey-v2 .ai-attach{
+  width:38px!important;height:38px!important;min-width:38px!important;
+  border-radius:50%!important;margin:0!important;padding:0!important;
+}
+#journeyAiPanel.cj-journey-v2 .cj-ai-input-wrap{
+  position:relative!important;
+  min-width:0!important;
+  width:100%!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiInput{
+  width:100%!important;
+  height:40px!important;
+  min-height:40px!important;
+  margin:0!important;
+  padding:0 43px 0 13px!important;
+  border:1px solid #dfe6ee!important;
+  border-radius:20px!important;
+  background:#f8fafc!important;
+  color:#111827!important;
+  font-size:14px!important;
+  outline:none!important;
+  box-sizing:border-box!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiInput:focus{
+  border-color:#8bb9eb!important;
+  box-shadow:0 0 0 3px rgba(47,128,216,.08)!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiMic{
+  position:absolute!important;
+  right:7px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  margin:0!important;
+  padding:4px!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  color:#df4f57!important;
+  box-shadow:none!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiMic svg{
+  width:17px!important;
+  height:17px!important;
+}
+#journeyAiPanel.cj-journey-v2 #aiMic.cj-dictating{
+  background:rgba(223,79,87,.10)!important;
+  animation:cjDictatePulse 1.15s ease-in-out infinite!important;
+}
+@keyframes cjDictatePulse{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.08)}}
+#journeyAiPanel.cj-journey-v2 #aiSend{
+  width:38px!important;height:38px!important;min-width:38px!important;
+  margin:0!important;padding:8px!important;border-radius:50%!important;
+}
+
+/* Quick prompts: blue text, no pills, below composer. */
+#journeyAiPanel.cj-journey-v2 .ai-quick{
+  order:20!important;
+  flex:0 0 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+  overflow-x:auto!important;
+  white-space:nowrap!important;
+  scrollbar-width:none!important;
+  margin:0!important;
+  padding:2px 14px 10px!important;
+  background:#fff!important;
+}
+#journeyAiPanel.cj-journey-v2 .ai-quick::-webkit-scrollbar{display:none!important}
+#journeyAiPanel.cj-journey-v2 .ai-quick .ai-chip{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:3px 0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#2d7fd3!important;
+  font-size:11.5px!important;
+  font-weight:750!important;
+}
+
+/* "New messages" jump control. */
+#journeyAiPanel.cj-journey-v2 .cj-new-message-jump{
+  position:absolute!important;
+  left:50%!important;
+  bottom:94px!important;
+  transform:translateX(-50%)!important;
+  width:34px!important;height:34px!important;
+  border:1px solid #dce5ef!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#2f80d8!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  box-shadow:0 6px 18px rgba(15,23,42,.12)!important;
+  z-index:8!important;
+}
+#journeyAiPanel.cj-journey-v2 .cj-new-message-jump[hidden]{display:none!important}
+#journeyAiPanel.cj-journey-v2 .cj-new-message-jump svg{width:18px!important;height:18px!important}
+
+/* Homepage floating control: text pill hides only while text panel is open; mic never shifts. */
+#cjScreenshotHome .cjx-ai-dock.cj-chat-open .cjx-ai-pill{display:none!important}
+#cjScreenshotHome .cjx-ai-dock .cjx-mic{
+  position:relative!important;
+  z-index:1002!important;
+}
+#cjScreenshotHome .cjx-ai-dock .cjx-mic.cj-live-voice{
+  animation:cjVoicePulse 1.35s ease-in-out infinite!important;
+}
+#cjScreenshotHome .cjx-ai-dock .cjx-mic.cj-live-voice:after{
+  content:""!important;
+  position:absolute!important;
+  inset:-5px!important;
+  border:2px solid rgba(58,131,215,.30)!important;
+  border-radius:50%!important;
+  animation:cjVoiceRing 1.35s ease-out infinite!important;
+}
+@keyframes cjVoicePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes cjVoiceRing{0%{transform:scale(.88);opacity:.8}100%{transform:scale(1.22);opacity:0}}
+#cjScreenshotHome .cj-voice-state{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  height:24px;
+  padding:0 8px;
+  border-radius:12px;
+  background:rgba(255,255,255,.96);
+  border:1px solid #dfe7ef;
+  box-shadow:0 4px 12px rgba(15,23,42,.07);
+  color:#5f6b7a;
+  font-size:9.5px;
+  font-weight:800;
+  letter-spacing:.01em;
+  white-space:nowrap;
+}
+#cjScreenshotHome .cj-ai-dock.cj-voice-active .cj-voice-state{display:inline-flex!important}
+
+/* When chat is half-height, homepage profile remains a normal page-header element.
+   It never becomes viewport-sticky or part of the chat layer. */
+#cjScreenshotHome .cjx-profile,
+#cjScreenshotHome .cjx-profile-wrap{
+  position:absolute!important;
+}
+#journeyAiPanel.cj-journey-v2:not(.hidden) ~ #cjScreenshotHome .cjx-profile{z-index:auto!important}
+
+/* 30% larger Journey/Journeys icon only. Text size is untouched. */
+#cjScreenshotHome .cjx-bottom [data-cjh-nav="journeys"] .dots-icon,
+#cjScreenshotHome .cjx-bottom [data-cjh-nav="journeys"] .cjx-brand-nav-icon,
+#cjScreenshotHome .cjx-bottom [data-cjh-nav="journeys"] .cjx-journey-mark{
+  width:31.2px!important;
+  height:31.2px!important;
+  max-width:31.2px!important;
+  max-height:31.2px!important;
+  flex-basis:31.2px!important;
+}
+#cjScreenshotHome .cjx-bottom [data-cjh-nav="journeys"]{
+  overflow:visible!important;
+}
+#cjScreenshotHome .cjx-bottom [data-cjh-nav="journeys"]>span:last-child{
+  font-size:inherit!important;
+  line-height:inherit!important;
+  margin-top:-3px!important;
+}
+
+/* Keep the large homepage mic above a half panel, but full-screen chat is focused. */
+body.cj-chat-half #cjScreenshotHome .cjx-ai-dock{z-index:1001!important}
+body.cj-chat-full #cjScreenshotHome .cjx-ai-dock{z-index:190!important;pointer-events:none!important}
+body.cj-chat-full #cjScreenshotHome .cjx-ai-dock .cjx-mic{visibility:hidden!important}
+
+@media(max-width:390px){
+  #journeyAiPanel.cj-journey-v2{
+    min-height:310px!important;
+  }
+  #journeyAiPanel.cj-journey-v2 #aiContext{max-width:36vw!important}
+  #journeyAiPanel.cj-journey-v2 .ai-quick{gap:12px!important;padding-left:12px!important;padding-right:12px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #journeyAiPanel.cj-journey-v2,
+  #cjScreenshotHome .cjx-ai-dock .cjx-mic.cj-live-voice,
+  #cjScreenshotHome .cjx-ai-dock .cjx-mic.cj-live-voice:after,
+  .cj-ai-live.live i:after,
+  #journeyAiPanel.cj-journey-v2 #aiMic.cj-dictating{animation:none!important;transition:none!important}
+}
+</style>
+
+<script id="cjJourneyUxV2Script">
+(function(){
+  if(window.__cjJourneyUxV2)return;
+  window.__cjJourneyUxV2=true;
+
+  var panelState="closed";
+  var voiceState="off";
+  var dictation=null;
+  var programmaticScroll=false;
+  var scrollPaused=false;
+  var lastUserScrollAt=0;
+
+  function byId(id){return document.getElementById(id)}
+  function home(){return byId("cjScreenshotHome")}
+  function panel(){return byId("journeyAiPanel")}
+  function dock(){var h=home();return h&&h.querySelector(".cjx-ai-dock")}
+  function bigMic(){var d=dock();return d&&d.querySelector(".cjx-mic")}
+  function aiPill(){var d=dock();return d&&d.querySelector(".cjx-ai-pill")}
+  function thread(){return byId("aiThread")}
+
+  function setConnectionStatus(mode){
+    var n=byId("cjAiLiveStatus");
+    if(!n)return;
+    var m=mode||((navigator.onLine===false)?"offline":"live");
+    n.classList.remove("live","connecting","offline");
+    n.classList.add(m);
+    var label=n.querySelector("span");
+    if(label)label.textContent=m==="connecting"?"CONNECTING":m==="offline"?"OFFLINE":"LIVE";
+  }
+
+  function setVoiceState(next){
+    voiceState=next||"off";
+    var d=dock(),m=bigMic();
+    if(d){
+      d.classList.toggle("cj-voice-active",voiceState!=="off");
+      var label=d.querySelector(".cj-voice-state");
+      if(label){
+        var copy={connecting:"Connecting",listening:"Listening",thinking:"Thinking",speaking:"Speaking",off:""};
+        label.textContent=copy[voiceState]||"";
+      }
+    }
+    if(m)m.classList.toggle("cj-live-voice",voiceState!=="off");
+    if(voiceState==="connecting")setConnectionStatus("connecting");
+    else if(voiceState!=="off")setConnectionStatus("live");
+    else setConnectionStatus();
+  }
+
+  function setPanelState(next){
+    var p=panel(); if(!p)return;
+    panelState=next;
+    document.body.classList.remove("cj-chat-half","cj-chat-full");
+    p.classList.remove("cj-full","expanded","collapsed");
+    if(next==="closed"){
+      p.classList.add("hidden");
+    }else{
+      p.classList.remove("hidden");
+      p.classList.add("cj-journey-v2");
+      if(next==="full"){
+        p.classList.add("cj-full");
+        document.body.classList.add("cj-chat-full");
+      }else{
+        document.body.classList.add("cj-chat-half");
+      }
+    }
+    var d=dock();
+    if(d)d.classList.toggle("cj-chat-open",next!=="closed");
+    var pill=aiPill();
+    if(pill)pill.setAttribute("aria-hidden",next!=="closed"?"true":"false");
+  }
+
+  function openText(){
+    var p=panel();
+    if(!p)return false;
+    var real=byId("journeyAiFab");
+    if(p.classList.contains("hidden")&&real){
+      try{real.click()}catch(_){}
+    }
+    setPanelState("half");
+    requestAnimationFrame(function(){
+      var t=thread();
+      if(t&&!scrollPaused){
+        programmaticScroll=true;
+        t.scrollTop=t.scrollHeight;
+        requestAnimationFrame(function(){programmaticScroll=false});
+      }
+    });
+    return true;
+  }
+
+  function closeText(){
+    setPanelState("closed");
+    return true;
+  }
+
+  function togglePanel(){
+    if(panelState==="closed" || (panel()&&panel().classList.contains("hidden"))) return openText();
+    setPanelState(panelState==="full"?"half":"full");
+    return true;
+  }
+
+  function toggleVoice(){
+    var hidden=byId("aiTalkFab");
+    if(!hidden)return false;
+    if(voiceState!=="off"){
+      try{hidden.click()}catch(_){}
+      setVoiceState("off");
+      return true;
+    }
+    setVoiceState("connecting");
+    try{hidden.click()}catch(_){setVoiceState("off");return false}
+    return true;
+  }
+
+  function installHeader(){
+    var p=panel(); if(!p)return;
+    p.classList.add("cj-journey-v2");
+    var head=p.querySelector(".ai-head");
+    var main=p.querySelector(".ai-head-main");
+    var title=main&&main.querySelector("strong");
+    if(title&&!byId("cjAiLiveStatus")){
+      var live=document.createElement("span");
+      live.id="cjAiLiveStatus";
+      live.className="cj-ai-live live";
+      live.innerHTML="<i aria-hidden='true'></i><span>LIVE</span>";
+      title.insertAdjacentElement("afterend",live);
+    }
+    var workspace=byId("aiOpenWorkspace");
+    if(workspace)workspace.style.display="none";
+    var ctx=byId("aiContext");
+    if(ctx)ctx.textContent="Owner Dashboard";
+    setConnectionStatus();
+  }
+
+  function installComposer(){
+    var p=panel(),compose=p&&p.querySelector(".ai-compose"),input=byId("aiInput"),mic=byId("aiMic");
+    if(!compose||!input||!mic)return;
+    input.placeholder="Ask Journey";
+    if(!input.parentElement.classList.contains("cj-ai-input-wrap")){
+      var wrap=document.createElement("div");
+      wrap.className="cj-ai-input-wrap";
+      compose.insertBefore(wrap,input);
+      wrap.appendChild(input);
+      wrap.appendChild(mic);
+    }
+    mic.setAttribute("aria-label","Dictate message");
+    mic.setAttribute("title","Dictate message");
+  }
+
+  function sendPrompt(prompt){
+    var input=byId("aiInput"),send=byId("aiSend");
+    if(!input||!send)return;
+    input.value=prompt;
+    input.dispatchEvent(new Event("input",{bubbles:true}));
+    send.click();
+  }
+
+  function installQuickActions(){
+    var p=panel(),quick=p&&p.querySelector(".ai-quick"),compose=p&&p.querySelector(".ai-compose");
+    if(!quick||!compose)return;
+    if(quick.previousElementSibling!==compose)compose.insertAdjacentElement("afterend",quick);
+    if(!quick.dataset.cjV2){
+      quick.dataset.cjV2="1";
+      var actions=[
+        ["Grow bookings","Help me grow bookings and rebooking using my current business data and Journey setup. Give me the highest-impact options and recommend what to do first."],
+        ["Grow revenue","Analyze my current business context and give me practical options to grow verified revenue, cash flow, and repeat business. Recommend the best next move."],
+        ["Marketing plan","Build a practical marketing plan from my Business Brain, goals, services, customer behavior, and connected data. Give me options and a recommended plan."],
+        ["Analyze business","Analyze my business using the context and data CreateJourney currently has. Show what needs attention, the biggest opportunities, and what you recommend next."]
+      ];
+      quick.innerHTML="";
+      actions.forEach(function(item){
+        var b=document.createElement("button");
+        b.type="button"; b.className="ai-chip"; b.textContent=item[0]; b.dataset.prompt=item[1];
+        b.addEventListener("click",function(){sendPrompt(item[1])});
+        quick.appendChild(b);
+      });
+    }
+  }
+
+  function startDictation(e){
+    if(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}
+    var mic=byId("aiMic"),input=byId("aiInput");
+    if(!mic||!input)return;
+    if(dictation){
+      try{dictation.stop()}catch(_){}
+      dictation=null; mic.classList.remove("cj-dictating"); return;
+    }
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){
+      input.focus();
+      input.setAttribute("placeholder","Dictation is unavailable in this browser");
+      setTimeout(function(){input.setAttribute("placeholder","Ask Journey")},1800);
+      return;
+    }
+    var r=new SR();
+    dictation=r;
+    r.lang="en-US";
+    r.continuous=false;
+    r.interimResults=true;
+    var base=input.value ? input.value.trim()+" " : "";
+    mic.classList.add("cj-dictating");
+    r.onresult=function(ev){
+      var finalText="",interim="";
+      for(var i=ev.resultIndex;i<ev.results.length;i++){
+        var txt=ev.results[i][0].transcript;
+        if(ev.results[i].isFinal)finalText+=txt; else interim+=txt;
+      }
+      input.value=(base+finalText+interim).trimStart();
+      input.dispatchEvent(new Event("input",{bubbles:true}));
+    };
+    r.onerror=function(){};
+    r.onend=function(){
+      dictation=null;
+      mic.classList.remove("cj-dictating");
+      input.focus();
+    };
+    try{r.start()}catch(_){dictation=null;mic.classList.remove("cj-dictating")}
+  }
+
+  function installDictationInterception(){
+    var mic=byId("aiMic");
+    if(!mic||mic.dataset.cjDictationV2)return;
+    mic.dataset.cjDictationV2="1";
+    mic.addEventListener("click",startDictation,true);
+  }
+
+  function installPanelControls(){
+    var handle=byId("aiHandle"),close=byId("aiClose");
+    if(handle&&!handle.dataset.cjPanelV2){
+      handle.dataset.cjPanelV2="1";
+      handle.setAttribute("role","button");
+      handle.setAttribute("aria-label","Expand or collapse Journey AI");
+      handle.addEventListener("click",function(e){
+        e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+        togglePanel();
+      },true);
+    }
+    if(close&&!close.dataset.cjPanelV2){
+      close.dataset.cjPanelV2="1";
+      close.addEventListener("click",function(e){
+        e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+        closeText();
+      },true);
+    }
+  }
+
+  function installJump(){
+    var p=panel();if(!p||p.querySelector(".cj-new-message-jump"))return;
+    var b=document.createElement("button");
+    b.type="button";
+    b.className="cj-new-message-jump";
+    b.hidden=true;
+    b.setAttribute("aria-label","Jump to newest message");
+    b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    b.addEventListener("click",function(){
+      scrollPaused=false;
+      b.hidden=true;
+      var t=thread();if(!t)return;
+      programmaticScroll=true;
+      t.scrollTo({top:t.scrollHeight,behavior:"smooth"});
+      setTimeout(function(){programmaticScroll=false},420);
+    });
+    p.appendChild(b);
+  }
+
+  function showJump(show){
+    var p=panel(),b=p&&p.querySelector(".cj-new-message-jump");
+    if(b)b.hidden=!show;
+  }
+
+  window.CJJourneyScroll={
+    afterAppend:function(t,node,type){
+      if(!t)return;
+      if(scrollPaused){
+        showJump(true);
+        return;
+      }
+      requestAnimationFrame(function(){
+        programmaticScroll=true;
+        t.scrollTop=t.scrollHeight;
+        requestAnimationFrame(function(){programmaticScroll=false});
+      });
+    }
+  };
+
+  function installScrollBehavior(){
+    var t=thread();
+    if(!t||t.dataset.cjScrollV2)return;
+    t.dataset.cjScrollV2="1";
+    var lastTop=t.scrollTop;
+    t.addEventListener("scroll",function(){
+      if(programmaticScroll){lastTop=t.scrollTop;return}
+      var distance=t.scrollHeight-t.clientHeight-t.scrollTop;
+      var movingUp=t.scrollTop<lastTop-2;
+      lastTop=t.scrollTop;
+      if(movingUp&&distance>70){
+        scrollPaused=true;
+        lastUserScrollAt=Date.now();
+        showJump(true);
+      }else if(distance<36){
+        scrollPaused=false;
+        showJump(false);
+      }
+    },{passive:true});
+    var mo=new MutationObserver(function(records){
+      var added=false;
+      records.forEach(function(r){if(r.addedNodes&&r.addedNodes.length)added=true});
+      if(!added)return;
+      if(scrollPaused)showJump(true);
+      else{
+        programmaticScroll=true;
+        t.scrollTop=t.scrollHeight;
+        requestAnimationFrame(function(){programmaticScroll=false});
+      }
+    });
+    mo.observe(t,{childList:true});
+  }
+
+  function installDock(){
+    var d=dock();if(!d)return;
+    if(!d.querySelector(".cj-voice-state")){
+      var status=document.createElement("span");
+      status.className="cj-voice-state";
+      status.setAttribute("aria-live","polite");
+      var m=bigMic();
+      if(m)d.insertBefore(status,m); else d.appendChild(status);
+    }
+    var m=bigMic();
+    if(m){
+      m.setAttribute("aria-label","Talk to Journey AI");
+      m.setAttribute("title","Talk to Journey AI");
+    }
+  }
+
+  function syncInitialPanelState(){
+    var p=panel();if(!p)return;
+    if(p.classList.contains("hidden"))setPanelState("closed");
+    else setPanelState("half");
+  }
+
+  function install(){
+    installHeader();
+    installComposer();
+    installQuickActions();
+    installDictationInterception();
+    installPanelControls();
+    installJump();
+    installScrollBehavior();
+    installDock();
+    syncInitialPanelState();
+  }
+
+  window.CJJourneyUxV2={
+    openText:openText,
+    closeText:closeText,
+    togglePanel:togglePanel,
+    toggleVoice:toggleVoice,
+    setVoiceState:setVoiceState,
+    setConnectionStatus:setConnectionStatus,
+    install:install
+  };
+
+  window.addEventListener("online",function(){setConnectionStatus("live")});
+  window.addEventListener("offline",function(){setConnectionStatus("offline")});
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
+  else install();
+
+  /* Exact-home markup is re-rendered during preview/mode changes, so re-install the dock UI safely. */
+  var root=document.documentElement;
+  new MutationObserver(function(){
+    if(home())installDock();
+  }).observe(root,{subtree:true,childList:true});
+})();
+</script>
+<!-- CJ JOURNEY UX V2 END -->
+
 </body>
 </html>
