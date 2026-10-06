@@ -13834,10 +13834,10 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 /* Shared geometry variables keep the dock tied to the nav instead of relying on unrelated offsets. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome{
   --cjx-nav-core-height:58px;
-  --cjx-ai-nav-gap:3px;
+  --cjx-ai-nav-gap:1px;
 }
 
-/* Journey AI + mic: fixed as one unit, exactly 3px above the rendered nav panel top. */
+/* Journey AI + mic: fixed as one unit, 1px above the rendered nav panel top so it nearly touches without overlapping. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome .cjx-ai-dock{
   position:fixed!important;
   left:auto!important;
