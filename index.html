@@ -14932,5 +14932,67 @@ body.cj-chat-full #cjScreenshotHome .cjx-ai-dock .cjx-mic{visibility:hidden!impo
 </script>
 <!-- CJ JOURNEY UX V2 END -->
 
+
+<!-- CJ PROFILE HOME-ONLY FIX V1 START -->
+<style id="cjProfileHomeOnlyFixV1">
+/* Profile is available ONLY on the active Business Command Center homepage. */
+#cjScreenshotHome .cjx-profile-wrap{
+  display:none!important;
+}
+
+/* Fixed to the viewport's upper-right corner: it never follows page scrolling. */
+#dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap{
+  display:block!important;
+  position:fixed!important;
+  top:calc(env(safe-area-inset-top, 0px) + 4px)!important;
+  right:10px!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:40px!important;
+  height:40px!important;
+  margin:0!important;
+  padding:0!important;
+  z-index:180!important;
+}
+
+/* Neutralize older rules that positioned the button relative to homepage content. */
+#dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap>.cjx-profile{
+  position:relative!important;
+  inset:auto!important;
+  top:0!important;
+  right:0!important;
+  left:0!important;
+  bottom:0!important;
+  width:40px!important;
+  height:40px!important;
+  margin:0!important;
+  z-index:1!important;
+}
+
+/* Keep the dropdown attached to the fixed profile control. */
+#dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap>.cjx-profile-menu{
+  position:absolute!important;
+  top:46px!important;
+  right:0!important;
+  left:auto!important;
+  z-index:2!important;
+}
+
+/* Setup/onboarding and any non-command-center state must never expose this profile control. */
+#dashboardApp:not([data-cjx-exact-mode="active"]) #cjScreenshotHome .cjx-profile-wrap,
+#dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-profile-wrap,
+body.cj-chat-full #cjScreenshotHome .cjx-profile-wrap{
+  display:none!important;
+}
+
+@media(max-width:390px){
+  #dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap{
+    top:calc(env(safe-area-inset-top, 0px) + 3px)!important;
+    right:8px!important;
+  }
+}
+</style>
+<!-- CJ PROFILE HOME-ONLY FIX V1 END -->
+
 </body>
 </html>
