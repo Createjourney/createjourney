@@ -13936,9 +13936,18 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
   margin:0!important;font-size:10px!important;line-height:1!important;font-weight:800!important;
 }
 
-/* Final content terminates at the fixed navigation panel with no synthetic footer gap. */
+/* Final content stops above the fixed Journey AI dock at max scroll.
+   Geometry: nav 58px + AI/nav gap 2px + AI dock 48px + content/dock gap 6px. */
 #dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome{
-  padding-bottom:calc(var(--cjx-nav-core-height) + env(safe-area-inset-bottom,0px))!important;
+  --cjx-ai-dock-height:48px;
+  --cjx-content-dock-gap:6px;
+  padding-bottom:calc(
+    var(--cjx-nav-core-height)
+    + var(--cjx-ai-nav-gap)
+    + var(--cjx-ai-dock-height)
+    + var(--cjx-content-dock-gap)
+    + env(safe-area-inset-bottom,0px)
+  )!important;
   min-height:0!important;
 }
 #dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-controls{margin-bottom:0!important}
