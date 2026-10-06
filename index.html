@@ -11230,7 +11230,7 @@ button.primary,button.secondary,.primary,.secondary{
        visualViewport.height with getBoundingClientRect() coordinates. */
     var navHeight=Math.round(nav.getBoundingClientRect().height||nav.offsetHeight||58);
     dock.style.setProperty('top','auto','important');
-    dock.style.setProperty('bottom',navHeight+'px','important');
+    dock.style.setProperty('bottom',(navHeight+2)+'px','important');
   }
   function bindCarousel(h){var c=h.querySelector('[data-cjx-carousel]');if(!c)return;var dots=[].slice.call(h.querySelectorAll('.cjx-dot'));var timer=0;c.addEventListener('scroll',function(){clearTimeout(timer);timer=setTimeout(function(){var idx=Math.round(c.scrollLeft/Math.max(1,c.clientWidth));dots.forEach(function(d,i){d.classList.toggle('active',i===idx)})},60)})}
   function openExistingJourneyAI(){
@@ -13854,7 +13854,7 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 /* Shared geometry variables keep the dock tied to the nav instead of relying on unrelated offsets. */
 #dashboardApp[data-cjx-exact-mode] #cjScreenshotHome{
   --cjx-nav-core-height:58px;
-  --cjx-ai-nav-gap:0px;
+  --cjx-ai-nav-gap:2px;
 }
 
 /* Journey AI + mic: fixed as one unit. CSS provides a fallback; runtime geometry pins it flush to the actual rendered nav divider with a 0px gap. */
@@ -13923,6 +13923,20 @@ window.CJExploreDirectory={open,close,render,features:FEATURES,version:'1.0'};
 }
 #dashboardApp #cjScreenshotHome .cjx-bottom button>span:last-child{
   margin:0!important;font-size:10.5px!important;line-height:1!important;font-weight:800!important;
+}
+
+/* Active Home scroll stop: the final Control Center row meets the nav divider at max scroll.
+   Padding equals the fixed nav panel's rendered height—no extra dead footer space. */
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome{
+  padding-bottom:calc(var(--cjx-nav-core-height) + env(safe-area-inset-bottom,0px))!important;
+  min-height:0!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"] #cjScreenshotHome .cjx-controls{
+  margin-bottom:0!important;
+}
+#dashboardApp[data-cjx-exact-mode="active"]>.dashboard-shell{
+  padding-bottom:0!important;
+  min-height:0!important;
 }
 
 /* Premium stationary profile control at the true upper-right. */
