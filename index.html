@@ -14933,18 +14933,24 @@ body.cj-chat-full #cjScreenshotHome .cjx-ai-dock .cjx-mic{visibility:hidden!impo
 <!-- CJ JOURNEY UX V2 END -->
 
 
-<!-- CJ PROFILE HOME-ONLY FIX V1 START -->
-<style id="cjProfileHomeOnlyFixV1">
-/* Profile is available ONLY on the active Business Command Center homepage. */
+
+
+
+<!-- CJ PROFILE HOME-ONLY FIX V2 START -->
+<style id="cjProfileHomeOnlyFixV2">
+/* The profile control belongs to the Business Command Center header only.
+   It is anchored to the homepage content, NOT the viewport, so it scrolls away
+   when the owner leaves the top of the Command Center. */
+#cjScreenshotHome{
+  position:relative!important;
+}
 #cjScreenshotHome .cjx-profile-wrap{
   display:none!important;
 }
-
-/* Fixed to the viewport's upper-right corner: it never follows page scrolling. */
 #dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap{
   display:block!important;
-  position:fixed!important;
-  top:calc(env(safe-area-inset-top, 0px) + 4px)!important;
+  position:absolute!important;
+  top:4px!important;
   right:10px!important;
   left:auto!important;
   bottom:auto!important;
@@ -14952,10 +14958,10 @@ body.cj-chat-full #cjScreenshotHome .cjx-ai-dock .cjx-mic{visibility:hidden!impo
   height:40px!important;
   margin:0!important;
   padding:0!important;
-  z-index:180!important;
+  z-index:40!important;
 }
 
-/* Neutralize older rules that positioned the button relative to homepage content. */
+/* Button sits inside the anchored wrapper; no fixed/sticky behavior survives. */
 #dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap>.cjx-profile{
   position:relative!important;
   inset:auto!important;
@@ -14966,10 +14972,11 @@ body.cj-chat-full #cjScreenshotHome .cjx-ai-dock .cjx-mic{visibility:hidden!impo
   width:40px!important;
   height:40px!important;
   margin:0!important;
+  padding:0!important;
   z-index:1!important;
 }
 
-/* Keep the dropdown attached to the fixed profile control. */
+/* Menu opens from that same homepage-header anchor. */
 #dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap>.cjx-profile-menu{
   position:absolute!important;
   top:46px!important;
@@ -14978,21 +14985,22 @@ body.cj-chat-full #cjScreenshotHome .cjx-ai-dock .cjx-mic{visibility:hidden!impo
   z-index:2!important;
 }
 
-/* Setup/onboarding and any non-command-center state must never expose this profile control. */
+/* Never expose the Command Center profile control on setup or other pages. */
 #dashboardApp:not([data-cjx-exact-mode="active"]) #cjScreenshotHome .cjx-profile-wrap,
 #dashboardApp[data-cjx-exact-mode="setup"] #cjScreenshotHome .cjx-profile-wrap,
+#dashboardApp.hidden #cjScreenshotHome .cjx-profile-wrap,
 body.cj-chat-full #cjScreenshotHome .cjx-profile-wrap{
   display:none!important;
 }
 
 @media(max-width:390px){
   #dashboardApp[data-cjx-exact-mode="active"]:not(.hidden) #cjScreenshotHome .cjx-profile-wrap{
-    top:calc(env(safe-area-inset-top, 0px) + 3px)!important;
+    top:3px!important;
     right:8px!important;
   }
 }
 </style>
-<!-- CJ PROFILE HOME-ONLY FIX V1 END -->
+<!-- CJ PROFILE HOME-ONLY FIX V2 END -->
 
 </body>
 </html>
