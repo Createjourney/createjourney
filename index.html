@@ -15004,5 +15004,90 @@ body.cj-chat-full #cjScreenshotHome .cjx-profile-wrap{
 </style>
 <!-- CJ PROFILE HOME-ONLY FIX V2 END -->
 
+
+<!-- CJ PREMIUM RETURN NAV V1 -->
+<style id="cj-premium-return-nav-v1">
+/* One premium return control across top-level CreateJourney workspaces. */
+.manager-back,.quick-back,.library-back,.team-back,.integrations-back,
+.cjj-back,.cje-back,.cj33-close,.cj365-close,.ai-workspace-back{
+  width:42px!important;min-width:42px!important;height:42px!important;
+  margin:0!important;padding:0!important;border-radius:50%!important;
+  border:1px solid #d9e2ec!important;background:rgba(255,255,255,.98)!important;
+  color:#24364a!important;display:grid!important;place-items:center!important;
+  line-height:0!important;font-size:0!important;
+  box-shadow:0 5px 16px rgba(15,23,42,.06)!important;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.manager-back svg,.quick-back svg,.library-back svg,.team-back svg,.integrations-back svg,
+.cjj-back svg,.cje-back svg,.cj33-close svg,.cj365-close svg,.ai-workspace-back svg{
+  width:20px!important;height:20px!important;display:block!important;
+  fill:none!important;stroke:currentColor!important;stroke-width:2.15!important;
+  stroke-linecap:round!important;stroke-linejoin:round!important;
+}
+.manager-back:active,.quick-back:active,.library-back:active,.team-back:active,.integrations-back:active,
+.cjj-back:active,.cje-back:active,.cj33-close:active,.cj365-close:active,.ai-workspace-back:active{
+  transform:scale(.96);background:#f8fafc!important;
+}
+/* Social/Live Performance workspace: centered CreateJourney brand with the return control at left. */
+#cj365SocialCenter .cj365-top{position:sticky!important;display:block!important;min-height:92px!important;padding-top:calc(10px + env(safe-area-inset-top))!important}
+#cj365SocialCenter .cj365-close{position:absolute!important;left:0!important;top:calc(10px + env(safe-area-inset-top))!important;z-index:4!important}
+#cj365SocialCenter #cj365BrandSlot{
+  position:absolute!important;left:50%!important;top:calc(9px + env(safe-area-inset-top))!important;
+  transform:translateX(-50%)!important;display:flex!important;justify-content:center!important;
+  align-items:center!important;width:min(190px,48vw)!important;height:44px!important;z-index:3!important;
+}
+#cj365SocialCenter #cj365BrandSlot img,
+#cj365SocialCenter .cj365-logo{width:150px!important;max-width:100%!important;height:42px!important;object-fit:contain!important;object-position:center center!important;margin:0!important}
+#cj365SocialCenter .cj365-title-wrap{display:block!important;padding-top:52px!important;text-align:center!important}
+#cj365SocialCenter .cj365-title-wrap>div:last-child{text-align:center!important}
+@media(max-width:760px){
+  #cj365SocialCenter .cj365-top{min-height:100px!important}
+  #cj365SocialCenter .cj365-title-wrap{padding-top:54px!important}
+}
+</style>
+<script id="cj-premium-return-nav-v1-script">
+(function(){
+  if(window.__cjPremiumReturnNavV1)return;
+  window.__cjPremiumReturnNavV1=true;
+  const ARROW='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>';
+  const SELECTORS=[
+    '#managerBack','#addBoardBack','#libraryBack','#teamBack','#connectedAccountsBack',
+    '#aiWorkspaceBack','.cjj-back','.cje-back','.cj33-close','.cj365-close'
+  ];
+  function premiumize(){
+    document.querySelectorAll(SELECTORS.join(',')).forEach(btn=>{
+      if(btn.dataset.cjPremiumBack==='1')return;
+      btn.dataset.cjPremiumBack='1';
+      btn.innerHTML=ARROW;
+      btn.setAttribute('aria-label','Back');
+      btn.setAttribute('title','Back');
+    });
+  }
+  function ensureSocialHeader(){
+    const top=document.querySelector('#cj365SocialCenter .cj365-top');
+    const back=document.querySelector('#cj365SocialCenter .cj365-close');
+    if(top&&back&&top.firstElementChild!==back)top.prepend(back);
+  }
+  function sync(){premiumize();ensureSocialHeader()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true});else sync();
+  new MutationObserver(sync).observe(document.documentElement,{subtree:true,childList:true});
+
+  /* Capture the routes that were reported unreliable before older document handlers. */
+  window.addEventListener('click',function(e){
+    const cjj=e.target.closest&&e.target.closest('[data-cjj-back]');
+    if(cjj){
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      try{window.CJJourneysCommandCenter?.close?.()}catch(_){}
+      return;
+    }
+    const social=e.target.closest&&e.target.closest('[data-cj365-close]');
+    if(social){
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      try{window.CJBuild365?.social?.close?.()}catch(_){}
+      return;
+    }
+  },true);
+})();
+</script>
 </body>
 </html>
