@@ -1875,7 +1875,7 @@ const LOCAL_ACCOUNT_KEY="createjourney_build3_account_v1";
 let sb=null,backendWorkspaceId=null,actualRole="Owner",backendReady=false,backendConnectionState="checking",restoring=false,signedInEmail="",isPlatformAdmin=false,adminBoards=[],adminActionBusy=false,adminHistoryBoardNumber=null,authRouting=false;
 let aiBusinessProfile={goals:[]};
 let aiTimeline=[],aiMediaLibrary=[],aiConversationSessions=[],aiWorkDrafts=[],aiTimelineFilter="All",aiTimelineView="activity",aiMediaFilter="All",aiMemoryItems=[],aiProjects=[],aiActiveProjectId=null,aiOperationQueue=[],aiOperationHistory=[],aiDismissedRecommendations=[],aiWorkspaceActiveTab="timeline",connectedAccounts=[],integrationActivity=[],integrationFilter="All",integrationCategory="All",integrationWizardProviderId=null,integrationBackendState={available:false,checked:false,error:"",lastCheckedAt:null},aiOpportunityQueue=[],aiExternalActions=[],aiCreativeJobs=[],aiMemorySignals=[],aiRecommendationFeedback=[],aiCampaigns=[],aiLearningInsights=[],aiExperiments=[],aiCampaignMetricsSyncAt=null,aiMarketingPlans=[],aiContentLibrary=[],aiScheduleQueue=[],aiMarketingPreferences={promoStyle:"brand_first",suggestionLevel:"helpful",creativeTone:"on_brand"},aiCalendarCursor=null,aiBusinessSnapshots=[],aiAttributionRecords=[],aiForecasts=[],aiAnomalies=[],aiAdvisorBriefs=[],aiIntelligenceSyncAt=null,aiAutomations=[],aiAutomationRuns=[],aiAutomationMaster={paused:false,backendConfirmed:false,updatedAt:null},aiAutomationSignals=[],aiAutomationPackHistory=[],billingState={planId:"core",status:"unconfirmed",source:"local_fallback",customerId:null,subscriptionId:null,currentPeriodEnd:null,cancelAtPeriodEnd:false,portalAvailable:false,lastSyncedAt:null},billingPlanCatalog=[],workspaceEntitlements={},workspaceUsage={periodStart:null,periodEnd:null,aiUnits:null,creativeGenerations:null,automationRuns:null,providerActions:null,source:"local_fallback"},billingInvoices=[],productionReadiness={lastRunAt:null,backendCheckedAt:null,backendVerified:false,backend:{},localChecks:[],securityChecks:[],qaChecks:[],releaseStatus:"unverified"},productionDiagnostics=[],releaseGateHistory=[],launchOperations={lastSyncedAt:null,backendConfirmed:false,maintenance:{enabled:null,message:null,confirmed:false},release:{version:null,commit:null,deployedAt:null,environment:null},services:[]},pilotWorkspaces=[],operationsIncidents=[],operationsMonitoring=[],featureFlags=[],supportDiagnostics=[],aiBusinessBrain={facts:[],preferences:[],decisions:[],highlights:[],updatedAt:null},aiCreativePreferences={variationCount:1,askMode:"smart",explainMode:"on"},aiLibrarySync={lastAttemptAt:null,lastSuccessAt:null,backendConfirmed:false,error:""},aiPendingLogoMeta=null;
-let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false,realtimeLastUserText="",realtimeLastUserAt=0,realtimeAssistantTurnRendered=false,realtimeMicRestoreTimer=null,realtimePlaybackGraceUntil=0,realtimeResponseActive=false;
+let useType="",selectedActions=[],connectionValues={},boards=[],currentBoardId=null,boardEditorSelection=[],teamMembers=[],addBoardUseExistingJourney=true,currentRole="Owner",aiPendingAction=null,aiUndoSnapshot=null,auditLog=[],aiVoiceSession=false,aiPendingVoiceTranscript="",realtimePeer=null,realtimeDataChannel=null,realtimeAudioEl=null,realtimeMicStream=null,realtimeConnecting=false,realtimeAssistantTranscript="",realtimeLastAssistantText="",realtimeSuppressAssistant=false,realtimeAssistantSpeaking=false,realtimeLastUserText="",realtimeLastUserAt=0,realtimeUserTranscript="",realtimeUserDraftEl=null,realtimeAssistantTurnRendered=false,realtimeMicRestoreTimer=null,realtimePlaybackGraceUntil=0,realtimeResponseActive=false;
 const actions=["Pay","Review","Book","Subscribe","Deals","Social","Contact","Info","Portfolio","Event","Custom Link","Website"];
 const businessSuggested=["Pay","Review","Book"],personalSuggested=["Social","Website","Contact"];
 const actionConfig={Pay:{question:"Where should people go to pay?",example:"Example: your Square, Stripe, PayPal, Venmo, or payment link"},Review:{question:"Where should customers leave a review?",example:"Example: your Google Review link"},Book:{question:"Where should people book with you?",example:"Example: your booking or calendar link"},Subscribe:{question:"Where should people subscribe or join?",example:"Example: your membership, newsletter, or subscription link"},Deals:{question:"Where should people see your deals?",example:"Example: your offers, specials, promotions, or coupon page"},Social:{question:"Which social profile should people visit?",example:"Example: your Instagram, TikTok, YouTube, LinkedIn, Facebook, or X profile"},Contact:{question:"Where should people contact you?",example:"Example: your contact page, messaging link, or digital contact card"},Info:{question:"Where should people see more information?",example:"Example: your menu, instructions, pricing, FAQ, directions, or information page"},Portfolio:{question:"Where should people view your work?",example:"Example: your portfolio, gallery, creator page, or work samples"},Event:{question:"Where should people go for your event?",example:"Example: event details, tickets, schedule, directions, or RSVP page"},"Custom Link":{question:"Where should this custom action take people?",example:"Example: any website or destination you choose"},Website:{question:"Where should people visit your website?",example:"Example: your personal, business, portfolio, or company website"}};
@@ -4386,6 +4386,29 @@ function realtimeEventText(event){
   }
   return "";
 }
+function updateRealtimeUserDraft(text){
+  const value=String(text||"").trim();
+  const thread=el("aiThread");
+  if(!thread||!value)return;
+  if(!realtimeUserDraftEl||!realtimeUserDraftEl.isConnected){
+    realtimeUserDraftEl=document.createElement("div");
+    realtimeUserDraftEl.className="msg user cj-live-user-transcript";
+    realtimeUserDraftEl.setAttribute("aria-live","polite");
+    thread.appendChild(realtimeUserDraftEl);
+  }
+  realtimeUserDraftEl.textContent=value;
+  realtimeUserDraftEl.dataset.liveTranscript="true";
+  if(window.CJJourneyScroll&&typeof window.CJJourneyScroll.afterAppend==="function"){
+    window.CJJourneyScroll.afterAppend(thread,realtimeUserDraftEl,"user");
+  }else{
+    thread.scrollTop=thread.scrollHeight;
+  }
+}
+function clearRealtimeUserDraft(){
+  try{realtimeUserDraftEl?.remove()}catch(_){}
+  realtimeUserDraftEl=null;
+  realtimeUserTranscript="";
+}
 function setRealtimeMicCapture(enabled){
   try{
     realtimeMicStream?.getAudioTracks?.().forEach(track=>{
@@ -4427,12 +4450,23 @@ function handleRealtimeEvent(event){
 
   if(event.type==="input_audio_buffer.speech_started"){
     setRealtimeUi(true);
+    clearRealtimeUserDraft();
     try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("listening")}catch(_){}
     return;
   }
 
   if(event.type==="input_audio_buffer.speech_stopped"){
     try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("thinking")}catch(_){}
+    return;
+  }
+
+  if(event.type==="conversation.item.input_audio_transcription.delta"||
+     event.type==="input_audio_transcription.delta"){
+    const delta=String(event.delta||event.transcript||event.text||"");
+    if(delta){
+      realtimeUserTranscript+=delta;
+      updateRealtimeUserDraft(realtimeUserTranscript);
+    }
     return;
   }
 
@@ -4463,6 +4497,7 @@ function handleRealtimeEvent(event){
     realtimeLastUserText=t;
     realtimeLastUserAt=now;
 
+    clearRealtimeUserDraft();
     addAiMessage("user",t);
 
     if(typeof journeyAiLooksLikeImageRequest==="function"&&journeyAiLooksLikeImageRequest(t)){
@@ -4659,11 +4694,17 @@ function startBrowserVoiceFallback(){
   primeVoiceOutput();
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){addAiMessage("ai","Voice recognition is not available in this browser. You can still type your command.");return}
-  const r=new SR();r.lang="en-US";r.interimResults=false;r.maxAlternatives=1;aiVoiceSession=true;aiPendingVoiceTranscript="";
+  const r=new SR();r.lang="en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;aiVoiceSession=true;aiPendingVoiceTranscript="";
   el("aiMic").classList.add("listening");el("aiTalkFab").classList.add("listening");
-  r.onresult=e=>{aiPendingVoiceTranscript=e.results[0][0].transcript;el("aiInput").value=aiPendingVoiceTranscript};
+  r.onresult=e=>{
+    let full="";
+    for(let i=0;i<e.results.length;i++)full+=(e.results[i]?.[0]?.transcript||"");
+    aiPendingVoiceTranscript=full.trim();
+    el("aiInput").value=aiPendingVoiceTranscript;
+    if(aiPendingVoiceTranscript)updateRealtimeUserDraft(aiPendingVoiceTranscript);
+  };
   r.onerror=e=>{aiPendingVoiceTranscript="";const message=e.error==="not-allowed"?"Microphone access is blocked. Allow microphone access for this site, then try again.":"I could not capture that voice command. Try again or type it.";addAiMessage("ai",message)};
-  r.onend=()=>{el("aiMic").classList.remove("listening");el("aiTalkFab").classList.remove("listening");const spoken=aiPendingVoiceTranscript.trim();aiPendingVoiceTranscript="";if(spoken){setTimeout(()=>{handleAiPrompt(spoken,true);el("aiInput").value=""},180)}else{el("aiInput").value=""}};
+  r.onend=()=>{el("aiMic").classList.remove("listening");el("aiTalkFab").classList.remove("listening");const spoken=aiPendingVoiceTranscript.trim();aiPendingVoiceTranscript="";clearRealtimeUserDraft();if(spoken){setTimeout(()=>{handleAiPrompt(spoken,true);el("aiInput").value=""},180)}else{el("aiInput").value=""}};
   /* Browser fallback also announces that voice is active before listening.
      Delay recognition until the greeting has finished so it does not hear itself. */
   try{
