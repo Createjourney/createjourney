@@ -11334,8 +11334,18 @@ button.primary,button.secondary,.primary,.secondary{
     }
 
     if(action==='accounts'||action==='google'){
-      try{if(typeof window.openConnectedAccounts==='function'){window.openConnectedAccounts();return true}}catch(_){}
-      return false;
+      /* Prefer the current secure integrations hub; fall back to the legacy connected-accounts screen. */
+      try{
+        if(window.CJBuild33&&typeof window.CJBuild33.open==='function'){
+          window.CJBuild33.open();return true;
+        }
+      }catch(_){}
+      try{
+        if(typeof window.openConnectedAccounts==='function'){
+          window.openConnectedAccounts();return true;
+        }
+      }catch(_){}
+      return clickReal('quickConnectedAccounts');
     }
 
     if(action==='analytics'){
@@ -11343,8 +11353,15 @@ button.primary,button.secondary,.primary,.secondary{
     }
 
     if(action==='team'){
-      try{if(typeof window.openTeamManager==='function'){window.openTeamManager();return true}}catch(_){}
-      return false;
+      try{
+        if(typeof window.openTeamManager==='function'){
+          window.openTeamManager();
+          var teamApp=document.getElementById('teamManagerApp');
+          if(teamApp&&!teamApp.classList.contains('hidden'))return true;
+        }
+      }catch(_){}
+      if(clickReal('manageTeamLink'))return true;
+      return clickReal('quickInviteTeam');
     }
 
     if(action==='marketing'){
