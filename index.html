@@ -4616,7 +4616,24 @@ async function startRealtimeVoice(){
     realtimeDataChannel.onmessage=e=>{try{handleRealtimeEvent(JSON.parse(e.data))}catch(err){console.warn("Realtime event parse failed",err)}};
     realtimeDataChannel.onopen=()=>{
       setRealtimeUi(true);
-      addAiMessage("ai","Live Journey AI is connected. The microphone stays on between turns. Speak normally, interrupt me anytime, and tap the microphone again only when you want to end the conversation.");
+      /* Start every live voice session with an audible Journey AI greeting so the
+         user immediately knows the conversation is active. Mute capture during
+         the greeting to prevent Journey AI from transcribing its own voice. */
+      try{
+        setRealtimeMicCapture(false);
+        realtimeDataChannel.send(JSON.stringify({
+          type:"response.create",
+          response:{
+            instructions:"Start the live conversation now. Say exactly one short, warm opening line: \"Hi, Journey AI is connected. What can I help you with?\" Do not add anything else.",
+            modalities:["audio","text"]
+          }
+        }));
+      }catch(err){
+        console.warn("Journey AI opening greeting could not be requested",err);
+        addAiMessage("ai","Live Journey AI is connected. What can I help you with?");
+        try{speakAi("Hi, Journey AI is connected. What can I help you with?")}catch(_){}
+        setTimeout(()=>setRealtimeMicCapture(true),2200);
+      }
     };
     realtimeDataChannel.onclose=()=>setRealtimeUi(false);
     const offer=await realtimePeer.createOffer();
@@ -4647,7 +4664,24 @@ function startBrowserVoiceFallback(){
   r.onresult=e=>{aiPendingVoiceTranscript=e.results[0][0].transcript;el("aiInput").value=aiPendingVoiceTranscript};
   r.onerror=e=>{aiPendingVoiceTranscript="";const message=e.error==="not-allowed"?"Microphone access is blocked. Allow microphone access for this site, then try again.":"I could not capture that voice command. Try again or type it.";addAiMessage("ai",message)};
   r.onend=()=>{el("aiMic").classList.remove("listening");el("aiTalkFab").classList.remove("listening");const spoken=aiPendingVoiceTranscript.trim();aiPendingVoiceTranscript="";if(spoken){setTimeout(()=>{handleAiPrompt(spoken,true);el("aiInput").value=""},180)}else{el("aiInput").value=""}};
-  try{r.start()}catch(err){el("aiMic").classList.remove("listening");el("aiTalkFab").classList.remove("listening");aiPendingVoiceTranscript="";addAiMessage("ai","Voice could not start. Try again in a moment.")}
+  /* Browser fallback also announces that voice is active before listening.
+     Delay recognition until the greeting has finished so it does not hear itself. */
+  try{
+    const greeting="Hi, Journey AI is connected. What can I help you with?";
+    addAiMessage("ai",greeting);
+    speakAi(greeting);
+    setTimeout(()=>{
+      try{r.start()}catch(err){
+        el("aiMic").classList.remove("listening");el("aiTalkFab").classList.remove("listening");
+        aiPendingVoiceTranscript="";
+        addAiMessage("ai","Voice could not start. Try again in a moment.");
+      }
+    },2200);
+  }catch(err){
+    el("aiMic").classList.remove("listening");el("aiTalkFab").classList.remove("listening");
+    aiPendingVoiceTranscript="";
+    addAiMessage("ai","Voice could not start. Try again in a moment.");
+  }
 }
 async function startVoice(){
   try{window.CJJourneyUxV2&&window.CJJourneyUxV2.setVoiceState("connecting")}catch(_){}
