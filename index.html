@@ -589,6 +589,12 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 
 </style>
 <!-- Supabase loads asynchronously after first paint. -->
+
+<!-- CJ REPAIR: Hide legacy red dictation microphone inside Journey AI message field -->
+<style id="cj-remove-chat-composer-mic">
+#journeyAiPanel #aiMic { display:none !important; }
+#journeyAiPanel .cj-ai-input-wrap #aiInput { padding-right:14px !important; }
+</style>
 </head>
 <body>
 <!-- ======================================
