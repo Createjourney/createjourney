@@ -11396,7 +11396,8 @@ button.primary,button.secondary,.primary,.secondary{
     }
 
     if(action==='boards'){
-      try{if(window.CJJourneysCommandCenter&&typeof window.CJJourneysCommandCenter.open==='function'){window.CJJourneysCommandCenter.open();return true}}catch(_){}
+      /* Journeys is now the Journey AI work-history page, so SmartBoard controls
+         must continue opening the real board-management experience. */
       try{
         if(typeof window.visibleBoards==='function'&&typeof window.openBoardManager==='function'){
           var bs=window.visibleBoards()||[];
@@ -11407,7 +11408,8 @@ button.primary,button.secondary,.primary,.secondary{
           }
         }
       }catch(_){}
-      return false;
+      if(clickReal('viewAllBoards'))return true;
+      return clickReal('quickEditJourney');
     }
 
     if(action==='accounts'||action==='google'){
