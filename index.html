@@ -11411,17 +11411,15 @@ button.primary,button.secondary,.primary,.secondary{
     }
 
     if(action==='accounts'||action==='google'){
-      /* Prefer the current secure integrations hub; fall back to the legacy connected-accounts screen. */
       try{
-        if(window.CJBuild33&&typeof window.CJBuild33.open==='function'){
-          window.CJBuild33.open();return true;
+        if(window.CJJourneyWorkV2&&typeof window.CJJourneyWorkV2.startFeature==='function'){
+          window.CJJourneyWorkV2.startFeature(action==='google'
+            ?{section:'Google, Apps & Integrations',name:'Google Business & SEO',desc:'Improve local presence, Google Business and website search health.',key:'google-business-seo',tags:'google seo local search',surface:'home'}
+            :{section:'Google, Apps & Integrations',name:'Connected Accounts',desc:'Connect and use approved business tools with Journey AI.',key:'connected-accounts',tags:'integrations connected accounts',surface:'home'});
+          return true;
         }
       }catch(_){}
-      try{
-        if(typeof window.openConnectedAccounts==='function'){
-          window.openConnectedAccounts();return true;
-        }
-      }catch(_){}
+      try{if(window.CJBuild33&&typeof window.CJBuild33.open==='function'){window.CJBuild33.open();return true}}catch(_){}
       return clickReal('quickConnectedAccounts');
     }
 
@@ -11443,14 +11441,21 @@ button.primary,button.secondary,.primary,.secondary{
 
     if(action==='marketing'){
       try{
-        if(window.CJBuild365&&window.CJBuild365.social&&typeof window.CJBuild365.social.open==='function'){
-          window.CJBuild365.social.open();return true;
+        if(window.CJJourneyWorkV2&&typeof window.CJJourneyWorkV2.startFeature==='function'){
+          window.CJJourneyWorkV2.startFeature({section:'Growth & Marketing',name:'Marketing Center',desc:'Campaigns, promotions, offers and measurable growth.',key:'marketing-center',tags:'marketing campaigns growth',surface:'home'});
+          return true;
         }
       }catch(_){}
       return openWorkspaceTool('marketing');
     }
 
     if(action==='images'){
+      try{
+        if(window.CJJourneyWorkV2&&typeof window.CJJourneyWorkV2.startFeature==='function'){
+          window.CJJourneyWorkV2.startFeature({section:'Creative Studio',name:'Creative Studio',desc:'Create images, content and branded marketing assets with Journey AI.',key:'creative-studio',tags:'images creative marketing assets',surface:'home'});
+          return true;
+        }
+      }catch(_){}
       try{if(typeof window.openImageLibrary26==='function'){window.openImageLibrary26();return true}}catch(_){}
       return openWorkspaceTool('library');
     }
