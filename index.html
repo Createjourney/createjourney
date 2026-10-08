@@ -592,7 +592,7 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 
 <!-- CJ REPAIR: Hide legacy red dictation microphone inside Journey AI message field -->
 <style id="cj-remove-chat-composer-mic">
-#journeyAiPanel #aiMic { display:none !important; }
+#journeyAiPanel #aiMic { display:grid !important; }
 #journeyAiPanel .cj-ai-input-wrap #aiInput { padding-right:14px !important; }
 </style>
 
@@ -14884,7 +14884,7 @@ body:has(#journeyAiPanel:not(.hidden)) #aiLauncher{visibility:hidden!important;p
 <script id="cjOct08ChatFixScript">
 (function(){
 'use strict';
-var icon='<svg class="cj-chat-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a7.7 7.7 0 0 1-8 7.5 9.8 9.8 0 0 1-3.3-.6L4 20l1.5-4.3A7.1 7.1 0 0 1 4 11.5 7.7 7.7 0 0 1 12 4a7.7 7.7 0 0 1 8 7.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 11.5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+var icon='<svg class="cj-chat-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a7.7 7.7 0 0 1-8 7.5 9.8 9.8 0 0 1-3.3-.6L4 20l1.5-4.3A7.1 7.1 0 0 1 4 11.5 7.7 7.7 0 0 1 12 4a7.7 7.7 0 0 1 8 7.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 function apply(){
  var p=document.getElementById('journeyAiPanel'),send=document.getElementById('aiSend'),mic=document.getElementById('aiMic');
  if(send&&mic&&mic.previousElementSibling!==send)send.insertAdjacentElement('afterend',mic);
@@ -14896,6 +14896,162 @@ var pending=false;function schedule(){if(pending)return;pending=true;requestAnim
 function init(){apply();new MutationObserver(schedule).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+</script>
+
+<script id="cjContextFirst20261008Script">
+/* =========================================================
+   #11 CONTEXT-FIRST ASSISTANT — 2026-10-08
+   Reuses the existing app chat and action dispatcher.
+   No fabricated completion or optimistic success states.
+   ========================================================= */
+(function(){
+  'use strict';
+  const bubbleSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-8.7 8.3 9.3 9.3 0 0 1-3.8-.9L3.5 20l1.2-4A8 8 0 0 1 3.5 11.6a8.5 8.5 0 0 1 8.5-8.3 8.5 8.5 0 0 1 8.5 8.3Z"/></svg>';
+  const micSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5.5 10.5a6.5 6.5 0 0 0 13 0M12 17v4m-4 0h8"/></svg>';
+  const style=document.createElement('style');
+  style.id='cjContextFirst20261008';
+  style.textContent=`
+   #journeyAiPanel, #journeyAiPanel *, .ai-panel, .ai-panel * {box-sizing:border-box}
+   #journeyAiPanel {max-width:min(100vw - 20px, 480px); min-width:0}
+   #journeyAiPanel textarea, #journeyAiPanel input {min-width:0;max-width:100%;box-sizing:border-box}
+   #journeyAiPanel .ai-thread, #journeyAiPanel #aiThread {min-width:0;max-width:100%;overflow-wrap:anywhere}
+   .cj-context-choice-group{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 4px}
+   .cj-context-choice{border:1px solid #a9c7ed;background:#eaf3ff;color:#174574;padding:9px 12px;border-radius:12px;cursor:pointer;text-align:left;font-size:13px;font-weight:600}
+   .cj-context-choice:focus-visible{outline:2px solid #2789ed;outline-offset:2px}
+   .cj-context-hint{font-size:11px;opacity:.75;display:block;margin:8px 0 4px}
+   .cj-mic-live-indicator{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:12px;background:#fee7e7;color:#b32424;font-weight:800;font-size:11px;vertical-align:middle}
+   .cj-mic-live-indicator:before{content:'';width:7px;height:7px;background:#ed3232;border-radius:50%;animation:cjLivePulse 1s infinite}
+   @keyframes cjLivePulse{50%{opacity:.25;transform:scale(1.45)}}
+   .cj-outline-mic svg{width:80%;height:80%;display:block;margin:auto}
+   .cj-outline-bubble svg{width:88%;height:88%;display:block;margin:auto}
+   .cj-outline-mic,.cj-outline-bubble{background-image:none!important}
+   .cj-outline-mic.cj-listening svg{animation:cjLivePulse 1.2s infinite}
+   @media(max-width:600px){#journeyAiPanel{left:auto!important;right:8px!important;width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;} #journeyAiPanel .ai-thread{overflow-x:hidden}}
+  `;
+  document.head.appendChild(style);
+
+  let lastContext='',pendingContext=null;
+  const clean=s=>String(s||'').replace(/\s+/g,' ').trim().slice(0,135);
+  function labelFor(el){
+    return clean(el.getAttribute('aria-label')||el.getAttribute('title')||el.dataset?.title||el.dataset?.label||
+      el.querySelector('h2,h3,h4,strong,.title')?.textContent||el.textContent);
+  }
+  function isExcluded(el){
+    return !!el.closest('#journeyAiPanel, .ai-panel, input,textarea,select,[contenteditable="true"],[data-cj-no-context],dialog');
+  }
+  function contextFor(el){
+    const section=el.closest('section,article,[class*="card"],[class*="panel"],[class*="section"]');
+    const heading=section?.querySelector('h1,h2,h3,h4')?.textContent;
+    const tab=document.querySelector('[aria-current="page"],[role="tab"][aria-selected="true"],.nav-item.active,.bottom-nav .active');
+    return {item:labelFor(el),section:clean(heading),page:clean(tab?.textContent||document.querySelector('main h1')?.textContent||'CreateJourney')};
+  }
+  function buttonsFor(context){
+    const k=(context.item+' '+context.section).toLowerCase();
+    if(/google|seo|search/.test(k)) return ['Review Google & SEO opportunities','Improve my business profile','Plan a local SEO campaign','Show connected data'];
+    if(/rebook|booking/.test(k)) return ['Show what was completed','Review booking performance','Improve rebooking','What should we do next?'];
+    if(/marketing|campaign|social/.test(k)) return ['Plan a campaign','Create a social media image','Review performance','Recommend a first priority'];
+    if(/board|journey/.test(k)) return ['Inspect this board or Journey','Recommend improvements','Update the Journey','Review activity'];
+    if(/performance|metric|analytic/.test(k)) return ['Explain these results','Compare last week','Identify an opportunity','Recommend next steps'];
+    return ['Explain this section','Show me the current status','Recommend improvements','Help me take action'];
+  }
+  function makeMessage(ctx){
+    const name=ctx.item;
+    const scope=ctx.section && !name.toLowerCase().includes(ctx.section.toLowerCase())?' under '+ctx.section:'';
+    return 'You selected “'+name+'”'+scope+'. I can help you understand what this does, review available business information, and work through an improvement. Choose where you want to start. I’ll distinguish verified results from recommendations and confirm any changes only after they succeed.';
+  }
+  function appendChoices(ctx){
+    const thread=document.getElementById('aiThread');
+    if(!thread)return;
+    const wrap=document.createElement('div');
+    wrap.className='msg ai cj-context-options';
+    const small=document.createElement('span');
+    small.className='cj-context-hint';
+    small.textContent='Select one of these:';
+    const row=document.createElement('div');
+    row.className='cj-context-choice-group';
+    for(const choice of buttonsFor(ctx)){
+      const button=document.createElement('button');
+      button.type='button';button.className='cj-context-choice';button.textContent=choice;
+      button.addEventListener('click',()=>{
+        // Route through the existing Journey AI dispatcher, which owns
+        // real permissions, integrations and execution verification.
+        const prompt='Regarding '+ctx.item+(ctx.section?' in '+ctx.section:'')+': '+choice+
+          '. Inspect available workspace data; explain what is confirmed, then perform only supported authorized actions. Report actual results, and offer next steps.';
+        if(typeof window.handleAiPrompt==='function')window.handleAiPrompt(prompt);
+      });
+      row.appendChild(button);
+    }
+    wrap.append(small,row);thread.appendChild(wrap);thread.scrollTop=thread.scrollHeight;
+  }
+  function showContext(ctx){
+    if(!ctx.item)return;
+    // Intentionally do not write into the text composer.
+    try{if(typeof window.openAI==='function')window.openAI();}catch(_){}
+    if(typeof window.addAiMessage==='function')window.addAiMessage('ai',makeMessage(ctx));
+    else if(typeof addAiMessage==='function')addAiMessage('ai',makeMessage(ctx));
+    else return;
+    appendChoices(ctx);
+  }
+  document.addEventListener('click',e=>{
+    const el=e.target.closest('button,a,[role="button"],[role="tab"],[data-action],.clickable');
+    if(!el||isExcluded(el))return;
+    const ctx=contextFor(el);
+    if(!ctx.item||ctx.item.length>125)return;
+    const id=[ctx.page,ctx.section,ctx.item].join('|');
+    if(id===lastContext && Date.now()-(pendingContext?.time||0)<700)return;
+    lastContext=id;pendingContext={time:Date.now()};
+    // After app navigation handlers run, present the selected action.
+    setTimeout(()=>showContext(ctx),110);
+  },false);
+
+  function removePlaceholder(){
+    const journeyPage=[...document.querySelectorAll('h1,h2,h3')].find(x=>/^journeys?$/i.test(clean(x.textContent)));
+    if(!journeyPage)return;
+    const wrapper=journeyPage.closest('header,section,[class*="header"]')||journeyPage.parentElement;
+    if(!wrapper)return;
+    for(const node of wrapper.querySelectorAll('span,small,button,div')){
+      if(node.children.length===0 && /^new york(?:,\s*ny)?$/i.test(clean(node.textContent))){node.remove();}
+    }
+  }
+  const observer=new MutationObserver(()=>{removePlaceholder();decorateIcons();});
+  let decorationPending=false;
+  function decorateIcons(){
+    if(decorationPending)return;
+    decorationPending=true;
+    requestAnimationFrame(()=>{
+      decorationPending=false;
+      const panel=document.getElementById('journeyAiPanel');
+      const candidates=[...document.querySelectorAll('button[aria-label],button[title],button[id],button[class]')];
+      for(const btn of candidates){
+        if(btn.dataset.cjContextIconDone)continue;
+        const attr=(btn.getAttribute('aria-label')||btn.getAttribute('title')||btn.id||'').toLowerCase();
+        const text=clean(btn.textContent).toLowerCase();
+        const isChat=/journey.*(chat|ai)|open.*chat/.test(attr)||(/journey ai/.test(text)&&!panel?.contains(btn)&&btn.getBoundingClientRect().width<110);
+        const isMic=/(microphone|voice|mic)/.test(attr)&&!/(mute|permission|settings)/.test(attr);
+        if(!isChat&&!isMic)continue;
+        btn.dataset.cjContextIconDone='1';
+        if(isChat){btn.classList.add('cj-outline-bubble');if(!btn.querySelector('svg') || btn.closest('#cjScreenshotHome'))btn.innerHTML=bubbleSVG;}
+        if(isMic){
+          btn.classList.add('cj-outline-mic');
+          // Only replace an icon if it has no nested descriptive UI.
+          if(btn.id==='aiMic' || btn.closest('#cjScreenshotHome'))btn.innerHTML=micSVG;
+          btn.addEventListener('click',()=>{
+            setTimeout(()=>{
+              const listening=btn.getAttribute('aria-pressed')==='true'||btn.classList.contains('active')||btn.classList.contains('listening');
+              btn.classList.toggle('cj-listening',listening);
+              let notice=btn.parentElement?.querySelector('.cj-mic-live-indicator');
+              if(listening&&!notice){notice=document.createElement('span');notice.className='cj-mic-live-indicator';notice.textContent='LIVE · Listening';btn.insertAdjacentElement('afterend',notice);}
+              else if(!listening&&notice)notice.remove();
+            },130);
+          });
+        }
+      }
+    });
+  }
+  const start=()=>{removePlaceholder();decorateIcons();observer.observe(document.body,{childList:true,subtree:true});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
 </script>
 </body>
 </html>
