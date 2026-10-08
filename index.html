@@ -13493,7 +13493,7 @@ function openAIForTask(task){
 async function loadDetail(id){const r=await request('task_detail',{task_id:id});state.details[id]=r.ok?r:true;render()}
 async function startFeature(feature){
  const r=await request('handoff',{feature_key:feature.key,feature_name:feature.name,feature_description:feature.desc,source_surface:feature.surface||'explore',source_context:{category:feature.section,tags:feature.tags||'',client:'CreateJourney web'}});
- if(!r.ok){const fab=$('journeyAiFab');if(fab)fab.click();setTimeout(()=>{const i=$('aiInput');if(i){i.value='Help me with '+feature.name+'. Give me a few clear options first, then guide me step by step.';i.focus()}},150);return r}
+ if(!r.ok){const fab=$('journeyAiFab');if(fab)fab.click();setTimeout(()=>{const i=$('aiInput');if(i){i.value='';/* guided questions render in the chat, not the text field */}},150);return r}
  const task=r.task,options=r.options||[];window.CJ_ACTIVE_WORK_TASK=task;
  close();const fab=$('journeyAiFab');if(fab)fab.click();
  setTimeout(()=>renderGuidedHandoff(task,feature,r.opening,options,r.specialist_id),180);
@@ -14850,6 +14850,51 @@ body.cj-chat-full #cjScreenshotHome .cjx-profile-wrap{
       return;
     }
   },true);
+})();
+</script>
+
+<!-- CJ OCT 08 2026 CHAT UI REPAIR -->
+<style id="cjOct08ChatFix">
+#journeyAiPanel,#journeyAiPanel.cj-journey-v2,#journeyAiPanel.cj-journey-v2.cj-full{
+height:60dvh!important;min-height:0!important;max-height:60dvh!important;
+width:100%!important;min-width:0!important;max-width:100%!important;left:0!important;right:0!important;overflow:hidden!important;
+border-radius:22px 22px 0 0!important;z-index:3000!important;box-sizing:border-box!important}
+#journeyAiPanel *,#journeyAiPanel *:before,#journeyAiPanel *:after{box-sizing:border-box!important}
+#journeyAiPanel .ai-thread{min-width:0!important;max-width:100%!important;overflow-x:hidden!important;overflow-wrap:anywhere!important}
+#journeyAiPanel .ai-compose,#journeyAiPanel.cj-journey-v2 .ai-compose{
+display:grid!important;grid-template-columns:38px minmax(0,1fr) 38px 38px!important;
+width:100%!important;max-width:100%!important;min-width:0!important;gap:7px!important;padding:8px 10px 6px!important}
+#journeyAiPanel .cj-ai-input-wrap{min-width:0!important;width:100%!important;max-width:100%!important;grid-column:2!important}
+#journeyAiPanel #aiInput,#journeyAiPanel.cj-journey-v2 #aiInput{
+font-size:16px!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:0 12px!important;transform:none!important;zoom:1!important}
+#journeyAiPanel #aiSend{grid-column:3!important}
+#journeyAiPanel #aiMic,#journeyAiPanel.cj-journey-v2 #aiMic{
+grid-column:4!important;display:grid!important;position:static!important;transform:none!important;
+width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;
+background:#edf5ff!important;color:#3978c8!important;border-radius:50%!important;
+margin:0!important;padding:7px!important;animation:none!important}
+#journeyAiPanel #aiMic svg{width:21px!important;height:21px!important}
+#journeyAiPanel .ai-attach{grid-column:1!important}
+body:has(#journeyAiPanel:not(.hidden)) #cjScreenshotHome .cjx-ai-dock,
+body:has(#journeyAiPanel:not(.hidden)) #aiLauncher{visibility:hidden!important;pointer-events:none!important}
+#cjScreenshotHome .cjx-ai-pill{width:54px!important;height:54px!important;border-radius:50%!important;padding:0!important;display:grid!important;place-items:center!important;font-size:0!important}
+#cjScreenshotHome .cjx-ai-pill .cj-chat-icon{display:block!important;width:24px!important;height:24px!important}
+@media(max-width:360px){#journeyAiPanel.cj-journey-v2 .ai-compose{gap:4px!important;padding-left:7px!important;padding-right:7px!important}}
+</style>
+<script id="cjOct08ChatFixScript">
+(function(){
+'use strict';
+var icon='<svg class="cj-chat-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a7.7 7.7 0 0 1-8 7.5 9.8 9.8 0 0 1-3.3-.6L4 20l1.5-4.3A7.1 7.1 0 0 1 4 11.5 7.7 7.7 0 0 1 12 4a7.7 7.7 0 0 1 8 7.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 11.5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+function apply(){
+ var p=document.getElementById('journeyAiPanel'),send=document.getElementById('aiSend'),mic=document.getElementById('aiMic');
+ if(send&&mic&&mic.previousElementSibling!==send)send.insertAdjacentElement('afterend',mic);
+ if(mic){mic.title='Speak to Journey AI';mic.setAttribute('aria-label','Speak to Journey AI')}
+ document.querySelectorAll('#cjScreenshotHome .cjx-ai-pill').forEach(function(b){if(b.dataset.cjOctIcon)return;b.dataset.cjOctIcon='1';b.innerHTML=icon;b.title='Message Journey AI';b.setAttribute('aria-label','Message Journey AI')});
+ if(p){var opened=!p.classList.contains('hidden');document.querySelectorAll('#cjScreenshotHome .cjx-ai-dock,#aiLauncher').forEach(function(d){d.style.setProperty('visibility',opened?'hidden':'','important');d.style.setProperty('pointer-events',opened?'none':'','important')})}
+}
+var pending=false;function schedule(){if(pending)return;pending=true;requestAnimationFrame(function(){pending=false;apply()})}
+function init(){apply();new MutationObserver(schedule).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 </body>
