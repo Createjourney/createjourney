@@ -625,6 +625,13 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
   word-break:break-word;
 }
 </style>
+
+<style id="cj-home-icon-recovery-v1">
+/* The former broad icon decorator replaced entire home buttons with bubbles. Keep original action contents intact. */
+#cjScreenshotHome .cjx-priority > .cjx-iconbox,
+#cjScreenshotHome .cjx-control > .cjx-iconbox,
+#cjScreenshotHome .cjx-feed-row > .cjx-check { visibility:visible!important; }
+</style>
 </head>
 <body>
 <!-- ======================================
@@ -15021,7 +15028,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(node.children.length===0 && /^new york(?:,\s*ny)?$/i.test(clean(node.textContent))){node.remove();}
     }
   }
-  const observer=new MutationObserver(()=>{removePlaceholder();decorateIcons();});
+  const observer=new MutationObserver(()=>{removePlaceholder();});
   let decorationPending=false;
   function decorateIcons(){
     if(decorationPending)return;
@@ -15056,7 +15063,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
     });
   }
-  const start=()=>{removePlaceholder();decorateIcons();observer.observe(document.body,{childList:true,subtree:true});};
+  const start=()=>{removePlaceholder();observer.observe(document.body,{childList:true,subtree:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
