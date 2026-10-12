@@ -14392,8 +14392,7 @@ body.cj-chat-full #cjScreenshotHome .cjx-ai-dock .cjx-mic{visibility:hidden!impo
         document.body.classList.add("cj-chat-half");
       }
     }
-    var handleControl=byId("aiHandle");
-    if(handleControl){handleControl.setAttribute("aria-expanded",next==="full"?"true":"false");handleControl.setAttribute("aria-label",next==="full"?"Restore half-screen Journey AI":"Expand Journey AI to full screen");}
+    var h=byId("aiHandle");if(h){h.setAttribute("aria-expanded",next==="full"?"true":"false");h.setAttribute("aria-label",next==="full"?"Restore chat size":"Expand Journey AI to full screen");}
     var d=dock();
     if(d)d.classList.toggle("cj-chat-open",next!=="closed");
     var pill=aiPill();
@@ -15173,5 +15172,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+
+<!-- CJ: FINAL CHAT EXPANSION CASCADE REPAIR -->
+<style id="cjChatExpandFinalRepair">
+/* Override the older 60dvh rule, which incorrectly matched the full-screen state. */
+#journeyAiPanel.cj-journey-v2.cj-full:not(.hidden){height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;border-radius:0!important;inset:0 0 0 0!important;}
+#journeyAiPanel.cj-journey-v2:not(.cj-full):not(.hidden){height:60dvh!important;max-height:60dvh!important;min-height:0!important;}
+#journeyAiPanel.cj-journey-v2 #aiHandle{display:block!important;width:112px!important;height:44px!important;min-height:44px!important;flex:0 0 44px!important;position:relative!important;z-index:9999!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;outline-offset:-3px;}
+/* When Journey AI is open, hide any redundant floating Messenger-style launch icon. */
+body:has(#journeyAiPanel:not(.hidden)) #cjScreenshotHome .cjx-ai-pill,
+body:has(#journeyAiPanel:not(.hidden)) .cj-outline-bubble,
+body:has(#journeyAiPanel:not(.hidden)) #aiLauncher{display:none!important;pointer-events:none!important;}
+</style>
 </body>
 </html>
