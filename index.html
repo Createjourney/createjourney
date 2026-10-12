@@ -15053,5 +15053,116 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 </script>
+<!-- CJ APPROVED REPAIR 2026-10-11: readable messages and session continuity; no new controls -->
+<style id="cj-message-format-continuity">
+#aiThread .msg.ai.cj-readable-message{white-space:normal;overflow-wrap:anywhere}
+#aiThread .cj-readable-message .cj-message-heading{display:block;font-weight:800;margin:12px 0 5px;line-height:1.35}
+#aiThread .cj-readable-message .cj-message-heading:first-child{margin-top:0}
+#aiThread .cj-readable-message .cj-message-paragraph{display:block;margin:0 0 8px;line-height:1.48}
+#aiThread .cj-readable-message .cj-message-bullet{display:block;margin:0 0 5px 11px;padding-left:11px;position:relative;line-height:1.44}
+#aiThread .cj-readable-message .cj-message-bullet:before{content:'•';position:absolute;left:0}
+#aiThread .cj-readable-message .cj-message-number{display:block;margin:9px 0 6px;font-weight:750;line-height:1.42}
+#aiThread .cj-readable-message strong{font-weight:800}
+</style>
+<script id="cj-message-format-continuity-script">
+(function(){
+ 'use strict';
+ const thread=document.getElementById('aiThread');
+ const composer=document.getElementById('aiInput');
+ if(!thread||!composer||window.__cjReadableMessageInitialized)return;
+ window.__cjReadableMessageInitialized=true;
+ const V='cj-return-v1';
+ let restoring=false,lastAccount='',lastSave=0;
+ function activeAccount(){
+   try{if(typeof signedInEmail==='string'&&signedInEmail.trim())return signedInEmail.trim().toLowerCase()}catch(_){}
+   const remembered=localStorage.getItem('cj_remember_email');
+   // Remembered email is not proof of authentication: do not restore by email alone.
+   return '';
+ }
+ function hasSession(){const auth=document.getElementById('authApp');return !!(auth&&auth.classList.contains('hidden')&&activeAccount())}
+ const k=(account)=>V+':'+account;
+ function normalize(t){
+   let x=String(t||'').replace(/\r\n?/g,'\n');
+   // Some model outputs contain flattened lists. Restore only recognizable list boundaries.
+   x=x.replace(/\s+(-\s+(?:Why|What to do|How (?:we|to)|Recommended improvements|What I(?:’|')ll track|KPIs|Goal|Concept|Execution steps|Specialists involved|Now|With booking connection)\s*:)/gi,'\n$1');
+   x=x.replace(/\s+(\d{1,2}[).]\s+(?=[A-Z][^\n]{5,80}))/g,'\n$1');
+   x=x.replace(/\s+-\s+(?=[A-Z][a-z]+(?:\s|:))/g,'\n- ');
+   return x;
+ }
+ function boldInline(parent,text){
+   const re=/\*\*([^*\n]{1,160})\*\*/g;let at=0,m;
+   while((m=re.exec(text))){parent.append(document.createTextNode(text.slice(at,m.index)));const b=document.createElement('strong');b.textContent=m[1];parent.append(b);at=re.lastIndex}
+   parent.append(document.createTextNode(text.slice(at)));
+ }
+ function formatMessage(n){
+   if(!n.matches('#aiThread .msg.ai')||n.dataset.cjReadableDone==='1')return;
+   if(n.querySelector('button,input,textarea,select,img,svg,.ai-proposal,[data-action]'))return;
+   // Existing messages are HTML-escaped. textContent decodes them safely.
+   const original=n.dataset.messageText||n.textContent||'';
+   if(!original.trim()||original.length>45000)return;
+   n.dataset.cjReadableDone='1';
+   n.classList.add('cj-readable-message');
+   const lines=normalize(original).split('\n').map(v=>v.trim());
+   const fragment=document.createDocumentFragment();
+   let paragraph=[];
+   function flush(){if(!paragraph.length)return;const p=document.createElement('span');p.className='cj-message-paragraph';boldInline(p,paragraph.join(' '));fragment.append(p);paragraph=[]}
+   for(const line of lines){
+     if(!line){flush();continue}
+     const heading=line.match(/^(?:#{1,3}\s+)(.+)$/);
+     const list=line.match(/^[-•*]\s+(.+)$/);
+     const numbered=line.match(/^(\d{1,2})[).]\s+(.+)$/);
+     const title=!heading&&!list&&!numbered&&/^(?:Recommended first action|My recommendation|Next steps|Next options|What (?:I|we) recommend|Assumptions|What CreateJourney can measure|Three marketing strategies|Practical next steps|Summary|Key findings|What to do next)(?:\s*[:—-].*)?$/i.test(line);
+     if(heading||title){flush();const e=document.createElement('span');e.className='cj-message-heading';boldInline(e,heading?heading[1]:line);fragment.append(e)}
+     else if(list){flush();const e=document.createElement('span');e.className='cj-message-bullet';boldInline(e,list[1]);fragment.append(e)}
+     else if(numbered){flush();const e=document.createElement('span');e.className='cj-message-number';boldInline(e,numbered[1]+'. '+numbered[2]);fragment.append(e)}
+     else paragraph.push(line);
+   }
+   flush();n.replaceChildren(fragment);
+ }
+ function formatAll(){thread.querySelectorAll('.msg.ai:not([data-cj-readable-done])').forEach(formatMessage)}
+ new MutationObserver(()=>{formatAll();save()}).observe(thread,{childList:true,subtree:false});formatAll();
+ function save(force=false){
+   if(restoring||!hasSession())return;
+   if(!force&&Date.now()-lastSave<300)return;lastSave=Date.now();
+   const account=activeAccount();if(!account)return;
+   const currentScreen=[...document.querySelectorAll('#dashboardApp,#journeyAiWorkspaceApp,#connectedAccountsApp,#boardsLibraryApp,#boardManagerApp,#teamManagerApp')].find(e=>!e.classList.contains('hidden'))?.id||'dashboardApp';
+   const messages=[...thread.querySelectorAll('.msg.user,.msg.ai')].slice(-40).map(n=>({type:n.classList.contains('user')?'user':'ai',text:String(n.dataset.messageText||n.textContent||'').slice(0,16000)}));
+   const data={at:Date.now(),screen:currentScreen,chatOpen:!document.getElementById('journeyAiPanel').classList.contains('hidden'),draft:composer.value.slice(0,10000),messages};
+   try{sessionStorage.setItem(k(account),JSON.stringify(data))}catch(_){}
+ }
+ function restore(){
+   if(!hasSession())return;
+   const account=activeAccount();if(!account||lastAccount===account)return;
+   lastAccount=account;
+   let d;try{d=JSON.parse(sessionStorage.getItem(k(account))||'null')}catch(_){return}
+   if(!d||!Number.isFinite(d.at)||Date.now()-d.at>48*3600*1000)return;
+   restoring=true;
+   try{
+     if(!composer.value&&typeof d.draft==='string')composer.value=d.draft;
+     if(!thread.querySelector('.msg.user,.msg.ai')&&Array.isArray(d.messages)){
+       for(const item of d.messages.slice(-40)){
+         if(!item||!['user','ai'].includes(item.type))continue;
+         const node=document.createElement('div');node.className='msg '+item.type;
+         node.dataset.messageText=String(item.text||'').slice(0,16000);
+         node.textContent=node.dataset.messageText;thread.append(node);
+       }
+       formatAll();thread.scrollTop=thread.scrollHeight;
+     }
+     // Do not navigate before cloud workspace initialization completes; restore chat visibility only.
+     if(d.chatOpen&&d.messages?.length){document.getElementById('journeyAiPanel').classList.remove('hidden')}
+   }finally{restoring=false}
+ }
+ composer.addEventListener('input',()=>save(true));
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)save(true);else restore()});
+ window.addEventListener('pagehide',()=>save(true));
+ window.addEventListener('pageshow',()=>setTimeout(restore,300));
+ // Restore only after the app has authenticated and initialized its workspace.
+ const auth=document.getElementById('authApp');
+ if(auth)new MutationObserver(()=>{if(hasSession())setTimeout(restore,450);else lastAccount=''}).observe(auth,{attributes:true,attributeFilter:['class']});
+ document.addEventListener('click',e=>{if(e.target.closest?.('#aiSend,#aiClose,#journeyAiFab'))setTimeout(()=>save(true),500)},{capture:false});
+ setTimeout(restore,1200);
+})();
+</script>
+
 </body>
 </html>
