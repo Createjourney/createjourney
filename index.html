@@ -14007,14 +14007,18 @@ window.CJExploreDirectory={open,close,render,features:F,version:'2.0'};
   z-index:1000!important;
 }
 #journeyAiPanel.cj-journey-v2 .ai-handle{
-  width:46px!important;
-  height:5px!important;
-  min-height:5px!important;
-  border-radius:999px!important;
-  background:#cbd5e1!important;
-  margin:8px auto 4px!important;
+  /* Repair: retain the same 46x5 visible grab bar, but make its touch target usable on iPhone. */
+  width:112px!important;
+  height:32px!important;
+  min-height:32px!important;
+  flex:0 0 32px!important;
+  border-radius:0!important;
+  background:linear-gradient(#cbd5e1,#cbd5e1) center / 46px 5px no-repeat!important;
+  margin:0 auto!important;
   cursor:pointer!important;
   touch-action:manipulation!important;
+  position:relative!important;
+  z-index:3!important;
 }
 
 /* Header hierarchy: Journey AI + subtle real status, centered Owner Dashboard, blue X. */
