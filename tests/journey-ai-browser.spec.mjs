@@ -50,3 +50,37 @@ test('pending proposal context accurately compares current and proposed Journeys
   expect(result.affected_boards[0].proposed_journey).toEqual(['Website']);
   expect(result.affected_boards[0].journey_changes).toBe(true);
 });
+
+test('current Apply delegates to the cloud approval bridge exactly once',async({page})=>{
+  const result=await page.evaluate(()=>{
+    const original=window.applyAiPending;
+    let calls=0;
+    window.applyAiPending=()=>{calls++;aiPendingAction=null;return Promise.resolve()};
+    aiPendingAction={type:'journey',boardId:'smoke-test',actions:['Website']};
+    window.addAiMessage('ai','Current proposal smoke test',{title:'Current proposal',detail:'Test backend delegation'});
+    const button=[...document.querySelectorAll('#aiThread .ai-proposal .ai-apply')].at(-1);
+    button.click();
+    const disabled=button.disabled;
+    window.applyAiPending=original;
+    return {calls,disabled};
+  });
+  expect(result.calls).toBe(1);
+  expect(result.disabled).toBe(true);
+});
+
+test('stale Cancel does not discard a newer proposal',async({page})=>{
+  const result=await page.evaluate(()=>{
+    const first={type:'journey',boardId:'smoke-test',actions:['Website']};
+    const second={type:'status',boardId:'smoke-test',active:true};
+    aiPendingAction=first;
+    window.addAiMessage('ai','Stale cancel smoke test',{title:'Old proposal',detail:'Must not cancel new proposal'});
+    const cancel=[...document.querySelectorAll('#aiThread .ai-proposal .ai-cancel')].at(-1);
+    aiPendingAction=second;
+    cancel.click();
+    const preserved=aiPendingAction===second;
+    aiPendingAction=null;
+    return {preserved,disabled:cancel.disabled};
+  });
+  expect(result.preserved).toBe(true);
+  expect(result.disabled).toBe(true);
+});
