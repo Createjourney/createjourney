@@ -9713,6 +9713,9 @@ function isDeterministicCommand(text){
 
 function shouldHandle(text){
   const q=clean(text);
+  // Read-only inspection and explanatory questions must never be mistaken for
+  // mutation commands merely because they mention 'change', 'set', or 'board'.
+  if(/\b(inspect|explain|verify|audit|investigate|analy[sz]e|pending proposal|apply button|what will|what would|which actions|do not make|don't make)\b/i.test(q))return true;
   const hasAttachments=Array.isArray(window.CJ_CHAT_ATTACHMENTS)&&window.CJ_CHAT_ATTACHMENTS.length>0;
   if(hasAttachments)return true;
   if(!q)return false;
