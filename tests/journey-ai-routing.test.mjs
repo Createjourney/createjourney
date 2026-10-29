@@ -70,3 +70,12 @@ test('stale Apply and Cancel buttons are bound to their original action',()=>{
   assert.match(body,/aiPendingAction===cardAction/);
   assert.match(html,/No changes applied\. The selected board Journey is already configured that way/);
 });
+
+test('legacy handler bridge is exposed after DOMContentLoaded and cloud wrapper uses lazy fallback',()=>{
+  assert.match(html,/defineRuntimeValue\("aiPendingAction",\(\)=>aiPendingAction/);
+  assert.match(html,/window\.CJLegacyAddAiMessage=addAiMessage/);
+  assert.match(html,/window\.CJLegacyApplyAiPending=applyAiPending/);
+  assert.match(html,/window\.handleAiPrompt=handleAiPrompt/);
+  assert.match(html,/window\.CJLegacyAddAiMessage;/);
+  assert.match(html,/window\.CJLegacyApplyAiPending;/);
+});
