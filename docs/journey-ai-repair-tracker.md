@@ -18,7 +18,7 @@ The main application handlers live inside a DOMContentLoaded closure, but later 
 - [x] Read-only production SQL audit: all 607 registry rows are `PLANNED`, zero enabled agent permissions, zero jobs. Existing `cj-agent-runtime` has no runnable registered agents until staged activation; do not claim the 607 agents are operational.
 - [x] Verified registry status and permissions via production SQL: 607 total, 604 PLANNED and 3 TESTING (agents 2, 333, 336); `cj_agent_authorized` returned true for `ai.analysis` for those three only.
 - [x] Added authenticated, owner/manager-scoped pilot routing to `cj-agent-runtime` for the three TESTING agents, with persisted job IDs, analysis-only outputs and legacy persona fallback. PR #5 merged (`a7e9d33536e10bc036842e33d7f9428701a080f3`), Deno type-check passed (Actions run `40838405130`), production `journey-ai-chat` deployed as v18 with `verify_jwt=true`. Original v17 source backed up in `supabase/backups/journey-ai-chat-v17/index.ts`.
-- [ ] Confirm at least one authenticated owner request creates a real `cj_agent_jobs` row and `ANALYSIS_COMPLETED` event, and that Journey AI returns the job ID without falsely claiming external execution.
+- [ ] Confirm at least one authenticated owner request creates a real `cj_agent_jobs` row and `ANALYSIS_COMPLETED` event, and that Journey AI returns the job ID without falsely claiming external execution. Production SQL after v18 deployment still shows **0 jobs, 0 successes**; no live registered-agent run has been demonstrated.
 - [ ] Verify job submission, status, traceability and synthesis with a non-production test business. This is not yet an end-to-end verified integration.
 
 ## Milestone 3 — Permission-governed execution
@@ -38,3 +38,8 @@ The main application handlers live inside a DOMContentLoaded closure, but later 
 
 ### Backend facts
 Supabase project `pbiivpehdatvmyaxwixk`: `journey-ai-chat` has 10 built-in specialist personas; `cj-agent-runtime` currently declares `analysis_only`; `journey-ai-execution` is a separate service. None of those facts proves autonomous action execution or complete 607-agent deployment.
+
+## Additional findings from this run
+- Supabase security advisor reports RLS-enabled/no-policy informational notices on agent tables and pre-existing SECURITY DEFINER/auth warnings. The runtime uses server-side service-role access plus owner/manager membership checks; do not weaken RLS to make testing easier.
+- The existing runtime serializes incoming context by slicing JSON text to 8,000 characters before parsing; long contexts could fail. The v18 pilot deliberately sends a compact board context, but the runtime needs a separate safe serialization fix before broad rollout.
+- A real authenticated test business/session is still required to verify the successful submit/run/status path. Do not fabricate a successful agent execution from SQL permission checks or Deno compilation.
