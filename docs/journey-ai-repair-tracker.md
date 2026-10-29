@@ -41,5 +41,5 @@ Supabase project `pbiivpehdatvmyaxwixk`: `journey-ai-chat` has 10 built-in speci
 
 ## Additional findings from this run
 - Supabase security advisor reports RLS-enabled/no-policy informational notices on agent tables and pre-existing SECURITY DEFINER/auth warnings. The runtime uses server-side service-role access plus owner/manager membership checks; do not weaken RLS to make testing easier.
-- The existing runtime serializes incoming context by slicing JSON text to 8,000 characters before parsing; long contexts could fail. The v18 pilot deliberately sends a compact board context, but the runtime needs a separate safe serialization fix before broad rollout.
+- The runtime previously sliced JSON text to 8,000 characters before parsing, which could fail on long contexts. PR #6 merged (`c57b81b90a062fceee1fc84ff5c8c0d9b505231f`), Deno check passed (Actions run `40838716072`), and `cj-agent-runtime` v3 is ACTIVE with safe bounded context fallback and JWT verification enabled.
 - A real authenticated test business/session is still required to verify the successful submit/run/status path. Do not fabricate a successful agent execution from SQL permission checks or Deno compilation.
