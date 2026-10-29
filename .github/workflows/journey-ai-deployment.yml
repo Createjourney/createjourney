@@ -1,0 +1,32 @@
+name: Verify Journey AI GitHub Pages deployment
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '.github/workflows/journey-ai-deployment.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Confirm deployed HTML contains the verified routing fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://createjourney.github.io/createjourney/'
+          for attempt in $(seq 1 24); do
+            echo "Checking GitHub Pages deployment (attempt $attempt/24)"
+            if curl -fsSL --connect-timeout 10 --max-time 30 "${URL}?cj_verify=${GITHUB_SHA}&attempt=${attempt}" -o /tmp/createjourney-live.html; then
+              if grep -Fq 'pending_proposal:pendingProposalSnapshot()' /tmp/createjourney-live.html && grep -Fq 'const cardAction=proposal?aiPendingAction:null;' /tmp/createjourney-live.html; then
+                echo "Verified live GitHub Pages HTML contains routing and stale-Apply safety corrections."
+                exit 0
+              fi
+            fi
+            sleep 30
+          done
+          echo "Live GitHub Pages did not serve the expected correction after 12 minutes." >&2
+          exit 1

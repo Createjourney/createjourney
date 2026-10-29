@@ -4,6 +4,7 @@ on:
     paths:
       - 'index.html'
       - 'tests/journey-ai-routing.test.mjs'
+      - 'tests/journey-ai-browser.spec.mjs'
       - '.github/workflows/journey-ai-routing.yml'
   push:
     branches: [main]
@@ -22,3 +23,15 @@ jobs:
         with:
           node-version: '22'
       - run: node --test tests/journey-ai-routing.test.mjs
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install --with-deps chromium
+      - run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-http.log 2>&1 &
+      - run: npx playwright test tests/journey-ai-browser.spec.mjs
