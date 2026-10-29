@@ -853,6 +853,15 @@ function(raw,voiceReply=false){
 
   const key =
     keyOf(text);
+  // Route inspection, explanation and verification requests to the actual
+  // authenticated Journey AI backend, never the legacy keyword/action parser.
+  // This is intentionally read-only: it does not generate Apply cards.
+  const readOnlyIntent = /\\b(inspect|explain|compare|verify|audit|investigate|analy[sz]e|what (?:will|would|does)|which actions|do not (?:make|apply|change)|don't (?:make|apply|change)|pending proposal|apply button)\\b/i.test(text);
+  if(readOnlyIntent && typeof window.CJJourneyPartnerAsk === 'function') {
+    window.CJJourneyPartnerAsk(text, voiceReply);
+    return;
+  }
+
 
 
 
