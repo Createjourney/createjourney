@@ -4304,6 +4304,9 @@ function openAI(){
   showJourneyAiFirstUseWelcome();
 }
 function addAiMessage(type,text,proposal=null,voiceReply=false){
+  // Each Apply/Cancel card is bound to the exact proposal it was created for.
+  // Older cards must never apply a later, unrelated pending action.
+  const cardAction=proposal?aiPendingAction:null;
   const messageText=String(text||"");
   const thread=el("aiThread");
   const last=thread?.lastElementChild;
@@ -4335,10 +4338,18 @@ function addAiMessage(type,text,proposal=null,voiceReply=false){
     const p=document.createElement("div");
     p.className="ai-proposal";
     p.innerHTML=`<strong>${esc(proposal.title)}</strong><div>${esc(proposal.detail)}</div><div class="ai-proposal-actions"><button class="primary ready ai-apply">Apply</button><button class="secondary ai-cancel">Cancel</button></div>`;
-    p.querySelector(".ai-apply").addEventListener("click",applyAiPending);
+    p.querySelector(".ai-apply").addEventListener("click",()=>{
+      if(!cardAction||aiPendingAction!==cardAction){
+        addAiMessage("ai","That proposal is no longer active. No changes were made.");
+      }else{applyAiPending()}
+      p.querySelectorAll("button").forEach(button=>button.disabled=true);
+    });
     p.querySelector(".ai-cancel").addEventListener("click",()=>{
-      aiPendingAction=null;
-      addAiMessage("ai","Cancelled. No changes were made.")
+      if(cardAction&&aiPendingAction===cardAction){
+        aiPendingAction=null;
+        addAiMessage("ai","Cancelled. No changes were made.");
+      }else addAiMessage("ai","That proposal is no longer active. No changes were made.");
+      p.querySelectorAll("button").forEach(button=>button.disabled=true);
     });
     d.appendChild(p);
   }
@@ -4365,7 +4376,16 @@ function handleAiPrompt(raw,voiceReply=false){const text=raw.trim();if(!text)ret
   return
 }
 window.CJJourneyPartnerAsk?.(text,voiceReply,{userAlreadyAdded:true})||reply(`I can help with that. Tell me the business outcome you want, and I’ll work from your Business Brain, Journey setup, and available data.`)}
-function applyAiPending(){const a=aiPendingAction;if(!a)return;const snapshotLabel=(()=>{if(a.type==="bulk-journey")return `Changed ${a.boardIds.length} board Journeys`;if(a.type==="bulk-status")return `${a.active?"Activated":"Paused"} ${a.boardIds.length} boards`;if(a.type==="journey"){const b=getBoard(a.boardId);return `Changed ${b?.name||"board"} Journey`}if(a.type==="status"){const b=getBoard(a.boardId);return `${a.active?"Activated":"Paused"} ${b?.name||"board"}`}if(a.type==="destination"){const b=getBoard(a.boardId);return `Updated ${b?.name||"board"} destination`}if(a.type==="assignment"){const b=getBoard(a.boardId);return `Changed ${b?.name||"board"} assignment`}return "Journey AI change"})();saveUndoSnapshot(snapshotLabel);if(a.type==="bulk-journey"){a.boardIds.forEach(id=>{const b=getBoard(id);if(!b)return;const old={...b.destinations};b.actions=[...a.actions];b.destinations={};b.actions.forEach(x=>b.destinations[x]=old[x]||"");logAudit(`Journey AI changed ${b.name} Journey to ${b.actions.join(" \u2192 ")}`,b.id)});addAiMessage("ai",`Applied. Updated ${a.boardIds.length} board${a.boardIds.length===1?"":"s"} to ${a.actions.join(" \u2192 ")}.`);renderUndoNotice(snapshotLabel)}else if(a.type==="bulk-status"){a.boardIds.forEach(id=>{const b=getBoard(id);if(!b)return;b.active=a.active;logAudit(`Journey AI ${b.active?"activated":"paused"} ${b.name}`,b.id)});addAiMessage("ai",`Applied. ${a.active?"Activated":"Paused"} ${a.boardIds.length} board${a.boardIds.length===1?"":"s"}.`);renderUndoNotice(snapshotLabel)}else{const b=getBoard(a.boardId);if(!b)return;if(a.type==="journey"){b.actions=[...a.actions];const old={...b.destinations};b.destinations={};b.actions.forEach(x=>b.destinations[x]=old[x]||"");logAudit(`Journey AI changed ${b.name} Journey to ${b.actions.join(" \u2192 ")}`,b.id);addAiMessage("ai",`Applied. ${b.name} is now ${b.actions.join(" \u2192 ")}.`)}else if(a.type==="status"){b.active=a.active;logAudit(`Journey AI ${b.active?"activated":"paused"} ${b.name}`,b.id);addAiMessage("ai",`Applied. ${b.name} is now ${b.active?"active":"paused"}.`)}else if(a.type==="destination"){if(!b.actions.includes(a.action)&&b.actions.length<3)b.actions.push(a.action);b.destinations[a.action]=normalizeUrl(a.url);logAudit(`Journey AI updated ${a.action} destination on ${b.name}`,b.id);addAiMessage("ai",`Applied. ${b.name}'s ${a.action} destination is now ${b.destinations[a.action]}.`)}else if(a.type==="assignment"){teamMembers.forEach(m=>m.boardIds=(m.boardIds||[]).filter(id=>id!==b.id));const m=teamMembers.find(x=>x.email===a.memberEmail);if(m){m.boardIds=m.boardIds||[];if(!m.boardIds.includes(b.id))m.boardIds.push(b.id);logAudit(`Journey AI assigned ${b.name} to ${m.name}`,b.id);addAiMessage("ai",`Applied. ${b.name} is now assigned to ${m.name}.`)}}renderUndoNotice(snapshotLabel)}aiPendingAction=null;persistLocalState();renderDashboard();renderLibrary();renderTeamLists();if(currentBoardId&&!el("boardManagerApp").classList.contains("hidden"))openBoardManager(false)}
+function applyAiPending(){const a=aiPendingAction;if(!a)return;
+  if(a.type==="journey"||a.type==="bulk-journey"){
+    const ids=a.type==="journey"?[a.boardId]:(a.boardIds||[]);
+    const targets=ids.map(id=>getBoard(id)).filter(Boolean);
+    if(targets.length&&targets.every(b=>JSON.stringify(b.actions||[])===JSON.stringify(a.actions||[]))){
+      aiPendingAction=null;
+      addAiMessage("ai","No changes applied. The selected board Journey is already configured that way.");
+      return;
+    }
+  }const snapshotLabel=(()=>{if(a.type==="bulk-journey")return `Changed ${a.boardIds.length} board Journeys`;if(a.type==="bulk-status")return `${a.active?"Activated":"Paused"} ${a.boardIds.length} boards`;if(a.type==="journey"){const b=getBoard(a.boardId);return `Changed ${b?.name||"board"} Journey`}if(a.type==="status"){const b=getBoard(a.boardId);return `${a.active?"Activated":"Paused"} ${b?.name||"board"}`}if(a.type==="destination"){const b=getBoard(a.boardId);return `Updated ${b?.name||"board"} destination`}if(a.type==="assignment"){const b=getBoard(a.boardId);return `Changed ${b?.name||"board"} assignment`}return "Journey AI change"})();saveUndoSnapshot(snapshotLabel);if(a.type==="bulk-journey"){a.boardIds.forEach(id=>{const b=getBoard(id);if(!b)return;const old={...b.destinations};b.actions=[...a.actions];b.destinations={};b.actions.forEach(x=>b.destinations[x]=old[x]||"");logAudit(`Journey AI changed ${b.name} Journey to ${b.actions.join(" \u2192 ")}`,b.id)});addAiMessage("ai",`Applied. Updated ${a.boardIds.length} board${a.boardIds.length===1?"":"s"} to ${a.actions.join(" \u2192 ")}.`);renderUndoNotice(snapshotLabel)}else if(a.type==="bulk-status"){a.boardIds.forEach(id=>{const b=getBoard(id);if(!b)return;b.active=a.active;logAudit(`Journey AI ${b.active?"activated":"paused"} ${b.name}`,b.id)});addAiMessage("ai",`Applied. ${a.active?"Activated":"Paused"} ${a.boardIds.length} board${a.boardIds.length===1?"":"s"}.`);renderUndoNotice(snapshotLabel)}else{const b=getBoard(a.boardId);if(!b)return;if(a.type==="journey"){b.actions=[...a.actions];const old={...b.destinations};b.destinations={};b.actions.forEach(x=>b.destinations[x]=old[x]||"");logAudit(`Journey AI changed ${b.name} Journey to ${b.actions.join(" \u2192 ")}`,b.id);addAiMessage("ai",`Applied. ${b.name} is now ${b.actions.join(" \u2192 ")}.`)}else if(a.type==="status"){b.active=a.active;logAudit(`Journey AI ${b.active?"activated":"paused"} ${b.name}`,b.id);addAiMessage("ai",`Applied. ${b.name} is now ${b.active?"active":"paused"}.`)}else if(a.type==="destination"){if(!b.actions.includes(a.action)&&b.actions.length<3)b.actions.push(a.action);b.destinations[a.action]=normalizeUrl(a.url);logAudit(`Journey AI updated ${a.action} destination on ${b.name}`,b.id);addAiMessage("ai",`Applied. ${b.name}'s ${a.action} destination is now ${b.destinations[a.action]}.`)}else if(a.type==="assignment"){teamMembers.forEach(m=>m.boardIds=(m.boardIds||[]).filter(id=>id!==b.id));const m=teamMembers.find(x=>x.email===a.memberEmail);if(m){m.boardIds=m.boardIds||[];if(!m.boardIds.includes(b.id))m.boardIds.push(b.id);logAudit(`Journey AI assigned ${b.name} to ${m.name}`,b.id);addAiMessage("ai",`Applied. ${b.name} is now assigned to ${m.name}.`)}}renderUndoNotice(snapshotLabel)}aiPendingAction=null;persistLocalState();renderDashboard();renderLibrary();renderTeamLists();if(currentBoardId&&!el("boardManagerApp").classList.contains("hidden"))openBoardManager(false)}
 function buildRealtimeJourneyContext(){
   const visible=visibleBoards().map(b=>({
     id:b.id,
@@ -9636,6 +9656,33 @@ function compactAccounts(){
   }catch(_){return []}
 }
 
+function pendingProposalSnapshot(){
+  try{
+    if(typeof aiPendingAction==='undefined'||!aiPendingAction)return null;
+    const p=aiPendingAction;
+    const ids=p.boardIds||[p.boardId].filter(Boolean);
+    const available=typeof boards!=='undefined'?boards:window.boards;
+    return {
+      state:'pending_local_approval',
+      type:p.type,
+      proposed_action:p.action||null,
+      proposed_url:p.type==='destination'?p.url||null:null,
+      affected_boards:ids.map(id=>{
+        const b=safeArray(available).find(x=>x.id===id);
+        if(!b)return {id,found:false};
+        const current=safeArray(b.actions);
+        const proposed=p.type==='journey'||p.type==='bulk-journey'?safeArray(p.actions):current;
+        return {id,name:b.name,current_journey:current,proposed_journey:proposed,
+          journey_changes:JSON.stringify(current)!==JSON.stringify(proposed),
+          current_status:b.active===false?'paused':'active',
+          proposed_status:p.type==='status'||p.type==='bulk-status'?(p.active?'active':'paused'):null,
+          current_destination:p.type==='destination'?b.destinations?.[p.action]||null:null};
+      }),
+      warning:'This is a local UI proposal only. It has not been applied or independently verified in the backend.'
+    };
+  }catch(_){return null}
+}
+
 function buildContext(){
   let businessBrain=null;
   try{
@@ -9663,6 +9710,7 @@ function buildContext(){
     business_brain:businessBrain,
     revenue_opportunity:revenue,
     boards:compactBoards(),
+    pending_proposal:pendingProposalSnapshot(),
     connected_accounts:compactAccounts(),
     recent_conversation:recentConversation(),
     operating_contract:{
@@ -9706,9 +9754,15 @@ function isDeterministicCommand(text){
   if(q==='undo'||q==='undo that'||q==='undo last'||q==='test voice'||q.includes('voice test'))return true;
   if(isImageOrCreativeExecution(q))return true;
   if(/^(open|go to|navigate to|show)\s+(dashboard|analytics|library|team|connected accounts|integrations|board management)\b/.test(q))return true;
-  if(/\b(pause|activate|deactivate|resume|rename|assign|unassign|set|change|update|edit)\b/.test(q)&&/\b(board|smartboard|mini board|miniboard|journey|destination|assignment|status)\b/.test(q))return true;
-  if(/https?:\/\//.test(q)&&/\b(destination|link|url)\b/.test(q))return true;
-  return false;
+  // Only explicit, targeted imperatives may reach the legacy local-action parser.
+  // Questions, inspections and broad "set up" requests belong to authenticated AI.
+  const command=q.replace(/^(?:please|can you|could you|would you|i want you to|i need you to)\s+/,'');
+  if(/^(?:set up|setup|make sure|do not|don't)\b/.test(command))return false;
+  if(!/^(?:pause|activate|deactivate|resume|rename|assign|unassign|set|change|update|edit|make)\b/.test(command))return false;
+  if(!/\b(?:board|smartboard|mini board|miniboard|journey|destination|assignment|status)\b/.test(command))return false;
+  if(/^(?:set|change|update|edit|make)\b/.test(command)&&
+     !/\b(?:journey|destination|status|assignment|name|active|paused)\b/.test(command))return false;
+  return true;
 }
 
 function shouldHandle(text){
