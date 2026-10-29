@@ -1,0 +1,25 @@
+name: Journey AI backend pilot validation
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/journey-ai-chat/**'
+      - 'supabase/migrations/20261029_agent_analysis_pilot*'
+      - '.github/workflows/journey-ai-backend-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  deno-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/journey-ai-chat/index.ts
+      - name: Check pilot has explicit business membership and analysis-only boundary
+        run: |
+          grep -Fq '.eq("business_id",business)' supabase/functions/journey-ai-chat/index.ts
+          grep -Fq '.eq("user_id",userId)' supabase/functions/journey-ai-chat/index.ts
+          grep -Fq 'execution_type!=="analysis_only"' supabase/functions/journey-ai-chat/index.ts
+          grep -Fq 'registered_agent_jobs' supabase/functions/journey-ai-chat/index.ts
