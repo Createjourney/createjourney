@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/journey-ai-chat/**'
+      - 'supabase/functions/cj-agent-runtime/**'
       - 'supabase/migrations/20261029_agent_analysis_pilot*'
       - '.github/workflows/journey-ai-backend-pilot.yml'
 permissions:
@@ -17,6 +18,7 @@ jobs:
         with:
           deno-version: v2.x
       - run: deno check supabase/functions/journey-ai-chat/index.ts
+      - run: deno check supabase/functions/cj-agent-runtime/index.ts
       - name: Check pilot has explicit business membership and analysis-only boundary
         run: |
           grep -Fq '.eq("business_id",business)' supabase/functions/journey-ai-chat/index.ts
