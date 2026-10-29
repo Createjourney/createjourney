@@ -7,14 +7,15 @@ This file is the durable engineering handoff for the five sequential repair mile
 - [x] Initial read-only intent fix merged in PR #1, commit `e38ae2eef87cc68f4b44c5e787743751de0a0af3`.
 - [x] Hardening merged in PR #2, commit `8de2a236c902e28e3501a3db451161c1b1f190f5`: targeted imperative classifier, immutable proposal identity, no-op Journey protection, pending proposal read-only snapshot.
 - [x] Node regression and inline-script syntax tests passed in GitHub Actions run `40837409590`.
-- [ ] PR #3 (`test/journey-ai-browser-smoke`): browser-level regression and missing DOMContentLoaded bridge fix. Earlier Chromium run `40837762904` passed 3 browser tests after the runtime bridge fix; expanded 5-test suite awaiting final check.
-- [ ] Verify the merged code is served from the confirmed GitHub Pages deployment URL: https://createjourney.github.io/createjourney/. A `journey-ai-deployment.yml` workflow is being added to check this on main.
+- [x] PR #3 merged, commit `6de3538be4a708d0f8455511b397f8e0fc16d398`: DOMContentLoaded runtime bridge and cloud Apply delegation. Node + 5 Chromium smoke tests passed in Actions run `40837871534`.
+- [x] Confirmed live GitHub Pages HTML at https://createjourney.github.io/createjourney/ includes both routing and stale-Apply fixes. Deployment workflow PR #4 passed in Actions run `40838002281`; PR #4 merged, commit `a6dfd9cfc7352d15994acab4fa3c6b46addbe2df`.
 - [ ] Test authenticated Journey AI response, pending proposal explanation, and real cloud approval in an authorized test business without changing production customer boards.
 
 ### Important bug found in Chromium
 The main application handlers live inside a DOMContentLoaded closure, but later Build 27 wrappers captured `window.addAiMessage` while undefined, and `window.handleAiPrompt` was never exported. The Build 27 `applyAiPending` also referred to `aiPendingAction` without a runtime bridge. PR #3 adds a lazy wrapper fallback and an explicit runtime bridge. This is a real browser-observed failure, not a speculative issue.
 
 ## Milestone 2 — Agent registry integration
+- [x] Read-only production SQL audit: all 607 registry rows are `PLANNED`, zero enabled agent permissions, zero jobs. Existing `cj-agent-runtime` has no runnable registered agents until staged activation; do not claim the 607 agents are operational.
 - [ ] Verify registry statuses, department mapping and permissions.
 - [ ] Route chat to actual registered agents using authenticated business scope; avoid treating ten prompt personas as all 607 implemented agents.
 - [ ] Verify job submission, status, traceability and synthesis with a non-production test business.
