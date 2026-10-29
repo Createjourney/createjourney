@@ -16,9 +16,10 @@ The main application handlers live inside a DOMContentLoaded closure, but later 
 
 ## Milestone 2 — Agent registry integration
 - [x] Read-only production SQL audit: all 607 registry rows are `PLANNED`, zero enabled agent permissions, zero jobs. Existing `cj-agent-runtime` has no runnable registered agents until staged activation; do not claim the 607 agents are operational.
-- [ ] Verify registry statuses, department mapping and permissions.
-- [ ] Route chat to actual registered agents using authenticated business scope; avoid treating ten prompt personas as all 607 implemented agents.
-- [ ] Verify job submission, status, traceability and synthesis with a non-production test business.
+- [x] Verified registry status and permissions via production SQL: 607 total, 604 PLANNED and 3 TESTING (agents 2, 333, 336); `cj_agent_authorized` returned true for `ai.analysis` for those three only.
+- [x] Added authenticated, owner/manager-scoped pilot routing to `cj-agent-runtime` for the three TESTING agents, with persisted job IDs, analysis-only outputs and legacy persona fallback. PR #5 merged (`a7e9d33536e10bc036842e33d7f9428701a080f3`), Deno type-check passed (Actions run `40838405130`), production `journey-ai-chat` deployed as v18 with `verify_jwt=true`. Original v17 source backed up in `supabase/backups/journey-ai-chat-v17/index.ts`.
+- [ ] Confirm at least one authenticated owner request creates a real `cj_agent_jobs` row and `ANALYSIS_COMPLETED` event, and that Journey AI returns the job ID without falsely claiming external execution.
+- [ ] Verify job submission, status, traceability and synthesis with a non-production test business. This is not yet an end-to-end verified integration.
 
 ## Milestone 3 — Permission-governed execution
 - [ ] Keep analysis-only agents read-only.
