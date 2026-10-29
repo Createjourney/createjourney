@@ -4341,7 +4341,12 @@ function addAiMessage(type,text,proposal=null,voiceReply=false){
     p.querySelector(".ai-apply").addEventListener("click",()=>{
       if(!cardAction||aiPendingAction!==cardAction){
         addAiMessage("ai","That proposal is no longer active. No changes were made.");
-      }else{applyAiPending()}
+      }else{
+        // Use the production approval bridge when present; it confirms backend
+        // changes instead of silently applying only to local prototype state.
+        const execute=typeof window.applyAiPending==='function'?window.applyAiPending:applyAiPending;
+        Promise.resolve(execute()).catch(error=>addAiMessage("ai",`Apply failed: ${error?.message||"Unknown error"}`));
+      }
       p.querySelectorAll("button").forEach(button=>button.disabled=true);
     });
     p.querySelector(".ai-cancel").addEventListener("click",()=>{
@@ -6599,9 +6604,16 @@ try{
   defineRuntimeValue("aiBusinessProfile",()=>aiBusinessProfile,v=>{aiBusinessProfile=v&&typeof v==="object"?v:{goals:[]}});
   defineRuntimeValue("useType",()=>useType,v=>{useType=v});
   defineRuntimeValue("currentBoardId",()=>currentBoardId,v=>{currentBoardId=v});
+  defineRuntimeValue("aiPendingAction",()=>aiPendingAction,v=>{aiPendingAction=v});
   defineRuntimeValue("SUPABASE_URL",()=>SUPABASE_URL);
   defineRuntimeValue("SUPABASE_PUBLISHABLE_KEY",()=>SUPABASE_PUBLISHABLE_KEY);
 
+  // The original app logic is enclosed in DOMContentLoaded. Expose its
+  // authenticated handlers only after initialization so later inline modules
+  // can call the real implementations rather than undefined globals.
+  window.CJLegacyAddAiMessage=addAiMessage;
+  window.CJLegacyApplyAiPending=applyAiPending;
+  window.handleAiPrompt=handleAiPrompt;
   window.persistLocalState=persistLocalState;
   window.integrationSession=integrationSession;
   window.aiActionBackendRequest=aiActionBackendRequest;
@@ -6815,7 +6827,8 @@ window.applyAiPending=async function applyAiPending(){
       // Preserve the mature local prototype behavior for action types whose secure RPC is not wired yet,
       // but never label them as cloud-confirmed.
       buttons.forEach(x=>{x.disabled=false;x.classList.remove('cj27-syncing');x.textContent='Approve & Apply'});
-      if(typeof applyAiPendingV26==='function'){applyAiPendingV26();cj27Record('Workspace change saved locally','progress','Secure backend confirmation is still required for this action type.');}
+      const localApply=typeof applyAiPendingV26==='function'?applyAiPendingV26:window.CJLegacyApplyAiPending;
+       if(typeof localApply==='function'){localApply();cj27Record('Workspace change saved locally','progress','Secure backend confirmation is still required for this action type.');}
       return;
     }
     aiPendingAction=null;try{persistLocalState()}catch(_){ }try{renderDashboard();renderLibrary();renderTeamLists()}catch(_){ }
@@ -6840,7 +6853,9 @@ window.assistant26=function(q){
 // Proposal language should make approval meaning obvious.
 const addAiMessageV26=window.addAiMessage;
 window.addAiMessage=function(type,text,proposal=null,voiceReply=false){
-  const node=addAiMessageV26(type,text,proposal,voiceReply);
+  const base=typeof addAiMessageV26==='function'?addAiMessageV26:window.CJLegacyAddAiMessage;
+  if(typeof base!=='function')return null;
+  const node=base(type,text,proposal,voiceReply);
   if(proposal&&node){const btn=node.querySelector('.ai-apply');if(btn)btn.textContent='Approve & Apply'}
   return node;
 };
