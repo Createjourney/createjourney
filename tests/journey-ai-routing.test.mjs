@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-const scripts=[...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+const scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
 test('all inline scripts parse without JavaScript syntax errors',()=>{
   assert.ok(scripts.length>=30,'expected complete CreateJourney page');
   for(let i=0;i<scripts.length;i++){
@@ -65,8 +65,8 @@ test('pending Apply proposal is represented as read-only, with current and propo
 
 test('stale Apply and Cancel buttons are bound to their original action',()=>{
   const body=extract('function addAiMessage(type,text,proposal=null,voiceReply=false){','function numberWordsToDigits(');
-  assert.match(body,/const cardAction=proposal\\?aiPendingAction:null/);
+  assert.match(body,/const cardAction=proposal\?aiPendingAction:null/);
   assert.match(body,/aiPendingAction!==cardAction/);
   assert.match(body,/aiPendingAction===cardAction/);
-  assert.match(html,/No changes applied\\. The selected board Journey is already configured that way/);
+  assert.match(html,/No changes applied\. The selected board Journey is already configured that way/);
 });
