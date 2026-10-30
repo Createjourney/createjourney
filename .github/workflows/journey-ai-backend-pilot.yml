@@ -4,6 +4,7 @@ on:
     paths:
       - 'supabase/functions/journey-ai-chat/**'
       - 'supabase/functions/cj-agent-runtime/**'
+      - 'tests/journey-ai-agent-routing.test.mjs'
       - 'supabase/migrations/20261029_agent_analysis_pilot*'
       - '.github/workflows/journey-ai-backend-pilot.yml'
 permissions:
@@ -19,9 +20,10 @@ jobs:
           deno-version: v2.x
       - run: deno check supabase/functions/journey-ai-chat/index.ts
       - run: deno check supabase/functions/cj-agent-runtime/index.ts
+      - run: node --test tests/journey-ai-agent-routing.test.mjs
       - name: Check pilot has explicit business membership and analysis-only boundary
         run: |
-          grep -Fq '.eq("business_id",business)' supabase/functions/journey-ai-chat/index.ts
+          grep -Fq 'eligible.find((m:any)=>m.business_id===requested)' supabase/functions/journey-ai-chat/index.ts
           grep -Fq '.eq("user_id",userId)' supabase/functions/journey-ai-chat/index.ts
           grep -Fq 'execution_type!=="analysis_only"' supabase/functions/journey-ai-chat/index.ts
           grep -Fq 'registered_agent_jobs' supabase/functions/journey-ai-chat/index.ts
