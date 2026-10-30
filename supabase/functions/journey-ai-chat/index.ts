@@ -85,25 +85,47 @@ function routeAgents(prompt:string):AgentId[]{
 }
 
 
-type RegistryPilotResult={agent_no:number;job_id:string;summary:string;execution_type:"analysis_only";verification_status:"UNVERIFIED"};
-function pilotAgentForRequest(prompt:string):number|null{
-  if(/\b(?:verify|evidence|fact.check|audit claims)\b/i.test(prompt)&&/\b(?:board|journey|conversion|claim|report)\b/i.test(prompt))return 2;
-  if(/\b(?:conversion|drop.?off|zero actions|booking clicks|funnel)\b/i.test(prompt))return 336;
-  if(/\b(?:board|smartboard|nfc|qr|tap|journey)\b/i.test(prompt)&&/\b(?:analy[sz]e|audit|diagnos|improv|optimiz|inspect|investigat|why)\b/i.test(prompt))return 333;
-  return null;
+type RegistryPilotResult={
+  agent_no:number;job_id:string|null;
+  status:"SUCCEEDED"|"SUBMIT_FAILED"|"RUN_FAILED"|"SKIPPED";
+  summary:string;execution_type:"analysis_only"|null;
+  verification_status:"UNVERIFIED"|null;reason?:string
+};
+// Only these three TESTING agents are in the analysis-only pilot.
+function pilotAgentsForRequest(prompt:string):number[]{
+  const explicit=[...prompt.matchAll(/(?:\bagent\s*(?:#|no\.?|number)?\s*|#)(2|333|336)\b/gi)]
+    .map(match=>Number(match[1]));
+  if(/\bsmartboard interaction optimization agent\b/i.test(prompt))explicit.push(333);
+  if(/\bsmartboard conversion intelligence agent\b/i.test(prompt))explicit.push(336);
+  if(/\b(?:evidence|fact.checking) agent\b/i.test(prompt))explicit.push(2);
+  if(explicit.length)return [...new Set(explicit)].slice(0,3);
+  const ids:number[]=[];
+  if(/\b(?:verify|evidence|fact.check|audit claims)\b/i.test(prompt)&&/\b(?:board|journey|conversion|claim|report)\b/i.test(prompt))ids.push(2);
+  if(/\b(?:conversion|drop.?off|zero actions|booking clicks|funnel)\b/i.test(prompt))ids.push(336);
+  if(/\b(?:board|smartboard|nfc|qr|tap|journey)\b/i.test(prompt)&&/\b(?:analy[sz]e|audit|diagnos|improv|optimiz|inspect|investigat|why)\b/i.test(prompt))ids.push(333);
+  return [...new Set(ids)].slice(0,3);
 }
 async function runRegisteredAgentPilot(
   url:string,anon:string,auth:string,serviceKey:string|undefined,userId:string,
   businessId:unknown,prompt:string,contextObject:any
 ):Promise<RegistryPilotResult[]>{
-  const agentNo=pilotAgentForRequest(prompt);
-  const business=typeof businessId==="string"?businessId:"";
-  if(!agentNo||!serviceKey||!/^[a-f0-9-]{36}$/i.test(business))return [];
-  // The browser-supplied business_id is never sufficient authorization.
+  const agentNos=pilotAgentsForRequest(prompt);
+  if(!agentNos.length)return [];
+  const skipped=(reason:string):RegistryPilotResult[]=>agentNos.map(agent_no=>({
+    agent_no,job_id:null,status:"SKIPPED",summary:"",
+    execution_type:null,verification_status:null,reason
+  }));
+  if(!serviceKey)return skipped("RUNTIME_CONFIGURATION_UNAVAILABLE");
+  // Resolve ownership from authenticated membership; never trust browser-provided business scope.
   const admin=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
-  const {data:member,error:memberError}=await admin.from("business_members")
-    .select("role").eq("business_id",business).eq("user_id",userId).eq("is_active",true).maybeSingle();
-  if(memberError||!member||!["owner","manager"].includes(String(member.role).toLowerCase()))return [];
+  const {data:members,error:memberError}=await admin.from("business_members")
+    .select("business_id,role").eq("user_id",userId).eq("is_active",true);
+  if(memberError)return skipped("MEMBERSHIP_LOOKUP_FAILED");
+  const eligible=(members||[]).filter((m:any)=>["owner","manager"].includes(String(m.role||"").toLowerCase()));
+  const requested=typeof businessId==="string"?businessId:"";
+  const chosen=requested?eligible.find((m:any)=>m.business_id===requested):(eligible.length===1?eligible[0]:null);
+  if(!chosen)return skipped(requested?"BUSINESS_ACCESS_DENIED":eligible.length>1?"BUSINESS_SELECTION_REQUIRED":"BUSINESS_ACCESS_UNAVAILABLE");
+  const business=String(chosen.business_id);
   const compactBoards=Array.isArray(contextObject?.boards)?contextObject.boards.slice(0,5).map((b:any)=>({
     id:String(b?.id||"").slice(0,90),name:String(b?.name||"").slice(0,90),
     journey:Array.isArray(b?.journey)?b.journey.slice(0,3):[],
@@ -114,15 +136,34 @@ async function runRegisteredAgentPilot(
   async function request(action:string,extra:Record<string,unknown>){
     const response=await fetch(endpoint,{method:"POST",headers,body:JSON.stringify({action,business_id:business,...extra}),signal:AbortSignal.timeout(25000)});
     const data=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error("Agent runtime "+action+" returned "+response.status);
+    if(!response.ok)throw new Error("RUNTIME_HTTP_"+response.status);
     return data;
   }
-  const submitted=await request("submit",{agent_no:agentNo,request:prompt,context:{screen:String(contextObject?.screen||"").slice(0,90),boards:compactBoards,source:"journey-ai-chat"}});
-  const jobId=submitted?.job?.id;
-  if(typeof jobId!=="string"||!/^[a-f0-9-]{36}$/i.test(jobId))return [];
-  const result=await request("run",{job_id:jobId});
-  if(result?.status!=="SUCCEEDED"||result?.output?.execution_type!=="analysis_only"||typeof result?.output?.text!=="string")return [];
-  return [{agent_no:agentNo,job_id:jobId,summary:result.output.text.slice(0,8000),execution_type:"analysis_only",verification_status:"UNVERIFIED"}];
+  // Independent registered agents execute concurrently; each has its own persisted job.
+  return await Promise.all(agentNos.map(async(agent_no):Promise<RegistryPilotResult>=>{
+    let job_id:string|null=null;
+    const fail=(status:"SUBMIT_FAILED"|"RUN_FAILED",reason:string):RegistryPilotResult=>({
+      agent_no,job_id,status,summary:"",execution_type:null,verification_status:null,reason
+    });
+    try{
+      const submitted=await request("submit",{agent_no,request:prompt,context:{
+        screen:String(contextObject?.screen||"").slice(0,90),boards:compactBoards,source:"journey-ai-chat"
+      }});
+      job_id=typeof submitted?.job?.id==="string"&&/^[a-f0-9-]{36}$/i.test(submitted.job.id)?submitted.job.id:null;
+      if(!job_id)return fail("SUBMIT_FAILED","RUNTIME_DID_NOT_RETURN_JOB_ID");
+    }catch(error){
+      return fail("SUBMIT_FAILED",error instanceof Error?error.message:"RUNTIME_SUBMIT_ERROR");
+    }
+    try{
+      const result=await request("run",{job_id});
+      if(result?.status!=="SUCCEEDED"||result?.output?.execution_type!=="analysis_only"||typeof result?.output?.text!=="string")
+        return fail("RUN_FAILED","RUNTIME_DID_NOT_CONFIRM_ANALYSIS");
+      return {agent_no,job_id,status:"SUCCEEDED",summary:result.output.text.slice(0,8000),
+        execution_type:"analysis_only",verification_status:"UNVERIFIED"};
+    }catch(error){
+      return fail("RUN_FAILED",error instanceof Error?error.message:"RUNTIME_RUN_ERROR");
+    }
+  }));
 }
 
 async function openAIText(key:string,model:string,instructions:string,input:unknown,maxTokens=650){
@@ -131,6 +172,7 @@ async function openAIText(key:string,model:string,instructions:string,input:unkn
   if(!response.ok)throw new Error(data?.error?.message||"OpenAI request failed");
   let out=typeof data?.output_text==="string"?data.output_text.trim():"";
   if(!out&&Array.isArray(data?.output))for(const item of data.output)for(const c of item?.content||[])if(c?.type==="output_text"&&typeof c?.text==="string")out+=c.text;
+  if (!out.trim()) { console.error("Empty AI response", JSON.stringify({model,status:data?.status,reason:data?.incomplete_details?.reason})); throw new Error("The AI response was empty. Please retry."); }
   return out.trim();
 }
 
@@ -167,6 +209,13 @@ Deno.serve(async(req:Request)=>{
     const textAttachmentContext=attachments.filter((a:any)=>a.text).map((a:any)=>`FILE: ${a.name}\n${a.text}`).join("\n\n").slice(0,70_000);
 
     const specialistContext=`AUTHORIZED CREATEJOURNEY CONTEXT\n${context}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nOWNER REQUEST\n${prompt}`;
+    // Run registered agents alongside persona analysis rather than waiting for persona completion.
+    const registeredPromise=runRegisteredAgentPilot(url,anon,auth,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||undefined,
+      userData.user.id,(body?.context&&typeof body.context==="object")?body.context.business_id:null,
+      prompt,body?.context||{}).catch(error=>{
+        console.warn("Registered-agent pilot unavailable",error instanceof Error?error.message:"Unknown runtime error");
+        return [] as RegistryPilotResult[];
+      });
     const specialistRuns=await Promise.all(selected.map(async(id):Promise<AgentResult>=>{
       const agent=AGENTS[id];
       try{
@@ -179,17 +228,9 @@ Deno.serve(async(req:Request)=>{
     }));
 
     const completed=specialistRuns.filter(x=>x.status==="completed");
-    let registeredRuns:RegistryPilotResult[]=[];
-    try{
-      registeredRuns=await runRegisteredAgentPilot(url,anon,auth,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||undefined,
-        userData.user.id,(body?.context&&typeof body.context==="object")?body.context.business_id:null,
-        prompt,body?.context||{});
-    }catch(error){
-      // Never claim an agent ran when submit/run failed; existing specialist analysis remains available.
-      console.warn("Registered-agent pilot unavailable",error instanceof Error?error.message:"Unknown runtime error");
-    }
+    const registeredRuns=await registeredPromise;
     const personaBriefings=completed.map(x=>`### ${x.name}\n${x.summary}`).join("\n\n");
-    const registeredBriefings=registeredRuns.map(x=>`### Registered Agent ${x.agent_no} — analysis-only job ${x.job_id}\n${x.summary}`).join("\n\n");
+    const registeredBriefings=registeredRuns.filter(x=>x.status==="SUCCEEDED").map(x=>`### Registered Agent ${x.agent_no} — analysis-only job ${x.job_id}\n${x.summary}`).join("\n\n");
     const briefings=[personaBriefings,registeredBriefings].filter(Boolean).join("\n\n");
     const journeyInstructions=`You are Journey AI, the Business Director, operating partner, and single owner-facing intelligence inside CreateJourney. The owner should feel like they have a capable business partner beside them, not a generic chatbot and not a rigid dashboard command parser. Multiple specialists work behind you, but you speak with one unified Journey AI voice.
 
@@ -255,6 +296,7 @@ VOICE AND RESPONSE QUALITY
 - Lead with the recommendation or answer, then why, specific next actions, and any important caveat. Never overstate unavailable features or unsupported metrics.
 - Keep optional details succinct unless the user requests depth. Offer follow-up options as a short numbered list when useful. These are text choices, not clickable controls.
 - Clearly label Verified, Recommended, Proposed, and Completed according to actual backend evidence; do not claim agent execution merely because a specialist contributed text.
+- When registered agents were requested, report their exact receipt statuses and job IDs. If no job exists, explicitly say it did not execute. Treat browser-provided SmartBoard context as unverified unless independently checked against backend records.
 - Be concise enough to scan, but detailed enough to act on.
 - Give the owner the useful answer first, then suggested next actions or an executable proposal.
 - When useful, finish with 2-4 concise, relevant options the owner can choose from (for example: build the plan, analyze the numbers, prepare the campaign, improve the Journey). Do not offer irrelevant options.
@@ -263,7 +305,8 @@ VOICE AND RESPONSE QUALITY
 AUTHORIZED CONTEXT
 ${context}`
 
-    const finalInput=`OWNER REQUEST\n${prompt}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nSPECIALIST BRIEFINGS\n${briefings||"No specialist briefing completed. Answer from authorized context only."}`;
+    const registeredReceipts=registeredRuns.map(x=>`Agent #${x.agent_no}: ${x.status}; job_id=${x.job_id||"NONE"}; reason=${x.reason||"NONE"}; analysis_only=${x.execution_type==="analysis_only"}`).join("\n");
+    const finalInput=`OWNER REQUEST\n${prompt}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nREGISTERED AGENT EXECUTION RECEIPTS (authoritative runtime status; analysis is not an external action)\n${registeredReceipts||"No registered agent requested."}\n\nSPECIALIST BRIEFINGS\n${briefings||"No specialist briefing completed. Answer from authorized context only."}`;
     const content:any[]=[{type:"input_text",text:finalInput}];
     for(const a of attachments){
       if(a.kind==="image"&&a.data_url){
@@ -294,8 +337,8 @@ ${context}`
     const reply=await openAIText(key,model,finalInstructions,responseInput,responseDepth==="SIMPLE"?650:responseDepth==="STRATEGY"?1350:2800);
 
     return json({
-      registered_agent_jobs:registeredRuns.map(x=>({agent_no:x.agent_no,job_id:x.job_id,execution_type:x.execution_type,verification_status:x.verification_status})),
-      reply:reply||"I’m ready to help with CreateJourney.",
+      registered_agent_jobs:registeredRuns.map(x=>({agent_no:x.agent_no,job_id:x.job_id,status:x.status,reason:x.reason||null,execution_type:x.execution_type,verification_status:x.verification_status})),
+      reply,
       model,
       orchestration:{
         mode:"journey-ai-business-team",
