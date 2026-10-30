@@ -43,3 +43,12 @@ Supabase project `pbiivpehdatvmyaxwixk`: `journey-ai-chat` has 10 built-in speci
 - Supabase security advisor reports RLS-enabled/no-policy informational notices on agent tables and pre-existing SECURITY DEFINER/auth warnings. The runtime uses server-side service-role access plus owner/manager membership checks; do not weaken RLS to make testing easier.
 - The runtime previously sliced JSON text to 8,000 characters before parsing, which could fail on long contexts. PR #6 merged (`c57b81b90a062fceee1fc84ff5c8c0d9b505231f`), Deno check passed (Actions run `40838716072`), and `cj-agent-runtime` v3 is ACTIVE with safe bounded context fallback and JWT verification enabled.
 - A real authenticated test business/session is still required to verify the successful submit/run/status path. Do not fabricate a successful agent execution from SQL permission checks or Deno compilation.
+
+## 2026-10-30 incremental repair — multi-agent chat orchestration (pending CI / production verification)
+- Reconfirmed PR #1 is merged and deployment verification is documented above; authenticated end-to-end approval gate remains open.
+- Reconfirmed production `journey-ai-chat` v20 and `cj-agent-runtime` v3 are ACTIVE. SQL still shows no `cj_agent_jobs` rows; registry agents 2, 333 and 336 remain TESTING.
+- Prepared multi-agent pilot routing in branch `fix/journey-ai-multi-agent-runtime-20261030`, starting from **live v20 source** to avoid reverting the server-resolved membership fix missing from the older GitHub file.
+- Explicit requests for agents #333 and #336 now select both; independent submit/run sequences execute concurrently with the legacy persona analysis. No board mutation tools were added.
+- Added per-agent structured execution receipts (job ID, SUCCEEDED/SUBMIT_FAILED/RUN_FAILED/SKIPPED, safe failure code) to prevent unverified execution claims. Browser-supplied metrics remain labeled as context, not independently verified analytics.
+- Added Node routing/permission regression tests and Deno-check workflow coverage. **Do not deploy until GitHub Actions passes and PR is reviewed.**
+- Still blocked for full milestone-2 verification on an authenticated owner/manager session and a non-production test business; no successful runtime job has yet been observed.
