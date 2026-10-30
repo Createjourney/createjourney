@@ -214,7 +214,10 @@ Deno.serve(async(req:Request)=>{
       userData.user.id,(body?.context&&typeof body.context==="object")?body.context.business_id:null,
       prompt,body?.context||{}).catch(error=>{
         console.warn("Registered-agent pilot unavailable",error instanceof Error?error.message:"Unknown runtime error");
-        return [] as RegistryPilotResult[];
+        return pilotAgentsForRequest(prompt).map(agent_no=>({
+          agent_no,job_id:null,status:"SKIPPED" as const,summary:"",
+          execution_type:null,verification_status:null,reason:"RUNTIME_ORCHESTRATION_ERROR"
+        }));
       });
     const specialistRuns=await Promise.all(selected.map(async(id):Promise<AgentResult>=>{
       const agent=AGENTS[id];
