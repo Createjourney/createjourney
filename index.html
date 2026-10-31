@@ -6240,17 +6240,13 @@ async function cjBootstrapWorkspaceV24(user){
   if(!user||!backendReady||!sb)return null;
   const name=String(user.user_metadata?.setup_name||workspaceName()||"My Workspace").trim();
   const type=String(user.user_metadata?.use_type||useType||"business");
-  const id=crypto.randomUUID();
   try{
-    const {error:wErr}=await sb.from("workspaces").insert({id,name,use_type:type});
-    if(wErr)throw wErr;
-    const {error:mErr}=await sb.from("workspace_members").insert({workspace_id:id,user_id:user.id,role:"Owner"});
-    if(mErr)throw mErr;
-    const state=cjCurrentStateV24();
-    const {error:sErr}=await sb.from("workspace_state").upsert({workspace_id:id,state},{onConflict:"workspace_id"});
-    if(sErr)throw sErr;
-    return{workspace_id:id,role:"Owner",workspaces:{name,use_type:type}};
-  }catch(e){console.warn("Workspace bootstrap unavailable",e);return null}
+    const {data,error}=await sb.rpc("cj_ensure_my_workspace",{p_name:name,p_use_type:type});
+    if(error)throw error;
+    const row=Array.isArray(data)?data[0]:data;
+    if(!row?.workspace_id)throw new Error("Workspace creation was not confirmed.");
+    return {workspace_id:row.workspace_id,role:row.role,workspaces:{name:row.workspace_name,use_type:row.workspace_use_type}};
+  }catch(e){console.error("Workspace provisioning failed:",e);setAuthMessage("Workspace setup could not finish: "+(e?.message||"Please retry signing in."),"bad");return null}
 }
 function cjCanCloudWriteV24(){return !!(backendReady&&sb&&backendWorkspaceId&&actualRole!=="Employee"&&!isPlatformAdmin&&navigator.onLine!==false)}
 
