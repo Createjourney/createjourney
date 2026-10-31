@@ -674,6 +674,32 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 
 <div id="cjSystemToast" class="cj-system-toast hidden"><span id="cjSystemToastText"></span><button id="cjSystemToastClose" type="button" aria-label="Dismiss">×</button></div>
 <div id="authApp" class="auth-screen"><div class="auth-card"><div class="auth-brand"><div class="cj-auth-canonical-wrap"><img class="cj-auth-canonical" src="assets/createjourney-logo.svg?v=20261004b" alt="CreateJourney"><div class="cj-auth-canonical-powered">Powered by <strong>JourneyAI</strong></div></div></div><div class="auth-sub">One sign-in for every CreateJourney account. Your access is recognized automatically.</div><div class="auth-tabs"><button id="authSignInTab" class="auth-tab selected">Sign in</button><button id="authCreateTab" class="auth-tab">Create new account</button></div><div id="authSignInPanel"><label>Email</label><input id="loginEmail" name="username" type="email" autocomplete="username" inputmode="email" placeholder="you@example.com"><label>Password</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Your password"><div class="auth-remember-row"><label class="auth-remember"><input id="rememberLogin" type="checkbox" checked><span class="auth-checkmark" aria-hidden="true"></span><span>Remember me on this device</span></label><button id="forgotPasswordButton" class="auth-text-button" type="button">Forgot password?</button></div><button id="loginButton" class="primary ready">Sign in</button><button id="magicLinkButton" class="secondary">Email me a sign-in link</button><div class="auth-security-note">Your password is handled by your browser/password manager. CreateJourney does not store your password in plain text.</div><div id="authRecoveryHelp" class="auth-recovery-card hidden">Password reset and sign-in links are sent only to the email address you enter above. CreateJourney will never ask you to send your password to support.</div></div><div id="authCreatePanel" class="hidden"><p class="helper">Only use this if you do not already have a CreateJourney account. Business and Personal are setup types, not separate login pages.</p><button id="startCreateAccount" class="primary ready">Create my account</button><div class="note">Already have an account? Use Sign in. Super Admin, Owner, Manager, Employee and Personal accounts all use the same sign-in form.</div></div><div id="authMessage" class="auth-message hidden"></div><div id="authBackendStatus" class="backend-pill"><span class="backend-dot"></span><span>Connecting securely…</span></div></div></div>
+<script>
+/* AUTH TAB RESILIENCE: independent of later dashboard initialization. */
+(function(){
+ function bind(){
+  var sign=document.getElementById('authSignInTab'),create=document.getElementById('authCreateTab'),start=document.getElementById('startCreateAccount');
+  var signPanel=document.getElementById('authSignInPanel'),createPanel=document.getElementById('authCreatePanel');
+  function select(isCreate){
+   sign.classList.toggle('selected',!isCreate);create.classList.toggle('selected',isCreate);
+   signPanel.classList.toggle('hidden',isCreate);createPanel.classList.toggle('hidden',!isCreate);
+  }
+  if(sign&&create&&signPanel&&createPanel){
+   sign.addEventListener('click',function(e){e.stopImmediatePropagation();select(false)},true);
+   create.addEventListener('click',function(e){e.stopImmediatePropagation();select(true)},true);
+  }
+  if(start)start.addEventListener('click',function(e){
+   e.stopImmediatePropagation();
+   var auth=document.getElementById('authApp'),onboard=document.getElementById('onboardingApp');
+   if(auth&&onboard){auth.classList.add('hidden');onboard.classList.remove('hidden');}
+   var pages=document.querySelectorAll('#onboardingApp .onboarding-step');
+   if(pages.length)pages.forEach(function(p,j){p.classList.toggle('hidden',j!==0)});
+   window.scrollTo(0,0);
+  },true);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+</script>
 <!-- ======================================
      #10 ONBOARDING
      ====================================== -->
