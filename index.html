@@ -588,6 +588,9 @@ button[data-cj-busy="true"]::after{content:"";display:inline-block;width:10px;he
 @media(max-width:420px){.revenue-opportunity-top{display:block}.revenue-opportunity-period{display:inline-block;margin-top:9px}.revenue-opportunity-actions{grid-template-columns:1fr}.revenue-metric-value{font-size:21px}}
 
 
+/* Registration logo: 20% smaller on every account-creation step, relative to the prior 240px setting. */
+#onboardingApp .logo .cj-auth-canonical-wrap{max-width:192px!important}
+#onboardingApp .logo .cj-auth-canonical{width:min(52vw,192px)!important;max-width:192px!important;max-height:64px!important}
 /* SmartBoard onboarding polish 2026-10-31 */
 #onboardingApp .logo .cj-auth-canonical-wrap{width:100%;max-width:260px;margin:0 auto}
 #onboardingApp .logo .cj-auth-canonical{width:min(65vw,240px)!important;max-width:240px!important;max-height:80px!important}
