@@ -2314,7 +2314,7 @@ function showFieldError(i,e,s){el(i).classList.toggle("invalid",s);el(e).classLi
 function selectUseType(t){useType=t;el("businessChoice").classList.toggle("selected",t==="business");el("personalChoice").classList.toggle("selected",t==="personal");setReady(el("useContinue"),true);updateConditionalFields();updateAccountButton();updateCustomizeButton()}
 function updateConditionalFields(){const b=useType==="business";el("businessNameGroup").classList.toggle("hidden",!b);el("personalNameGroup").classList.toggle("hidden",b);el("businessCustomization").classList.toggle("hidden",!b);el("personalCustomization").classList.toggle("hidden",b)}
 function accountFieldsFilled(){const type=useType==="business"?el("business").value.trim():el("personalSetupName").value.trim();return !!(useType&&el("name").value.trim()&&type&&el("email").value.trim()&&el("password").value)}function updateAccountButton(){setReady(el("accountContinue"),accountFieldsFilled())}
-async function attemptAccountContinue(){const ng=validText(el("name").value),eg=validEmail(el("email").value),pg=validPassword(el("password").value);showFieldError("name","nameError",!ng);showFieldError("email","emailError",!eg);showFieldError("password","passwordError",!pg);let tg=false;if(useType==="business"){tg=validText(el("business").value);showFieldError("business","businessError",!tg)}else{tg=validText(el("personalSetupName").value);showFieldError("personalSetupName","personalSetupError",!tg)}if(ng&&eg&&pg&&tg){const ok=await signupBackendIfConfigured();if(ok)await cjCompleteSignupBoardClaim()}}
+async async function attemptAccountContinue(){el("cjSignupInlineError")?.setAttribute("hidden","");const ng=validText(el("name").value),eg=validEmail(el("email").value),pg=validPassword(el("password").value);showFieldError("name","nameError",!ng);showFieldError("email","emailError",!eg);showFieldError("password","passwordError",!pg);let tg=false;if(useType==="business"){tg=validText(el("business").value);showFieldError("business","businessError",!tg)}else{tg=validText(el("personalSetupName").value);showFieldError("personalSetupName","personalSetupError",!tg)}if(ng&&eg&&pg&&tg){const ok=await signupBackendIfConfigured();if(ok)await cjCompleteSignupBoardClaim()}}
 async function cjCompleteSignupBoardClaim(){
  const number=el("cjRegistrationBoardNumber").value.trim().toUpperCase();
  const code=el("cjRegistrationActivationCode").value.trim();
@@ -2333,7 +2333,7 @@ async function cjCompleteSignupBoardClaim(){
     if(!data?.success)throw new Error("Activation was not confirmed.");
     try{sessionStorage.removeItem("cj_pending_board_activation")}catch(_){}
    }catch(e){
-    showAuth();setAuthMessage("Account created, but SmartBoard activation needs attention: "+(e?.message||"Try again."),"bad");
+    cjSignupError("Account created, but SmartBoard activation needs attention: "+(e?.message||"Try again."));
     return;
    }
  }
@@ -2341,7 +2341,7 @@ async function cjCompleteSignupBoardClaim(){
   const {data}=await sb.auth.getUser();
   if(data?.user){await cjBootstrapWorkspaceV24(data.user);await loadCloudWorkspace(data.user);return}
  }catch(e){console.error("Post-registration workspace load failed",e)}
- showAuth();setAuthMessage("Account created. Please sign in to open your Command Center.","good");
+ cjSignupError("Account created, but the Command Center could not open. Please sign in to continue.");
 }
 async function cjFinishFastRegistration(){
  const b=el("activateButton");b.disabled=true;b.textContent="Opening your Command Center…";
@@ -6365,15 +6365,27 @@ async function sendMagicLink(){
   finally{setAuthBusy(false)}
 }
 async function signupBackendIfConfigured(){
-  const email=String(el("email").value||"").trim().toLowerCase(),password=String(el("password").value||"");
-  if(!backendConfigured()||!window.supabase){await saveLocalAccount();return true}
-  initBackend();setAuthBusy(true,"Creating secure account...");
-  try{
-    const {data,error}=await sb.auth.signUp({email,password,options:{data:{name:el("name").value.trim(),setup_name:workspaceName(),use_type:useType}}});if(error)throw error;
-    if(data?.user&&data?.session){signedInEmail=email;await cjBootstrapWorkspaceV24(data.user)}
-    await saveLocalAccount();setAuthMessage(data?.session?"Account created securely.":"Account created. Check your email if verification is required.","good");return true;
-  }catch(e){setAuthMessage(e?.message||"Account creation failed.","bad");return false}
-  finally{setAuthBusy(false)}
+ const email=String(el("email").value||"").trim().toLowerCase(),password=String(el("password").value||"");
+ initBackend();
+ if(!backendReady||!sb){cjSignupError("Secure registration is unavailable. Check your connection and try again.");return false}
+ setReady(el("accountContinue"),false);el("accountContinue").textContent="Creating your account…";
+ try{
+  const {data,error}=await sb.auth.signUp({email,password,options:{data:{name:el("name").value.trim(),setup_name:workspaceName(),use_type:useType}}});
+  if(error)throw error;
+  if(!data?.session||!data?.user)throw new Error("Account was submitted but no session was created. Please use Sign in instead of registering again.");
+  signedInEmail=email;
+  await saveLocalAccount();
+  return true;
+ }catch(e){
+  const msg=String(e?.message||"Account creation failed.");
+  cjSignupError(/already registered|already exists|user already/i.test(msg)?"This email already has an account. Tap ‘Already have an account? Sign in’ below.":msg);
+  return false;
+ }finally{el("accountContinue").textContent="Create account & continue";updateAccountButton()}
+}
+function cjSignupError(message){
+ let n=el("cjSignupInlineError");
+ if(!n){n=document.createElement("div");n.id="cjSignupInlineError";n.setAttribute("role","alert");n.style.cssText="color:#b42318;background:#fff1f0;padding:12px;border-radius:10px;margin:12px 0;font-size:14px;line-height:1.5";el("accountContinue").before(n)}
+ n.textContent=message;n.hidden=false;n.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 async function logoutUser(){
   try{if(backendReady&&sb)await sb.auth.signOut()}catch(e){console.warn("Sign out warning",e)}
