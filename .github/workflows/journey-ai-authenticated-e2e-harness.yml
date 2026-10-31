@@ -1,0 +1,29 @@
+name: Validate authenticated Journey AI E2E harness (no live calls)
+on:
+  pull_request:
+    paths:
+      - 'scripts/journey-ai-authenticated-e2e.mjs'
+      - '.github/workflows/journey-ai-authenticated-e2e-harness.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  harness-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse-check opt-in harness
+        run: node --check scripts/journey-ai-authenticated-e2e.mjs
+      - name: Refuse execution without isolated test business acknowledgement
+        shell: bash
+        run: |
+          set -euo pipefail
+          if node scripts/journey-ai-authenticated-e2e.mjs > /tmp/cj-e2e-guard.txt 2>&1; then
+            echo 'Harness unexpectedly executed without authorization' >&2
+            exit 1
+          fi
+          grep -Fq 'Refusing to write jobs without explicit isolated test-business acknowledgement' /tmp/cj-e2e-guard.txt
+          echo 'Guardrail passed; no live requests made.'
