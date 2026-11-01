@@ -70,3 +70,10 @@ Supabase project `pbiivpehdatvmyaxwixk`: `journey-ai-chat` has 10 built-in speci
 - Added no-secret GitHub Actions workflow to parse-check the harness and assert that execution refuses to start without the isolation flag. CI result must be inspected before merge.
 - To run only after provisioning an isolated test business and owner account, set `CJ_SUPABASE_URL`, `CJ_SUPABASE_ANON_KEY`, `CJ_TEST_ACCESS_TOKEN`, `CJ_TEST_BUSINESS_ID`, and `CJ_ISOLATED_TEST_BUSINESS=YES`, then execute `node scripts/journey-ai-authenticated-e2e.mjs`. Never commit token values. Four test jobs (two direct and two chat-routed) are expected, each analysis-only.
 - Milestones 3–5 remain unverified. No new autonomous execution tools, production migrations, or business data changes were made in this run.
+
+## 2026-11-01 automated run — first persisted agent attempt failed
+- Revalidated PR #1 and PR #12 merged. Frontend's authenticated approval test remains open.
+- Read-only production audit found **1 job / 3 events** (not zero): registered agent #333, QUEUED → STARTED → FAILED at 2026-11-01 01:02–01:02:54 UTC, with failure `AI provider returned no text`. The job belongs to a business explicitly marked `data_environment=production`; it must not be used for synthetic reruns. No successful analysis or external execution receipt exists from this job.
+- Active `cj-agent-runtime` v3 still contains a 750-token provider output budget. Proposed bounded retry fix in **PR #13**: larger budgets, correct extraction, no partial/incomplete success, provider-output unit tests, CI. Do not deploy until checks pass and live function source is backed up/compared.
+- Milestone 2 is **not verified**: a persisted failed job demonstrates that some authenticated runtime path was exercised, but no SUCCEEDED/ANALYSIS_COMPLETED receipt or authenticated chat synthesis is confirmed. Milestones 3–5 remain open.
+- No production data, boards, credentials, or deployed functions were changed by this run.
