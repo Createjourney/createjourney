@@ -3,14 +3,31 @@ import {createClient} from "jsr:@supabase/supabase-js@2";
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
 const respond=(x:unknown,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{...cors,"Content-Type":"application/json","Cache-Control":"no-store"}});
 const clip=(v:unknown,n=4000)=>String(v??"").slice(0,n);
+function extractResponseText(data:any):string{
+ const top=typeof data?.output_text==="string"?data.output_text.trim():"";
+ if(top)return top;
+ const parts:string[]=[];
+ for(const item of data?.output||[])for(const content of item?.content||[])
+  if(content?.type==="output_text"&&typeof content.text==="string")parts.push(content.text);
+ return parts.join("\n").trim();
+}
 async function generate(key:string,name:string,responsibility:string,request:string,context:unknown){
  const model=Deno.env.get("OPENAI_TEXT_MODEL")||"gpt-5-mini";
- const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model,max_output_tokens:750,instructions:"You are the CreateJourney specialist named "+name+". Responsibility: "+responsibility+". Produce a concise internal analysis only from supplied evidence. Never claim external access, tool calls, published content, verified actions, financial results, or completed business outcomes without evidence. Include sections Findings, Evidence and limitations, Recommended next actions. This is analysis-only; do not perform external actions.",input:JSON.stringify({request,context}).slice(0,12000)})});
- const data=await r.json();if(!r.ok)throw new Error(clip(data?.error?.message||"AI provider error",350));
- let answer=typeof data.output_text==="string"?data.output_text:"";
- for(const x of data.output||[])for(const c of x.content||[])if(c.type==="output_text")answer+=c.text||"";
- if(!answer.trim())throw new Error("AI provider returned no text");
- return {text:answer.trim().slice(0,18000),model,execution_type:"analysis_only",verification_status:"UNVERIFIED"};
+ const instructions="You are the CreateJourney specialist named "+name+". Responsibility: "+responsibility+". Produce a concise internal analysis only from supplied evidence. Never claim external access, tool calls, published content, verified actions, financial results, or completed business outcomes without evidence. Include sections Findings, Evidence and limitations, Recommended next actions. This is analysis-only; do not perform external actions.";
+ const input=JSON.stringify({request,context}).slice(0,12000);
+ for(let attempt=0;attempt<2;attempt++){
+  const max_output_tokens=attempt===0?2200:4200;
+  const response=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model,max_output_tokens,instructions,input}),signal:AbortSignal.timeout(60000)});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(clip(data?.error?.message||"AI provider error",350));
+  const incomplete=data?.status==="incomplete";
+  const answer=extractResponseText(data);
+  if(!incomplete&&answer)return {text:answer.slice(0,18000),model,execution_type:"analysis_only",verification_status:"UNVERIFIED"};
+  if(attempt===0&&(incomplete||!answer))continue;
+  const reason=clip(data?.incomplete_details?.reason||data?.status||"empty",70);
+  throw new Error("AI provider returned no complete analysis after retry ("+reason+")");
+ }
+ throw new Error("AI provider analysis unavailable");
 }
 Deno.serve(async req=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:cors});
