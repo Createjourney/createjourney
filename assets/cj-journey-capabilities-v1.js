@@ -51,6 +51,21 @@ open:function(feature){
  }catch(e){return {ok:false,reason:String(e.message||e)}}
  return {ok:false,reason:"No verified navigation handler",feature};
 },
+fetchAuthorizedContext:async function(workspaceId){
+ if(!workspaceId||!window.sb||!window.SUPABASE_URL)return {ok:false,reason:"Authenticated workspace context unavailable"};
+ try{
+  const session=(await window.sb.auth.getSession()).data.session;
+  if(!session)return {ok:false,reason:"Sign in required"};
+  const response=await fetch(window.SUPABASE_URL+"/functions/v1/journey-ai-capabilities",{
+   method:"POST",headers:{"Authorization":"Bearer "+session.access_token,
+    "apikey":window.SUPABASE_PUBLISHABLE_KEY||window.SUPABASE_ANON_KEY||"",
+    "Content-Type":"application/json"},
+   body:JSON.stringify({action:"workspace_context",workspace_id:workspaceId})
+  });
+  const payload=await response.json();
+  return response.ok?{ok:true,data:payload}:{ok:false,reason:payload.error||"Context request failed",status:response.status};
+ }catch(err){return {ok:false,reason:String(err.message||err)}}
+},
 execute:function(){return {ok:false,reason:"Mutating operations require a server-side authenticated action registry, scoped authorization and result verification."}}
 });
 })();
