@@ -52,13 +52,13 @@ open:function(feature){
  return {ok:false,reason:"No verified navigation handler",feature};
 },
 fetchAuthorizedContext:async function(workspaceId){
- if(!workspaceId||!window.sb||!window.SUPABASE_URL)return {ok:false,reason:"Authenticated workspace context unavailable"};
+ if(!workspaceId||typeof sb==="undefined"||!sb||typeof SUPABASE_URL==="undefined")return {ok:false,reason:"Authenticated workspace context unavailable"};
  try{
-  const session=(await window.sb.auth.getSession()).data.session;
+  const session=(await sb.auth.getSession()).data.session;
   if(!session)return {ok:false,reason:"Sign in required"};
-  const response=await fetch(window.SUPABASE_URL+"/functions/v1/journey-ai-capabilities",{
+  const response=await fetch(SUPABASE_URL+"/functions/v1/journey-ai-capabilities",{
    method:"POST",headers:{"Authorization":"Bearer "+session.access_token,
-    "apikey":window.SUPABASE_PUBLISHABLE_KEY||window.SUPABASE_ANON_KEY||"",
+    "apikey":SUPABASE_PUBLISHABLE_KEY,
     "Content-Type":"application/json"},
    body:JSON.stringify({action:"workspace_context",workspace_id:workspaceId})
   });
