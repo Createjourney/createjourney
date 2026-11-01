@@ -5065,13 +5065,13 @@ el("accountSwitchWorkspace").addEventListener("click",switchAccountWorkspace);
 el("onboardingSignInLink").addEventListener("click",showAuth);el("authSignInTab").addEventListener("click",()=>{setAuthMessage("");el("authSignInTab").classList.add("selected");el("authCreateTab").classList.remove("selected");el("authSignInPanel").classList.remove("hidden");el("authCreatePanel").classList.add("hidden")});el("authCreateTab").addEventListener("click",()=>{setAuthMessage("");el("authCreateTab").classList.add("selected");el("authSignInTab").classList.remove("selected");el("authCreatePanel").classList.remove("hidden");el("authSignInPanel").classList.add("hidden")});el("startCreateAccount").addEventListener("click",()=>{showOnly("onboardingApp");goToStep(0)});el("loginButton").addEventListener("click",loginUser);el("magicLinkButton").addEventListener("click",sendMagicLink);el("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")loginUser()});
 
 // Registration-first SmartBoard activation, without claiming until authentication.
-function cjUpdateRegistrationButton(){const n=document.getElementById("cjRegistrationBoardNumber").value.trim(),code=document.getElementById("cjRegistrationActivationCode").value.trim();const good=/^CJ-[0-9]{6,}$/i.test(n)&&/^CJ-[A-Z0-9]{12,}$/i.test(code);const b=document.getElementById("cjRegistrationBoardContinue");b.disabled=!good;b.classList.toggle("ready",good)}
+function cjUpdateRegistrationButton(){const n=document.getElementById("cjRegistrationBoardNumber").value.trim(),code=document.getElementById("cjRegistrationActivationCode").value.trim();const good=/^CJ-[A-Z0-9-]{6,}$/i.test(n)&&/^CJ-[A-Z0-9]{12,}$/i.test(code);const b=document.getElementById("cjRegistrationBoardContinue");b.disabled=!good;b.classList.toggle("ready",good)}
 ["cjRegistrationBoardNumber","cjRegistrationActivationCode"].forEach(id=>document.getElementById(id).addEventListener("input",cjUpdateRegistrationButton));cjUpdateRegistrationButton();
 document.getElementById("cjRegistrationBoardContinue").addEventListener("click",()=>{
  const number=document.getElementById("cjRegistrationBoardNumber").value.trim().toUpperCase();
  const code=document.getElementById("cjRegistrationActivationCode").value.trim();
  const e=document.getElementById("cjRegistrationBoardError");
- if(!/^CJ-[0-9]{6,}$/.test(number)||code.length<10){e.textContent="Enter a valid SmartBoard number and its activation code.";e.classList.add("show");return}
+ if(!/^CJ-[A-Z0-9-]{6,}$/.test(number)||code.length<10){e.textContent="Enter a valid SmartBoard number and its activation code.";e.classList.add("show");return}
  e.classList.remove("show");document.getElementById("boardCode").value=number;goToStep(1);
 });
 document.getElementById("cjRegistrationBoardSkip").addEventListener("click",()=>{
