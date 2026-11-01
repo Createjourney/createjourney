@@ -77,3 +77,9 @@ Supabase project `pbiivpehdatvmyaxwixk`: `journey-ai-chat` has 10 built-in speci
 - Active `cj-agent-runtime` v3 still contains a 750-token provider output budget. Proposed bounded retry fix in **PR #13**: larger budgets, correct extraction, no partial/incomplete success, provider-output unit tests, CI. Do not deploy until checks pass and live function source is backed up/compared.
 - Milestone 2 is **not verified**: a persisted failed job demonstrates that some authenticated runtime path was exercised, but no SUCCEEDED/ANALYSIS_COMPLETED receipt or authenticated chat synthesis is confirmed. Milestones 3–5 remain open.
 - No production data, boards, credentials, or deployed functions were changed by this run.
+
+## 2026-11-01 deployment verification — PR #13
+- PR #13 merged to main as `a0a4cd30af6b51d5c970948ae24f4a7c79bd783f` after GitHub Actions run `41286551033` completed successfully (Deno type checks, Node agent routing and provider-output regression tests, analysis-only guard checks).
+- Backed up exact live `cj-agent-runtime` v3 source to `supabase/backups/cj-agent-runtime-v3-20261101/index.ts`; pre-deployment comparison confirmed it was identical to v3 live source and main's prior version.
+- Deployed the bounded empty/incomplete Responses API retry to Supabase `cj-agent-runtime` **v4** with `verify_jwt=true`. Post-deployment source comparison verified **exact match** with GitHub main; function status **ACTIVE**, SHA-256 `7c06069991275e3e311ebc123c7b48f7163d35f78009c9d73b3bbcf846f13ae7`.
+- This is a **deployment and static-validation success, not a successful agent job**. No authenticated isolated test-business run was performed; the only observed job failed and belonged to a production business. Do not mark Milestone 2 complete until successful job and chat receipts are observed.
