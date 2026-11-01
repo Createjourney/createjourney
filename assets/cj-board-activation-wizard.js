@@ -44,7 +44,7 @@ async function start(number,code,alreadyClaimed){
     b.actions=labels;b.destinations=destinations;b.active=true;b.status="active";b.demo=false;b.route=labels.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(" → ");b.publicId=data.public_id;b.backendId=data.board_id;
     if(!existing)boards.push(b);
     if(typeof currentBoardId!=="undefined")currentBoardId=b.id;
-    if(typeof persistLocalState==="function")persistLocalState();
+    if(typeof persistLocalState==="function")persistLocalState();if(typeof syncCloudSnapshot==="function"){const saved=await syncCloudSnapshot();if(!saved)console.warn("SmartBoard is published, but workspace snapshot sync needs attention") }
    }
    sessionStorage.removeItem("cj_activation_pending");root.hidden=true;
    if(typeof openAiBusinessSetup==="function"){openAiBusinessSetup()}
