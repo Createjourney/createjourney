@@ -4,7 +4,7 @@
 "use strict";
 function $(id){return document.getElementById(id)}
 function getQR(){const p=new URLSearchParams(location.search);return {number:(p.get("activate_board")||p.get("cj_board")||"").trim().toUpperCase(),code:(p.get("activation")||p.get("cj_code")||"").trim()}}
-function prefill(){const q=getQR();if(!q.number||!q.code)return;try{sessionStorage.setItem("cj_activation_pending",JSON.stringify(q));history.replaceState({},document.title,location.pathname+location.hash)}catch(_){}const n=$("cjRegistrationBoardNumber"),c=$("cjRegistrationActivationCode");if(n)n.value=q.number;if(c)c.value=q.code}
+function prefill(){const q=getQR();if(!q.number||!q.code)return;try{sessionStorage.setItem("cj_activation_pending",JSON.stringify(q));history.replaceState({},document.title,location.pathname+location.hash)}catch(_){}const n=$("cjRegistrationBoardNumber"),c=$("cjRegistrationActivationCode");if(n){n.value=q.number;n.dispatchEvent(new Event("input",{bubbles:true}))}if(c){c.value=q.code;c.dispatchEvent(new Event("input",{bubbles:true}))}}
 function pending(){try{return JSON.parse(sessionStorage.getItem("cj_activation_pending")||"null")}catch{return null}}
 function ensureOverlay(){
  if($("cjBoardActivationWizard"))return $("cjBoardActivationWizard");
