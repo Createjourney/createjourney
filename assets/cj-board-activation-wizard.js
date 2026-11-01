@@ -41,7 +41,7 @@ async function start(number,code,alreadyClaimed){
     const destinations={};const labels=actions.map(a=>a.type);
     actions.forEach(a=>destinations[a.type]=a.url);
     const b=existing||makeBoard({id:number,name:number,actions:labels,destinations,active:true,demo:false});
-    b.actions=labels;b.destinations=destinations;b.active=true;b.demo=false;b.publicId=data.public_id;b.backendId=data.board_id;
+    b.actions=labels;b.destinations=destinations;b.active=true;b.status="active";b.demo=false;b.route=labels.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(" → ");b.publicId=data.public_id;b.backendId=data.board_id;
     if(!existing)boards.push(b);
     if(typeof currentBoardId!=="undefined")currentBoardId=b.id;
     if(typeof persistLocalState==="function")persistLocalState();
