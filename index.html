@@ -6293,6 +6293,36 @@ async function cjApplyCloudStateV24(state){
   finally{restoring=false;cjRestoringCloudV24=false}
 }
 
+async function cjHydratePublishedSmartBoards(){
+  if(!backendReady||!sb||!backendWorkspaceId)return false;
+  try{
+    const {data,error}=await sb.rpc("cj_list_workspace_published_smartboards",{p_workspace_id:backendWorkspaceId});
+    if(error)throw error;
+    if(!Array.isArray(data))return false;
+    let changed=false;
+    for(const row of data){
+      if(!row?.id||!Array.isArray(row.actions)||row.actions.length<1)continue;
+      let board=boards.find(b=>b.id===row.id);
+      if(!board){
+        board=makeBoard({id:row.id,name:row.name||row.id,actions:row.actions,destinations:row.destinations||{},demo:false});
+        boards.push(board);
+      }else if(!board.backendId&&board.analytics?.taps===24&&board.analytics?.visitors===18){
+        board.analytics={taps:0,visitors:0,returning:0,actionsTaken:0,lastInteraction:"No interactions yet"};
+      }
+      board.name=row.name||board.name;
+      board.actions=row.actions;
+      board.destinations=row.destinations||{};
+      board.backendId=row.backend_id;
+      board.publicId=row.public_id;
+      board.active=row.active===true;
+      board.status=row.status;
+      board.route=row.actions.map(a=>String(a).charAt(0).toUpperCase()+String(a).slice(1)).join(" → ");
+      changed=true;
+    }
+    if(changed){try{persistLocalState()}catch(e){console.warn("Published SmartBoard local state sync pending",e)}}
+    return true;
+  }catch(e){console.warn("Published SmartBoard retrieval needs attention",e);return false}
+}
 async function loadCloudWorkspace(user){
   if(!backendReady||!sb||!user){showAuth();return false}
   signedInEmail=String(user.email||"").toLowerCase();
@@ -6324,6 +6354,7 @@ async function loadCloudWorkspace(user){
     if(remote&&(!local||cjStateTimestampV24(remote)>=cjStateTimestampV24(local)))await cjApplyCloudStateV24(remote);
     else if(local&&actualRole!=="Employee")cjScheduleCloudSyncV24();
 
+    await cjHydratePublishedSmartBoards();
     localStorage.setItem("cj_local_session","1");updateConditionalFields();openDashboard();
     if(typeof updateRoleSecurityUiV22==="function")updateRoleSecurityUiV22();
     cjSetSyncStatusV24(remote?"good":"warn",remote?"Cloud loaded":"Local ready",remote?"Secure workspace state loaded.":"No newer cloud snapshot was found.");
