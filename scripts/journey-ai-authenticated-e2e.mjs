@@ -8,6 +8,7 @@
  * CJ_TEST_BUSINESS_ID, CJ_ISOLATED_TEST_BUSINESS=YES.
  */
 import assert from "node:assert/strict";
+import {assertIsolatedTestBusiness} from "./journey-ai-isolation-guard.mjs";
 
 const env=process.env;
 function required(name){const v=env[name];if(!v)throw Error("Missing "+name);return v;}
@@ -26,6 +27,10 @@ async function main(){
     const data=await response.json().catch(()=>({}));
     return {http:response.status,data};
   }
+  // Fail closed before the first POST: verify actual RLS-visible test environment,
+  // authorized membership, and absence of customer boards/journeys.
+  const isolation=await assertIsolatedTestBusiness({url,anon,token,business});
+  record("isolated_business_preflight",{data_environment:isolation.data_environment,empty_boards_and_journeys:true});
   const denied=await post("cj-agent-runtime",{action:"submit",business_id:"00000000-0000-4000-8000-000000000000",agent_no:333,request:"Authorization denial test"});
   assert.equal(denied.http,403,"Cross-business submission must be denied");
   record("cross_business_denial",{http:denied.http});
