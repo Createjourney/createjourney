@@ -153,5 +153,16 @@ window.addEventListener("click",e=>{
  if(board)show(board);
  else{const fallback={id:"CJ-000001",name:"SmartBoard CJ-000001",actions:[],destinations:{}};show(fallback);document.getElementById("cjOwnerMessage").textContent="No authenticated board mapping found. This page cannot publish until the board is claimed and loaded."}
 },true);
-window.CJSmartBoardOwnerPage={open:show};
+window.CJSmartBoardOwnerPage={
+ open:show,
+ openFromCommandCenter:function(){
+  const list=boardList();
+  const live=list.find(b=>String(b.id||"").toUpperCase()==="CJ-000001")||list[0];
+  if(live){show(live);return true;}
+  show({id:"CJ-000001",name:"SmartBoard CJ-000001",actions:[],destinations:{}});
+  const msg=document.getElementById("cjOwnerMessage");
+  if(msg)msg.textContent="CJ-000001 is not in your authenticated SmartBoard list yet. Claim or sync this board before publishing.";
+  return true;
+ }
+};
 })();
