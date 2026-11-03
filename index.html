@@ -11670,6 +11670,9 @@ button.primary,button.secondary,.primary,.secondary{
     }
 
     if(action==='boards'){
+      if(window.CJSmartBoardOwnerPage&&typeof window.CJSmartBoardOwnerPage.openFromCommandCenter==='function'){
+        return window.CJSmartBoardOwnerPage.openFromCommandCenter();
+      }
       /* Journeys is now the Journey AI work-history page, so SmartBoard controls
          must continue opening the real board-management experience. */
       try{
@@ -15436,7 +15439,7 @@ body:has(#journeyAiPanel:not(.hidden)) #aiLauncher{display:none!important;pointe
 <script>
 (function(){const b=document.getElementById("cjShowSignupPassword"),p=document.getElementById("password");if(!b||!p)return;b.addEventListener("click",function(){const show=p.type==="password";p.type=show?"text":"password";b.textContent=show?"Hide":"Show";b.setAttribute("aria-pressed",String(show));b.setAttribute("aria-label",show?"Hide password":"Show password")})})();
 </script>
-<script defer src="assets/cj-journey-capabilities-v1.js"></script>
+<script defer src="assets/cj-journey-capabilities-v1.js?v=20261102-cardfix2"></script>
 <script defer src="assets/cj-board-activation-wizard.js"></script>
 </body>
 </html>
