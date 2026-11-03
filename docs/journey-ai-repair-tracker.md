@@ -92,3 +92,11 @@ Supabase project `pbiivpehdatvmyaxwixk`: `journey-ai-chat` has 10 built-in speci
 - GitHub Actions run `41416510267` passed syntax checks, seven isolated no-network unit tests, and the refusal-without-acknowledgement test. These are **harness safety tests, not live authenticated agent successes**.
 - **Next gate:** provision or identify an explicitly marked test business with an authorized owner/manager JWT; then run `scripts/journey-ai-authenticated-e2e.mjs`, verify two direct agent analyses plus two chat-orchestrated analyses with persisted job IDs, SUCCEEDED statuses, and ANALYSIS_COMPLETED events. Do not run synthetic jobs against the only production business.
 - Milestone 2 remains **unverified** until that evidence exists. Do not advance to autonomous external execution or claim Milestones 3–5 complete. No production business, board, Journey, user or permissions data was modified.
+
+
+## 2026-11-03 automated run — live state and milestone gate
+- GitHub PR #1 reverified **merged** (merge commit `e38ae2eef87cc68f4b44c5e787743751de0a0af3`). This does not establish that authenticated owner approval routing works in the live browser; Milestone 1's final authenticated verification gate remains open.
+- Supabase production project `pbiivpehdatvmyaxwixk` reported `ACTIVE_HEALTHY`. Read-only SQL returned **1 agent job, 3 job events, 0 businesses marked `data_environment=test`**. There is still no safe target for the authenticated synthetic harness.
+- Active Edge Functions include `journey-ai-chat` v22 (`verify_jwt=true`), `cj-agent-runtime` v4 (`verify_jwt=true`, SHA-256 `7c06069991275e3e311ebc123c7b48f7163d35f78009c9d73b3bbcf846f13ae7`), and `journey-ai-execution` v9 (`verify_jwt=true`). Active status is not proof of correct end-to-end behavior.
+- Safety gate remains: do **not** run the authenticated E2E harness against the sole production business, change permissions, or enable autonomous writes without an isolated test business and authorized test identity. No production data or functions were changed in this run.
+- Next sequential step: establish an explicitly isolated test business and owner/manager test session using an approved noncustomer test identity; execute the guarded harness; inspect persisted SUCCEEDED and ANALYSIS_COMPLETED receipts and chat response attribution; only then advance to Milestone 3.
