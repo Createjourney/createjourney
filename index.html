@@ -2365,7 +2365,7 @@ async function cjCompleteSignupBoardClaim(){
  }
  try{
   const {data}=await sb.auth.getUser();
-  if(data?.user){const provisioned=await cjBootstrapWorkspaceV24(data.user);if(provisioned){backendWorkspaceId=provisioned.workspace_id;actualRole=provisioned.role||"Owner";currentRole=actualRole}if(number&&code&&window.CJBoardActivationWizard){await window.CJBoardActivationWizard.start(number,code,true);return}await loadCloudWorkspace(data.user);return}
+  if(data?.user){const provisioned=await cjBootstrapWorkspaceV24(data.user);if(provisioned){backendWorkspaceId=provisioned.workspace_id;actualRole=provisioned.role||"Owner";currentRole=actualRole}if(window.CJBoardActivationWizard?.wantsOwnerSetup()){await window.CJBoardActivationWizard.postSignup();return}if(number&&code&&window.CJBoardActivationWizard){await window.CJBoardActivationWizard.start(number,code,true);return}await loadCloudWorkspace(data.user);return}
  }catch(e){console.error("Post-registration workspace load failed",e)}
  cjSignupError("Account created, but the Command Center could not open. Please sign in to continue.");
 }
@@ -6505,7 +6505,8 @@ openCustomerJourneyV20=async function(boardId,opts={}){
 const initializeSessionBeforeV24=initializeSession;
 initializeSession=async function(){
   initBackend();updateBackendBadges();
-  if(hasCustomerBoardRouteV20()){restoreLocalState();await openCustomerJourneyV20(customerBoardFromRouteV20());return}
+  if(new URLSearchParams(location.search).has("activate")&&window.CJBoardActivationWizard){await initializeSessionBeforeV24();await window.CJBoardActivationWizard.routeOwnerQR();return}
+  if(hasCustomerBoardRouteV20()){const token=customerBoardFromRouteV20();if(window.CJBoardActivationWizard&&await window.CJBoardActivationWizard.routeTap(token))return;restoreLocalState();await openCustomerJourneyV20(token);return}
   return await initializeSessionBeforeV24();
 };
 
@@ -6778,6 +6779,7 @@ try{
   window.aiActionBackendRequest=aiActionBackendRequest;
   window.openBoardManager=openBoardManager;
   window.openDashboard=openDashboard;
+  window.openAiBusinessSetup=openAiBusinessSetup;
   window.permissions=permissions;
   window.serializableState=serializableState;
   window.CJRuntimeBridge={ready:true,version:"29.1"};
@@ -15440,6 +15442,6 @@ body:has(#journeyAiPanel:not(.hidden)) #aiLauncher{display:none!important;pointe
 (function(){const b=document.getElementById("cjShowSignupPassword"),p=document.getElementById("password");if(!b||!p)return;b.addEventListener("click",function(){const show=p.type==="password";p.type=show?"text":"password";b.textContent=show?"Hide":"Show";b.setAttribute("aria-pressed",String(show));b.setAttribute("aria-label",show?"Hide password":"Show password")})})();
 </script>
 <script defer src="assets/cj-journey-capabilities-v1.js?v=20261102-cardfix2"></script>
-<script defer src="assets/cj-board-activation-wizard.js"></script>
+<script defer src="assets/cj-board-activation-wizard.js?v=20261103-owner-nfc-v2"></script>
 </body>
 </html>
