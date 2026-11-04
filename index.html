@@ -4,6 +4,56 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CreateJourney</title>
+<!-- CJ FIRST-TAP DIRECT ROUTER V36: resolves server-published action before any customer UI. -->
+<script id="cj-first-tap-direct-v36">
+(function(){
+ "use strict";
+ const qs=new URLSearchParams(location.search),token=qs.get("board");
+ if(!token||!(/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i).test(token)||qs.has("activate"))return;
+ const endpoint="https://pbiivpehdatvmyaxwixk.supabase.co/functions/v1/journey-public";
+ const apiKey="sb_publishable_Nrvj4ylZi3jkqlecBSpTHA_PYxxV3Os";
+ const key="cj_direct_v36:"+token;
+ const read=()=>{try{return JSON.parse(sessionStorage.getItem(key)||"null")}catch(_){return null}};
+ const write=o=>{try{sessionStorage.setItem(key,JSON.stringify(o))}catch(_){}};
+ let navigateStarted=false;
+ async function launch(){
+  if(navigateStarted)return false;
+  const abort=new AbortController();const timeout=setTimeout(()=>abort.abort(),6000);
+  let obj;
+  try{
+   const res=await fetch(endpoint,{method:"POST",signal:abort.signal,headers:{"Content-Type":"application/json","apikey":apiKey},body:JSON.stringify({action:"resolve_board",board_id:token})});
+   if(!res.ok)return false;
+   obj=(await res.json()).board;
+   if(!obj||!Array.isArray(obj.actions)||!obj.destinations||obj.active===false||obj.status==="paused")return false;
+  }catch(_){return false}finally{clearTimeout(timeout)}
+  const choices=obj.actions.slice(0,3).filter(x=>typeof obj.destinations[x]==="string");
+  if(!choices.length)return false;
+  const signature=JSON.stringify(choices.map(x=>[x,obj.destinations[x]]));
+  let state=read();
+  if(!state||state.signature!==signature||Date.now()-state.at>1800000)state={signature,index:0,awaitingReturn:false,at:Date.now()};
+  if(state.awaitingReturn){
+   state.index++;
+   state.awaitingReturn=false;
+  }
+  if(state.index>=choices.length){write({signature,index:0,awaitingReturn:false,at:Date.now()-1800001});return false}
+  const action=choices[state.index];
+  let url;
+  try{
+   url=new URL(obj.destinations[action]);
+   if(url.protocol!=="https:"||url.hostname===location.hostname)throw Error("Invalid external destination");
+  }catch(_){return false}
+  state.awaitingReturn=true;state.at=Date.now();write(state);
+  navigateStarted=true;
+  location.assign(url.href);
+  return true;
+ }
+ // This gate ensures owner activation for unclaimed tags still runs normally.
+ window.CJFirstTapDirectV36=launch();
+ // On iOS, browser back may restore page without restarting scripts.
+ addEventListener("pageshow",e=>{if(e.persisted){navigateStarted=false;launch()}});
+})();
+</script>
+
 <style>
 /* ========================================
    #00 GLOBAL STYLES
@@ -6637,7 +6687,7 @@ const initializeSessionBeforeV24=initializeSession;
 initializeSession=async function(){
   initBackend();updateBackendBadges();
   if((new URLSearchParams(location.search).has("activate")||new URLSearchParams(location.search).has("activate_board"))&&window.CJBoardActivationWizard){await initializeSessionBeforeV24();await window.CJBoardActivationWizard.routeOwnerQR();return}
-  if(hasCustomerBoardRouteV20()){const token=customerBoardFromRouteV20();if(window.CJBoardActivationWizard&&await window.CJBoardActivationWizard.routeTap(token))return;restoreLocalState();await openCustomerJourneyV20(token);return}
+  if(hasCustomerBoardRouteV20()){if(window.CJFirstTapDirectV36&&await window.CJFirstTapDirectV36)return;const token=customerBoardFromRouteV20();if(window.CJBoardActivationWizard&&await window.CJBoardActivationWizard.routeTap(token))return;restoreLocalState();await openCustomerJourneyV20(token);return}
   return await initializeSessionBeforeV24();
 };
 
