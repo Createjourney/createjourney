@@ -6516,7 +6516,12 @@ function cjGetStage(board){
  return v&&Date.now()-v.at<1800000?Math.max(0,Math.min(3,Number(v.index)||0)):0}catch(_){return 0}
 }
 function cjSetStage(board,index){
- try{sessionStorage.setItem(cjPublicStageKey(board),JSON.stringify({index,at:Date.now()}))}catch(_){}
+ try{const old=JSON.parse(sessionStorage.getItem(cjPublicStageKey(board))||"null");sessionStorage.setItem(cjPublicStageKey(board),JSON.stringify({index,at:Date.now(),actions:Array.isArray(old?.actions)?old.actions:null}))}catch(_){}
+}
+function cjStageActions(board,state){
+ try{const old=JSON.parse(sessionStorage.getItem(cjPublicStageKey(board))||"null");if(old&&Date.now()-old.at<1800000&&Array.isArray(old.actions))return old.actions;
+ const actions=customerEligibleActionsV20(board,state);sessionStorage.setItem(cjPublicStageKey(board),JSON.stringify({index:0,actions,at:Date.now()}));return actions}
+ catch(_){return customerEligibleActionsV20(board,state)}
 }
 function cjAdvanceStage(board,state){
  cjSetStage(board,cjGetStage(board)+1);
@@ -6526,7 +6531,7 @@ function cjAdvanceStage(board,state){
 renderCustomerActionsV20=function(board,state){
  if(!hasCustomerBoardRouteV20())return cjLegacyRenderCustomerSteps(board,state);
  const host=el("customerJourneyActions");host.innerHTML="";
- const eligible=customerEligibleActionsV20(board,state);
+ const eligible=cjStageActions(board,state);
  const index=cjGetStage(board);
  if(!eligible.length||index>=eligible.length){
   showCustomerClosingV20("Thank you.","Your Journey is complete. We look forward to seeing you again.");
@@ -6567,8 +6572,8 @@ customerOpenDestinationV20=function(board,state,action){
  cjAdvanceStage(board,state);
  // Browser user gesture: open destination, leaving the next Journey step ready.
  const destination=normalizeUrl(url);
- try{const opened=window.open(destination,"_blank","noopener,noreferrer");
- if(!opened)window.location.assign(destination)}
+ try{const opened=window.open("about:blank","_blank");
+ if(opened){opened.opener=null;opened.location.replace(destination)}else window.location.assign(destination)}
  catch(_){window.location.assign(destination)}
 };
 showOptionalCustomerPromptV20=function(board,state,action){
