@@ -6470,7 +6470,7 @@ function cjNormalizePublicBoardV24(raw){
 async function cjResolvePublicBoardV24(boardId){
   const local=getBoard(boardId);if(local)return local;
   const response=await cjPublicBackendRequestV24("resolve_board",{board_id:boardId}),board=cjNormalizePublicBoardV24(response);
-  if(board&&!getBoard(board.id))boards.push(board);return board;
+  if(board){const index=boards.findIndex(x=>x.id===board.id);if(index>=0)boards[index]=board;else boards.push(board)}return board;
 }
 function cjQueueEventV24(event){
   const q=cjSafeJsonV24(localStorage.getItem(CJ_EVENT_SYNC_QUEUE_KEY),null),rows=Array.isArray(q)?q:[];
