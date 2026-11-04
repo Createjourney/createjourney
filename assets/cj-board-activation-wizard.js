@@ -35,7 +35,7 @@ function showSignup(){
 }
 async function routeOwnerQR(){
  sessionStorage.setItem("cj_owner_qr_pending","1");
- try{if(await user()){await awaitTap();return}}catch(_){}
+ try{if(typeof window.CJPrepareOwnerAuth==="function")await window.CJPrepareOwnerAuth();if(await user()){await awaitTap();return}}catch(_){}
  showSignup();
 }
 async function awaitTap(){
@@ -50,7 +50,7 @@ async function awaitTap(){
 }
 async function beginClaim(token){
  remember(token);
- try{if(!await user()){showSignup();return}}catch(e){showSignup();return}
+ try{if(typeof window.CJPrepareOwnerAuth==="function")await window.CJPrepareOwnerAuth();if(!await user()){showSignup();return}}catch(e){showSignup();return}
  screen("Verify Your SmartBoard","Enter the one letter and six digits printed on the board's private activation label. This code must match the board you just tapped.",
  field("cjOwnerPrivateCode","Owner activation code","A123456")+
  btn("cjVerifyOwnerCode","Verify & Connect SmartBoard"));
