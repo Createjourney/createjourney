@@ -6869,7 +6869,7 @@ try{
   window.openBoardManager=openBoardManager;
   window.openDashboard=openDashboard;
   window.openAiBusinessSetup=openAiBusinessSetup;
-  window.CJPrepareOwnerAuth=async function(){await ensureSupabaseLibrary();initBackend();if(!sb)throw Error("Secure authentication unavailable");};
+  window.CJPrepareOwnerAuth=async function(){await ensureSupabaseLibrary();initBackend();if(!sb)throw Error("Secure authentication unavailable");const result=await sb.auth.getUser();if(result.data?.user){const ws=await cjBootstrapWorkspaceV24(result.data.user);if(ws){backendWorkspaceId=ws.workspace_id;actualRole=ws.role||"Owner";currentRole=actualRole}}};
   window.permissions=permissions;
   window.serializableState=serializableState;
   window.CJRuntimeBridge={ready:true,version:"29.1"};
