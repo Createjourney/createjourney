@@ -6398,7 +6398,7 @@ async function loginUser(){
   sessionStorage.removeItem("cj_pending_board_activation");
  }
 }catch(e){setAuthMessage("Signed in, but SmartBoard activation failed: "+(e?.message||"Try again"),"bad");return}
- await loadCloudWorkspace(data.user);setAuthMessage("");return;
+ await loadCloudWorkspace(data.user);if(window.CJBoardActivationWizard?.wantsOwnerSetup())await window.CJBoardActivationWizard.postSignup();setAuthMessage("");return;
     }
     const a=localAccount();if(!a||a.email!==email)throw new Error("No local account was found on this device.");
     if(await hashPassword(password)!==a.passwordHash)throw new Error("Incorrect email or password.");
