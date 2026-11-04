@@ -6493,13 +6493,15 @@ recordJourneyEventV21=function(type,meta={}){
 
 const openCustomerJourneyBeforeV24=openCustomerJourneyV20;
 openCustomerJourneyV20=async function(boardId,opts={}){
+  let resolvedId=boardId;
   if(!getBoard(boardId)&&!opts.preview){
     showOnly("customerJourneyApp");el("customerJourneyTitle").textContent="Loading your Journey";el("customerJourneySub").textContent="Connecting securely to this SmartBoard.";
     el("customerJourneyActions").innerHTML='<div class="public-loading">Loading board setup…</div>';
     const board=await cjResolvePublicBoardV24(boardId);
+    if(board)resolvedId=board.id;
     if(!board){el("customerJourneyTitle").textContent="Board unavailable";el("customerJourneySub").textContent="This SmartBoard could not be resolved securely.";el("customerJourneyActions").innerHTML="";el("customerJourneyError").textContent="The board may be inactive, unpublished, or the public board service may be unavailable.";el("customerJourneyError").classList.remove("hidden");return false}
   }
-  return openCustomerJourneyBeforeV24(boardId,opts);
+  return openCustomerJourneyBeforeV24(resolvedId,opts);
 };
 
 const initializeSessionBeforeV24=initializeSession;
@@ -6780,6 +6782,7 @@ try{
   window.openBoardManager=openBoardManager;
   window.openDashboard=openDashboard;
   window.openAiBusinessSetup=openAiBusinessSetup;
+  window.CJPrepareOwnerAuth=async function(){await ensureSupabaseLibrary();initBackend();if(!sb)throw Error("Secure authentication unavailable");};
   window.permissions=permissions;
   window.serializableState=serializableState;
   window.CJRuntimeBridge={ready:true,version:"29.1"};
