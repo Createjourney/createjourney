@@ -6594,7 +6594,7 @@ showOptionalCustomerPromptV20=function(board,state,action){
 const initializeSessionBeforeV24=initializeSession;
 initializeSession=async function(){
   initBackend();updateBackendBadges();
-  if(new URLSearchParams(location.search).has("activate")&&window.CJBoardActivationWizard){await initializeSessionBeforeV24();await window.CJBoardActivationWizard.routeOwnerQR();return}
+  if((new URLSearchParams(location.search).has("activate")||new URLSearchParams(location.search).has("activate_board"))&&window.CJBoardActivationWizard){await initializeSessionBeforeV24();await window.CJBoardActivationWizard.routeOwnerQR();return}
   if(hasCustomerBoardRouteV20()){const token=customerBoardFromRouteV20();if(window.CJBoardActivationWizard&&await window.CJBoardActivationWizard.routeTap(token))return;restoreLocalState();await openCustomerJourneyV20(token);return}
   return await initializeSessionBeforeV24();
 };
