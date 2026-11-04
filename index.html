@@ -6553,7 +6553,7 @@ function cjDirectComplete(board){
  const again=document.createElement("button");again.type="button";again.className="secondary";
  again.textContent="Start Again";
  again.onclick=()=>{
-  cjDirectWrite(board,{index:0,actions:[],awaitingReturn:false,launchedAt:0,updated:0});
+  try{sessionStorage.removeItem(cjDirectKey(board))}catch(_){}
   const current=customerStateV20(),bs=boardCustomerStateV20(current,board.id);
   renderCustomerActionsV20(board,bs);
  };
