@@ -6504,6 +6504,88 @@ openCustomerJourneyV20=async function(boardId,opts={}){
   return openCustomerJourneyBeforeV24(resolvedId,opts);
 };
 
+
+/* Public NFC customer Journey: display one published step at a time.
+   Opening a destination preserves progress on the board page. */
+const cjLegacyRenderCustomerSteps=renderCustomerActionsV20;
+const cjLegacyOpenCustomerDestination=customerOpenDestinationV20;
+const cjLegacyShowOptionalPrompt=showOptionalCustomerPromptV20;
+function cjPublicStageKey(board){return "cj_customer_step_v2:"+board.id}
+function cjGetStage(board){
+ try{const v=JSON.parse(sessionStorage.getItem(cjPublicStageKey(board))||"null");
+ return v&&Date.now()-v.at<1800000?Math.max(0,Math.min(3,Number(v.index)||0)):0}catch(_){return 0}
+}
+function cjSetStage(board,index){
+ try{sessionStorage.setItem(cjPublicStageKey(board),JSON.stringify({index,at:Date.now()}))}catch(_){}
+}
+function cjAdvanceStage(board,state){
+ cjSetStage(board,cjGetStage(board)+1);
+ clearCustomerPromptV20();
+ renderCustomerActionsV20(board,state);
+}
+renderCustomerActionsV20=function(board,state){
+ if(!hasCustomerBoardRouteV20())return cjLegacyRenderCustomerSteps(board,state);
+ const host=el("customerJourneyActions");host.innerHTML="";
+ const eligible=customerEligibleActionsV20(board,state);
+ const index=cjGetStage(board);
+ if(!eligible.length||index>=eligible.length){
+  showCustomerClosingV20("Thank you.","Your Journey is complete. We look forward to seeing you again.");
+  const restart=document.createElement("button");restart.type="button";restart.className="secondary";
+  restart.textContent="Start Journey Again";
+  restart.onclick=()=>{cjSetStage(board,0);el("customerJourneyClosing").classList.add("hidden");renderCustomerActionsV20(board,state)};
+  host.appendChild(restart);return;
+ }
+ const action=eligible[index];
+ el("customerJourneyClosing").classList.add("hidden");
+ customerRecordEventV20(board,state,action,"shown");
+ const step=document.createElement("p");
+ step.style.cssText="font-weight:700;color:#4c6685;text-align:center";
+ step.textContent="Step "+(index+1)+" of "+eligible.length;
+ host.appendChild(step);
+ const main=document.createElement("button");main.type="button";main.className="customer-action primary ready";
+ main.textContent=({pay:"Pay Now",review:"Leave Review",book:"Book Appointment",subscribe:"Subscribe",website:"Visit Website",custom:"Open Link"})[String(action).toLowerCase()]||action;
+ main.onclick=()=>{const kind=customerActionKindV20(action);
+ if(kind==="review"||kind==="booking")showOptionalCustomerPromptV20(board,state,action);
+ else customerOpenDestinationV20(board,state,action)};
+ host.appendChild(main);
+ const skip=document.createElement("button");skip.type="button";skip.className="secondary";
+ skip.textContent="Not now";
+ skip.onclick=()=>{customerRecordEventV20(board,state,action,"declined");
+ const s=customerStateV20();s.boards[board.id]=state;saveCustomerStateV20(s);
+ cjAdvanceStage(board,state)};
+ host.appendChild(skip);
+};
+customerOpenDestinationV20=function(board,state,action){
+ if(!hasCustomerBoardRouteV20())return cjLegacyOpenCustomerDestination(board,state,action);
+ const url=customerDestinationV20(board,action);
+ if(!url){showCustomerClosingV20("Link unavailable.","Please ask the business to update this destination.");return}
+ customerRecordEventV20(board,state,action,"clicked");
+ board.analytics=board.analytics||{};
+ board.analytics.actionsTaken=Number(board.analytics.actionsTaken||0)+1;
+ board.analytics.lastInteraction="Just now";
+ const s=customerStateV20();s.boards[board.id]=state;saveCustomerStateV20(s);
+ cjAdvanceStage(board,state);
+ // Browser user gesture: open destination, leaving the next Journey step ready.
+ const destination=normalizeUrl(url);
+ try{const opened=window.open(destination,"_blank","noopener,noreferrer");
+ if(!opened)window.location.assign(destination)}
+ catch(_){window.location.assign(destination)}
+};
+showOptionalCustomerPromptV20=function(board,state,action){
+ if(!hasCustomerBoardRouteV20())return cjLegacyShowOptionalPrompt(board,state,action);
+ const kind=customerActionKindV20(action),p=el("customerJourneyPrompt");
+ const review=kind==="review";
+ p.classList.remove("hidden");p.innerHTML="";
+ const h=document.createElement("h3");h.textContent=review?"Would you like to leave a review?":"Would you like to book your next appointment?";
+ p.appendChild(h);
+ const yes=document.createElement("button");yes.type="button";yes.className="primary ready";yes.textContent="Yes";
+ yes.onclick=()=>{customerRecordEventV20(board,state,action,"accepted");clearCustomerPromptV20();customerOpenDestinationV20(board,state,action)};
+ const no=document.createElement("button");no.type="button";no.className="secondary";no.textContent="Not now";
+ no.onclick=()=>{customerRecordEventV20(board,state,action,"declined");
+ const s=customerStateV20();s.boards[board.id]=state;saveCustomerStateV20(s);cjAdvanceStage(board,state)};
+ p.appendChild(yes);p.appendChild(no);
+};
+
 const initializeSessionBeforeV24=initializeSession;
 initializeSession=async function(){
   initBackend();updateBackendBadges();
