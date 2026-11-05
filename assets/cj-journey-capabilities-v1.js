@@ -244,10 +244,10 @@ window.CJSmartBoardOwnerPage={
     if(memberships.error)throw memberships.error;
     const rows=memberships.data||[];
     if(!rows.length)throw Error("No authorized workspace is attached to this account.");
-    let chosen=null,workspace=null;
+    let chosen=null,workspace=null,lookupErrors=[];
     for(const membership of rows){
      const res=await sb.rpc("cj_list_workspace_published_smartboards",{p_workspace_id:membership.workspace_id});
-     if(res.error)continue;
+     if(res.error){lookupErrors.push(String(res.error.message||res.error));continue;}
      const match=(Array.isArray(res.data)?res.data:[]).find(b=>String(b.id).toUpperCase()==="CJ-000001");
      if(match){chosen=match;workspace=membership.workspace_id;break}
     }
