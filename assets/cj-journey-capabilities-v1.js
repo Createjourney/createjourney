@@ -87,10 +87,11 @@ function ensurePage(){
  if(root)return root;
  root=document.createElement("section");root.id="cjSmartBoardOwnerPage";
  root.style.cssText="position:fixed;inset:0;z-index:2147483000;overflow:auto;background:#f4f7fb;color:#172438;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;padding:22px 16px 90px";
- root.innerHTML='<main style="max-width:700px;margin:auto"><button type="button" id="cjOwnerBack" style="border:0;background:none;padding:10px 0;color:#175fc0;font-size:15px;cursor:pointer">← Back to Command Center</button><div style="background:white;border-radius:20px;padding:25px;box-shadow:0 12px 35px #102b4c12"><div style="font-size:12px;font-weight:800;letter-spacing:1px;color:#3175bf">SMARTBOARD MANAGEMENT</div><h1 id="cjOwnerTitle" style="font-size:27px;margin:9px 0 5px"></h1><p id="cjOwnerSubtitle" style="color:#57657a"></p><p style="color:#57657a;font-size:14px">Add destination links, then arrange the customer experience. Customers see only published steps.</p><form id="cjOwnerForm"><div id="cjOwnerRows"></div><p id="cjOwnerMessage" role="status" style="min-height:24px;font-size:14px;color:#a32323"></p><button type="submit" id="cjOwnerPublish" style="background:#1678e6;color:white;border:0;border-radius:12px;padding:16px;width:100%;font-size:16px;font-weight:750;cursor:pointer">Publish Journey</button></form><p style="font-size:13px;color:#59697d">A board must be claimed to your authenticated account before publishing. An NFC tap uses its permanent public token, not this owner editor.</p></div></main>';
+ root.innerHTML='<main style="max-width:700px;margin:auto"><button type="button" id="cjOwnerBack" style="border:0;background:none;padding:10px 0;color:#175fc0;font-size:15px;cursor:pointer">← Back to Command Center</button><div style="background:white;border-radius:20px;padding:25px;box-shadow:0 12px 35px #102b4c12"><div style="font-size:12px;font-weight:800;letter-spacing:1px;color:#3175bf">SMARTBOARD MANAGEMENT</div><h1 id="cjOwnerTitle" style="font-size:27px;margin:9px 0 5px"></h1><p id="cjOwnerSubtitle" style="color:#57657a"></p><p style="color:#57657a;font-size:14px">Add destination links, then arrange the customer experience. Customers see only published steps.</p><form id="cjOwnerForm"><div id="cjOwnerRows"></div><p id="cjOwnerMessage" role="status" style="min-height:24px;font-size:14px;color:#a32323"></p><button type="button" id="cjOwnerTestMode" style="background:#e7f1ff;color:#155cb6;border:1px solid #b8d7fb;border-radius:12px;padding:15px;width:100%;font-size:16px;font-weight:750;cursor:pointer;margin-bottom:12px">▶ Test Customer Journey (Simulation)</button><button type="submit" id="cjOwnerPublish" style="background:#1678e6;color:white;border:0;border-radius:12px;padding:16px;width:100%;font-size:16px;font-weight:750;cursor:pointer">Publish Journey</button></form><p style="font-size:13px;color:#59697d">A board must be claimed to your authenticated account before publishing. An NFC tap uses its permanent public token, not this owner editor.</p></div></main>';
  document.body.append(root);
  root.querySelector("#cjOwnerBack").onclick=()=>{root.remove();selected=null};
  root.querySelector("#cjOwnerForm").onsubmit=publish;
+ root.querySelector("#cjOwnerTestMode").onclick=launchOwnerTest;
  return root;
 }
 function show(board){
@@ -142,6 +143,51 @@ async function publish(e){
   if(window.CJExactHome?.render)window.CJExactHome.render();
  }catch(err){msg.style.color="#a32323";msg.textContent=String(err?.message||err)}
  finally{btn.disabled=false;btn.textContent="Publish Journey"}
+}
+
+async function launchOwnerTest(){
+ const root=ensurePage(),msg=root.querySelector("#cjOwnerMessage"),button=root.querySelector("#cjOwnerTestMode");
+ msg.style.color="#a32323";msg.textContent="";
+ if(!selected){msg.textContent="Choose a claimed SmartBoard first.";return}
+ button.disabled=true;button.textContent="Checking owner access…";
+ try{
+  if(typeof initBackend==="function")initBackend();
+  if(typeof sb==="undefined"||!sb)throw Error("Owner authentication is unavailable.");
+  const auth=await sb.auth.getUser();if(!auth.data?.user)throw Error("Sign in to your owner account to run a simulation.");
+  const ws=typeof backendWorkspaceId!=="undefined"?backendWorkspaceId:null;
+  if(!ws)throw Error("Your authenticated workspace is not available.");
+  const read=await sb.rpc("cj_list_workspace_published_smartboards",{p_workspace_id:ws});
+  if(read.error)throw read.error;
+  const board=(Array.isArray(read.data)?read.data:[]).find(x=>x.id===selected.id);
+  if(!board)throw Error("This SmartBoard is not in your authorized workspace.");
+  const steps=(Array.isArray(board.actions)?board.actions:[]).map(type=>({type,url:board.destinations?.[String(type).toLowerCase()]||board.destinations?.[type]||""})).filter(x=>x.url);
+  if(!steps.length)throw Error("Publish at least one Journey destination before testing.");
+  showOwnerSimulation(steps);
+ }catch(e){msg.textContent=String(e.message||e)}
+ finally{button.disabled=false;button.textContent="▶ Test Customer Journey (Simulation)"}
+}
+function showOwnerSimulation(steps){
+ let n=document.getElementById("cjOwnerSimulation");if(n)n.remove();
+ n=document.createElement("div");n.id="cjOwnerSimulation";
+ n.style.cssText="position:fixed;inset:0;z-index:2147483600;background:#f7f9fd;overflow:auto;display:grid;place-items:center;padding:25px;font:16px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;color:#15253c;text-align:center";
+ n.innerHTML='<main style="max-width:420px;width:100%"><div style="font-size:13px;font-weight:800;color:#a45b00;background:#fff2ce;border-radius:20px;padding:10px">OWNER SIMULATION · NO REAL ACTIONS</div><h1 style="font-size:29px;margin:22px 0 5px">CreateJourney</h1><div id="cjSimBody"></div><button type="button" id="cjSimClose" style="background:transparent;color:#40618b;border:0;padding:15px;cursor:pointer;margin-top:15px">Close Test</button></main>';
+ document.body.append(n);n.querySelector("#cjSimClose").onclick=()=>n.remove();
+ let index=0;const body=n.querySelector("#cjSimBody");
+ function render(){
+  if(index>=steps.length){
+   body.innerHTML='<h2 style="font-size:28px;margin-top:40px">Thank You!</h2><p>Your Journey is complete.</p><p aria-label="Celebration" style="font-size:42px">🎉 🎊 🎉</p><p style="color:#64748b">Simulation completed. No payment, review, or booking was submitted.</p>';return;
+  }
+  const type=String(steps[index].type).toLowerCase();
+  const title=type==="pay"?"Venmo / Pay Now":type==="review"?"Google Review":type==="book"?"Book Your Next Appointment":type.charAt(0).toUpperCase()+type.slice(1);
+  body.replaceChildren();
+  const p=document.createElement("p");p.textContent="STEP "+(index+1)+" OF "+steps.length; p.style.cssText="color:#3978c8;font-size:13px;font-weight:800;margin-top:35px";
+  const h=document.createElement("h2");h.textContent=title;h.style.fontSize="26px";
+  const note=document.createElement("p");note.textContent="Simulation only. Imagine completing this action in the external app. No external site will open.";note.style.color="#65758b";
+  const arrow=document.createElement("button");arrow.type="button";arrow.textContent=index===steps.length-1?"✓":"➜";arrow.setAttribute("aria-label",index===steps.length-1?"Finish simulated Journey":"Advance simulated Journey");arrow.style.cssText="display:block;margin:28px auto;border:0;border-radius:50%;width:78px;height:78px;background:#1479e8;color:#fff;font-size:36px;cursor:pointer;animation:cjSimPulse 1.5s ease-in-out infinite";
+  arrow.onclick=()=>{index++;render()};
+  body.append(p,h,note,arrow);
+ }
+ const style=document.createElement("style");style.textContent="@keyframes cjSimPulse{0%,100%{box-shadow:0 0 0 0 #1479e855}55%{box-shadow:0 0 0 17px #1479e800}}@media(prefers-reduced-motion:reduce){#cjOwnerSimulation button{animation:none!important}}";n.append(style);render();
 }
 // Window capture precedes the legacy document-level homepage router.
 // Other SmartBoard navigation and onboarding cards remain untouched.
