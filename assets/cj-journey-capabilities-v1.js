@@ -202,6 +202,33 @@ window.addEventListener("click",e=>{
 window.CJSmartBoardOwnerPage={
  open:show,
  openFromCommandCenter:function(){
+  // Always re-read authorized published boards; never trust stale browser-local state.
+  (async()=>{
+   try{
+    if(typeof initBackend==="function")initBackend();
+    if(typeof sb==="undefined"||!sb)throw Error("Sign in to load your SmartBoards.");
+    const user=(await sb.auth.getUser()).data?.user;
+    if(!user)throw Error("Sign in to load your SmartBoards.");
+    const memberships=await sb.from("workspace_members").select("workspace_id,workspaces(name)").eq("user_id",user.id);
+    if(memberships.error)throw memberships.error;
+    const rows=memberships.data||[];
+    if(!rows.length)throw Error("No authorized workspace is attached to this account.");
+    let chosen=null,workspace=null;
+    for(const membership of rows){
+     const res=await sb.rpc("cj_list_workspace_published_smartboards",{p_workspace_id:membership.workspace_id});
+     if(res.error)continue;
+     const match=(Array.isArray(res.data)?res.data:[]).find(b=>String(b.id).toUpperCase()==="CJ-000001");
+     if(match){chosen=match;workspace=membership.workspace_id;break}
+    }
+    if(!chosen)throw Error("CJ-000001 is not published in any workspace available to this signed-in account. Check the owner account used to claim the board; do not activate it again.");
+    if(typeof backendWorkspaceId!=="undefined")backendWorkspaceId=workspace;
+    const board={id:chosen.id,name:chosen.name,actions:chosen.actions,destinations:chosen.destinations,backendId:chosen.backend_id,publicId:chosen.public_id,active:chosen.active};
+    if(typeof boards!=="undefined"&&Array.isArray(boards)&&!boards.some(b=>b.id===board.id))boards.push(board);
+    show(board);
+    if(typeof renderDashboard==="function")renderDashboard();
+    if(window.CJExactHome?.render)window.CJExactHome.render();
+   }catch(err){const msg=document.getElementById("cjOwnerMessage");if(msg){msg.style.color="#a32323";msg.textContent=String(err.message||err)}}
+  })();
   const list=boardList();
   const live=list.find(b=>String(b.id||"").toUpperCase()==="CJ-000001")||list[0];
   if(live){show(live);return true;}

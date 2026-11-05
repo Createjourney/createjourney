@@ -11860,7 +11860,9 @@ button.primary,button.secondary,.primary,.secondary{
     }
 
     if(action==='analytics'){
-      return openAnalyticsFocus('boards');
+      // Board analysis must open the functional SmartBoard owner page, not a generic AI tab.
+      if(window.CJSmartBoardOwnerPage?.openFromCommandCenter)return window.CJSmartBoardOwnerPage.openFromCommandCenter();
+      return routeHomeAction('boards');
     }
 
     if(action==='team'){
