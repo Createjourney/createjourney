@@ -223,14 +223,24 @@ window.addEventListener("click",e=>{
 window.CJSmartBoardOwnerPage={
  open:show,
  openFromCommandCenter:function(){
-  // Always re-read authorized published boards; never trust stale browser-local state.
+  // Resolve authenticated membership before displaying an editable board.
+  const root=ensurePage();
+  root.querySelector("#cjOwnerTitle").textContent="Loading your SmartBoard…";
+  root.querySelector("#cjOwnerSubtitle").textContent="Verifying account access";
+  root.querySelector("#cjOwnerRows").replaceChildren();
+  root.querySelector("#cjOwnerPublish").disabled=true;
+  root.querySelector("#cjOwnerTestMode").disabled=true;
+  const msg=root.querySelector("#cjOwnerMessage");
+  msg.style.color="#53677f";msg.textContent="Checking your authorized workspace…";
+  selected=null;
   (async()=>{
    try{
     if(typeof initBackend==="function")initBackend();
     if(typeof sb==="undefined"||!sb)throw Error("Sign in to load your SmartBoards.");
-    const user=(await sb.auth.getUser()).data?.user;
-    if(!user)throw Error("Sign in to load your SmartBoards.");
-    const memberships=await sb.from("workspace_members").select("workspace_id,workspaces(name)").eq("user_id",user.id);
+    const {data:auth,error:authError}=await sb.auth.getUser();
+    if(authError)throw authError;
+    if(!auth?.user)throw Error("Sign in to load your SmartBoards.");
+    const memberships=await sb.from("workspace_members").select("workspace_id").eq("user_id",auth.user.id);
     if(memberships.error)throw memberships.error;
     const rows=memberships.data||[];
     if(!rows.length)throw Error("No authorized workspace is attached to this account.");
@@ -241,21 +251,26 @@ window.CJSmartBoardOwnerPage={
      const match=(Array.isArray(res.data)?res.data:[]).find(b=>String(b.id).toUpperCase()==="CJ-000001");
      if(match){chosen=match;workspace=membership.workspace_id;break}
     }
-    if(!chosen)throw Error("CJ-000001 is not published in any workspace available to this signed-in account. Check the owner account used to claim the board; do not activate it again.");
+    if(!chosen)throw Error("CJ-000001 was not found in this account's authorized workspaces. Check which account claimed the board; do not activate it again.");
     if(typeof backendWorkspaceId!=="undefined")backendWorkspaceId=workspace;
     const board={id:chosen.id,name:chosen.name,actions:chosen.actions,destinations:chosen.destinations,backendId:chosen.backend_id,publicId:chosen.public_id,active:chosen.active};
-    if(typeof boards!=="undefined"&&Array.isArray(boards)&&!boards.some(b=>b.id===board.id))boards.push(board);
+    if(typeof boards!=="undefined"&&Array.isArray(boards)){
+     const i=boards.findIndex(b=>b.id===board.id);
+     if(i>=0)boards[i]=Object.assign({},boards[i],board);else boards.push(board);
+    }
+    if(!root.isConnected)return;
     show(board);
+    root.querySelector("#cjOwnerTestMode").disabled=false;
     if(typeof renderDashboard==="function")renderDashboard();
-    if(window.CJExactHome?.render)window.CJExactHome.render();
-   }catch(err){const msg=document.getElementById("cjOwnerMessage");if(msg){msg.style.color="#a32323";msg.textContent=String(err.message||err)}}
+   }catch(err){
+    if(!root.isConnected)return;
+    selected=null;
+    root.querySelector("#cjOwnerTitle").textContent="SmartBoard access unavailable";
+    root.querySelector("#cjOwnerPublish").disabled=true;
+    root.querySelector("#cjOwnerTestMode").disabled=true;
+    msg.style.color="#a32323";msg.textContent=String(err.message||err);
+   }
   })();
-  const list=boardList();
-  const live=list.find(b=>String(b.id||"").toUpperCase()==="CJ-000001")||list[0];
-  if(live){show(live);return true;}
-  show({id:"CJ-000001",name:"SmartBoard CJ-000001",actions:[],destinations:{}});
-  const msg=document.getElementById("cjOwnerMessage");
-  if(msg)msg.textContent="CJ-000001 is not in your authenticated SmartBoard list yet. Claim or sync this board before publishing.";
   return true;
  }
 };
