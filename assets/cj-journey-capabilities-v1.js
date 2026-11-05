@@ -94,6 +94,26 @@ function ensurePage(){
  root.querySelector("#cjOwnerTestMode").onclick=launchOwnerTest;
  return root;
 }
+function smartConnect(row,type){
+ const input=row.querySelector('input[type="url"]');
+ const box=document.createElement("div");box.style.cssText="margin-top:9px;padding:12px;background:#f2f7ff;border-radius:10px;font-size:13px";
+ if(type==="pay"){
+  box.innerHTML='<label style="display:block;font-weight:650;margin-bottom:6px">Payment provider</label><select aria-label="Payment provider" style="width:100%;padding:10px;border-radius:8px;border:1px solid #cbd5e1"><option value="venmo">Venmo username</option><option value="paypal">PayPal.Me username</option><option value="other">Square / other payment URL</option><option value="zelle">Zelle instructions</option></select><input type="text" aria-label="Payment account username" placeholder="Username (without @)" style="width:100%;padding:10px;margin-top:8px;border:1px solid #cbd5e1;border-radius:8px"><button type="button" data-connect style="margin-top:8px;padding:9px 12px;border-radius:8px;background:#176dd0;color:white;border:0">Use this payment destination</button><p data-help style="color:#53677f;margin:8px 0 0">Check the recipient carefully before publishing.</p>';
+  const sel=box.querySelector("select"),name=box.querySelector('input[type="text"]'),help=box.querySelector("[data-help]");
+  sel.onchange=()=>{name.hidden=sel.value==="other"||sel.value==="zelle";box.querySelector("[data-connect]").hidden=sel.value==="other"||sel.value==="zelle";help.textContent=sel.value==="zelle"?"Zelle has no universal direct payment link. Provide instructions outside this URL-only Journey, or use another supported provider.":sel.value==="other"?"Paste the provider's HTTPS checkout link into the destination field above.":"Verify the destination belongs to your business.";};
+  box.querySelector("[data-connect]").onclick=()=>{const u=name.value.trim().replace(/^@/,"");if(!/^[a-zA-Z0-9_.-]{2,80}$/.test(u)){help.textContent="Enter a valid username.";return}input.value=sel.value==="venmo"?"https://account.venmo.com/pay?recipients="+encodeURIComponent(u):"https://paypal.me/"+encodeURIComponent(u);input.dispatchEvent(new Event("input",{bubbles:true}));help.textContent="Link generated. Use Preview to check the recipient before publishing.";};
+ }else if(type==="review"){
+  box.innerHTML='<label style="display:block;font-weight:650;margin-bottom:6px">Find your Google business</label><input type="search" aria-label="Search Google business" placeholder="Business name, city" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px"><button type="button" data-search style="margin:8px 0;padding:9px 12px;border-radius:8px;background:#176dd0;color:white;border:0">Find business on Google Maps ↗</button><label style="display:block;margin:8px 0 5px">Google Place ID (if available)</label><input type="text" aria-label="Google Place ID" placeholder="ChIJ..." style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px"><button type="button" data-generate style="margin-top:8px;padding:9px 12px;border-radius:8px;background:#176dd0;color:white;border:0">Generate direct review link</button><p data-help style="color:#53677f;margin:8px 0 0">Business search opens Google Maps. Automatic listing selection requires a configured Google Places integration; do not paste a Maps search link as a direct review link.</p>';
+  const fields=box.querySelectorAll("input"),help=box.querySelector("[data-help]");
+  box.querySelector("[data-search]").onclick=()=>{const q=fields[0].value.trim();if(!q){help.textContent="Enter a business name and city.";return}window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q),"_blank","noopener,noreferrer");};
+  box.querySelector("[data-generate]").onclick=()=>{const id=fields[1].value.trim();if(!/^[A-Za-z0-9_-]{8,250}$/.test(id)){help.textContent="Enter the exact Google Place ID; a business name alone is not sufficient.";return}input.value="https://search.google.com/local/writereview?placeid="+encodeURIComponent(id);help.textContent="Direct review URL generated. Preview it before publishing.";};
+ }else{
+  box.innerHTML='<p style="color:#53677f;margin:0">Paste your booking provider’s HTTPS booking URL above. Provider account discovery will be added when an integration is available.</p>';
+ }
+ const preview=document.createElement("button");preview.type="button";preview.textContent="↗ Preview destination";preview.style.cssText="display:block;margin-top:10px;border:1px solid #b5c7de;background:white;color:#175fc0;border-radius:8px;padding:9px 12px";
+ preview.onclick=()=>{try{const url=new URL(input.value);if(url.protocol!=="https:")throw Error();window.open(url.href,"_blank","noopener,noreferrer")}catch(_){alert("Enter a valid HTTPS destination first.")}};
+ box.append(preview);row.append(box);
+}
 function show(board){
  selected=board;
  const root=ensurePage();
@@ -107,6 +127,7 @@ function show(board){
  row.innerHTML='<div style="display:flex;align-items:center;gap:8px"><label style="font-weight:700;flex:1">'+h(label)+'</label><button type="button" data-move="up" aria-label="Move '+h(label)+' up" style="width:40px;padding:8px">↑</button><button type="button" data-move="down" aria-label="Move '+h(label)+' down" style="width:40px;padding:8px">↓</button></div><input type="url" aria-label="'+h(label)+' URL" placeholder="https://..." style="width:100%;padding:12px;margin-top:8px;border:1px solid #c8d2df;border-radius:9px;font-size:16px" value="'+h(val)+'">';
  row.addEventListener("click",e=>{const btn=e.target.closest("[data-move]");if(!btn)return;const sibling=btn.dataset.move==="up"?row.previousElementSibling:row.nextElementSibling;if(sibling)container.insertBefore(btn.dataset.move==="up"?row:sibling,btn.dataset.move==="up"?sibling:row)});
  container.append(row);
+ smartConnect(row,type);
  });
  root.querySelector("#cjOwnerMessage").textContent="";
  root.querySelector("#cjOwnerPublish").disabled=false;
