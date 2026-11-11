@@ -1,4 +1,6 @@
 import {test} from 'node:test';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import {classifyAgent,normalizeStatus,summarize,publicAgent,integerInRange,
  parseBusinessId,safeSearch,ROSTER_LIMIT} from '../supabase/functions/journey-ai-agent-intelligence/logic.mjs';
@@ -61,4 +63,25 @@ test('registered lifecycle does not infer runtime from source status',()=>{
  const e=classifyAgent(deployed,[],[],[]);
  assert.equal(e.readiness,'IMPLEMENTED_UNVERIFIED');
  assert.equal(e.independently_verified_external_operation,false);
+});
+
+test('Journey AI chat offers authorized read-only workforce context and suppresses catalog-triggered pilot runs',()=>{
+ const source=readFileSync('supabase/functions/journey-ai-chat/index.ts','utf8');
+ assert.match(source,/authorizedWorkforceRead\(url,anon,auth,prompt/);
+ assert.match(source,/agent_workforce_status:workforce.status/);
+ assert.match(source,/AUTHORI[ZS]ED WORKFORCE INTELLIGENCE/);
+ assert.match(source,/body:\s*JSON.stringify\(\{action,business_id:b,/);
+ assert.match(source,/\bstatus\|registry\|listed\|permissions/);
+ const begin=source.indexOf('function pilotAgentsForRequest(');
+ const end=source.indexOf('async function runRegisteredAgentPilot(',begin);
+ assert.ok(begin>=0&&end>begin);
+ const fragment=source.slice(begin,end)
+  .replace('prompt:string):number[]','prompt)')
+  .replace('const ids:number[]=[];','const ids=[];');
+ const sandbox={};
+ vm.runInNewContext(fragment,sandbox);
+ const route=(prompt)=>Array.from(sandbox.pilotAgentsForRequest(prompt));
+ assert.deepEqual(route('What is the status of agent #333?'),[]);
+ assert.deepEqual(route('How many agents are in the registry?'),[]);
+ assert.deepEqual(route('Investigate SmartBoard conversion with agents #333 and #336'),[333,336]);
 });
