@@ -50,6 +50,7 @@ Deno.serve(async(req)=>{
   const admin=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data:identity,error:authErr}=await auth.auth.getUser(token);
   if(authErr||!identity.user)return reply({error:"Invalid login"},401);
+  const userId=identity.user.id;
   const raw=await req.text();if(raw.length>16000)return reply({error:"Request too large"},413);
   let body:Record<string,unknown>;
   try {body=JSON.parse(raw)}catch{return reply({error:"Invalid JSON"},400)}
@@ -57,7 +58,7 @@ Deno.serve(async(req)=>{
   const businessId=String(body.business_id||"");
   if(!UUID.test(businessId))return reply({error:"business_id is required"},400);
   const {data:member,error:memberErr}=await admin.from("business_members").select("role,is_active").eq("business_id",businessId)
-   .eq("user_id",identity.user.id).eq("is_active",true).maybeSingle();
+   .eq("user_id",userId).eq("is_active",true).maybeSingle();
   if(memberErr)return reply({error:"Membership unavailable"},503);
   const role=String(member?.role||"").toLowerCase();
   if(!["owner","manager"].includes(role))return reply({error:"Owner or manager access required"},403);
@@ -68,13 +69,13 @@ Deno.serve(async(req)=>{
    if(error)throw error;return data;
   }
   async function event(campaignId:string,type:string,detail:Record<string,unknown>){
-   const {error}=await admin.from("cj_sales_campaign_events").insert({business_id:businessId,campaign_id:campaignId,actor_user_id:identity.user.id,event_type:type,detail});
+   const {error}=await admin.from("cj_sales_campaign_events").insert({business_id:businessId,campaign_id:campaignId,actor_user_id:userId,event_type:type,detail});
    if(error)throw error;
   }
   if(action==="create"){
    if(!body.campaign||typeof body.campaign!=="object"||Array.isArray(body.campaign))return reply({error:"Campaign details required"},400);
    const fields=validate(body.campaign as Record<string,unknown>);
-   const {data,error}=await admin.from("cj_sales_campaigns").insert({...fields,business_id:businessId,created_by:identity.user.id,status:"draft"}).select().single();
+   const {data,error}=await admin.from("cj_sales_campaigns").insert({...fields,business_id:businessId,created_by:userId,status:"draft"}).select().single();
    if(error)throw error;
    await event(data.id,"CREATED",{mode:"draft_only"});
    return reply({campaign:data,launch_authorized:false},201);
@@ -94,7 +95,7 @@ Deno.serve(async(req)=>{
    if(action==="approve"){
     if(role!=="owner")return reply({error:"Owner approval required"},403);
     if(existing.status!=="draft"&&existing.status!=="paused")return reply({error:"Campaign is already approved"},409);
-    const {data,error}=await admin.from("cj_sales_campaigns").update({status:"approved",approved_by:identity.user.id,approved_at:new Date().toISOString(),updated_at:new Date().toISOString()})
+    const {data,error}=await admin.from("cj_sales_campaigns").update({status:"approved",approved_by:userId,approved_at:new Date().toISOString(),updated_at:new Date().toISOString()})
      .eq("business_id",businessId).eq("id",existing.id).eq("status",existing.status).select().maybeSingle();
     if(error)throw error;if(!data)return reply({error:"Campaign changed concurrently"},409);
     await event(existing.id,"APPROVED_FOR_PLANNING",{launch_authorized:false,no_external_actions:true});
