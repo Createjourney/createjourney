@@ -195,35 +195,72 @@ async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prom
  const b=context&&typeof context==="object"&&typeof context.business_id==="string"?context.business_id:"";
  if(!b)return {status:"BUSINESS_SELECTION_REQUIRED",message:"An explicitly selected authorized business is required for live agent workforce intelligence."};
  const specific=prompt.match(/\bagent\s*(?:#|no\.?|number\s*)?\s*(\d{1,4})\b/i);
- const action=specific?"agent_detail":"overview";
+ let action="overview";
+ if(specific)action="agent_detail";
+ else if(/\b(tool permissions?|tool capabilities|granted tools?)\b/i.test(prompt))action="tool_capabilities";
+ else if(/\b(departments?|organizational units?)\b/i.test(prompt)&&/\b(list|show|which|all|how many)\b/i.test(prompt))action="departments";
+ else if(/\b(list|show|which|find|who|names?|roster|browse)\b/i.test(prompt))action="roster";
+ const fields:any={action,business_id:b};
+ if(specific)fields.agent_no=Number(specific[1]);
+ if(action==="roster"){
+  fields.limit=40;
+  const page=prompt.match(/\bpage\s+(\d{1,2})\b/i);
+  if(page)fields.offset=Math.min(5000,(Number(page[1])-1)*40);
+  const specialization=prompt.match(/\b(marketing|smartboard|sales|finance|security|creative|support|growth|verification|analytics|operations|research)\b/i);
+  if(specialization)fields.search=specialization[1];
+  const status=prompt.match(/\b(planned|testing|deployed|verified|monitoring|disabled|retired)\b/i);
+  if(status)fields.status=status[1].toUpperCase();
+  const department=prompt.match(/\bdepartment\s*#?\s*(\d{1,3})\b/i);
+  if(department)fields.department_no=Number(department[1]);
+ }
  try{
   const response=await fetch(url+"/functions/v1/journey-ai-agent-intelligence",{
    method:"POST",
    headers:{"Content-Type":"application/json","Authorization":bearer,"apikey":anon},
-   body:JSON.stringify({action,business_id:b,...(specific?{agent_no:Number(specific[1])}:{})}),
-   signal:AbortSignal.timeout(9000)
+   body:JSON.stringify(fields),signal:AbortSignal.timeout(9000)
   });
   if(!response.ok)return {status:"UNAVAILABLE",message:"Live workforce intelligence is not available or authorization was denied. Do not invent agent statuses."};
   const result=await response.json();
   if(result?.error||result?.execution_performed!==false)return {status:"UNAVAILABLE",message:"Agent workforce evidence cannot be verified."};
   if(action==="overview"){
    const data=result.summary||{};
-   const summary={registered_agents:data.registered_agents,by_lifecycle_status:data.by_lifecycle_status,
-    departments_registered:result.departments_registered,dependencies_recorded:result.dependencies_recorded,
-    dependencies_status:result.dependencies_status,business_job_count:data.business_job_count,
-    interpretation:data.interpretation,execution_proof:data.execution_proof};
-   return {status:"READ_ONLY_LIVE",message:JSON.stringify(summary).slice(0,3000)};
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({registered_agents:data.registered_agents,
+    by_lifecycle_status:data.by_lifecycle_status,departments_registered:result.departments_registered,
+    dependencies_recorded:result.dependencies_recorded,dependencies_status:result.dependencies_status,
+    business_job_count:data.business_job_count,interpretation:data.interpretation,
+    execution_proof:data.execution_proof}).slice(0,4200)};
+  }
+  if(action==="roster"){
+   const entries=(result.entries||[]).map((a:any)=>({agent_no:a.agent_no,name:a.agent_name,
+    department_no:a.department_no,lifecycle_status:a.lifecycle_status,readiness:a.readiness,
+    verified_external_execution:false}));
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({entries,total:result.total,
+    next_offset:result.next_offset,applied_filters:result.applied_filters,
+    note:"List is paginated; omitted entries are not missing or inactive."}).slice(0,6500)};
+  }
+  if(action==="departments"){
+   const entries=(result.entries||[]).map((d:any)=>({department_no:d.department_no,
+    name:d.department_name,total:d.total,by_status:d.by_status}));
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({entries,
+    registered_agents:result.summary?.registered_agents}).slice(0,6500)};
+  }
+  if(action==="tool_capabilities"){
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({
+    catalog_status:result.tool_catalog_status,
+    granted_permissions:result.granted_permissions?.slice(0,60),
+    warning:result.warning,external_operations_verified:false}).slice(0,4500)};
   }
   const detail=result.agent||{};
-  const summary={agent_no:detail.agent_no,agent_name:detail.agent_name,
-   lifecycle_status:detail.lifecycle_status,readiness:detail.readiness,
+  return {status:"READ_ONLY_LIVE",message:JSON.stringify({agent_no:detail.agent_no,
+   agent_name:detail.agent_name,lifecycle_status:detail.lifecycle_status,readiness:detail.readiness,
    business_execution_evidence:detail.business_execution_evidence,
    independently_verified_external_operation:detail.independently_verified_external_operation,
    analysis_permission_granted:detail.analysis_permission_granted,
    last_business_job_status:detail.last_business_job_status,
-   supervisor:result.supervisor?.agent_name||null,prerequisite_count:result.prerequisites?.length??0,
-   tool_permissions:result.tool_permissions?.map((t:any)=>({tool_key:t.tool_key,granted:t.granted,execution_mode:t.execution_mode})).slice(0,8)};
-  return {status:"READ_ONLY_LIVE",message:JSON.stringify(summary).slice(0,3000)};
+   supervisor:result.supervisor?.agent_name||null,
+   prerequisites:result.prerequisites?.slice(0,12),dependency_status:result.dependency_status,
+   tool_permissions:result.tool_permissions?.slice(0,12).map((t:any)=>({
+    tool_key:t.tool_key,granted:t.granted,execution_mode:t.execution_mode}))}).slice(0,4200)};
  }catch(_){return {status:"UNAVAILABLE",message:"Live workforce intelligence is unavailable. Do not infer deployed capabilities from names."}}
 }
 
