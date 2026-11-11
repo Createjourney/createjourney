@@ -8,7 +8,7 @@ Status: **PREPARATION ONLY / HOLD** | PR #30 | 2026-11-10 (America/Los_Angeles)
 - Core production references exist: `businesses.id`, `business_members.business_id/user_id/is_active/role`. The production membership role type is `public.app_role` (not text, unlike the isolated test fixture); server code string-normalizes it.
 - Existing production Edge Functions are active; `cj-sales-command-center` does not yet exist in the deployed list.
 - Supabase migration history contains earlier production foundational migrations absent from the GitHub checkout. Therefore the GitHub local test uses an *intentionally minimal fixture*; it has **not** performed a full production schema replay.
-- **Critical website-hosting gap:** repository root `index.html` is empty and no deployment configuration was found at `vercel.json` / `netlify.toml`. Confirm which repository/branch/build actually publishes the live CreateJourney application, and confirm `assets/cj-journey-capabilities-v1.js` is genuinely loaded there, **before claiming UI is live**.
+- **Website deployment preflight:** the repository root `index.html` is a **1.43 MB HTML application**, not empty. The GitHub file-content connector returned an empty string for this oversized file; a full Git blob fetch verified the HTML. It already references `assets/cj-journey-capabilities-v1.js?v=20261102-cardfix2` and contains `aiWorkspaceMarketingPanel`. Prior project setup identifies GitHub Pages from `main` / repository root (`https://createjourney.github.io/createjourney/`), with custom app domain `app.gocreatejourney.com`. Confirm current GitHub Pages settings, live URL, cache behavior, and asset fetching before claiming deployment; remote page response was not verified in this audit.
 - No Shopify/Meta/TikTok account action, API token configuration, paid spend, or automation activation has been performed.
 
 ## CI evidence / gate 1
@@ -25,7 +25,7 @@ Status: **PREPARATION ONLY / HOLD** | PR #30 | 2026-11-10 (America/Los_Angeles)
 
 ### Phase A — release candidate validation (no production writes)
 1. Confirm latest full PR diff, CI jobs green on exact commit, and production schema/roles unchanged.
-2. Locate the real CreateJourney website deployment origin and its build entrypoint. Do not use the empty repository root `index.html` as proof of the app deployment.
+2. Confirm GitHub Pages is still publishing `main` / repository root; use the full blob (not truncated contents API) to inspect the existing `index.html` and verify the already-referenced capabilities module and Marketing panel. Check real hosted URL and asset caching before UI release.
 3. Capture migration text hash/commit; confirm no duplicate `commit` statements and additive-only objects; verify potential table grants and `business_members.role` enum compatibility.
 4. Confirm an authenticated owner account/business that can perform controlled smoke testing without modifying customer-facing SmartBoards. Prefer a test business; **no test sales to actual buyers**.
 5. Prepare an app release asset/rollback reference and record the deployed Supabase Edge Function versions before mutation.
@@ -42,7 +42,7 @@ Status: **PREPARATION ONLY / HOLD** | PR #30 | 2026-11-10 (America/Los_Angeles)
 5. Observe deployment/error logs before releasing UI.
 
 ### Phase C — interface integration (requires hosting verification)
-1. Confirm the existing capability module is loaded from the *actual* website deployment and both updated scripts are deployed as static assets.
+1. Confirm GitHub Pages is serving the existing capability module plus the updated sidecar asset from the deployed commit and both scripts are reachable without 404 or caching errors.
 2. Open Marketing section as a signed-in owner: verify new readiness button, blocked state, masked integration statuses, and creation of a planning-only draft.
 3. Test a nonmember/employee, a manager, multi-business selection, mobile Safari and desktop Chromium.
 4. Confirm SmartBoard NFC, customer Journey/booking/pay/review and owner dashboard still operate normally.
@@ -63,7 +63,7 @@ Status: **PREPARATION ONLY / HOLD** | PR #30 | 2026-11-10 (America/Los_Angeles)
 ## Exact release GO conditions
 - [ ] Latest PR CI green (including browser and local auth E2E).
 - [ ] Final code review complete.
-- [ ] Real website hosting and asset routing discovered and validated.
+- [ ] GitHub Pages `main` / root source and full HTML inspected (done); **actual hosted URL, cache, and asset routing verified** (pending).
 - [ ] Production migration compatibility/rollback plan reviewed.
 - [ ] Authorized non-customer test business/account selected.
 - [ ] Explicit go decision for production deployment after the above checks.
