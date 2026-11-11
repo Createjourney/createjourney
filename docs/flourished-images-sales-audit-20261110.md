@@ -39,11 +39,14 @@ These groups are selected launch responsibilities, not the full future workforce
 4. **Permissioned jobs and receipts**: queue, idempotency, per-step provider response, approval policy, failure handling, opt-out suppression, daily spend cap, duplicate suppression. Block unsanctioned bulk DMs, fake rapport, unapproved follows/comments, or unsupported APIs.
 5. **End-to-end isolated tests**: checkout to Shopify order webhook to verified attributed sale; permissions, spend limits, opt-out, provider errors/retries, refunds, and kill switch. Only then consider live account authorization and paid spend.
 
-## First patch: scripts/sales-readiness.mjs
-- Pure decision-support function; does not connect to accounts, charge money, send messages, publish posts, or modify the database.
-- Fail-closed, even with all caller-provided flags marked true: untrusted client evidence cannot unblock launch.
+## PR #30 pre-merge review corrections (2026-11-10)
+- The readiness evaluator is a **Node-only** and read-only module; it does not connect accounts, send messages, deploy software, or modify data.
+- New readiness decision requires both verified registry statuses and an HMAC-signed, tenant/campaign-bound, unexpired receipt for **each** of seven independent checks. Unsigned flags and account labels are never launch evidence.
+- Status can reach `READY_FOR_AUTHORIZED_FINAL_REVIEW`, **not launch authorization**. The signing key must remain in a trusted server environment. A real server-side evidence issuer, authenticated endpoint, and authorization check do not exist yet and are blocking production rollout.
+- Test suite now contains 12 negative/positive cases. New `.github/workflows/sales-readiness.yml` attempts Node syntax and regression testing on pushes and PRs. CI result is still a separate merge gate.
+- `creative` agent mapping is **provisional** and must be remapped to actual Creative Production specialists before first launch. Registry status alone does not establish media-generation or publishing capability.
 - Run locally: `node --test scripts/sales-readiness.test.mjs`.
-- Next patch should implement an authenticated read-only API to supply real server-side registry/provider observations, followed by immutable verification receipts and the campaign settings UI.
+- Next patch: authenticated read-only API to gather server-side agent/provider observations, then real verification receipts and owner-scoped campaign settings. Never expose the signing key to the frontend.
 
 ## Deployment rule
 Do not merge or deploy until GitHub CI checks are inspected and the isolated authenticated E2E verification is feasible. No production changes are made by creating this branch.
