@@ -140,14 +140,31 @@ function open(){
  refresh();
 }
 function installButton(){
+ // The original Marketing control intentionally starts a Journey AI chat.
+ // Keep that workflow intact; provide a separate, direct Sales entry point.
+ const controls=document.querySelector(".cjx-controls");
+ if(controls&&!controls.querySelector("[data-cjs-launch]")){
+  const b=el("button",{type:"button","data-cjs-launch":"true",className:"cjx-control"},controls);
+  const icon=el("span",{className:"cjx-iconbox cjx-pink"},b);
+  icon.textContent="↗";
+  const content=el("span",{},b);
+  el("strong",{text:"AI Sales Command Center"},content);
+  el("span",{className:"cjx-copy",text:"Campaigns, agents & sales readiness"},content);
+  el("span",{className:"cjx-arrow",text:"›"},b);
+  b.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
+ }
+ // Retain access from the existing (advanced) Marketing workspace too.
  const host=document.getElementById("aiWorkspaceMarketingPanel");
- if(!host||host.querySelector("[data-cjs-open]"))return;
- const b=el("button",{type:"button","data-cjs-open":"true",text:"Autonomous Sales — Launch Readiness"},host);
- b.style.cssText="display:block;margin:16px 0;padding:12px 18px;border:0;border-radius:12px;background:#193e77;color:white;font-weight:700;cursor:pointer";
- b.onclick=open;
+ if(host&&!host.querySelector("[data-cjs-open]")){
+  const b=el("button",{type:"button","data-cjs-open":"true",text:"Autonomous Sales — Launch Readiness"},host);
+  b.style.cssText="display:block;margin:16px 0;padding:12px 18px;border:0;border-radius:12px;background:#193e77;color:white;font-weight:700;cursor:pointer";
+  b.onclick=open;
+ }
 }
 window.CJSalesCommandCenter=Object.freeze({open,request,refresh,close:()=>{if(root){root.remove();root=null}}});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installButton,{once:true});else installButton();
 window.addEventListener("cj:journey-context",installButton);
-let attempts=0;const timer=setInterval(()=>{installButton();if(++attempts>=20)clearInterval(timer)},1500);
+// The Command Center renders after login and can re-render during navigation.
+// Keep a low-cost check alive so the direct Sales tile survives those transitions.
+setInterval(()=>{if(!document.hidden)installButton()},3500);
 })();
