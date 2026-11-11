@@ -27,6 +27,8 @@ test('staging snapshot deterministically captures pages, controls and evidence',
   assert.equal(obj.verification_status,'UNVERIFIED');
   assert.match(obj.artifact_sha256,/^[0-9a-f]{64}$/);
   assert.ok(obj.counts.pages>=10);
+  assert.ok(obj.nodes.some(n=>n.node_key==='backend_operation:edge:journey-ai-chat'));
+  assert.ok(obj.nodes.some(n=>n.node_key==='backend_operation:rpc:cj_publish_claimed_board_journey'));
   assert.ok(obj.counts.source_controls>100);
   assert.equal(obj.counts.nodes,obj.nodes.length);
   assert.equal(obj.counts.edges,obj.edges.length);
