@@ -7,6 +7,8 @@
  */
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
 
 const projectId='pbiivpehdatvmyaxwixk';
 const keyRegex=/^[a-z0-9:_./-]{3,160}$/;
@@ -114,7 +116,7 @@ async function importStaging(filename){
   promoted:false,production_modified:false}));
 }
 
-if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
  const path=process.argv[2];
  if(!path){console.error('Usage: node platform-knowledge-import.mjs <staged-snapshot.json>');process.exit(2)}
  importStaging(path).catch(e=>{console.error(String(e.message||e));process.exitCode=1});
