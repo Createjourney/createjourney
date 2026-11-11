@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/journey-ai-agent-intelligence/**'
+      - 'supabase/functions/journey-ai-chat/index.ts'
       - 'tests/journey-ai-agent-intelligence.test.mjs'
       - '.github/workflows/agent-workforce-m3.yml'
   workflow_dispatch:
@@ -17,7 +18,7 @@ jobs:
         with:
           node-version: '22'
       - run: node --check supabase/functions/journey-ai-agent-intelligence/logic.mjs
-      - run: node --test tests/journey-ai-agent-intelligence.test.mjs
+      - run: node --test tests/journey-ai-agent-intelligence.test.mjs tests/journey-ai-agent-routing.test.mjs
       - name: Deny read-to-execute authority in agent intelligence service
         run: |
           node --input-type=module <<'NODE'
@@ -39,3 +40,4 @@ jobs:
         with:
           deno-version: v2.x
       - run: deno check supabase/functions/journey-ai-agent-intelligence/index.ts
+      - run: deno check supabase/functions/journey-ai-chat/index.ts
