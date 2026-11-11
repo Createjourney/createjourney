@@ -1,0 +1,24 @@
+name: Agent Activation Controller Production Smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/cj-agent-activation-controller/**'
+      - 'scripts/agent-activation-controller-production-smoke.mjs'
+      - '.github/workflows/agent-activation-controller-production-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  production-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/agent-activation-controller-production-smoke.mjs
+        env:
+          CJ_SUPABASE_URL: https://pbiivpehdatvmyaxwixk.supabase.co
+          CJ_SUPABASE_ANON_KEY: ${{ secrets.CJ_SUPABASE_ANON_KEY }}
+          CJ_TEST_ACCESS_TOKEN: ${{ secrets.CJ_TEST_ACCESS_TOKEN }}
