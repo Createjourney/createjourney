@@ -25,6 +25,7 @@ for(const [name,engine,device] of browsers){
         app_context:typeof window.CJJourneyCapabilities?.context==='function'?window.CJJourneyCapabilities.context():null,
         advertised_capabilities:Array.isArray(window.CJJourneyCapabilities?.catalog)?window.CJJourneyCapabilities.catalog:null,
         runtime:{capability_registry:!!window.CJJourneyCapabilities,home_router:typeof window.CJExactHome?.routeHomeAction==='function',sales_center:typeof window.CJSalesCommandCenter?.open==='function'},
+        surfaces:[...document.querySelectorAll('section[id], [role="dialog"], [id$="App"], [id$="Panel"]')].map(el=>({id:el.id||null,role:el.getAttribute('role')||null,visible:!!el.getClientRects().length})).filter((x,i,a)=>x.id&&a.findIndex(y=>y.id===x.id)===i),
         controls:all.map((el,i)=>{
           const visible=!!(el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
           const attrs={id:el.id||null,tag:el.tagName.toLowerCase(),role:el.getAttribute('role')||null,
@@ -50,6 +51,6 @@ for(const [name,engine,device] of browsers){
 writeFileSync(join(outdir,'anonymous-browser-inventory.json'),JSON.stringify(report,null,2)+'\n');
 for(const r of report.results){
  const displayed=r.controls.filter(x=>x.visible);
- console.log(JSON.stringify({browser:r.browser,path:r.path,http_status:r.status,detected:r.controls.length,visible:displayed.length,errors:r.errors.length,runtime:r.runtime}));
+ console.log(JSON.stringify({browser:r.browser,path:r.path,http_status:r.status,detected:r.controls.length,visible:displayed.length,surfaces:r.surfaces?.length||0,errors:r.errors.map(x=>String(x).slice(0,160)),runtime:r.runtime}));
 }
 console.log('Evidence classification: IMPLEMENTED_UNVERIFIED; authenticated controls and real-device Safari not verified');
