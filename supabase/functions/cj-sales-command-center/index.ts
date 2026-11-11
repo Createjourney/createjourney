@@ -13,7 +13,7 @@ const groups=[
 ];
 const allIds=[...new Set(groups.flatMap(g=>g.agents))];
 const nullableText=(x:unknown,n:number)=>typeof x==="string"?x.trim().slice(0,n):"";
-const int=(x:unknown,min:number,max:number)=>Number.isInteger(x)&&Number(x)>=min&&Number(x)<=max?x:null;
+const int=(x:unknown,min:number,max:number):number|null=>typeof x==="number"&&Number.isInteger(x)&&x>=min&&x<=max?x:null;
 const errMsg=(e:unknown)=>e instanceof Error?e.message:"Backend request failed";
 function validate(raw:Record<string,unknown>,existing:Record<string,unknown>={}){
  const value=(k:string)=>raw[k]===undefined?existing[k]:raw[k];
