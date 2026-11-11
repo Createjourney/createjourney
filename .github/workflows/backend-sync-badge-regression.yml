@@ -27,6 +27,6 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save @playwright/test
-      - run: npx playwright install chromium webkit
+      - run: npx playwright install chromium
       - run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-badge-browser.log 2>&1 &
       - run: node tests/backend-sync-badge-browser.mjs
