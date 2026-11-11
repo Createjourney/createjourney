@@ -17,7 +17,7 @@ test('realistic 607-agent registry never equates registration with execution',()
  assert.equal(result.business_job_count,1);
  assert.ok(result.interpretation.includes('not proof'));
  assert.equal(publicAgent(agents[332]).readiness,'TESTING_UNVERIFIED');
- assert.equal(publicAgent(agents[331]).readiness,'NOT_IMPLEMENTED');
+ assert.equal(publicAgent(agents[331]).readiness,'PLANNED_UNVERIFIED');
 });
 test('agent #333 testing permit is not external execution proof',()=>{
  const a=agents[332];
