@@ -19,7 +19,7 @@ Status: **READ-ONLY AUDIT IN PROGRESS**. This report is an evidence ledger, **no
 7. `docs/journey-ai-repair-tracker.md` documents prior repair/rollback gates and the outstanding authenticated owner/runtime verification.
 
 ## Inspected live Supabase
-- 24 Edge Functions report `ACTIVE`. This confirms deployment metadata, not successful operation.
+- 25 Edge Functions report `ACTIVE`. This confirms deployment metadata, not successful operation.
 - Existing public tables include `businesses`, `business_members`, `boards`, `board_registry`, `journeys`, `journey_steps`, `connected_accounts`, `journey_ai_tasks`, `journey_ai_task_events`, `audit_log`, `cj_agent_registry`, `cj_agent_jobs`, `cj_agent_job_events`, and `cj_agent_tool_permissions`.
 - Agent registry: **607** rows: **604 PLANNED**, **3 TESTING** (#2, #333, #336), **0 VERIFIED** and **0 DEPLOYED**.
 - Agent jobs: **1 FAILED** job for agent #333, error `AI provider returned no text`. No successful registered-agent job was demonstrated.
