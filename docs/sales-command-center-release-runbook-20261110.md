@@ -69,3 +69,12 @@ Status: **PREPARATION ONLY / HOLD** | PR #30 | 2026-11-10 (America/Los_Angeles)
 - [ ] Explicit go decision for production deployment after the above checks.
 
 **Status at authoring:** NOT DEPLOYED; no production migration, no merge and no provider accounts connected.
+
+
+## Hosted verification and smoke-test organization selection (2026-11-10 23:49 PST)
+- **PASS** GitHub Actions hosted preflight run `42982320259`. From a GitHub-hosted runner, `https://app.gocreatejourney.com/` and `https://createjourney.github.io/createjourney/` returned the existing app shell, and `https://app.gocreatejourney.com/assets/cj-journey-capabilities-v1.js` served the expected capability module. The repository `CNAME` is `app.gocreatejourney.com`.
+- This verifies public HTTP reachability and deployment routing for the *existing* app. It does not prove logged-in functionality, SmartBoard tap behavior, or the unpublished Sales Center asset.
+- **Preferred existing smoke-test candidate:** `CreateJourney Platform` (one active owner, **0 boards**, **Google integration status: error**); its absence of customer SmartBoards makes it less risky than the separate `CreateJourney` business which has **1 active board**. Both are tagged `data_environment=production`, and the two owner memberships belong to different user accounts. Do not treat the candidate as an isolated sandbox.
+- **Critical authorization gate:** Confirm the operator can sign in as the actual owner of `CreateJourney Platform`; do not impersonate, bypass authentication, or use service-role SQL to manufacture ownership. Use this account only for non-customer-facing draft creation/overview and pause, after rollout approval. Never mutate its existing integrations or the business with the active board during smoke tests.
+- **Postdeployment exact sequence:** unauthenticated request rejection; sign in as the candidate business owner; read-only overview; create a clearly named CI/smoke draft with `https://example.com` only if appropriate; check totals/labels; pause or retain draft for audit; verify the customer SmartBoard under the *other* business remains unchanged using its existing public tap URL (without publishing anything).
+- **Go/no-go status:** hosted preflight PASS; smoke-test *candidate* SELECTED; authenticated owner-session availability NOT CONFIRMED; no live database write or rollout has been performed.
