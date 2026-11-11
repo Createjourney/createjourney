@@ -1,5 +1,10 @@
 name: Journey AI Workforce Production Release Smoke
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/agent-workforce-production-smoke.yml'
+      - 'supabase/functions/journey-ai-chat/**'
   pull_request:
     paths:
       - 'scripts/agent-workforce-production-smoke.mjs'
