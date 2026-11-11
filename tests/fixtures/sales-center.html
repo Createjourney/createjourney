@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Sales Command Center CI</title></head>
+<body>
+<div id="aiWorkspaceMarketingPanel"><h2>Marketing panel</h2></div>
+<script>
+window.SUPABASE_URL="http://127.0.0.1:54321";
+window.SUPABASE_PUBLISHABLE_KEY="test-publishable-key";
+window.sb={auth:{getSession:async()=>({data:{session:{access_token:"isolated-ci-token"}}})}};
+window.__cjRequests=[];
+window.fetch=async(url,init)=>{
+ const request=JSON.parse(init.body||"{}");
+ window.__cjRequests.push(request);
+ const overview={mode:"READ_ONLY",business_id:"ci-business",agent_capabilities:[
+  {key:"strategy",agents:[{agent_no:519,status:"PLANNED"}],external_execution_verified:false}
+ ],integrations:[{provider:"meta",connection_status:"connected",operational_verified:false}],
+ campaigns:[],execution_results:[],readiness:{status:"BLOCKED",launch_authorized:false,
+  blockers:["shopify_order_webhook_verified","platform_permissions_verified"]}};
+ let response=overview,status=200;
+ if(request.action==="create"){
+  response={launch_authorized:false,campaign:{id:"ci-campaign",status:"draft",...request.campaign}};status=201;
+ }
+ return {ok:status<400,status,json:async()=>response};
+};
+</script>
+<script src="../../assets/cj-sales-center-v1.js"></script>
+</body></html>
