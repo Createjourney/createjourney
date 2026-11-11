@@ -86,3 +86,46 @@ test('Journey AI chat offers authorized read-only workforce context and suppress
  assert.deepEqual(route('How many agents are in the registry?'),[]);
  assert.deepEqual(route('Investigate SmartBoard conversion with agents #333 and #336'),[333,336]);
 });
+
+test('Journey AI workforce bridge sends scoped read-only requests and never fabricates results',async()=>{
+ const source=readFileSync('supabase/functions/journey-ai-chat/index.ts','utf8');
+ const begin=source.indexOf('async function authorizedWorkforceRead('),end=source.indexOf('Deno.serve(async',begin);
+ assert.ok(begin>=0&&end>begin);
+ const code=source.slice(begin,end)
+  .replace('url:string,anon:string,bearer:string,prompt:string,context:any','url,anon,bearer,prompt,context')
+  .replace('const fields:any=','const fields=')
+  .replace(/\((\w+):any\)=>/g,'($1)=>');
+ const calls=[];
+ const sandbox={fetch:async(url,options)=>{
+  calls.push({url,options});
+  return {ok:true,json:async()=>({execution_performed:false,summary:{registered_agents:607,
+   by_lifecycle_status:{PLANNED:604,TESTING:3},business_job_count:1},departments_registered:75,
+   dependencies_recorded:0,dependencies_status:'MISSING',
+   entries:[],total:607,applied_filters:{},next_offset:40})};
+ },AbortSignal,JSON,Math,Number};
+ vm.runInNewContext(code,sandbox);
+ const invoke=sandbox.authorizedWorkforceRead;
+ const u='https://safe-project.supabase.co',token='Bearer owner-session',id='11111111-1111-4111-8111-111111111111';
+ const overview=await invoke(u,'public-key',token,'How many agents are registered?',{business_id:id});
+ assert.equal(overview.status,'READ_ONLY_LIVE');
+ assert.match(overview.message,/607/);
+ const first=JSON.parse(calls[0].options.body);
+ assert.equal(first.business_id,id);
+ assert.equal(first.action,'overview');
+ assert.equal(calls[0].options.headers.Authorization,token);
+ const detail=await invoke(u,'public-key',token,'What is agent #333 status?',{business_id:id});
+ assert.equal(JSON.parse(calls[1].options.body).action,'agent_detail');
+ assert.equal(JSON.parse(calls[1].options.body).agent_no,333);
+ const roster=await invoke(u,'public-key',token,'List testing marketing agents page 2',{business_id:id});
+ assert.equal(roster.status,'READ_ONLY_LIVE');
+ const requested=JSON.parse(calls[2].options.body);
+ assert.deepEqual({action:requested.action,limit:requested.limit,offset:requested.offset,status:requested.status,
+  search:requested.search},{action:'roster',limit:40,offset:40,status:'TESTING',search:'marketing'});
+ const noBusiness=await invoke(u,'public-key',token,'Which agents are active?',{});
+ assert.equal(noBusiness.status,'BUSINESS_SELECTION_REQUIRED');
+ assert.equal(calls.length,3);
+ sandbox.fetch=async()=>({ok:false,status:403});
+ const denied=await invoke(u,'public-key',token,'How many agents?',{business_id:id});
+ assert.equal(denied.status,'UNAVAILABLE');
+ assert.match(denied.message,/authorization was denied/i);
+});
