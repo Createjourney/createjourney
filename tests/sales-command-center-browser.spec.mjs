@@ -35,3 +35,17 @@ test('draft campaign creation cannot authorize external spending',async({page})=
  expect(created.campaign.daily_research_target).toBe(120);
  expect(created.campaign.delivery_guaranteed).toBeUndefined();
 });
+
+test('actual CreateJourney application bootstrap loads Sales Command Center sidecar',async({page})=>{
+ const consoleErrors=[];
+ page.on('pageerror',e=>consoleErrors.push(e.message));
+ await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+ await expect(page).toHaveTitle(/CreateJourney/i);
+ await page.waitForFunction(()=>
+  typeof window.CJJourneyCapabilities?.fetchAuthorizedContext==='function' &&
+  typeof window.CJSalesCommandCenter?.open==='function',{timeout:25000});
+ await expect(page.locator('#aiWorkspaceMarketingPanel')).toHaveCount(1);
+ // Existing application may request external APIs unavailable in CI. The
+ // contract tested here is module bootstrapping from the real index.html.
+ expect(await page.evaluate(()=>typeof window.CJSalesCommandCenter.open)).toBe('function');
+});
