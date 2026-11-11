@@ -50,8 +50,14 @@ jobs:
       - run: node --check scripts/platform-intelligence-browser-inventory.mjs
       - run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-intelligence-server.log 2>&1 &
       - run: node scripts/platform-intelligence-browser-inventory.mjs
+      - name: Inspect currently hosted anonymous app (read-only)
+        continue-on-error: true
+        env:
+          CJ_AUDIT_BASE_URL: https://app.gocreatejourney.com
+          CJ_AUDIT_OUT_DIR: artifacts/platform-intelligence/hosted
+        run: node scripts/platform-intelligence-browser-inventory.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: platform-intelligence-anonymous-browser-inventory
-          path: artifacts/platform-intelligence/anonymous-browser-inventory.json
+          path: artifacts/platform-intelligence/**/anonymous-browser-inventory.json
           retention-days: 14
