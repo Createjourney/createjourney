@@ -42,17 +42,18 @@ Deno.serve(async(req:Request)=>{
 
   if(action==="overview"||action==="departments"||action==="tool_capabilities"){
    const reads=await Promise.all([
-    db.from("cj_agent_registry").select(AGENT_FIELDS).order("agent_no",{ascending:true}).limit(1000),
+    db.from("cj_agent_registry").select(AGENT_FIELDS,{count:"exact"}).order("agent_no",{ascending:true}).limit(1000),
     db.from("cj_agent_departments").select("department_no,department_name,phase").order("department_no").limit(150),
     db.from("cj_agent_jobs").select("id",{count:"exact",head:true}).eq("business_id",businessId),
     db.from("cj_agent_dependencies").select("agent_no",{count:"exact",head:true})
    ]);
    if(reads.some(r=>r.error))return fail("workforce_inventory_unavailable");
    const agents=reads[0].data||[],departments=reads[1].data||[];
+   if(reads[0].count!==agents.length)return fail("registry_exceeds_supported_limit");
    const stats=summarize(agents,reads[2].count||0);
    const shared={...base,summary:stats,departments_registered:departments.length,
     dependencies_recorded:reads[3].count||0,dependencies_status:(reads[3].count||0)>0?"RECORDED":"MISSING",
-    registry_is_currently_operational:false};
+    fleet_execution_verification:"UNVERIFIED"};
    if(action==="overview")return respond(shared);
    if(action==="departments"){
     const counts=new Map<number,{total:number,by_status:Record<string,number>}>();
@@ -89,7 +90,7 @@ Deno.serve(async(req:Request)=>{
   }
   if(action==="agent_detail"){
    let agentNo:number;
-   try{agentNo=integerInRange(input.agent_no,1,100000,1)}catch{return fail("invalid_agent_number",400)}
+   try{agentNo=integerInRange(input.agent_no,1,100000,-1)}catch{return fail("invalid_agent_number",400)}
    const agent=await db.from("cj_agent_registry").select(AGENT_FIELDS).eq("agent_no",agentNo).maybeSingle();
    if(agent.error)return fail("agent_lookup_failed");
    if(!agent.data)return fail("agent_not_found",404);
@@ -120,11 +121,17 @@ Deno.serve(async(req:Request)=>{
     if(res.error)return fail("dependency_lookup_failed");
     requiredStatuses=res.data||[];
    }
+   let supervisor=null;
+   if(agent.data.supervisor_agent_no!==null){
+    const res=await db.from("cj_agent_registry").select("agent_no,agent_name,status").eq("agent_no",agent.data.supervisor_agent_no).maybeSingle();
+    if(res.error)return fail("supervisor_lookup_failed");
+    supervisor=res.data||null;
+   }
    const evald=classifyAgent(agent.data,perms,jobs,events);
    return respond({...base,agent:{...evald,responsibility:agent.data.responsibility,version:agent.data.version},
     dependency_status:dependencies.length?"RECORDED":"NOT_RECORDED",
     prerequisites:dependencies.map(d=>({...d,required_agent:requiredStatuses.find(a=>a.agent_no===d.requires_agent_no)||null})),
-    dependents,supervisor_agent_no:agent.data.supervisor_agent_no,
+    dependents,supervisor_agent_no:agent.data.supervisor_agent_no,supervisor,
     tool_permissions:perms.map(p=>({agent_no:p.agent_no,tool_key:p.tool_key,granted:p.granted,
      approval_required:p.approval_required,execution_mode:p.permission_scope?.execution_mode||"UNKNOWN",
      invocation_verified:false})),
