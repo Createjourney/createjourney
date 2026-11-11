@@ -25,7 +25,7 @@ async function verifyHmac(secret:string,message:string,signature:string,encoding
   if(sig.length!==32)return false;
  }
  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),{name:"HMAC",hash:"SHA-256"},false,["verify"]);
- return crypto.subtle.verify("HMAC",key,sig,new TextEncoder().encode(message));
+ return crypto.subtle.verify("HMAC",key,new Uint8Array(sig).buffer,new TextEncoder().encode(message));
 }
 async function cryptKey(){
  const secret=env("INTEGRATION_TOKEN_ENCRYPTION_KEY");
