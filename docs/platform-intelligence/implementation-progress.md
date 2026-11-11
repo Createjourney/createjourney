@@ -21,10 +21,13 @@ Approved by CreateJourney owner on **2026-11-11**. This is the controlling check
 - [x] Audit baseline committed with evidence, limits and unresolved issues.
 - [x] Static source-control scanner added. Its output uses `IMPLEMENTED_UNVERIFIED`, not `VERIFIED_OPERATIONAL`.
 - [x] Node smoke tests and a CI artifact workflow committed.
-- [ ] CI run passed and audit artifact inspected.
-- [ ] Reconcile static results with authenticated browser discovery.
-- [ ] Finish SQL and Edge Function authorization review.
-- [ ] Finish deployed build provenance checks and full repo inventory.
+- [x] Static source and anonymous Chromium/WebKit CI checks passed; attached JSON artifacts. **One runtime error found, not an operational pass.**
+- [ ] Reconcile 695 source candidates with 553 anonymous DOM controls, 65 surfaces, and authenticated browser views.
+- [x] Inventory all 49 public tables, 31 function signatures and 25 deployed Edge Function source relationships.
+- [ ] Finish per-operation SQL/Edge Function authorization negative tests.
+- [x] Pin full 57-file repository manifest and compare local vs hosted anonymous DOM counts.
+- [ ] Finish deployed source provenance checks and authenticated browser coverage.
+- [ ] Investigate confirmed hosted `esc is not defined` exception at index.html:7086.
 
 ## Critical design decisions
 1. Resolve target workspace/business explicitly; do not let an ambiguous earliest-workspace selector silently choose which business is modified.
