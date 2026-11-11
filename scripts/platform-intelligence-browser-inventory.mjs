@@ -13,7 +13,7 @@ for(const [name,engine,device] of browsers){
   const context=await browser.newContext(device);
   for(const path of targets){
    const page=await context.newPage();
-   const errors=[];page.on('pageerror',e=>errors.push(String(e.message).slice(0,300)));
+   const errors=[];page.on('pageerror',e=>errors.push(String(e.stack||e.message).slice(0,550)));
    let result={browser:name,path,status:'UNKNOWN',controls:[],errors};
    try{
     const nav=await page.goto(origin+path,{waitUntil:'domcontentloaded',timeout:30000});
@@ -35,7 +35,11 @@ for(const [name,engine,device] of browsers){
             destination:(()=>{const h=el.getAttribute('href');if(!h)return null;try{const u=new URL(h,location.origin);return u.origin===location.origin?u.pathname:u.origin+u.pathname}catch{return null}})(),
             disabled:!!el.disabled,
             visible,
-            index:i};
+            index:i,
+            section_id:el.closest('section[id], [role="dialog"], [id$="Panel"], [id$="App"]')?.id||null,
+            selector:el.id?'#'+el.id:null,
+            action_type:el.matches('a[href]')?'link_navigation':el.matches('input,select,textarea')?'form_control':el.matches('[role="tab"]')?'tab':el.matches('[role="switch"], [role="checkbox"]')?'toggle':'button_or_action',
+            verification_status:'IMPLEMENTED_UNVERIFIED'};
           return attrs;
         })
       };
@@ -51,6 +55,6 @@ for(const [name,engine,device] of browsers){
 writeFileSync(join(outdir,'anonymous-browser-inventory.json'),JSON.stringify(report,null,2)+'\n');
 for(const r of report.results){
  const displayed=r.controls.filter(x=>x.visible);
- console.log(JSON.stringify({browser:r.browser,path:r.path,http_status:r.status,detected:r.controls.length,visible:displayed.length,surfaces:r.surfaces?.length||0,errors:r.errors.map(x=>String(x).slice(0,160)),runtime:r.runtime}));
+ console.log(JSON.stringify({browser:r.browser,path:r.path,http_status:r.status,detected:r.controls.length,visible:displayed.length,surfaces:r.surfaces?.length||0,errors:r.errors.map(x=>String(x).slice(0,350)),runtime:r.runtime}));
 }
 console.log('Evidence classification: IMPLEMENTED_UNVERIFIED; authenticated controls and real-device Safari not verified');
