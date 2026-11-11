@@ -78,8 +78,9 @@ test('iPhone-width real homepage Sales button receives a real pointer click',asy
  await page.setViewportSize({width:390,height:844});
  await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>typeof window.CJSalesCommandCenter?.open==='function'&&typeof window.CJExactHome?.showCommandCenter==='function',{timeout:25000});
+ await page.evaluate(()=>window.CJExactHome.showCommandCenter());
+ await page.waitForSelector('#cjScreenshotHome .cjx-controls [data-cjs-launch]',{state:'attached',timeout:13000});
  await page.evaluate(()=>{
-   window.CJExactHome.showCommandCenter();
    const tile=document.querySelector('#cjScreenshotHome .cjx-controls [data-cjs-launch]');
    if(!tile)throw Error('Sales tile not installed');
    // No CI login exists. Reveal ancestors only to enable native user pointer events.
