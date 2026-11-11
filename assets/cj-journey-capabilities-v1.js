@@ -284,8 +284,8 @@ window.CJSmartBoardOwnerPage={
  // Resolve relative to this already-loaded asset, not the app's current route.
  const script=document.currentScript;
  loader.src=script&&script.src
-  ?new URL("./cj-sales-center-v1.js",script.src).href
-  :new URL("/assets/cj-sales-center-v1.js",location.origin).href;
+  ?new URL("./cj-sales-center-v1.js?v=20261111-navigation-fix",script.src).href
+  :new URL("/assets/cj-sales-center-v1.js?v=20261111-navigation-fix",location.origin).href;
  loader.defer=true;
  loader.onerror=function(){console.warn("Sales Command Center asset unavailable; existing CreateJourney unaffected.")};
  document.head.appendChild(loader);
