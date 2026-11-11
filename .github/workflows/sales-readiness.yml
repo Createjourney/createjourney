@@ -1,0 +1,127 @@
+name: Sales Readiness Unit + Local Supabase Tests
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/cj-sales-command-center/**'
+      - 'supabase/migrations/**'
+      - 'tests/sales-command-center-local.sql'
+      - 'tests/sales-command-center-fixture.sql'
+      - 'tests/sales-command-center-local-e2e.mjs'
+      - 'tests/sales-command-center-browser.spec.mjs'
+      - 'tests/fixtures/sales-center.html'
+      - 'assets/cj-sales-center-v1.js'
+      - 'assets/cj-journey-capabilities-v1.js'
+      - 'scripts/sales-readiness.mjs'
+      - 'scripts/sales-readiness.test.mjs'
+      - '.github/workflows/sales-readiness.yml'
+  push:
+    paths:
+      - 'supabase/functions/cj-sales-command-center/**'
+      - 'supabase/migrations/**'
+      - 'tests/sales-command-center-local.sql'
+      - 'assets/cj-sales-center-v1.js'
+      - 'assets/cj-journey-capabilities-v1.js'
+      - 'scripts/sales-readiness.mjs'
+      - 'scripts/sales-readiness.test.mjs'
+      - '.github/workflows/sales-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  code-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/sales-readiness.mjs
+      - run: node --check scripts/sales-readiness.test.mjs
+      - run: node --check tests/sales-command-center-local-e2e.mjs
+      - run: node --test scripts/sales-readiness.test.mjs
+      - run: node --check assets/cj-sales-center-v1.js
+      - run: node --check assets/cj-journey-capabilities-v1.js
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/cj-sales-command-center/index.ts
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install --with-deps chromium
+      - name: Test Sales Command Center in Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-sales-http.log 2>&1 &
+          npx playwright test tests/sales-command-center-browser.spec.mjs --reporter=line
+  local-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3
+        with:
+          version: '3.1.0'
+      - name: Prepare minimal isolated campaign schema fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cj-sales-sandbox"
+          cd "$RUNNER_TEMP/cj-sales-sandbox"
+          supabase init --yes
+          mkdir -p supabase/migrations
+          # Historical migrations in this repository do not include initial production
+          # schema creation. This suite tests only the new additive campaign migration.
+          # The minimal fixture is deliberately NOT a production schema substitute.
+          cp "$GITHUB_WORKSPACE/tests/sales-command-center-fixture.sql" supabase/migrations/20261109000000_sales_fixture.sql
+          cp "$GITHUB_WORKSPACE/supabase/migrations/20261110_sales_campaign_command_center.sql" supabase/migrations/20261110000000_sales_campaign_command_center.sql
+          mkdir -p supabase/functions/cj-sales-command-center
+          cp "$GITHUB_WORKSPACE/supabase/functions/cj-sales-command-center/index.ts" supabase/functions/cj-sales-command-center/index.ts
+      - name: Start isolated Supabase and apply campaign migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/cj-sales-sandbox"
+          supabase start
+      - name: Check campaign schema, grants, and RLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_CONTAINER="$(docker ps --format '{{.Names}}' | grep '^supabase_db_' | head -n1)"
+          if [ -z "$DB_CONTAINER" ]; then
+            echo 'Local Supabase Postgres container not found' >&2
+            exit 1
+          fi
+          docker exec -i "$DB_CONTAINER" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres < tests/sales-command-center-local.sql
+      - name: Authenticated local E2E (owner, manager, tenant isolation)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/cj-sales-sandbox"
+          supabase functions serve cj-sales-command-center --no-verify-jwt > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
+          EDGE_PID=$!
+          trap 'kill "$EDGE_PID" 2>/dev/null || true' EXIT
+          STATUS="$(supabase status --output json)"
+          export CJ_LOCAL_API_URL="$(printf '%s' "$STATUS" | jq -r '.API_URL')"
+          export CJ_LOCAL_ANON_KEY="$(printf '%s' "$STATUS" | jq -r '.ANON_KEY')"
+          export CJ_LOCAL_SERVICE_KEY="$(printf '%s' "$STATUS" | jq -r '.SERVICE_ROLE_KEY')"
+          node "$GITHUB_WORKSPACE/tests/sales-command-center-local-e2e.mjs" || {
+            echo 'Local Edge Function diagnostic (no credentials):'
+            tail -n 45 "$RUNNER_TEMP/cj-sales-edge.log" || true
+            exit 1
+          }
+      - name: Stop isolated Supabase stack
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/cj-sales-sandbox/supabase/config.toml" ]; then
+            cd "$RUNNER_TEMP/cj-sales-sandbox"
+            supabase stop --no-backup || true
+          fi
