@@ -60,7 +60,7 @@ test("owner explicitly confirms brand setup and draft-only AI costs before comma
  assert.equal(flourishedMarketingCommand("Generate a Flourished Images campaign draft. I approve AI analysis costs. Draft only."),"draft_campaign");
  assert.equal(FLOURISHED_PROVISIONAL_BRIEF.product_listing_verified,false);
  assert.equal(FLOURISHED_PROVISIONAL_BRIEF.shipping_capacity_verified,false);
- assert.match(summarizeMarketingAction({status:"DRAFT_WORKSPACE_CREATED"},"setup_brand"),/Nothing was published/i);
+ assert.match(summarizeMarketingAction({status:"DRAFT_WORKSPACE_CREATED"},"setup_brand"),/No marketing content was published/i);
  assert.match(summarizeMarketingAction({status:"DRAFT_SUCCEEDED",run_id:"sample",external_actions_performed:false,
   campaign_draft:{audience:"a",strategy_and_copy:"b",execution_plan:"c",independent_qa:"d"}},"draft_campaign"),/Job receipt: sample/);
 });
