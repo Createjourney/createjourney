@@ -7,6 +7,8 @@ on:
       - 'tests/sales-command-center-local.sql'
       - 'tests/sales-command-center-fixture.sql'
       - 'tests/sales-command-center-local-e2e.mjs'
+      - 'tests/sales-command-center-browser.spec.mjs'
+      - 'tests/fixtures/sales-center.html'
       - 'assets/cj-sales-center-v1.js'
       - 'assets/cj-journey-capabilities-v1.js'
       - 'scripts/sales-readiness.mjs'
@@ -43,6 +45,22 @@ jobs:
         with:
           deno-version: v2.x
       - run: deno check supabase/functions/cj-sales-command-center/index.ts
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install --with-deps chromium
+      - name: Test Sales Command Center in Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-sales-http.log 2>&1 &
+          npx playwright test tests/sales-command-center-browser.spec.mjs --reporter=line
   local-supabase:
     runs-on: ubuntu-latest
     timeout-minutes: 25
