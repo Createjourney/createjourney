@@ -93,6 +93,10 @@ type RegistryPilotResult={
 };
 // Only these three TESTING agents are in the analysis-only pilot.
 function pilotAgentsForRequest(prompt:string):number[]{
+  // A status/catalog question is read-only. Do not launch an analysis job to answer it.
+  if(/\b(status|registry|listed|permissions|capabilities|how many agents|what does agent)\b/i.test(prompt)&&
+     !/\b(run|execute|investigate|analy[sz]e|test|use|verify)\b/i.test(prompt))return [];
+
   const explicit=[...prompt.matchAll(/(?:\bagent\s*(?:#|no\.?|number)?\s*|#)(2|333|336)\b/gi)]
     .map(match=>Number(match[1]));
   if(/\bsmartboard interaction optimization agent\b/i.test(prompt))explicit.push(333);
@@ -176,6 +180,44 @@ async function openAIText(key:string,model:string,instructions:string,input:unkn
   return out.trim();
 }
 
+async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prompt:string,context:any){
+ const requested=/\b(agents?|agent\s*registry|workforce|agent\s*capabilities|agent\s*permissions|departments?)\b/i.test(prompt);
+ if(!requested)return {status:"NOT_REQUESTED",message:""};
+ const b=context&&typeof context==="object"&&typeof context.business_id==="string"?context.business_id:"";
+ if(!b)return {status:"BUSINESS_SELECTION_REQUIRED",message:"An explicitly selected authorized business is required for live agent workforce intelligence."};
+ const specific=prompt.match(/\bagent\s*(?:#|no\.?|number\s*)?\s*(\d{1,4})\b/i);
+ const action=specific?"agent_detail":"overview";
+ try{
+  const response=await fetch(url+"/functions/v1/journey-ai-agent-intelligence",{
+   method:"POST",
+   headers:{"Content-Type":"application/json","Authorization":bearer,"apikey":anon},
+   body:JSON.stringify({action,business_id:b,...(specific?{agent_no:Number(specific[1])}:{})}),
+   signal:AbortSignal.timeout(9000)
+  });
+  if(!response.ok)return {status:"UNAVAILABLE",message:"Live workforce intelligence is not available or authorization was denied. Do not invent agent statuses."};
+  const result=await response.json();
+  if(result?.error||result?.execution_performed!==false)return {status:"UNAVAILABLE",message:"Agent workforce evidence cannot be verified."};
+  if(action==="overview"){
+   const data=result.summary||{};
+   const summary={registered_agents:data.registered_agents,by_lifecycle_status:data.by_lifecycle_status,
+    departments_registered:result.departments_registered,dependencies_recorded:result.dependencies_recorded,
+    dependencies_status:result.dependencies_status,business_job_count:data.business_job_count,
+    interpretation:data.interpretation,execution_proof:data.execution_proof};
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify(summary).slice(0,3000)};
+  }
+  const detail=result.agent||{};
+  const summary={agent_no:detail.agent_no,agent_name:detail.agent_name,
+   lifecycle_status:detail.lifecycle_status,readiness:detail.readiness,
+   business_execution_evidence:detail.business_execution_evidence,
+   independently_verified_external_operation:detail.independently_verified_external_operation,
+   analysis_permission_granted:detail.analysis_permission_granted,
+   last_business_job_status:detail.last_business_job_status,
+   supervisor:result.supervisor?.agent_name||null,prerequisite_count:result.prerequisites?.length??0,
+   tool_permissions:result.tool_permissions?.map((t:any)=>({tool_key:t.tool_key,granted:t.granted,execution_mode:t.execution_mode})).slice(0,8)};
+  return {status:"READ_ONLY_LIVE",message:JSON.stringify(summary).slice(0,3000)};
+ }catch(_){return {status:"UNAVAILABLE",message:"Live workforce intelligence is unavailable. Do not infer deployed capabilities from names."}}
+}
+
 Deno.serve(async(req:Request)=>{
   if(req.method==="OPTIONS")return new Response("ok",{headers:cors});
   if(req.method!=="POST")return json({error:"Method not allowed"},405);
@@ -230,6 +272,7 @@ Deno.serve(async(req:Request)=>{
       }
     }));
 
+    const workforce=await authorizedWorkforceRead(url,anon,auth,prompt,body?.context||{});
     const completed=specialistRuns.filter(x=>x.status==="completed");
     const registeredRuns=await registeredPromise;
     const personaBriefings=completed.map(x=>`### ${x.name}\n${x.summary}`).join("\n\n");
@@ -309,7 +352,7 @@ AUTHORIZED CONTEXT
 ${context}`
 
     const registeredReceipts=registeredRuns.map(x=>`Agent #${x.agent_no}: ${x.status}; job_id=${x.job_id||"NONE"}; reason=${x.reason||"NONE"}; analysis_only=${x.execution_type==="analysis_only"}`).join("\n");
-    const finalInput=`OWNER REQUEST\n${prompt}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nREGISTERED AGENT EXECUTION RECEIPTS (authoritative runtime status; analysis is not an external action)\n${registeredReceipts||"No registered agent requested."}\n\nSPECIALIST BRIEFINGS\n${briefings||"No specialist briefing completed. Answer from authorized context only."}`;
+    const finalInput=`OWNER REQUEST\n${prompt}\n\nAUTHORIZED WORKFORCE INTELLIGENCE (read-only; never substitute registry counts for execution receipts)\n${workforce.status}: ${workforce.message||"No workforce lookup requested."}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nREGISTERED AGENT EXECUTION RECEIPTS (authoritative runtime status; analysis is not an external action)\n${registeredReceipts||"No registered agent requested."}\n\nSPECIALIST BRIEFINGS\n${briefings||"No specialist briefing completed. Answer from authorized context only."}`;
     const content:any[]=[{type:"input_text",text:finalInput}];
     for(const a of attachments){
       if(a.kind==="image"&&a.data_url){
@@ -340,6 +383,7 @@ ${context}`
     const reply=await openAIText(key,model,finalInstructions,responseInput,responseDepth==="SIMPLE"?650:responseDepth==="STRATEGY"?1350:2800);
 
     return json({
+      agent_workforce_status:workforce.status,
       registered_agent_jobs:registeredRuns.map(x=>({agent_no:x.agent_no,job_id:x.job_id,status:x.status,reason:x.reason||null,execution_type:x.execution_type,verification_status:x.verification_status})),
       reply,
       model,
