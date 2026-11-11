@@ -103,7 +103,7 @@ function createForm(container){
  const inputs={};
  for(const [id,label,type,placeholder,required] of fields){
   const wrap=el("label",{text:label},form);
-  const input=el("input",{type,placeholder,required:required?"required":"false"},wrap);
+  const input=el("input",{type,placeholder},wrap);if(required)input.required=true;
   if(type==="number")input.min="0";
   inputs[id]=input;
  }
@@ -148,6 +148,6 @@ function installButton(){
 }
 window.CJSalesCommandCenter=Object.freeze({open,request,refresh,close:()=>{if(root){root.remove();root=null}}});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installButton,{once:true});else installButton();
-document.addEventListener("cj:journey-context",installButton);
+window.addEventListener("cj:journey-context",installButton);
 let attempts=0;const timer=setInterval(()=>{installButton();if(++attempts>=20)clearInterval(timer)},1500);
 })();
