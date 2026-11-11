@@ -4,14 +4,17 @@ on:
     paths:
       - 'scripts/platform-intelligence-inventory.mjs'
       - 'scripts/platform-intelligence-browser-inventory.mjs'
+      - 'scripts/platform-intelligence-unauth-probes.mjs'
       - 'tests/platform-intelligence-inventory.test.mjs'
       - 'scripts/platform-intelligence-browser-inventory.mjs'
+      - 'scripts/platform-intelligence-unauth-probes.mjs'
       - '.github/workflows/platform-intelligence-audit.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/platform-intelligence-inventory.mjs'
       - 'scripts/platform-intelligence-browser-inventory.mjs'
+      - 'scripts/platform-intelligence-unauth-probes.mjs'
       - 'tests/platform-intelligence-inventory.test.mjs'
       - '.github/workflows/platform-intelligence-audit.yml'
 permissions:
@@ -60,4 +63,20 @@ jobs:
         with:
           name: platform-intelligence-anonymous-browser-inventory
           path: artifacts/platform-intelligence/**/anonymous-browser-inventory.json
+          retention-days: 14
+
+  anonymous-gateway-probes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/platform-intelligence-unauth-probes.mjs
+      - run: node scripts/platform-intelligence-unauth-probes.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-intelligence-anonymous-gateway-probes
+          path: artifacts/platform-intelligence/unauthenticated-probes.json
           retention-days: 14
