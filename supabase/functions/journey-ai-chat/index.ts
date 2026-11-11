@@ -93,6 +93,15 @@ type RegistryPilotResult={
 };
 // Only these three TESTING agents are in the analysis-only pilot.
 function pilotAgentsForRequest(prompt:string):number[]{
+  // Read-only questions must not launch registered-agent jobs.
+  // In particular, "do not run" must not be interpreted as a run instruction.
+  if(/\b(?:do not|don't|never|without)\s+(?:(?:\w+|\d+)\s+){0,4}(?:run|execute|invoke|start|launch|analy[sz]e|test|use|verify)\b/i.test(prompt))return [];
+  if(/^\s*(?:what|which|who|how many|how much|show|list|tell|describe|explain|is|are|does|can)\b/i.test(prompt)&&
+     /\b(?:agents?|workforce|registry|departments?|capabilities|permissions)\b/i.test(prompt))return [];
+  if(/\b(status|registry|listed|permissions|capabilities|how many agents|what does agent)\b/i.test(prompt)&&
+     !/\b(run|execute|investigate|analy[sz]e|test|use|verify)\b/i.test(prompt))return [];
+
+
   const explicit=[...prompt.matchAll(/(?:\bagent\s*(?:#|no\.?|number)?\s*|#)(2|333|336)\b/gi)]
     .map(match=>Number(match[1]));
   if(/\bsmartboard interaction optimization agent\b/i.test(prompt))explicit.push(333);
@@ -172,8 +181,102 @@ async function openAIText(key:string,model:string,instructions:string,input:unkn
   if(!response.ok)throw new Error(data?.error?.message||"OpenAI request failed");
   let out=typeof data?.output_text==="string"?data.output_text.trim():"";
   if(!out&&Array.isArray(data?.output))for(const item of data.output)for(const c of item?.content||[])if(c?.type==="output_text"&&typeof c?.text==="string")out+=c.text;
-  if (!out.trim()) { console.error("Empty AI response", JSON.stringify({model,status:data?.status,reason:data?.incomplete_details?.reason})); throw new Error("The AI response was empty. Please retry."); }
+  if (!out.trim()) {
+    console.warn("Empty AI response; retrying with a larger generation budget",JSON.stringify({model,status:data?.status,reason:data?.incomplete_details?.reason}));
+    const retry=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({model,instructions,input,max_output_tokens:Math.max(1800,Math.min(8000,maxTokens*3))})});
+    const retryData=await retry.json();
+    if(!retry.ok)throw new Error(retryData?.error?.message||"OpenAI retry failed");
+    out=typeof retryData?.output_text==="string"?retryData.output_text.trim():"";
+    if(!out&&Array.isArray(retryData?.output))for(const item of retryData.output)for(const c of item?.content||[])if(c?.type==="output_text"&&typeof c?.text==="string")out+=c.text;
+    if(!out.trim())throw new Error("AI answer unavailable after retry.");
+  }
   return out.trim();
+}
+
+async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prompt:string,context:any){
+ const requested=/\b(agents?|agent\s*registry|workforce|agent\s*capabilities|agent\s*permissions|departments?)\b/i.test(prompt);
+ if(!requested)return {status:"NOT_REQUESTED",message:""};
+ const b=context&&typeof context==="object"&&typeof context.business_id==="string"?context.business_id:"";
+ // A single active owner/manager business can be selected securely by the server. Multiple require explicit selection.
+ const specific=prompt.match(/\bagent\s*(?:#|no\.?|number\s*)?\s*(\d{1,4})\b/i);
+ let action="overview";
+ if(specific)action="agent_detail";
+ else if(/\b(tool permissions?|tool capabilities|granted tools?)\b/i.test(prompt))action="tool_capabilities";
+ else if(/\b(departments?|organizational units?)\b/i.test(prompt)&&/\b(list|show|which|all|how many)\b/i.test(prompt))action="departments";
+ else if(/\b(list|show|which|find|who|names?|roster|browse)\b/i.test(prompt))action="roster";
+ const fields:any={action};
+ if(b)fields.business_id=b;
+ if(specific)fields.agent_no=Number(specific[1]);
+ if(action==="roster"){
+  fields.limit=40;
+  const page=prompt.match(/\bpage\s+(\d{1,2})\b/i);
+  if(page)fields.offset=Math.min(5000,(Number(page[1])-1)*40);
+  const specialization=prompt.match(/\b(marketing|smartboard|sales|finance|security|creative|support|growth|verification|analytics|operations|research)\b/i);
+  if(specialization)fields.search=specialization[1];
+  const status=prompt.match(/\b(planned|testing|deployed|verified|monitoring|disabled|retired)\b/i);
+  if(status)fields.status=status[1].toUpperCase();
+  const department=prompt.match(/\bdepartment\s*#?\s*(\d{1,3})\b/i);
+  if(department)fields.department_no=Number(department[1]);
+ }
+ try{
+  const response=await fetch(url+"/functions/v1/journey-ai-agent-intelligence",{
+   method:"POST",
+   headers:{"Content-Type":"application/json","Authorization":bearer,"apikey":anon},
+   body:JSON.stringify(fields),signal:AbortSignal.timeout(9000)
+  });
+  if(response.status===409)return {status:"BUSINESS_SELECTION_REQUIRED",message:"Select which of your authorized businesses Journey AI should inspect before I can report agent status."};
+  if(!response.ok)return {status:"UNAVAILABLE",message:"Live workforce intelligence is not available or authorization was denied. Do not invent agent statuses."};
+  const result=await response.json();
+  if(result?.error||result?.execution_performed!==false)return {status:"UNAVAILABLE",message:"Agent workforce evidence cannot be verified."};
+  if(action==="overview"){
+   const data=result.summary||{};
+   if(!Number.isInteger(data.registered_agents)||!data.by_lifecycle_status||typeof data.by_lifecycle_status!=="object")
+    return {status:"UNAVAILABLE",message:"Workforce summary was incomplete; no agent counts can be verified."};
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({registered_agents:data.registered_agents,
+    by_lifecycle_status:data.by_lifecycle_status,departments_registered:result.departments_registered,
+    dependencies_recorded:result.dependencies_recorded,dependencies_status:result.dependencies_status,
+    business_job_count:data.business_job_count,interpretation:data.interpretation,
+    execution_proof:data.execution_proof}).slice(0,4200)};
+  }
+  if(action==="roster"){
+   if(!Array.isArray(result.entries)||!Number.isInteger(result.total))
+    return {status:"UNAVAILABLE",message:"Workforce roster response was incomplete."};
+   const entries=result.entries.map((a:any)=>({agent_no:a.agent_no,name:a.agent_name,
+    department_no:a.department_no,lifecycle_status:a.lifecycle_status,readiness:a.readiness,
+    verified_external_execution:false}));
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({entries,total:result.total,
+    next_offset:result.next_offset,applied_filters:result.applied_filters,
+    note:"List is paginated; omitted entries are not missing or inactive."}).slice(0,6500)};
+  }
+  if(action==="departments"){
+   if(!Array.isArray(result.entries))return {status:"UNAVAILABLE",message:"Department evidence was unavailable."};
+   const entries=result.entries.map((d:any)=>({department_no:d.department_no,
+    name:d.department_name,total:d.total,by_status:d.by_status}));
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({entries,
+    registered_agents:result.summary?.registered_agents}).slice(0,6500)};
+  }
+  if(action==="tool_capabilities"){
+   if(!Array.isArray(result.granted_permissions))return {status:"UNAVAILABLE",message:"Agent tool grants were unavailable."};
+   return {status:"READ_ONLY_LIVE",message:JSON.stringify({
+    catalog_status:result.tool_catalog_status,
+    granted_permissions:result.granted_permissions?.slice(0,60),
+    warning:result.warning,external_operations_verified:false}).slice(0,4500)};
+  }
+  const detail=result.agent||{};
+  if(!Number.isInteger(detail.agent_no))return {status:"UNAVAILABLE",message:"Agent detail evidence was unavailable."};
+  return {status:"READ_ONLY_LIVE",message:JSON.stringify({agent_no:detail.agent_no,
+   agent_name:detail.agent_name,department_no:detail.department_no,
+   classification:detail.classification,responsibility:detail.responsibility,
+   lifecycle_status:detail.lifecycle_status,readiness:detail.readiness,
+   business_execution_evidence:detail.business_execution_evidence,
+   independently_verified_external_operation:detail.independently_verified_external_operation,
+   analysis_permission_granted:detail.analysis_permission_granted,
+   last_business_job_status:detail.last_business_job_status,
+   supervisor:result.supervisor?.agent_name||null,
+   prerequisites:result.prerequisites?.slice(0,12),dependency_status:result.dependency_status,
+   tool_permissions:result.tool_permissions?.slice(0,12).map((t:any)=>({
+    tool_key:t.tool_key,granted:t.granted,execution_mode:t.execution_mode}))}).slice(0,4200)};
+ }catch(_){return {status:"UNAVAILABLE",message:"Live workforce intelligence is unavailable. Do not infer deployed capabilities from names."}}
 }
 
 Deno.serve(async(req:Request)=>{
@@ -210,6 +313,7 @@ Deno.serve(async(req:Request)=>{
 
     const specialistContext=`AUTHORIZED CREATEJOURNEY CONTEXT\n${context}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nOWNER REQUEST\n${prompt}`;
     // Run registered agents alongside persona analysis rather than waiting for persona completion.
+    const workforcePromise=authorizedWorkforceRead(url,anon,auth,prompt,body?.context||{});
     const registeredPromise=runRegisteredAgentPilot(url,anon,auth,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||undefined,
       userData.user.id,(body?.context&&typeof body.context==="object")?body.context.business_id:null,
       prompt,body?.context||{}).catch(error=>{
@@ -222,7 +326,7 @@ Deno.serve(async(req:Request)=>{
     const specialistRuns=await Promise.all(selected.map(async(id):Promise<AgentResult>=>{
       const agent=AGENTS[id];
       try{
-        const summary=await openAIText(key,model,`${agent.instructions}\n\nYou are a specialist. Do not address the owner as the final Journey AI voice. Give your analysis to Journey AI in a compact internal briefing with exactly these headings when possible: Finding, Evidence, Recommendation, Proposed Action, Confidence. If evidence is missing, say so explicitly.`,specialistContext,560);
+        const summary=await openAIText(key,model,`${agent.instructions}\n\nYou are a specialist. Do not address the owner as the final Journey AI voice. Give your analysis to Journey AI in a compact internal briefing with exactly these headings when possible: Finding, Evidence, Recommendation, Proposed Action, Confidence. If evidence is missing, say so explicitly.`,specialistContext,1050);
         return{id,name:agent.name,status:"completed",summary,model};
       }catch(error){
         console.error(`journey-ai-chat ${id} specialist error`,error);
@@ -230,6 +334,7 @@ Deno.serve(async(req:Request)=>{
       }
     }));
 
+    const workforce=await workforcePromise;
     const completed=specialistRuns.filter(x=>x.status==="completed");
     const registeredRuns=await registeredPromise;
     const personaBriefings=completed.map(x=>`### ${x.name}\n${x.summary}`).join("\n\n");
@@ -309,7 +414,7 @@ AUTHORIZED CONTEXT
 ${context}`
 
     const registeredReceipts=registeredRuns.map(x=>`Agent #${x.agent_no}: ${x.status}; job_id=${x.job_id||"NONE"}; reason=${x.reason||"NONE"}; analysis_only=${x.execution_type==="analysis_only"}`).join("\n");
-    const finalInput=`OWNER REQUEST\n${prompt}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nREGISTERED AGENT EXECUTION RECEIPTS (authoritative runtime status; analysis is not an external action)\n${registeredReceipts||"No registered agent requested."}\n\nSPECIALIST BRIEFINGS\n${briefings||"No specialist briefing completed. Answer from authorized context only."}`;
+    const finalInput=`OWNER REQUEST\n${prompt}\n\nAUTHORIZED WORKFORCE INTELLIGENCE (read-only; never substitute registry counts for execution receipts)\n${workforce.status}: ${workforce.message||"No workforce lookup requested."}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nREGISTERED AGENT EXECUTION RECEIPTS (authoritative runtime status; analysis is not an external action)\n${registeredReceipts||"No registered agent requested."}\n\nSPECIALIST BRIEFINGS\n${briefings||"No specialist briefing completed. Answer from authorized context only."}`;
     const content:any[]=[{type:"input_text",text:finalInput}];
     for(const a of attachments){
       if(a.kind==="image"&&a.data_url){
@@ -337,9 +442,10 @@ ${context}`
       ?"Give a practical strategy in 250-450 words with distinct headings and short bullet points; avoid unnecessary detail."
       :"The owner explicitly requests comprehensive detail: provide a thorough, clearly structured answer.";
     const finalInstructions=journeyInstructions+"\nADAPTIVE RESPONSE RULES\n"+adaptiveRules+"\nCURRENT RESPONSE MODE: "+responseDepth+"\n"+depthPolicy+"\nHeadings on separate lines; use actual newline characters and blank lines between sections. Never claim execution without backend confirmation.";
-    const reply=await openAIText(key,model,finalInstructions,responseInput,responseDepth==="SIMPLE"?650:responseDepth==="STRATEGY"?1350:2800);
+    const reply=await openAIText(key,model,finalInstructions,responseInput,responseDepth==="SIMPLE"?1250:responseDepth==="STRATEGY"?2300:3800);
 
     return json({
+      agent_workforce_status:workforce.status,
       registered_agent_jobs:registeredRuns.map(x=>({agent_no:x.agent_no,job_id:x.job_id,status:x.status,reason:x.reason||null,execution_type:x.execution_type,verification_status:x.verification_status})),
       reply,
       model,
