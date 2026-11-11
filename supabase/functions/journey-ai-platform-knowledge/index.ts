@@ -52,11 +52,17 @@ Deno.serve(async(req:Request)=>{
    if(error)return respond({error:"lookup_unavailable"},503);
    if(!node)return respond({error:"not_found"},404);
    if(action==="lookup")return respond({...baseline,node});
-   const {data:edges,error:eError}=await db.from("cj_platform_knowledge_edges")
-     .select("from_node_key,to_node_key,relation_type").eq("version_id",version.id)
-     .or("from_node_key.eq."+nodeKey+",to_node_key.eq."+nodeKey).limit(100);
-   if(eError)return respond({error:"relationships_unavailable"},503);
-   return respond({...baseline,node,edges:edges||[]});
+   const [outbound,inbound]=await Promise.all([
+    db.from("cj_platform_knowledge_edges").select("from_node_key,to_node_key,relation_type")
+     .eq("version_id",version.id).eq("from_node_key",nodeKey).limit(100),
+    db.from("cj_platform_knowledge_edges").select("from_node_key,to_node_key,relation_type")
+     .eq("version_id",version.id).eq("to_node_key",nodeKey).limit(100)
+   ]);
+   if(outbound.error||inbound.error)return respond({error:"relationships_unavailable"},503);
+   const combined=[...(outbound.data||[]),...(inbound.data||[])];
+   const seen=new Set<string>();
+   const edges=combined.filter((e:any)=>{const id=[e.from_node_key,e.to_node_key,e.relation_type].join("|");if(seen.has(id))return false;seen.add(id);return true;}).slice(0,150);
+   return respond({...baseline,node,edges});
   }
   return respond({error:"unsupported_action"},400);
  }catch(_){return respond({error:"request_failed"},500)}
