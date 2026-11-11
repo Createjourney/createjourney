@@ -3,7 +3,7 @@ import {createHmac,timingSafeEqual} from 'node:crypto';
 export const SALES_REQUIREMENTS=Object.freeze([
  {key:'strategy',label:'Campaign planning',agents:[519,520,521,523]},
  {key:'prospecting',label:'Prospect research and qualification',agents:[520,509,511]},
- {key:'creative',label:'Creative production and review',agents:[521,524]},
+ {key:'creative',label:'Creative production oversight (worker agents not registered)',agents:[184,185,186]},
  {key:'engagement',label:'Permitted social engagement',agents:[409,411,412]},
  {key:'follow_up',label:'Customer follow-up',agents:[408,416,417]},
  {key:'ads',label:'Ad budget and optimization',agents:[352,354,525]},
