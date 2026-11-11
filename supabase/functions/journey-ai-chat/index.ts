@@ -259,7 +259,9 @@ async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prom
   const detail=result.agent||{};
   if(!Number.isInteger(detail.agent_no))return {status:"UNAVAILABLE",message:"Agent detail evidence was unavailable."};
   return {status:"READ_ONLY_LIVE",message:JSON.stringify({agent_no:detail.agent_no,
-   agent_name:detail.agent_name,lifecycle_status:detail.lifecycle_status,readiness:detail.readiness,
+   agent_name:detail.agent_name,department_no:detail.department_no,
+   classification:detail.classification,responsibility:detail.responsibility,
+   lifecycle_status:detail.lifecycle_status,readiness:detail.readiness,
    business_execution_evidence:detail.business_execution_evidence,
    independently_verified_external_operation:detail.independently_verified_external_operation,
    analysis_permission_granted:detail.analysis_permission_granted,
