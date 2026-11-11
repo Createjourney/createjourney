@@ -44,6 +44,21 @@ create table if not exists public.cj_sales_verification_evidence (
  outcome text not null check (outcome in ('PASS','FAIL')),
  source text not null,
  provider_reference text,
+ signature text not null check(signature ~ '^[0-9a-f]{64} not null,
+ expires_at timestamptz not null check(expires_at > verified_at),
+ evidence jsonb not null default '{}'::jsonb,
+ created_at timestamptz not null default now()
+);
+create index if not exists cj_sales_evidence_scope_idx on public.cj_sales_verification_evidence(business_id,campaign_id,gate_key,verified_at desc);
+alter table public.cj_sales_campaigns enable row level security;
+alter table public.cj_sales_campaign_events enable row level security;
+alter table public.cj_sales_verification_evidence enable row level security;
+revoke all on public.cj_sales_campaigns, public.cj_sales_campaign_events, public.cj_sales_verification_evidence from anon, authenticated;
+grant select,insert,update on public.cj_sales_campaigns to service_role;
+grant select,insert on public.cj_sales_campaign_events, public.cj_sales_verification_evidence to service_role;
+grant usage,select on sequence public.cj_sales_campaign_events_id_seq to service_role;
+commit;
+),
  verified_at timestamptz not null,
  expires_at timestamptz not null check(expires_at > verified_at),
  evidence jsonb not null default '{}'::jsonb,
