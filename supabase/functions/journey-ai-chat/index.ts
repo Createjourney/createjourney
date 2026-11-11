@@ -261,6 +261,7 @@ Deno.serve(async(req:Request)=>{
 
     const specialistContext=`AUTHORIZED CREATEJOURNEY CONTEXT\n${context}\n\nATTACHMENTS\n${attachmentSummary}${textAttachmentContext?`\n\nATTACHMENT TEXT\n${textAttachmentContext}`:""}\n\nOWNER REQUEST\n${prompt}`;
     // Run registered agents alongside persona analysis rather than waiting for persona completion.
+    const workforcePromise=authorizedWorkforceRead(url,anon,auth,prompt,body?.context||{});
     const registeredPromise=runRegisteredAgentPilot(url,anon,auth,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||undefined,
       userData.user.id,(body?.context&&typeof body.context==="object")?body.context.business_id:null,
       prompt,body?.context||{}).catch(error=>{
@@ -281,7 +282,7 @@ Deno.serve(async(req:Request)=>{
       }
     }));
 
-    const workforce=await authorizedWorkforceRead(url,anon,auth,prompt,body?.context||{});
+    const workforce=await workforcePromise;
     const completed=specialistRuns.filter(x=>x.status==="completed");
     const registeredRuns=await registeredPromise;
     const personaBriefings=completed.map(x=>`### ${x.name}\n${x.summary}`).join("\n\n");
