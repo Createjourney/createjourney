@@ -35,6 +35,11 @@ function attributes(source){
   return out;
 }
 function clean(value,max=160){return String(value||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,max)}
+function safeDestination(raw){
+  if(typeof raw!=='string')return null;
+  if(raw.startsWith('/')&&!raw.startsWith('//'))return raw.split(/[?#]/,1)[0]||'/';
+  try{const u=new URL(raw);return /^https?:$/.test(u.protocol)?u.origin+u.pathname:null}catch{return null}
+}
 function record(file,tag,attrs,label,offset,source){
   const name=relative(root,file).replaceAll('\\','/');
   const line=source.slice(0,offset).split('\n').length;
@@ -47,7 +52,7 @@ function record(file,tag,attrs,label,offset,source){
     element_id:attrs.id||null,selector,
     label:clean(attrs['aria-label']||attrs.title||label)||null,
     action_type:action,
-    destination:attrs.href&&/^(\/|https?:)/.test(attrs.href)?attrs.href:null,
+    destination:safeDestination(attrs.href),
     handler_hint:attrs.onclick?clean(attrs.onclick,200):null,
     data_action:attrs['data-cjx-home-action']||attrs['data-cjh-nav']||attrs['data-cjs-launch']||null,
     evidence:'SOURCE_MARKUP_ONLY',
