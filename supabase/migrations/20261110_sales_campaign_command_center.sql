@@ -44,7 +44,9 @@ create table if not exists public.cj_sales_verification_evidence (
  outcome text not null check (outcome in ('PASS','FAIL')),
  source text not null,
  provider_reference text,
- signature text not null check (signature ~ '^[0-9a-f]{64} expires_at timestamptz not null check(expires_at > verified_at),
+ signature text not null check (signature ~ '^[0-9a-f]{64}$'),
+ verified_at timestamptz not null,
+ expires_at timestamptz not null check(expires_at > verified_at),
  evidence jsonb not null default '{}'::jsonb,
  created_at timestamptz not null default now()
 );
