@@ -35,7 +35,7 @@ export function classifyAgent(agent,perms=[],jobs=[],events=[]){
  const latest=jobs.filter(j=>j.agent_no===agent.agent_no).sort((a,b)=>
   String(b.created_at||"").localeCompare(String(a.created_at||"")))[0]||null;
  const runtimeEvidence=successfulAnalysisJobs.length>0;
- const readiness=status==="PLANNED"?"NOT_IMPLEMENTED":
+ const readiness=status==="PLANNED"?"PLANNED_UNVERIFIED":
   ["DISABLED","SUSPENDED","FAILED","RETIRED"].includes(status)?"NOT_AVAILABLE":
   runtimeEvidence?"ANALYSIS_RUNTIME_OBSERVED":
   status==="TESTING"?"TESTING_UNVERIFIED":"IMPLEMENTED_UNVERIFIED";
@@ -68,6 +68,6 @@ export function publicAgent(a){
  return {agent_no:a.agent_no,permanent_id:a.permanent_id,agent_name:a.agent_name,
   department_no:a.department_no,classification:a.classification,
   lifecycle_status:normalizeStatus(a.status),
-  readiness:a.status==="PLANNED"?"NOT_IMPLEMENTED":a.status==="TESTING"?"TESTING_UNVERIFIED":"IMPLEMENTED_UNVERIFIED",
+  readiness:normalizeStatus(a.status)==="PLANNED"?"PLANNED_UNVERIFIED":normalizeStatus(a.status)==="TESTING"?"TESTING_UNVERIFIED":"IMPLEMENTED_UNVERIFIED",
   verified_external_execution:false};
 }
