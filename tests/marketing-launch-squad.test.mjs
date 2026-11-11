@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {MARKETING_SQUAD,MARKETING_SUPERVISORS,slugBrand,readinessReport,validRoleReceipts,buildRoleInput} from "../supabase/functions/cj-marketing-launch-squad/policy.mjs";
-import {isFlourishedMarketingQuestion,renderMarketingReadiness} from "../supabase/functions/journey-ai-chat/marketing-answer.mjs";
+import {isFlourishedMarketingQuestion,renderMarketingReadiness,flourishedMarketingCommand,summarizeMarketingAction,FLOURISHED_PROVISIONAL_BRIEF} from "../supabase/functions/journey-ai-chat/marketing-answer.mjs";
 const registry=[...MARKETING_SQUAD.map(x=>({agent_no:x.agent_no,status:"PLANNED"})),...MARKETING_SUPERVISORS.map(agent_no=>({agent_no,status:"PLANNED"}))];
 test("launch team uses registered roles, no fake deployments",()=>{
  assert.deepEqual(MARKETING_SQUAD.map(x=>x.agent_no),[520,521,523,527]);
@@ -39,7 +39,7 @@ test("Journey AI marketing question is always a read-only readiness lookup",()=>
  assert.match(answer,/#520/);assert.match(answer,/#527/);
  const chat=readFileSync("supabase/functions/journey-ai-chat/index.ts","utf8");
  assert.ok(chat.indexOf("isFlourishedMarketingQuestion(prompt)")<chat.indexOf("const registeredPromise=runRegisteredAgentPilot"));
- assert.match(chat,/model:"deterministic-external-brand-marketing-readiness"/);
+ assert.match(chat,/model:"deterministic-external-brand-marketing-squad"/);
  assert.match(chat,/registered_agent_jobs:\[\],execution_performed:false/);
 });
 test("marketing runtime enforces owner-scope, explicit spend confirmation and prevents customer marketing mutations",()=>{
@@ -50,4 +50,17 @@ test("marketing runtime enforces owner-scope, explicit spend confirmation and pr
  assert.match(s,/body\.confirm_draft_only!==true\|\|body\.confirm_analysis_cost!==true/);
  assert.match(s,/body\.confirm_brand_control!==true/);
  assert.doesNotMatch(s,/marketing\.publish|customer\.outreach|smartboard\.configure|sendScheduledPost/);
+});
+
+test("owner explicitly confirms brand setup and draft-only AI costs before commands are accepted",()=>{
+ assert.equal(flourishedMarketingCommand("What's the marketing readiness for Flourished Images?"),"readiness");
+ assert.equal(flourishedMarketingCommand("Set up Flourished Images marketing workspace"),"readiness");
+ assert.equal(flourishedMarketingCommand("I confirm I own Flourished Images. Set up the Flourished Images marketing workspace."),"setup_brand");
+ assert.equal(flourishedMarketingCommand("Generate a Flourished Images marketing campaign draft"),"readiness");
+ assert.equal(flourishedMarketingCommand("Generate a Flourished Images campaign draft. I approve AI analysis costs. Draft only."),"draft_campaign");
+ assert.equal(FLOURISHED_PROVISIONAL_BRIEF.product_listing_verified,false);
+ assert.equal(FLOURISHED_PROVISIONAL_BRIEF.shipping_capacity_verified,false);
+ assert.match(summarizeMarketingAction({status:"DRAFT_WORKSPACE_CREATED"},"setup_brand"),/Nothing was published/i);
+ assert.match(summarizeMarketingAction({status:"DRAFT_SUCCEEDED",run_id:"sample",external_actions_performed:false,
+  campaign_draft:{audience:"a",strategy_and_copy:"b",execution_plan:"c",independent_qa:"d"}},"draft_campaign"),/Job receipt: sample/);
 });
