@@ -7,7 +7,7 @@ const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]
 const GATES=["approved_campaign","isolated_agent_e2e","platform_permissions_verified","shopify_order_webhook_verified","customer_checkout_verified","budget_enforcement_verified","consent_and_opt_out_verified"];
 const groups=[
  {key:"strategy",agents:[519,520,521,523]},{key:"prospecting",agents:[520,509,511]},
- {key:"creative",agents:[521,524]},{key:"engagement",agents:[409,411,412]},
+ {key:"creative",agents:[184,185,186]},{key:"engagement",agents:[409,411,412]},
  {key:"follow_up",agents:[408,416,417]},{key:"ads",agents:[352,354,525]},
  {key:"commerce",agents:[345,337,353]},{key:"reporting",agents:[524,526]}
 ];
