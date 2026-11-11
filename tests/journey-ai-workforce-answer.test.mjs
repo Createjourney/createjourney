@@ -31,9 +31,12 @@ test("verified agent details are role scoped and no execution is implied",()=>{
  const m=renderWorkforceAnswer({status:"READ_ONLY_LIVE",message:JSON.stringify({
   agent_no:333,agent_name:"SmartBoard Interaction Optimization",lifecycle_status:"TESTING",
   readiness:"TESTING_UNVERIFIED",responsibility:"Analyze synthetic SmartBoard interactions.",
-  last_business_job_status:"FAILED",independently_verified_external_operation:false})},"agent_detail");
+  last_business_job_status:"FAILED",independently_verified_external_operation:false,
+  tool_permissions:[{tool_key:"ai.analysis",granted:true,execution_mode:"analysis_only"}]})},"agent_detail");
  assert.match(m,/Agent #333/);assert.match(m,/TESTING_UNVERIFIED/);
  assert.match(m,/FAILED/);assert.match(m,/No verified external operation/);
+ assert.ok(m.includes("Granted tool permissions: ai.analysis (analysis_only)"));
+ assert.match(m,/grants are configuration, not proof/);
  assert.match(m,/No agent was executed/);
 });
 test("permission failure or invalid data never produces a registry claim",()=>{
@@ -53,4 +56,13 @@ test("live Journey AI chat gates informational questions before agent pilot and 
  assert.ok(gate>0&&gate<pilot&&gate<specialists);
  assert.match(s,/model:"deterministic-live-workforce"/);
  assert.match(s,/registered_agent_jobs:\[\],execution_performed:false/);
+});
+
+test("agent without grants must not be portrayed as authorized to execute",()=>{
+ const msg=renderWorkforceAnswer({status:"READ_ONLY_LIVE",message:JSON.stringify({
+  agent_no:604,agent_name:"Unactivated Registry Agent",lifecycle_status:"PLANNED",
+  tool_permissions:[],independently_verified_external_operation:false
+ })},"agent_detail");
+ assert.match(msg,/No verified tool permissions reported/);
+ assert.match(msg,/No verified external operation/);
 });

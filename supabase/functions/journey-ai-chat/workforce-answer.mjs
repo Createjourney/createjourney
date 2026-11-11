@@ -47,7 +47,12 @@ export function renderWorkforceAnswer(workforce,kind){
   const readiness=typeof payload.readiness==="string"?payload.readiness:"UNVERIFIED";
   const last=payload.last_business_job_status||"No business-scoped job receipt returned";
   const external=payload.independently_verified_external_operation===true?"Provider execution evidence reported":"No verified external operation";
-  return `Agent #${payload.agent_no}: ${name}\nLifecycle: ${payload.lifecycle_status}\nReadiness: ${readiness}\nResponsibility: ${responsibility}\nBusiness job evidence: ${last}\nExternal execution: ${external}\n\nThis is a live authenticated registry lookup, not proof the agent is running. No agent was executed for this question.`;
+  const permissions=Array.isArray(payload.tool_permissions)?payload.tool_permissions:[];
+  const grants=permissions.filter(p=>p&&p.granted===true&&typeof p.tool_key==="string");
+  const permissionSummary=grants.length
+   ?grants.map(p=>`${p.tool_key} (${typeof p.execution_mode==="string"?p.execution_mode:"mode not verified"})`).join(", ")
+   :permissions.length?"No active tool grants reported":"No verified tool permissions reported";
+  return `Agent #${payload.agent_no}: ${name}\nLifecycle: ${payload.lifecycle_status}\nReadiness: ${readiness}\nResponsibility: ${responsibility}\nGranted tool permissions: ${permissionSummary}\nPermission grants are configuration, not proof of successful tool invocation.\nBusiness job evidence: ${last}\nExternal execution: ${external}\n\nThis is a live authenticated registry lookup, not proof the agent is running. No agent was executed for this question.`;
  }
  return "Unsupported workforce question. No agents were run.";
 }
