@@ -13,7 +13,7 @@ import {resolve,relative,join,extname} from 'node:path';
 import {createHash} from 'node:crypto';
 
 const root=resolve(process.argv[2]||process.cwd());
-const ignored=new Set(['.git','node_modules','.next','dist','build','coverage','.cache']);
+const ignored=new Set(['.git','node_modules','.next','dist','build','coverage','.cache','backups','tests','docs','scripts','.github']);
 const supported=new Set(['.html','.htm','.js','.mjs','.ts','.tsx','.jsx']);
 const entries=[];
 const warnings=[];
@@ -45,7 +45,7 @@ function record(file,tag,attrs,label,offset,source){
   const line=source.slice(0,offset).split('\n').length;
   const selector=attrs.id?'#'+attrs.id:attrs['data-cjx-home-action']?'[data-cjx-home-action="'+attrs['data-cjx-home-action']+'"]':attrs['data-cjh-nav']?'[data-cjh-nav="'+attrs['data-cjh-nav']+'"]':null;
   const action=attrs.onclick?'inline_handler':attrs.href?'link_navigation':attrs.type==='submit'?'form_submit':tag==='input'?'input':tag==='select'?'selection':tag==='textarea'?'text_entry':'unknown';
-  const stableKey=[name,line,tag,attrs.id||'',attrs.name||'',label].join('|');
+  const stableKey=attrs.id?[name,tag,attrs.id].join('|'):[name,line,tag,attrs.name||'',clean(label,80)].join('|');
   entries.push({
     interaction_id:'cj-src-'+createHash('sha256').update(stableKey).digest('hex').slice(0,20),
     source_file:name,source_line:line,tag,
@@ -78,6 +78,7 @@ entries.sort((a,b)=>a.source_file.localeCompare(b.source_file)||a.source_line-b.
 process.stdout.write(JSON.stringify({
  schema_version:1,
  method:'static_source_markup_scan',
+ scope:'current_application_source_excluding_backups_tests_docs_scripts',
  verification_status:'IMPLEMENTED_UNVERIFIED',
  limitations:[
   'Source markup is not a rendered interface; JavaScript strings may be counted as controls.',
