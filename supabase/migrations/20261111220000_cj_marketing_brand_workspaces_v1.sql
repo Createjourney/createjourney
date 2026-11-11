@@ -26,6 +26,7 @@ create table if not exists public.cj_marketing_squad_runs (
  finished_at timestamptz,
  created_at timestamptz not null default now()
 );
+create unique index if not exists cj_marketing_one_active_run_per_workspace on public.cj_marketing_squad_runs(workspace_id) where status='RUNNING';
 create index if not exists cj_marketing_runs_owner_workspace_date
  on public.cj_marketing_squad_runs(owner_user_id,workspace_id,created_at desc);
 alter table public.cj_marketing_brand_workspaces enable row level security;
