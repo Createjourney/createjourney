@@ -4,6 +4,7 @@ on:
     paths:
       - 'index.html'
       - 'tests/backend-sync-badge.test.mjs'
+      - 'tests/backend-sync-badge-browser.mjs'
       - '.github/workflows/backend-sync-badge-regression.yml'
 permissions:
   contents: read
@@ -16,3 +17,16 @@ jobs:
         with:
           node-version: '22'
       - run: node --test tests/backend-sync-badge.test.mjs
+
+  browser-badge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install --with-deps chromium webkit
+      - run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-badge-browser.log 2>&1 &
+      - run: node tests/backend-sync-badge-browser.mjs
