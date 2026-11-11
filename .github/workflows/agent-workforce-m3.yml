@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/journey-ai-agent-intelligence/**'
+      - 'supabase/migrations/20261111_agent_workforce_service_read_grants.sql'
       - 'supabase/functions/journey-ai-chat/index.ts'
       - 'tests/journey-ai-agent-intelligence.test.mjs'
       - '.github/workflows/agent-workforce-m3.yml'
@@ -41,3 +42,62 @@ jobs:
           deno-version: v2.x
       - run: deno check supabase/functions/journey-ai-agent-intelligence/index.ts
       - run: deno check supabase/functions/journey-ai-chat/index.ts
+
+  read-only-grants:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: postgres
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare fake metadata tables with RLS
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create role service_role nologin bypassrls;
+          create role anon nologin;
+          create role authenticated nologin;
+          create table public.cj_agent_departments (id int);
+          create table public.cj_agent_dependencies (id int);
+          create table public.cj_agent_status_history (id int);
+          create table public.cj_agent_tool_catalog (id int);
+          create table public.cj_agent_tool_permissions (id int);
+          alter table public.cj_agent_departments enable row level security;
+          alter table public.cj_agent_dependencies enable row level security;
+          alter table public.cj_agent_status_history enable row level security;
+          alter table public.cj_agent_tool_catalog enable row level security;
+          alter table public.cj_agent_tool_permissions enable row level security;
+          SQL
+      - name: Apply least-privilege read-only grant
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261111_agent_workforce_service_read_grants.sql
+      - name: Verify service SELECT, no writes or client grants, all RLS
+        run: |
+          psql -v ON_ERROR_STOP=1 -Atc "
+           select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace
+           where n.nspname='public' and c.relname in (
+           'cj_agent_departments','cj_agent_dependencies','cj_agent_status_history',
+           'cj_agent_tool_catalog','cj_agent_tool_permissions')
+           and c.relrowsecurity
+           and has_table_privilege('service_role',c.oid,'SELECT')
+           and not has_table_privilege('service_role',c.oid,'INSERT')
+           and not has_table_privilege('service_role',c.oid,'UPDATE')
+           and not has_table_privilege('service_role',c.oid,'DELETE')
+           and not has_table_privilege('anon',c.oid,'SELECT')
+           and not has_table_privilege('authenticated',c.oid,'SELECT');
+          " | grep -qx 5
