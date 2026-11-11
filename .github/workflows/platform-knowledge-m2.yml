@@ -5,7 +5,9 @@ on:
       - 'supabase/migrations/20261111_platform_knowledge_registry_v1.sql'
       - 'supabase/functions/journey-ai-platform-knowledge/**'
       - 'scripts/platform-knowledge-build.mjs'
+      - 'scripts/platform-knowledge-import.mjs'
       - 'tests/platform-knowledge-build.test.mjs'
+      - 'tests/platform-knowledge-import.test.mjs'
       - '.github/workflows/platform-knowledge-m2.yml'
   workflow_dispatch:
 permissions:
@@ -19,7 +21,8 @@ jobs:
         with:
           node-version: '22'
       - run: node --check scripts/platform-knowledge-build.mjs
-      - run: node --test tests/platform-knowledge-build.test.mjs
+      - run: node --check scripts/platform-knowledge-import.mjs
+      - run: node --test tests/platform-knowledge-build.test.mjs tests/platform-knowledge-import.test.mjs
       - name: Build unverified staging snapshot
         run: node scripts/platform-knowledge-build.mjs . "$(git rev-parse HEAD)"
       - uses: actions/upload-artifact@v4
