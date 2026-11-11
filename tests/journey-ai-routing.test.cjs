@@ -41,3 +41,12 @@ test('partner handoff precedes legacy parser', () => {
 test('partner handoff is conditional on registered handler', () => {
   assert.match(source, /readOnlyIntent\s*&&\s*typeof window\.CJJourneyPartnerAsk === 'function'/);
 });
+
+// Guard against treating ordinary business questions as requests to inspect pending changes.
+for (const prompt of [
+  'How do I grow revenue?',
+  'Show me the dashboard',
+  'What are our sales this week?',
+  'Help me set up a SmartBoard',
+  'Can you draft a marketing campaign?'
+]) test('ordinary chat must not be hijacked: '+prompt, () => assert.equal(predicate.test(prompt), false));
