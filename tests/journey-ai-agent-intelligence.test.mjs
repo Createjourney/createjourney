@@ -84,6 +84,10 @@ test('Journey AI chat offers authorized read-only workforce context and suppress
  const route=(prompt)=>Array.from(sandbox.pilotAgentsForRequest(prompt));
  assert.deepEqual(route('What is the status of agent #333?'),[]);
  assert.deepEqual(route('How many agents are in the registry?'),[]);
+ assert.deepEqual(route('Show me agent #333'),[]);
+ assert.deepEqual(route('Tell me about agent #336'),[]);
+ assert.deepEqual(route('Use agent #333 to investigate, but do not run it'),[]);
+ assert.deepEqual(route('Which registered agent can analyze this?'),[]);
  assert.deepEqual(route('Investigate SmartBoard conversion with agents #333 and #336'),[333,336]);
 });
 
