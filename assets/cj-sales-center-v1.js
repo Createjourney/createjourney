@@ -161,6 +161,16 @@ function installButton(){
   b.onclick=open;
  }
 }
+// The homepage uses delegated document-level capture handlers to route controls.
+// Take ownership of the *dedicated* Sales tile at window capture phase,
+// before any home rerender, scrolling or generic navigation can intercept it.
+window.addEventListener("click",(event)=>{
+ const node=event.target instanceof Element ? event.target.closest("[data-cjs-launch]") : null;
+ if(!node)return;
+ event.preventDefault();
+ event.stopImmediatePropagation();
+ open();
+},true);
 window.CJSalesCommandCenter=Object.freeze({open,request,refresh,close:()=>{if(root){root.remove();root=null}}});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installButton,{once:true});else installButton();
 window.addEventListener("cj:journey-context",installButton);
