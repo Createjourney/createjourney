@@ -1,0 +1,35 @@
+name: Journey AI platform intelligence audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/platform-intelligence-inventory.mjs'
+      - 'tests/platform-intelligence-inventory.test.mjs'
+      - '.github/workflows/platform-intelligence-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/platform-intelligence-inventory.mjs'
+      - 'tests/platform-intelligence-inventory.test.mjs'
+      - '.github/workflows/platform-intelligence-audit.yml'
+permissions:
+  contents: read
+jobs:
+  static-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/platform-intelligence-inventory.mjs
+      - run: node --test tests/platform-intelligence-inventory.test.mjs
+      - name: Generate inventory (read-only; unverified status)
+        run: node scripts/platform-intelligence-inventory.mjs . > /tmp/cj-source-inventory.json
+      - name: Confirm inventory schema and status
+        run: |
+          node --input-type=module -e "import{readFileSync}from 'node:fs';const x=JSON.parse(readFileSync('/tmp/cj-source-inventory.json'));if(!Array.isArray(x.interactions)||!x.scanned_source_files||x.verification_status!=='IMPLEMENTED_UNVERIFIED')process.exit(1);console.log('Files scanned:',x.scanned_source_files,'Unverified controls:',x.detected_interactions)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-intelligence-static-source-inventory
+          path: /tmp/cj-source-inventory.json
+          retention-days: 14
