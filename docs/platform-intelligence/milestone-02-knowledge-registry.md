@@ -6,10 +6,10 @@
 - **12** logical pages.
 - **695** source candidate interactive controls.
 - **553** anonymous DOM controls from Chromium; **65** candidate surfaces.
-- **1,038** graph nodes, **200** source/DOM relationship edges, including **181** anonymous DOM-to-page matches.
+- **1,038** graph nodes, **201** source/DOM relationship edges, including **181** anonymous DOM-to-page matches.
 - **25** deployed Edge Function inventory entries and **31** public SQL function signatures available as source-audited metadata.
 - All entries remain **IMPLEMENTED_UNVERIFIED**; no automated browser or code discovery can award `VERIFIED_OPERATIONAL`.
-- Latest tested CI run: https://github.com/Createjourney/createjourney/actions/runs/43011104655 (**4 jobs passed**: deterministic knowledge, edge types, disposable PostgreSQL migration, anonymous DOM graph).
+- Latest tested CI run: https://github.com/Createjourney/createjourney/actions/runs/43011509778 (**4 jobs passed**: deterministic knowledge, edge types, disposable PostgreSQL migration, anonymous DOM graph).
 
 
 
