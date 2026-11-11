@@ -35,6 +35,8 @@ test("verified agent details are role scoped and no execution is implied",()=>{
   tool_permissions:[{tool_key:"ai.analysis",granted:true,execution_mode:"analysis_only"}]})},"agent_detail");
  assert.match(m,/Agent #333/);assert.match(m,/TESTING_UNVERIFIED/);
  assert.match(m,/FAILED/);assert.match(m,/No verified external operation/);
+ assert.ok(m.includes("Granted tool permissions: ai.analysis (analysis_only)"));
+ assert.match(m,/grants are configuration, not proof/);
  assert.match(m,/No agent was executed/);
 });
 test("permission failure or invalid data never produces a registry claim",()=>{
