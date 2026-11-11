@@ -1,4 +1,5 @@
 name: Agent Activation Controller Production Smoke
+# Deployment-order note: run after the Supabase Edge Function is deployed; a pre-deployment 404 is not an authorization failure.
 on:
   workflow_dispatch:
   push:
