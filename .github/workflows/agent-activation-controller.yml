@@ -1,0 +1,36 @@
+name: Agent Universal Runtime + Activation Controller V1
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/cj-agent-activation-controller/**'
+      - 'supabase/functions/journey-ai-chat/**'
+      - 'tests/agent-activation-controller.test.mjs'
+      - 'tests/journey-ai-activation-plan.test.mjs'
+      - '.github/workflows/agent-activation-controller.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/cj-agent-activation-controller/**'
+      - 'supabase/functions/journey-ai-chat/**'
+      - 'tests/agent-activation-controller.test.mjs'
+      - 'tests/journey-ai-activation-plan.test.mjs'
+permissions:
+  contents: read
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/agent-activation-controller.test.mjs tests/journey-ai-activation-plan.test.mjs tests/journey-ai-workforce-answer.test.mjs
+  deno:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/cj-agent-activation-controller/index.ts
+      - run: deno check supabase/functions/journey-ai-chat/index.ts
