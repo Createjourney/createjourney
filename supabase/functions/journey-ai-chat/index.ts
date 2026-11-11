@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import {workforceQuestionKind,renderWorkforceAnswer} from "./workforce-answer.mjs";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
@@ -305,6 +306,18 @@ Deno.serve(async(req:Request)=>{
     if(!prompt)return json({error:"Prompt required"},400);
     const context=clip(body?.context??{},22000);
     const model=Deno.env.get("OPENAI_TEXT_MODEL")||"gpt-5-mini";
+    // Factual registry questions are evidence lookups, never agent jobs or generative advice.
+    const workforceKind=attachments.length?null:workforceQuestionKind(prompt);
+    if(workforceKind){
+      const workforce=await authorizedWorkforceRead(url,anon,auth,prompt,body?.context||{});
+      const reply=renderWorkforceAnswer(workforce,workforceKind);
+      return json({
+        reply,model:"deterministic-live-workforce",agent_workforce_status:workforce.status,
+        registered_agent_jobs:[],execution_performed:false,
+        orchestration:{mode:"workforce-read-only",director:"Journey AI",team_size:Object.keys(AGENTS).length,
+          specialists:[],completed:0,requested:0}
+      });
+    }
     const selected=routeAgents(prompt);
     const attachmentSummary=attachments.length
       ?attachments.map((a:any,i:number)=>`[${i+1}] ${a.name} · ${a.type} · ${a.kind} · ${a.size||0} bytes`).join("\n")

@@ -1,0 +1,27 @@
+name: Journey AI Verified Workforce Answer Regression
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/journey-ai-chat/**'
+      - 'tests/journey-ai-workforce-answer.test.mjs'
+      - '.github/workflows/journey-ai-workforce-answer.yml'
+permissions:
+  contents: read
+jobs:
+  evidence-first-answer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/journey-ai-workforce-answer.test.mjs
+      - run: node --test tests/journey-ai-agent-routing.test.mjs tests/journey-ai-provider-output.test.mjs
+  deno-chat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/journey-ai-chat/index.ts
