@@ -93,7 +93,11 @@ type RegistryPilotResult={
 };
 // Only these three TESTING agents are in the analysis-only pilot.
 function pilotAgentsForRequest(prompt:string):number[]{
-  // A status/catalog question is read-only. Do not launch an analysis job to answer it.
+  // Read-only questions must not launch registered-agent jobs.
+  // In particular, "do not run" must not be interpreted as a run instruction.
+  if(/\b(?:do not|don't|never|without)\s+(?:(?:\w+|\d+)\s+){0,4}(?:run|execute|invoke|start|launch|analy[sz]e|test|use|verify)\b/i.test(prompt))return [];
+  if(/^\s*(?:what|which|who|how many|how much|show|list|tell|describe|explain|is|are|does|can)\b/i.test(prompt)&&
+     /\b(?:agents?|workforce|registry|departments?|capabilities|permissions)\b/i.test(prompt))return [];
   if(/\b(status|registry|listed|permissions|capabilities|how many agents|what does agent)\b/i.test(prompt)&&
      !/\b(run|execute|investigate|analy[sz]e|test|use|verify)\b/i.test(prompt))return [];
 
