@@ -35,6 +35,7 @@ jobs:
           node-version: '22'
       - run: node --check scripts/sales-readiness.mjs
       - run: node --check scripts/sales-readiness.test.mjs
+      - run: node --check tests/sales-command-center-local-e2e.mjs
       - run: node --test scripts/sales-readiness.test.mjs
       - run: node --check assets/cj-sales-center-v1.js
       - run: node --check assets/cj-journey-capabilities-v1.js
