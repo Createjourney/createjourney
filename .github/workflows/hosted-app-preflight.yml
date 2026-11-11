@@ -1,0 +1,42 @@
+name: CreateJourney Hosted App Preflight (read only)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hosted-app-preflight.yml'
+      - 'CNAME'
+      - 'index.html'
+      - 'assets/cj-journey-capabilities-v1.js'
+      - 'assets/cj-sales-center-v1.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe-existing-hosted-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify public app availability and existing capability asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_URL="https://app.gocreatejourney.com/"
+          FALLBACK_URL="https://createjourney.github.io/createjourney/"
+          mkdir -p "$RUNNER_TEMP/cj-hosted"
+          check() {
+            local url="$1"
+            local label="$2"
+            local output="$RUNNER_TEMP/cj-hosted/$label.html"
+            echo "Checking $label at $url"
+            curl --fail --silent --show-error --location --retry 2 --max-time 30 --compressed "$url" --output "$output"
+            test -s "$output"
+            grep -q '<html' "$output"
+            grep -q 'cj-journey-capabilities-v1.js' "$output"
+            grep -q 'aiWorkspaceMarketingPanel' "$output"
+            echo "$label app shell and existing capability reference verified"
+          }
+          check "$APP_URL" "custom-domain"
+          # GitHub Pages project URL may redirect to the CNAME; it must be healthy too.
+          check "$FALLBACK_URL" "github-pages"
+          curl --fail --silent --show-error --location --retry 2 --max-time 30 --compressed             "https://app.gocreatejourney.com/assets/cj-journey-capabilities-v1.js"             --output "$RUNNER_TEMP/cj-hosted/capabilities.js"
+          grep -q 'CJJourneyCapabilities' "$RUNNER_TEMP/cj-hosted/capabilities.js"
+          echo "PASS: hosted application is reachable; capability script is published."
