@@ -5,6 +5,8 @@ on:
       - 'supabase/functions/cj-sales-command-center/**'
       - 'supabase/migrations/**'
       - 'tests/sales-command-center-local.sql'
+      - 'tests/sales-command-center-fixture.sql'
+      - 'tests/sales-command-center-local-e2e.mjs'
       - 'assets/cj-sales-center-v1.js'
       - 'assets/cj-journey-capabilities-v1.js'
       - 'scripts/sales-readiness.mjs'
@@ -59,12 +61,10 @@ jobs:
           # Historical migrations in this repository do not include initial production
           # schema creation. This suite tests only the new additive campaign migration.
           # The minimal fixture is deliberately NOT a production schema substitute.
-          cat > supabase/migrations/20261109000000_sales_fixture.sql <<'SQL'
-          CREATE TABLE public.businesses(
-            id uuid PRIMARY KEY DEFAULT gen_random_uuid()
-          );
-          SQL
-          cp "$GITHUB_WORKSPACE/supabase/migrations/20261110_sales_campaign_command_center.sql"              supabase/migrations/20261110000000_sales_campaign_command_center.sql
+          cp "$GITHUB_WORKSPACE/tests/sales-command-center-fixture.sql" supabase/migrations/20261109000000_sales_fixture.sql
+          cp "$GITHUB_WORKSPACE/supabase/migrations/20261110_sales_campaign_command_center.sql" supabase/migrations/20261110000000_sales_campaign_command_center.sql
+          mkdir -p supabase/functions/cj-sales-command-center
+          cp "$GITHUB_WORKSPACE/supabase/functions/cj-sales-command-center/index.ts" supabase/functions/cj-sales-command-center/index.ts
       - name: Start isolated Supabase and apply campaign migration
         shell: bash
         run: |
@@ -81,6 +81,23 @@ jobs:
             exit 1
           fi
           docker exec -i "$DB_CONTAINER" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres < tests/sales-command-center-local.sql
+      - name: Authenticated local E2E (owner, manager, tenant isolation)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/cj-sales-sandbox"
+          supabase functions serve cj-sales-command-center --no-verify-jwt > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
+          EDGE_PID=$!
+          trap 'kill "$EDGE_PID" 2>/dev/null || true' EXIT
+          STATUS="$(supabase status --output json)"
+          export CJ_LOCAL_API_URL="$(printf '%s' "$STATUS" | jq -r '.API_URL')"
+          export CJ_LOCAL_ANON_KEY="$(printf '%s' "$STATUS" | jq -r '.ANON_KEY')"
+          export CJ_LOCAL_SERVICE_KEY="$(printf '%s' "$STATUS" | jq -r '.SERVICE_ROLE_KEY')"
+          node "$GITHUB_WORKSPACE/tests/sales-command-center-local-e2e.mjs" || {
+            echo 'Local Edge Function diagnostic (no credentials):'
+            tail -n 45 "$RUNNER_TEMP/cj-sales-edge.log" || true
+            exit 1
+          }
       - name: Stop isolated Supabase stack
         if: always()
         shell: bash
