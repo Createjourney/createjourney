@@ -92,7 +92,7 @@ async function callback(url:URL){
  if(!Number.isFinite(stateStart)||stateStart>Date.now()||Date.now()-stateStart>10*60*1000||
   String(meta.shopify_pending_domain||"")!==shop)return respond({error:"Expired Shopify authorization"},401);
  // Reserve state before token exchange to disallow concurrent callback replay.
- const reserved=await admin.from("connected_accounts").update({oauth_state:null,status:"verifying"})
+ const reserved=await admin.from("connected_accounts").update({oauth_state:null,status:"connecting"})
   .eq("id",row.id).eq("oauth_state",state).eq("status","connecting").select("id").maybeSingle();
  if(reserved.error||!reserved.data)return respond({error:"Shopify authorization already processed"},409);
  try{
@@ -112,11 +112,11 @@ async function callback(url:URL){
    status:"connected",metadata:cleanMetadata,external_account_id:shop,external_account_name:shopInfo.shop_name,
    scopes:[...granted],capabilities:["shop_read","orders_read","products_read"],last_synced_at:new Date().toISOString(),
    connected_at:new Date().toISOString(),token_expires_at:null,last_error:null,updated_at:new Date().toISOString()
-  }).eq("id",row.id).eq("status","verifying");
+  }).eq("id",row.id).eq("status","connecting").is("oauth_state",null);
   if(update.error)throw update.error;
   return Response.redirect(BASE+"?shopify=connected",302);
  }catch(e){
-  await admin.from("connected_accounts").update({status:"error",last_error:"Shopify authorization did not complete",updated_at:new Date().toISOString()}).eq("id",row.id).eq("status","verifying");
+  await admin.from("connected_accounts").update({status:"error",last_error:"Shopify authorization did not complete",updated_at:new Date().toISOString()}).eq("id",row.id).eq("status","connecting").is("oauth_state",null);
   console.error("Shopify verification error:",errorMessage(e));
   return Response.redirect(BASE+"?shopify=error",302);
  }
