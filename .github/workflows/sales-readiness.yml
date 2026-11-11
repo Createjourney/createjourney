@@ -55,6 +55,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/cj-sales-sandbox"
           cd "$RUNNER_TEMP/cj-sales-sandbox"
           supabase init --yes
+          mkdir -p supabase/migrations
           # Historical migrations in this repository do not include initial production
           # schema creation. This suite tests only the new additive campaign migration.
           # The minimal fixture is deliberately NOT a production schema substitute.
