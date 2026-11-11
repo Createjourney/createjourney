@@ -142,16 +142,35 @@ Deno.serve(async(req)=>{
   }));
   const selectedId=UUID.test(String(body.campaign_id||""))?String(body.campaign_id):campaignsQ.data?.[0]?.id;
   const selected=campaignsQ.data?.find(c=>c.id===selectedId)||null;
-  const blockers=[...GATES];
+  // Evidence table is service-role write only. Client-supplied claims are ignored.
+  // An evidence issuer has NOT been implemented yet; no gate is inferred from labels or AI output.
+  let evidenceRows:Record<string,unknown>[]=[];
+  if(selected){
+   const {data,error}=await admin.from("cj_sales_verification_evidence")
+    .select("gate_key,outcome,source,verified_at,expires_at,provider_reference")
+    .eq("business_id",businessId).eq("campaign_id",selected.id).order("verified_at",{ascending:false}).limit(100);
+   if(error)throw error;evidenceRows=data||[];
+  }
+  const current=Date.now();
+  const verified_gates=GATES.filter(gate=>evidenceRows.some(e=>
+   e.gate_key===gate&&e.outcome==="PASS"&&e.source==="server_verified"&&
+   typeof e.verified_at==="string"&&Date.parse(e.verified_at)<=current&&
+   typeof e.expires_at==="string"&&Date.parse(e.expires_at)>current&&
+   typeof e.provider_reference==="string"&&e.provider_reference.length>0));
+  const blockers=GATES.filter(gate=>!verified_gates.includes(gate));
   if(!selected)blockers.push("campaign_not_configured");
   const agentCount=agents.filter(a=>["VERIFIED","DEPLOYED","MONITORING"].includes(a.status)).length;
+  const registryVerified=agent_capabilities.every(group=>group.agents.every(a=>["VERIFIED","DEPLOYED","MONITORING"].includes(a.status)));
+  if(!registryVerified)blockers.push("registry_agents_verified");
+  // Readiness never starts a campaign. Owner action authorization remains a separate gate.
+  const status=blockers.length===0?"READY_FOR_AUTHORIZED_FINAL_REVIEW":"BLOCKED";
   return reply({
    mode:"READ_ONLY",business_id:businessId,campaigns:campaignsQ.data||[],selected_campaign_id:selected?.id||null,
    agent_capabilities,integrations,execution_results,
-   readiness:{status:"BLOCKED",launch_authorized:false,verified_gates:[],blockers,
+   readiness:{status,launch_authorized:false,verified_gates,blockers,
     agent_registry_count:agents.length,agent_verified_registry_count:agentCount,
     provider_operations_verified:0,
-    note:"No independent external-execution receipts or provider checks yet. Approved campaign means planning only."}
+    note:"Only trusted, unexpired server receipts count. There is no evidence issuer or external execution runner yet; planning approval never authorizes external actions."}
   });
  }catch(e){console.error("cj-sales-command-center",errMsg(e));return reply({error:"Sales Command Center request failed"},500)}
 });
