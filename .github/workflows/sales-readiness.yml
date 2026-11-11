@@ -1,0 +1,26 @@
+name: Sales Readiness Unit Tests
+on:
+  pull_request:
+    paths:
+      - 'scripts/sales-readiness.mjs'
+      - 'scripts/sales-readiness.test.mjs'
+      - '.github/workflows/sales-readiness.yml'
+  push:
+    paths:
+      - 'scripts/sales-readiness.mjs'
+      - 'scripts/sales-readiness.test.mjs'
+      - '.github/workflows/sales-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/sales-readiness.mjs
+      - run: node --check scripts/sales-readiness.test.mjs
+      - run: node --test scripts/sales-readiness.test.mjs
