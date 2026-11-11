@@ -97,6 +97,7 @@ function pilotAgentsForRequest(prompt:string):number[]{
   if(/\b(status|registry|listed|permissions|capabilities|how many agents|what does agent)\b/i.test(prompt)&&
      !/\b(run|execute|investigate|analy[sz]e|test|use|verify)\b/i.test(prompt))return [];
 
+
   const explicit=[...prompt.matchAll(/(?:\bagent\s*(?:#|no\.?|number)?\s*|#)(2|333|336)\b/gi)]
     .map(match=>Number(match[1]));
   if(/\bsmartboard interaction optimization agent\b/i.test(prompt))explicit.push(333);
@@ -176,7 +177,15 @@ async function openAIText(key:string,model:string,instructions:string,input:unkn
   if(!response.ok)throw new Error(data?.error?.message||"OpenAI request failed");
   let out=typeof data?.output_text==="string"?data.output_text.trim():"";
   if(!out&&Array.isArray(data?.output))for(const item of data.output)for(const c of item?.content||[])if(c?.type==="output_text"&&typeof c?.text==="string")out+=c.text;
-  if (!out.trim()) { console.error("Empty AI response", JSON.stringify({model,status:data?.status,reason:data?.incomplete_details?.reason})); throw new Error("The AI response was empty. Please retry."); }
+  if (!out.trim()) {
+    console.warn("Empty AI response; retrying with a larger generation budget",JSON.stringify({model,status:data?.status,reason:data?.incomplete_details?.reason}));
+    const retry=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({model,instructions,input,max_output_tokens:Math.max(1800,Math.min(8000,maxTokens*3))})});
+    const retryData=await retry.json();
+    if(!retry.ok)throw new Error(retryData?.error?.message||"OpenAI retry failed");
+    out=typeof retryData?.output_text==="string"?retryData.output_text.trim():"";
+    if(!out&&Array.isArray(retryData?.output))for(const item of retryData.output)for(const c of item?.content||[])if(c?.type==="output_text"&&typeof c?.text==="string")out+=c.text;
+    if(!out.trim())throw new Error("AI answer unavailable after retry.");
+  }
   return out.trim();
 }
 
@@ -264,7 +273,7 @@ Deno.serve(async(req:Request)=>{
     const specialistRuns=await Promise.all(selected.map(async(id):Promise<AgentResult>=>{
       const agent=AGENTS[id];
       try{
-        const summary=await openAIText(key,model,`${agent.instructions}\n\nYou are a specialist. Do not address the owner as the final Journey AI voice. Give your analysis to Journey AI in a compact internal briefing with exactly these headings when possible: Finding, Evidence, Recommendation, Proposed Action, Confidence. If evidence is missing, say so explicitly.`,specialistContext,560);
+        const summary=await openAIText(key,model,`${agent.instructions}\n\nYou are a specialist. Do not address the owner as the final Journey AI voice. Give your analysis to Journey AI in a compact internal briefing with exactly these headings when possible: Finding, Evidence, Recommendation, Proposed Action, Confidence. If evidence is missing, say so explicitly.`,specialistContext,1050);
         return{id,name:agent.name,status:"completed",summary,model};
       }catch(error){
         console.error(`journey-ai-chat ${id} specialist error`,error);
@@ -380,7 +389,7 @@ ${context}`
       ?"Give a practical strategy in 250-450 words with distinct headings and short bullet points; avoid unnecessary detail."
       :"The owner explicitly requests comprehensive detail: provide a thorough, clearly structured answer.";
     const finalInstructions=journeyInstructions+"\nADAPTIVE RESPONSE RULES\n"+adaptiveRules+"\nCURRENT RESPONSE MODE: "+responseDepth+"\n"+depthPolicy+"\nHeadings on separate lines; use actual newline characters and blank lines between sections. Never claim execution without backend confirmation.";
-    const reply=await openAIText(key,model,finalInstructions,responseInput,responseDepth==="SIMPLE"?650:responseDepth==="STRATEGY"?1350:2800);
+    const reply=await openAIText(key,model,finalInstructions,responseInput,responseDepth==="SIMPLE"?1250:responseDepth==="STRATEGY"?2300:3800);
 
     return json({
       agent_workforce_status:workforce.status,
