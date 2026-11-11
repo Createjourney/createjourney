@@ -49,3 +49,14 @@ test('actual CreateJourney application bootstrap loads Sales Command Center side
  // contract tested here is module bootstrapping from the real index.html.
  expect(await page.evaluate(()=>typeof window.CJSalesCommandCenter.open)).toBe('function');
 });
+
+test('Control Center has separate AI Sales entry without changing Marketing chat routing',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
+ await expect(page.locator('[data-cjx-home-action="marketing"]')).toHaveCount(1);
+ const direct=page.locator('.cjx-controls [data-cjs-launch]');
+ await expect(direct).toBeVisible();
+ await expect(direct).toContainText('AI Sales Command Center');
+ await direct.click();
+ await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
+ await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
+});
