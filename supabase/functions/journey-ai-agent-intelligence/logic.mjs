@@ -22,6 +22,14 @@ export function safeSearch(value){
  if(typeof value!=="string"||value.length>70||!/^[\p{L}\p{N} .&/'-]*$/u.test(value))throw new Error("invalid_search");
  return value.trim();
 }
+export function rosterStatusFilter(value){
+ if(value===undefined||value===null||value==="")return "";
+ if(typeof value!=="string")throw Error("invalid_status_filter");
+ const status=value.trim().toUpperCase();
+ if(!["PLANNED","TESTING","VERIFIED","DEPLOYED","MONITORING","DISABLED","SUSPENDED","FAILED","RETIRED"].includes(status))
+  throw Error("invalid_status_filter");
+ return status;
+}
 export function normalizeStatus(status){
  const s=typeof status==="string"?status.trim().toUpperCase():"UNKNOWN";
  return ["PLANNED","TESTING","VERIFIED","DEPLOYED","MONITORING","DISABLED","SUSPENDED","FAILED","RETIRED"].includes(s)?s:"UNKNOWN";
