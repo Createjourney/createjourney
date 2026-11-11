@@ -13,7 +13,7 @@ function extractText(v:any){
   if(c?.type==="output_text"&&typeof c?.text==="string")texts.push(c.text);
  return texts.join("\n").trim();
 }
-async function specialist(key:string,model:string,role:any,input:string,prior:any[]){
+async function specialist(key:string,model:string,role:any,input:{brand:any,brief:any,prompt:string},prior:any[]){
  const instructions=`You are internal CreateJourney marketing specialist #${role.agent_no}, ${role.role}.
 Assigned task: ${role.goal}
 This is a draft-only, analysis-only function. Do not claim to have browsed the internet, accessed Shopify, obtained live inventory, seen social analytics, sent messages, posted content, or performed any external action. The owner-provided brief may be incomplete or unverified. Avoid invented testimonials, published-review claims, urgency not supported by inventory, and guaranteed shipping claims unless verified. All outputs are DRAFT FOR OWNER APPROVAL. Be practical, evidence-aware, and concise. Include assumptions and blockers.`;
