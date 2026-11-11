@@ -137,3 +137,20 @@ test('Journey AI workforce bridge sends scoped read-only requests and never fabr
  assert.equal(denied.status,'UNAVAILABLE');
  assert.match(denied.message,/authorization was denied/i);
 });
+
+test('production source preserves deployed chat v22 recovery and M3 end-user auth protections',()=>{
+ const chat=readFileSync('supabase/functions/journey-ai-chat/index.ts','utf8');
+ const service=readFileSync('supabase/functions/journey-ai-agent-intelligence/index.ts','utf8');
+ const grants=readFileSync('supabase/migrations/20261111_agent_workforce_service_read_grants.sql','utf8');
+ assert.match(chat,/retrying with a larger generation budget/);
+ assert.match(chat,/authorizedWorkforceRead/);
+ assert.match(chat,/agent_workforce_status:workforce.status/);
+ assert.match(chat,/do not run/);
+ assert.match(service,/auth\\.getUser\\(token\\)/);
+ assert.match(service,/eligible\\.find\\(m=>m\\.business_id===requestedBusiness\\)/);
+ assert.match(service,/eligible\\.length===1/);
+ assert.match(service,/PRIVILEGED_ROLES/);
+ assert.doesNotMatch(service,/\\.insert\\(|\\.upsert\\(|\\.update\\(|\\.delete\\(/);
+ assert.match(grants,/grant select on table/i);
+ assert.doesNotMatch(grants,/grant (?:insert|update|delete|all) on/i);
+});
