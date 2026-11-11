@@ -1,0 +1,37 @@
+name: CreateJourney Hosted Badge Verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'tests/backend-sync-badge-browser.mjs'
+      - '.github/workflows/hosted-backend-badge-verification.yml'
+permissions:
+  contents: read
+jobs:
+  hosted-badge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CJ_TEST_BASE_URL: https://app.gocreatejourney.com/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install chromium
+      - name: Check deployed public app badge without signing in
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 10); do
+            if node tests/backend-sync-badge-browser.mjs; then
+              echo "PASS: hosted badge executes without undefined escape error."
+              exit 0
+            fi
+            echo "Hosted verification not ready (attempt $attempt/10)"
+            sleep 15
+          done
+          echo "FAIL: hosted badge regression remains unverified." >&2
+          exit 1
