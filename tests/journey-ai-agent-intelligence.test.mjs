@@ -67,7 +67,8 @@ test('registered lifecycle does not infer runtime from source status',()=>{
 
 test('Journey AI chat offers authorized read-only workforce context and suppresses catalog-triggered pilot runs',()=>{
  const source=readFileSync('supabase/functions/journey-ai-chat/index.ts','utf8');
- assert.match(source,/authorizedWorkforceRead\(url,anon,auth,prompt/);
+ assert.match(source,/const workforcePromise=authorizedWorkforceRead\(url,anon,auth,prompt/);
+ assert.match(source,/const workforce=await workforcePromise/);
  assert.match(source,/agent_workforce_status:workforce.status/);
  assert.match(source,/AUTHORI[ZS]ED WORKFORCE INTELLIGENCE/);
  assert.match(source,/body:\s*JSON.stringify\(\{action,business_id:b,/);
