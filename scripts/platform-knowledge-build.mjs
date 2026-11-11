@@ -140,6 +140,16 @@ for(const [path,kind,re] of docs){
    evidence:fromSource(path),metadata:{operation_name:id}});
  }
 }
+// Source-backed link between the dedicated owner Publish control and its RPC.
+// This is a static code relationship only, NOT a verified publish operation.
+if(capabilitySource.includes('root.querySelector("#cjOwnerPublish").disabled=false')||
+   capabilitySource.includes('root.querySelector("#cjOwnerPublish")')){
+ const publishers=[...nodes.values()].filter(n=>n.node_kind==='interaction'&&n.metadata?.element_id==='cjOwnerPublish');
+ const target='backend_operation:rpc:cj_publish_claimed_board_journey';
+ if(publishers.length===1&&nodes.has(target)&&capabilitySource.includes('sb.rpc("cj_publish_claimed_board_journey"')){
+  edge(publishers[0].node_key,target,'invokes',{source_path:'assets/cj-journey-capabilities-v1.js',source_line:null,verification:'SOURCE_ONLY'});
+ }
+}
 const sortedNodes=[...nodes.values()].sort((a,b)=>a.node_key.localeCompare(b.node_key));
 const sortedEdges=[...edges.values()].sort((a,b)=>[a.from_node_key,a.to_node_key,a.relation_type].join('|').localeCompare([b.from_node_key,b.to_node_key,b.relation_type].join('|')));
 const payload={schema_version:1,environment:'staging',source_commit:commit,state:'STAGED',
