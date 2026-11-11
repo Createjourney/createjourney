@@ -3,12 +3,15 @@ on:
   pull_request:
     paths:
       - 'scripts/platform-intelligence-inventory.mjs'
+      - 'scripts/platform-intelligence-browser-inventory.mjs'
       - 'tests/platform-intelligence-inventory.test.mjs'
+      - 'scripts/platform-intelligence-browser-inventory.mjs'
       - '.github/workflows/platform-intelligence-audit.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/platform-intelligence-inventory.mjs'
+      - 'scripts/platform-intelligence-browser-inventory.mjs'
       - 'tests/platform-intelligence-inventory.test.mjs'
       - '.github/workflows/platform-intelligence-audit.yml'
 permissions:
@@ -32,4 +35,23 @@ jobs:
         with:
           name: platform-intelligence-static-source-inventory
           path: /tmp/cj-source-inventory.json
+          retention-days: 14
+
+  anonymous-browser-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node --check scripts/platform-intelligence-browser-inventory.mjs
+      - run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-intelligence-server.log 2>&1 &
+      - run: node scripts/platform-intelligence-browser-inventory.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-intelligence-anonymous-browser-inventory
+          path: artifacts/platform-intelligence/anonymous-browser-inventory.json
           retention-days: 14
