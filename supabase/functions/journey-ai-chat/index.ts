@@ -193,14 +193,15 @@ async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prom
  const requested=/\b(agents?|agent\s*registry|workforce|agent\s*capabilities|agent\s*permissions|departments?)\b/i.test(prompt);
  if(!requested)return {status:"NOT_REQUESTED",message:""};
  const b=context&&typeof context==="object"&&typeof context.business_id==="string"?context.business_id:"";
- if(!b)return {status:"BUSINESS_SELECTION_REQUIRED",message:"An explicitly selected authorized business is required for live agent workforce intelligence."};
+ // A single active owner/manager business can be selected securely by the server. Multiple require explicit selection.
  const specific=prompt.match(/\bagent\s*(?:#|no\.?|number\s*)?\s*(\d{1,4})\b/i);
  let action="overview";
  if(specific)action="agent_detail";
  else if(/\b(tool permissions?|tool capabilities|granted tools?)\b/i.test(prompt))action="tool_capabilities";
  else if(/\b(departments?|organizational units?)\b/i.test(prompt)&&/\b(list|show|which|all|how many)\b/i.test(prompt))action="departments";
  else if(/\b(list|show|which|find|who|names?|roster|browse)\b/i.test(prompt))action="roster";
- const fields:any={action,business_id:b};
+ const fields:any={action};
+ if(b)fields.business_id=b;
  if(specific)fields.agent_no=Number(specific[1]);
  if(action==="roster"){
   fields.limit=40;
@@ -219,6 +220,7 @@ async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prom
    headers:{"Content-Type":"application/json","Authorization":bearer,"apikey":anon},
    body:JSON.stringify(fields),signal:AbortSignal.timeout(9000)
   });
+  if(response.status===409)return {status:"BUSINESS_SELECTION_REQUIRED",message:"Select which of your authorized businesses Journey AI should inspect before I can report agent status."};
   if(!response.ok)return {status:"UNAVAILABLE",message:"Live workforce intelligence is not available or authorization was denied. Do not invent agent statuses."};
   const result=await response.json();
   if(result?.error||result?.execution_performed!==false)return {status:"UNAVAILABLE",message:"Agent workforce evidence cannot be verified."};
