@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {workforceQuestionKind,renderWorkforceAnswer} from "./workforce-answer.mjs";
+import {isActivationReadinessQuestion,summarizeActivationResponse} from "./activation-answer.mjs";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
@@ -306,6 +307,27 @@ Deno.serve(async(req:Request)=>{
     if(!prompt)return json({error:"Prompt required"},400);
     const context=clip(body?.context??{},22000);
     const model=Deno.env.get("OPENAI_TEXT_MODEL")||"gpt-5-mini";
+    // Activation questions resolve to a live evidence-backed PLAN, never a bulk status mutation.
+    if(!attachments.length && isActivationReadinessQuestion(prompt)){
+      let plan:any=null,status="UNAVAILABLE";
+      try{
+        const businessId=body?.context&&typeof body.context==="object"&&typeof body.context.business_id==="string"
+          ?body.context.business_id:"";
+        const query:any={action:"activation_plan"};
+        if(businessId)query.business_id=businessId;
+        const check=await fetch(url+"/functions/v1/cj-agent-activation-controller",{
+          method:"POST",headers:{"Content-Type":"application/json","apikey":anon,"Authorization":auth},
+          body:JSON.stringify(query),signal:AbortSignal.timeout(15000)
+        });
+        if(check.status===409)status="BUSINESS_SELECTION_REQUIRED";
+        else if(check.ok){plan=await check.json();status=plan?.status==="READ_ONLY_LIVE"?"READ_ONLY_LIVE":"UNAVAILABLE";}
+      }catch(error){console.warn("Activation readiness controller unreachable",error instanceof Error?error.message:"unknown");}
+      const reply=summarizeActivationResponse(plan,status);
+      return json({reply,model:"deterministic-agent-activation-plan",agent_workforce_status:status,
+        registered_agent_jobs:[],execution_performed:false,
+        orchestration:{mode:"agent-activation-readiness",director:"Journey AI",
+          team_size:Object.keys(AGENTS).length,specialists:[],completed:0,requested:0}});
+    }
     // Factual registry questions are evidence lookups, never agent jobs or generative advice.
     const workforceKind=attachments.length?null:workforceQuestionKind(prompt);
     if(workforceKind){
