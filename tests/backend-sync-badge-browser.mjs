@@ -7,7 +7,7 @@ const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1350,height:840}});
  const errors=[];page.on('pageerror',e=>errors.push(String(e?.message||e)));
- const http=await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:30000});
+ const http=await page.goto(process.env.CJ_TEST_BASE_URL||'http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:30000});
  assert.equal(http?.status(),200,'Application must load');
  await page.waitForTimeout(1200);
  const result=await page.evaluate(()=>{
