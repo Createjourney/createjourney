@@ -1,0 +1,41 @@
+name: Journey AI Agent Workforce Intelligence M3
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/journey-ai-agent-intelligence/**'
+      - 'tests/journey-ai-agent-intelligence.test.mjs'
+      - '.github/workflows/agent-workforce-m3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  workforce-logic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check supabase/functions/journey-ai-agent-intelligence/logic.mjs
+      - run: node --test tests/journey-ai-agent-intelligence.test.mjs
+      - name: Deny read-to-execute authority in agent intelligence service
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const src=readFileSync('supabase/functions/journey-ai-agent-intelligence/index.ts','utf8');
+          for(const banned of ['.insert(', '.update(', '.upsert(', '.delete(', '.rpc(', 'OPENAI_API_KEY', 'SUPABASE_SERVICE_ROLE_KEY:']){
+            if(src.includes(banned))throw Error('Unexpected mutating or credential forwarding pattern: '+banned);
+          }
+          for(const required of ['getUser(token)','business_members','is_active','PRIVILEGED_ROLES','businessId','agent_detail','external_operations_verified:false']){
+            if(!src.includes(required))throw Error('Missing security contract: '+required);
+          }
+          console.log('Read-only and scoped service contract markers passed');
+          NODE
+  deno-types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/journey-ai-agent-intelligence/index.ts
