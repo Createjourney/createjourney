@@ -29,13 +29,14 @@ async function verifiedReceipt(e:Record<string,unknown>,businessId:string,campai
 const nullableText=(x:unknown,n:number)=>typeof x==="string"?x.trim().slice(0,n):"";
 const int=(x:unknown,min:number,max:number):number|null=>typeof x==="number"&&Number.isInteger(x)&&x>=min&&x<=max?x:null;
 const errMsg=(e:unknown)=>e instanceof Error?e.message:"Backend request failed";
+class InputError extends Error {}
 function validate(raw:Record<string,unknown>,existing:Record<string,unknown>={}){
  const value=(k:string)=>raw[k]===undefined?existing[k]:raw[k];
  const name=nullableText(value("name"),120),product_name=nullableText(value("product_name"),160);
  const product_url=nullableText(value("product_url"),500);
  let parsed:URL;
- try {parsed=new URL(product_url)}catch {throw new Error("Valid product HTTPS URL required")}
- if(parsed.protocol!=="https:"||!parsed.hostname||parsed.username||parsed.password)throw new Error("Public HTTPS product URL required");
+ try {parsed=new URL(product_url)}catch {throw new InputError("Valid product HTTPS URL required")}
+ if(parsed.protocol!=="https:"||!parsed.hostname||parsed.username||parsed.password)throw new InputError("Public HTTPS product URL required");
  const currency=nullableText(value("currency")??"USD",3).toUpperCase();
  const sale_price_cents=int(value("sale_price_cents"),1,100000000);
  const regular_price_cents=int(value("regular_price_cents"),1,100000000);
@@ -44,11 +45,11 @@ function validate(raw:Record<string,unknown>,existing:Record<string,unknown>={})
  const daily_research_target=int(value("daily_research_target")??120,0,100000);
  const shipping_policy=nullableText(value("shipping_policy")??"buyer_pays",24);
  const fulfillment_note=nullableText(value("fulfillment_note")??"Carefully assembled and packaged for you",300);
- if(name.length<3||product_name.length<2)throw new Error("Campaign and product names required");
+ if(name.length<3||product_name.length<2)throw new InputError("Campaign and product names required");
  if(!/^[A-Z]{3}$/.test(currency)||sale_price_cents===null||regular_price_cents===null||regular_price_cents<sale_price_cents||
-  order_target===null||daily_ad_cap_cents===null||daily_research_target===null)throw new Error("Campaign prices, targets or budget are invalid");
- if(!["buyer_pays","seller_pays","calculated"].includes(shipping_policy))throw new Error("Unsupported shipping policy");
- if(raw.delivery_guaranteed===true)throw new Error("Holiday delivery cannot be guaranteed without verified fulfillment evidence");
+  order_target===null||daily_ad_cap_cents===null||daily_research_target===null)throw new InputError("Campaign prices, targets or budget are invalid");
+ if(!["buyer_pays","seller_pays","calculated"].includes(shipping_policy))throw new InputError("Unsupported shipping policy");
+ if(raw.delivery_guaranteed===true)throw new InputError("Holiday delivery cannot be guaranteed without verified fulfillment evidence");
  return {name,product_name,product_url:parsed.toString(),currency,sale_price_cents,regular_price_cents,
   order_target,daily_ad_cap_cents,daily_research_target,shipping_policy,fulfillment_note,delivery_guaranteed:false};
 }
@@ -188,5 +189,5 @@ Deno.serve(async(req)=>{
     provider_operations_verified:0,
     note:"Only trusted, unexpired server receipts count. There is no evidence issuer or external execution runner yet; planning approval never authorizes external actions."}
   });
- }catch(e){console.error("cj-sales-command-center",errMsg(e));return reply({error:"Sales Command Center request failed"},500)}
+ }catch(e){if(e instanceof InputError)return reply({error:e.message},400);console.error("cj-sales-command-center",errMsg(e));return reply({error:"Sales Command Center request failed"},500)}
 });
