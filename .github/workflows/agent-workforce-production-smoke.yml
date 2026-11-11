@@ -1,0 +1,26 @@
+name: Journey AI Workforce Production Release Smoke
+on:
+  pull_request:
+    paths:
+      - 'scripts/agent-workforce-production-smoke.mjs'
+      - '.github/workflows/agent-workforce-production-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  production-read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CJ_SUPABASE_ANON_KEY: ${{ secrets.CJ_SUPABASE_ANON_KEY }}
+      CJ_TEST_ACCESS_TOKEN: ${{ secrets.CJ_TEST_ACCESS_TOKEN }}
+      CJ_TEST_BUSINESS_ID: ${{ secrets.CJ_TEST_BUSINESS_ID }}
+      CJ_TEST_CHAT: ${{ secrets.CJ_TEST_CHAT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/agent-workforce-production-smoke.mjs
+      - name: Test real anonymous denial; optionally use separately configured owner test token
+        run: node scripts/agent-workforce-production-smoke.mjs
