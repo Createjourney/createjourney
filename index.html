@@ -7083,7 +7083,11 @@ function cj27Record(title,status='complete',detail=''){try{if(typeof addActivity
 function cj27SetBackendBadge(ok,message){
   const host=document.getElementById('cj26Command')||document.querySelector('.cj26-command');if(!host)return;
   let n=document.getElementById('cj27CloudNote');if(!n){n=document.createElement('div');n.id='cj27CloudNote';n.className='cj27-cloud-note';host.appendChild(n)}
-  n.innerHTML=`<span class="cj27-cloud-dot ${ok===true?'good':ok===false?'bad':''}"></span><span>${esc(String(message||'CreateJourney cloud action service'))}</span>`;
+  const dot=document.createElement('span');
+  dot.className='cj27-cloud-dot'+(ok===true?' good':ok===false?' bad':'');
+  const label=document.createElement('span');
+  label.textContent=String(message||'CreateJourney cloud action service');
+  n.replaceChildren(dot,label);
 }
 
 async function cjSyncNormalizedBackendV27(force=false){
