@@ -71,7 +71,7 @@ test('Journey AI chat offers authorized read-only workforce context and suppress
  assert.match(source,/const workforce=await workforcePromise/);
  assert.match(source,/agent_workforce_status:workforce.status/);
  assert.match(source,/AUTHORI[ZS]ED WORKFORCE INTELLIGENCE/);
- assert.match(source,/body:\s*JSON.stringify\(\{action,business_id:b,/);
+ assert.match(source,/body:JSON.stringify\(fields\)/);
  assert.match(source,/\bstatus\|registry\|listed\|permissions/);
  const begin=source.indexOf('function pilotAgentsForRequest(');
  const end=source.indexOf('async function runRegisteredAgentPilot(',begin);
