@@ -1,0 +1,18 @@
+name: SmartBoard Backend Badge Regression
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'tests/backend-sync-badge.test.mjs'
+      - '.github/workflows/backend-sync-badge-regression.yml'
+permissions:
+  contents: read
+jobs:
+  safe-badge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/backend-sync-badge.test.mjs
