@@ -2,6 +2,8 @@ name: Sales Readiness Unit Tests
 on:
   pull_request:
     paths:
+      - 'supabase/functions/cj-sales-command-center/**'
+      - 'supabase/migrations/20261110_sales_campaign_command_center.sql'
       - 'scripts/sales-readiness.mjs'
       - 'scripts/sales-readiness.test.mjs'
       - '.github/workflows/sales-readiness.yml'
@@ -24,3 +26,7 @@ jobs:
       - run: node --check scripts/sales-readiness.mjs
       - run: node --check scripts/sales-readiness.test.mjs
       - run: node --test scripts/sales-readiness.test.mjs
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/cj-sales-command-center/index.ts
