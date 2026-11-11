@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {createClient} from "jsr:@supabase/supabase-js@2";
-import {classifyAgent,integerInRange,parseBusinessId,publicAgent,ROSTER_LIMIT,safeSearch,summarize,PRIVILEGED_ROLES} from "./logic.mjs";
+import {classifyAgent,integerInRange,parseBusinessId,publicAgent,ROSTER_LIMIT,safeSearch,rosterStatusFilter,summarize,PRIVILEGED_ROLES} from "./logic.mjs";
 
 const headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info",
  "Access-Control-Allow-Methods":"POST, OPTIONS","Content-Type":"application/json","Cache-Control":"no-store"};
@@ -77,16 +77,22 @@ Deno.serve(async(req:Request)=>{
     warning:"Permission grants do not prove a callable or successful specialist."});
   }
   if(action==="roster"){
-   let offset:number,limit:number,search:string;
+   let offset:number,limit:number,search:string,statusFilter:string,department:number|null=null;
    try{offset=integerInRange(input.offset,0,5000,0);limit=integerInRange(input.limit,1,ROSTER_LIMIT,ROSTER_LIMIT);
-    search=safeSearch(input.search)}catch{return fail("invalid_pagination_or_search",400)}
+    search=safeSearch(input.search);statusFilter=rosterStatusFilter(input.status);
+    if(input.department_no!==undefined&&input.department_no!==null)
+     department=integerInRange(input.department_no,1,500,1);
+   }catch{return fail("invalid_pagination_or_search",400)}
    let q=db.from("cj_agent_registry").select(AGENT_FIELDS,{count:"exact"})
     .order("agent_no",{ascending:true}).range(offset,offset+limit-1);
-   if(search)q=q.ilike("agent_name","%"+search.replaceAll("%","").replaceAll("_","")+"%");
+   if(search)q=q.ilike("agent_name","%"+search+"%");
+   if(statusFilter)q=q.eq("status",statusFilter);
+   if(department!==null)q=q.eq("department_no",department);
    const {data,error,count}=await q;
    if(error)return fail("roster_unavailable");
    return respond({...base,entries:(data||[]).map(publicAgent),total:count??null,limit,offset,
-    next_offset:offset+(data||[]).length<(count??0)?offset+(data||[]).length:null});
+    next_offset:offset+(data||[]).length<(count??0)?offset+(data||[]).length:null,
+    applied_filters:{search,status:statusFilter,department_no:department}});
   }
   if(action==="agent_detail"){
    if(input.agent_no===undefined||input.agent_no===null)return fail("agent_number_required",400);
