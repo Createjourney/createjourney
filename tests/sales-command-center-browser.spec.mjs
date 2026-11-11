@@ -73,3 +73,30 @@ test('real Command Center tile opens sales overlay instead of returning to dashb
  await expect(page.locator('#cjSalesOverlay')).toBeVisible({timeout:10000});
  await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
 });
+
+test('iPhone-width real homepage Sales button receives a real pointer click',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>typeof window.CJSalesCommandCenter?.open==='function'&&typeof window.CJExactHome?.showCommandCenter==='function',{timeout:25000});
+ await page.evaluate(()=>window.CJExactHome.showCommandCenter());
+ await page.waitForSelector('#cjScreenshotHome .cjx-controls [data-cjs-launch]',{state:'attached',timeout:13000});
+ await page.evaluate(()=>{
+   const tile=document.querySelector('#cjScreenshotHome .cjx-controls [data-cjs-launch]');
+   if(!tile)throw Error('Sales tile not installed');
+   // No CI login exists. Reveal ancestors only to enable native user pointer events.
+   let ancestor=tile;
+   while(ancestor&&ancestor!==document.documentElement){
+     ancestor.style.setProperty('display',ancestor===tile?'grid':'block','important');
+     ancestor.style.setProperty('visibility','visible','important');
+     ancestor.style.setProperty('opacity','1','important');
+     ancestor=ancestor.parentElement;
+   }
+ });
+ const tile=page.locator('#cjScreenshotHome .cjx-controls [data-cjs-launch]').first();
+ await expect(tile).toBeVisible();
+ await tile.scrollIntoViewIfNeeded();
+ const scrollBefore=await page.evaluate(()=>window.scrollY);
+ await tile.click();
+ await expect(page.locator('#cjSalesOverlay')).toBeVisible({timeout:10000});
+ await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
+});
