@@ -27,16 +27,30 @@ Deno.serve(async(req:Request)=>{
   if(auth.error||!auth.data?.user?.id)return fail("unauthorized",401);
   const input=await req.json().catch(()=>null);
   if(!input||typeof input!=="object"||Array.isArray(input))return fail("invalid_request",400);
-  let businessId:string;
-  try{businessId=parseBusinessId(input.business_id)}catch{return fail("valid_business_id_required",400)}
   const action=typeof input.action==="string"?input.action:"overview";
   if(!["overview","roster","agent_detail","departments","tool_capabilities","business_evidence"].includes(action))
    return fail("unsupported_action",400);
+  let requestedBusiness:string|null=null;
+  if(input.business_id!==undefined&&input.business_id!==null&&input.business_id!==""){
+   try{requestedBusiness=parseBusinessId(input.business_id)}catch{return fail("valid_business_id_required",400)}
+  }
   const db=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
-  const member=await db.from("business_members").select("role").eq("business_id",businessId)
-   .eq("user_id",auth.data.user.id).eq("is_active",true).maybeSingle();
-  if(member.error)return fail("membership_lookup_failed");
-  if(!member.data||!PRIVILEGED_ROLES.has(String(member.data.role||"").toLowerCase()))return fail("forbidden",403);
+  // Never rely on browser claims: derive business scope from authenticated owner/manager memberships.
+  const memberships=await db.from("business_members").select("business_id,role")
+   .eq("user_id",auth.data.user.id).eq("is_active",true).limit(200);
+  if(memberships.error)return fail("membership_lookup_failed");
+  const eligible=(memberships.data||[]).filter(m=>PRIVILEGED_ROLES.has(String(m.role||"").toLowerCase()));
+  if(!eligible.length)return fail("forbidden",403);
+  const selected=requestedBusiness
+    ?eligible.find(m=>m.business_id===requestedBusiness)
+    :(eligible.length===1?eligible[0]:null);
+  if(!selected){
+   if(!requestedBusiness&&eligible.length>1)return respond({
+    error:"business_selection_required",eligible_business_count:eligible.length,
+    execution_performed:false,scope:"explicit_authorized_business_required"},409);
+   return fail("forbidden",403);
+  }
+  const businessId=selected.business_id as string;
   const base={business_id:businessId,execution_performed:false,external_operations_verified:false,
    registry_evidence_type:"LIVE_DATABASE_READ",status_semantics:"Registry lifecycle is not runtime execution."};
 
