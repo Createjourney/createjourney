@@ -149,6 +149,7 @@ Deno.serve(async(req)=>{
   });
   if(action==="start"){
    if(access.role!=="owner")return respond({error:"Owner approval required to connect Shopify"},403);
+   if(account?.status==="connected")return respond({error:"Shopify is already connected. Verify the existing connection before reconnecting."},409);
    const shop=String(json?.shop||"").toLowerCase().trim();
    if(!SHOP.test(shop))return respond({error:"Enter a valid *.myshopify.com domain"},400);
    if(!env("CJ_SHOPIFY_CLIENT_ID")||!env("CJ_SHOPIFY_CLIENT_SECRET")||!env("INTEGRATION_TOKEN_ENCRYPTION_KEY"))
@@ -182,6 +183,7 @@ Deno.serve(async(req)=>{
     return respond({provider:"shopify",status:"connected",operational_verified:true,shop:info.shop_domain,
      account_name:info.shop_name,verified_at:updatedAt,capabilities:["orders_read","products_read"]});
    }catch{
+    await admin.from("connected_accounts").update({status:"needs_attention",last_error:"Shopify Admin API verification unavailable",updated_at:new Date().toISOString()}).eq("id",account.id);
     return respond({provider:"shopify",status:"needs_attention",operational_verified:false,
      error:"Unable to verify Shopify Admin API access"},502);
    }
