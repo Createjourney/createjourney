@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {workforceQuestionKind,renderWorkforceAnswer} from "./workforce-answer.mjs";
 import {isActivationReadinessQuestion,summarizeActivationResponse} from "./activation-answer.mjs";
-import {isFlourishedMarketingQuestion,renderMarketingReadiness} from "./marketing-answer.mjs";
+import {isFlourishedMarketingQuestion,renderMarketingReadiness,flourishedMarketingCommand,summarizeMarketingAction,FLOURISHED_PROVISIONAL_BRIEF} from "./marketing-answer.mjs";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
@@ -308,24 +308,38 @@ Deno.serve(async(req:Request)=>{
     if(!prompt)return json({error:"Prompt required"},400);
     const context=clip(body?.context??{},22000);
     const model=Deno.env.get("OPENAI_TEXT_MODEL")||"gpt-5-mini";
-    // Separate external brand workspaces from customer-business analytics.
-    // A status question is READ ONLY; marketing execution requires a distinct approved call.
+    // External-brand marketing workspaces are scoped to the authenticated owner, never mixed into CreateJourney's customer-business metrics.
+    // "readiness" is read only; only explicit ownership setup or owner-approved draft costs trigger an action.
     if(!attachments.length && isFlourishedMarketingQuestion(prompt)){
+      const marketingCommand=flourishedMarketingCommand(prompt);
       let squad:any=null,status="UNAVAILABLE";
       try{
+        const request:any={action:marketingCommand,brand_name:"Flourished Images"};
+        if(marketingCommand==="setup_brand"){
+          request.confirm_brand_control=true;
+          request.website_url="https://flourishedimages.com";
+          request.product_brief=FLOURISHED_PROVISIONAL_BRIEF;
+        } else if(marketingCommand==="draft_campaign"){
+          request.confirm_draft_only=true;
+          request.confirm_analysis_cost=true;
+          request.request=prompt;
+        }
         const resp=await fetch(url+"/functions/v1/cj-marketing-launch-squad",{
           method:"POST",headers:{"Content-Type":"application/json","apikey":anon,"Authorization":auth},
-          body:JSON.stringify({action:"readiness",brand_name:"Flourished Images"}),
-          signal:AbortSignal.timeout(15000)
+          body:JSON.stringify(request),signal:AbortSignal.timeout(marketingCommand==="draft_campaign"?180000:15000)
         });
         if(resp.status===403)status="BUSINESS_OWNER_AUTH_REQUIRED";
-        else if(resp.ok){squad=await resp.json();status=squad?.status==="LIVE_MARKETING_SQUAD_READINESS"?"LIVE_MARKETING_SQUAD_READINESS":"UNAVAILABLE";}
-      }catch(e){console.warn("Flourished marketing squad readiness unavailable",e instanceof Error?e.message:"unknown");}
-      const reply=renderMarketingReadiness(squad,status);
-      return json({reply,model:"deterministic-external-brand-marketing-readiness",
-        agent_workforce_status:status,registered_agent_jobs:[],execution_performed:false,
-        orchestration:{mode:"marketing-readiness-only",director:"Journey AI",
-          team_size:Object.keys(AGENTS).length,specialists:[],completed:0,requested:0}});
+        else if(resp.ok){squad=await resp.json();status=marketingCommand==="readiness"?squad?.status||"UNAVAILABLE":squad?.status||"UNAVAILABLE";}
+        else {console.warn("Marketing action rejected",resp.status);status="UNAVAILABLE";}
+      }catch(e){console.warn("Flourished marketing squad unavailable",e instanceof Error?e.message:"unknown");}
+      const reply=marketingCommand==="readiness"?renderMarketingReadiness(squad,status):
+       (status==="UNAVAILABLE"?"The signed-in marketing action could not be verified. No completed campaign or external publication can be claimed.":summarizeMarketingAction(squad,marketingCommand));
+      return json({reply,model:"deterministic-external-brand-marketing-squad",
+        agent_workforce_status:status,registered_agent_jobs:[],
+        execution_performed:marketingCommand==="draft_campaign"&&squad?.status==="DRAFT_SUCCEEDED",
+        external_actions_performed:false,orchestration:{mode:"marketing-owner-scoped",
+          director:"Journey AI",team_size:Object.keys(AGENTS).length,specialists:[],
+          completed:Array.isArray(squad?.agent_receipts)?squad.agent_receipts.length:0,requested:marketingCommand==="draft_campaign"?4:0}});
     }
     // Activation questions resolve to a live evidence-backed PLAN, never a bulk status mutation.
     if(!attachments.length && isActivationReadinessQuestion(prompt)){
