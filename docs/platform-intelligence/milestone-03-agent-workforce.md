@@ -10,6 +10,7 @@
 - `cj_agent_dependencies`: **0** stored dependencies. Do **not** infer that all 607 roles are independent. Supervisor links exist separately in `cj_agent_registry.supervisor_agent_no`.
 - `cj_agent_tool_permissions`: **3** granted `ai.analysis` permissions to agents 2, 333, 336, each explicitly `execution_mode=analysis_only`.
 - `cj_agent_tool_catalog`: **0** entries (not a verified callable tool service).
+- **Critical verified permissions gap:** live `service_role` cannot currently SELECT `cj_agent_departments`, `cj_agent_dependencies`, `cj_agent_status_history`, `cj_agent_tool_catalog`, or `cj_agent_tool_permissions`. A new additive **read-only** migration is included; the live API cannot work fully until this grant is applied and verified.
 - `cj_agent_jobs`: **1 FAILED** agent 333 job; error `AI provider returned no text`; **zero successful registered-agent jobs confirmed**.
 - `cj_agent_status_history`: **0** records.
 - Separate `journey-ai-chat` personas (10 logical specialties) are **not** the same as independently deployed entries in the 607-agent workforce catalog.
@@ -20,7 +21,8 @@
 - `supabase/functions/journey-ai-agent-intelligence/logic.mjs` — pure permission-aware readiness and evidence classification utilities.
 - `supabase/functions/journey-ai-agent-intelligence/index.ts` — authenticated, owner/manager-only, read-only Supabase Edge Function.
 - `supabase/functions/journey-ai-chat/index.ts` — **staged** live-context handoff for owner requests about agent status, roster, departments, permissions and individual agent evidence. It uses the authenticated read-only endpoint and reports `UNAVAILABLE` if the service cannot verify results; status/catalog questions do not launch analysis pilot jobs.
-- `tests/journey-ai-agent-intelligence.test.mjs` — regression tests for realistic registry totals, evidence policy, missing grants and bounded inputs.
+- `tests/journey-ai-agent-intelligence.test.mjs` — regression tests for realistic registry totals, evidence policy, missing grants, bounded inputs, and mocked, scoped chat bridge responses.
+- `supabase/migrations/20261111_agent_workforce_service_read_grants.sql` — least-privilege `SELECT` grants on five previously inaccessible agent metadata tables to `service_role`. No client-facing privileges or writes.
 - `.github/workflows/agent-workforce-m3.yml` — Node tests, Deno type-check and read-only permission contract guard.
 - `supabase/backups/journey-ai-chat-v22-deployed-20261111/index.ts` — exact deployed v22 source preserved before integration. **Critical:** GitHub's pre-existing v22 source was stale and lacked a deployed provider retry improvement. The integration was rebased on the real deployed source, not the stale file.
 
@@ -57,11 +59,13 @@ The Edge Function has no mutation endpoints. It does not accept tool-invocation 
 - [x] Define deterministic lifecycle, readiness and proof distinctions.
 - [x] Implement secure roster, agent detail, department, grant and business-evidence reads.
 - [x] Add tests, mocked chat request/authorization scenarios, Deno type-check and existing pilot-routing regression workflow.
+- [x] Verify live database ACLs; discovered missing SELECT access to five agent metadata tables and staged minimum-grant migration with disposable PostgreSQL regression tests.
 - [x] Stage conversational Journey AI integration without bypassing the authenticated owner/manager service.
 - [x] Preserve exact deployed v22 chat source including the provider fallback retry.
 - [ ] Final GitHub Actions run green for this branch and code review.
 - [ ] PR #36 Milestone 1 authenticated and live-board acceptance gates.
 - [ ] PR #37 Milestone 2 migration + verified production knowledge activation.
+- [ ] Apply the five read-only M3 grants through an approved controlled release, then verify permissions in live Postgres; **not applied here**.
 - [ ] Scoped authenticated E2E in isolated business, including cross-tenant denials and actual runtime job receipts.
 - [ ] Deploy read-only Edge Function with `verify_jwt=true`, test 401/403/success under owner/manager, and check logs.
 - [x] Stage optional read-only Journey AI chat integration for explicit agent questions, with typed business scope and transparent unavailable state.
