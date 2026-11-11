@@ -164,5 +164,7 @@ function installButton(){
 window.CJSalesCommandCenter=Object.freeze({open,request,refresh,close:()=>{if(root){root.remove();root=null}}});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installButton,{once:true});else installButton();
 window.addEventListener("cj:journey-context",installButton);
-let attempts=0;const timer=setInterval(()=>{installButton();if(++attempts>=20)clearInterval(timer)},1500);
+// The Command Center renders after login and can re-render during navigation.
+// Keep a low-cost check alive so the direct Sales tile survives those transitions.
+setInterval(()=>{if(!document.hidden)installButton()},3500);
 })();
