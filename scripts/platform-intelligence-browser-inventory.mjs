@@ -36,6 +36,7 @@ for(const [name,engine,device] of browsers){
             disabled:!!el.disabled,
             visible,
             index:i,
+            ancestor_ids:(()=>{const a=[];let parent=el.parentElement;while(parent&&a.length<16){if(parent.id)a.push(parent.id);parent=parent.parentElement;}return a;})(),
             section_id:el.closest('section[id], [role="dialog"], [id$="Panel"], [id$="App"]')?.id||null,
             selector:el.id?'#'+el.id:null,
             action_type:el.matches('a[href]')?'link_navigation':el.matches('input,select,textarea')?'form_control':el.matches('[role="tab"]')?'tab':el.matches('[role="switch"], [role="checkbox"]')?'toggle':'button_or_action',
