@@ -8,12 +8,15 @@ create table if not exists public.cj_platform_knowledge_versions (
   artifact_sha256 text not null check (artifact_sha256 ~ '^[a-f0-9]{64}$'),
   schema_version integer not null default 1 check (schema_version = 1),
   state text not null default 'STAGED' check (state in ('STAGED','VERIFIED','REJECTED','RETIRED')),
+  expected_node_count integer not null default 0 check (expected_node_count>=0),
+  expected_edge_count integer not null default 0 check (expected_edge_count>=0),
+  ingested_at timestamptz,
   source_created_at timestamptz not null default now(),
   verified_at timestamptz,
   verification_evidence jsonb not null default '{}'::jsonb check (jsonb_typeof(verification_evidence)='object'),
   created_at timestamptz not null default now(),
   unique(environment,source_commit,artifact_sha256),
-  check (state <> 'VERIFIED' or (verified_at is not null and verification_evidence ? 'release_verification_id'))
+  check (state <> 'VERIFIED' or (ingested_at is not null and verified_at is not null and verification_evidence ? 'release_verification_id'))
 );
 create table if not exists public.cj_platform_knowledge_nodes (
   version_id uuid not null references public.cj_platform_knowledge_versions(id),
