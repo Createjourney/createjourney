@@ -89,6 +89,7 @@ Deno.serve(async(req:Request)=>{
     next_offset:offset+(data||[]).length<(count??0)?offset+(data||[]).length:null});
   }
   if(action==="agent_detail"){
+   if(input.agent_no===undefined||input.agent_no===null)return fail("agent_number_required",400);
    let agentNo:number;
    try{agentNo=integerInRange(input.agent_no,1,100000,-1)}catch{return fail("invalid_agent_number",400)}
    const agent=await db.from("cj_agent_registry").select(AGENT_FIELDS).eq("agent_no",agentNo).maybeSingle();
@@ -101,7 +102,7 @@ Deno.serve(async(req:Request)=>{
      .eq("agent_no",agentNo).limit(50),
     db.from("cj_agent_jobs").select(JOB_FIELDS).eq("business_id",businessId).eq("agent_no",agentNo)
      .order("created_at",{ascending:false}).limit(20),
-    db.from("cj_agent_status_history").select("prior_status,new_status,changed_at,actor")
+    db.from("cj_agent_status_history").select("prior_status,new_status,changed_at")
      .eq("agent_no",agentNo).order("changed_at",{ascending:false}).limit(15)
    ]);
    if(reads.some(x=>x.error))return fail("agent_evidence_unavailable");
