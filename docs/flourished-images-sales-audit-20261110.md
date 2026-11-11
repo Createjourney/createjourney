@@ -23,7 +23,7 @@ Date: 2026-11-10. Scope: read-only production inspection and non-production read
 |---|---|---|
 | Goal and campaign orchestration | 519 Campaign Goal Planning; 521 Campaign Strategy; 523 Campaign Execution Coordination | PLANNED; no executable campaign runner or signed authorization |
 | Buyer and partnership research | 520 Campaign Audience Research; 509 Opportunity Research; 511 Opportunity Customer Validation | PLANNED; no validated research/prospect provenance pipeline |
-| Creative and content | 521 Campaign Strategy; 524 Campaign Performance Monitoring | Need dedicated creative workers mapped from registry and provider-backed media/publishing actions |
+| Creative and content | 184 Creative Content Department Chief; 185 Operations Supervisor; 186 Quality Supervisor | Creative department leadership exists; dedicated creative workers are not identified in the registry and provider-backed media/publishing tools are missing |
 | Organic social interactions | 409 Message Personalization; 411 Communication Timing Optimization; 412 Communication Channel Selection | PLANNED; no approved provider APIs/permissions for automated prospect interaction |
 | Follow-ups and replies | 408 Customer Communication Strategy; 416 Customer Follow-Up Intelligence; 417 Communication Conversion Analysis | PLANNED; no consent/opt-out and channel state machine |
 | Ads and spend | 352 Acquisition Budget Optimization; 354 Campaign Profitability; 525 Campaign Optimization | PLANNED; no Meta/TikTok ads integration, expense ledger or server-side $10/day enforcement |
@@ -44,7 +44,7 @@ These groups are selected launch responsibilities, not the full future workforce
 - New readiness decision requires both verified registry statuses and an HMAC-signed, tenant/campaign-bound, unexpired receipt for **each** of seven independent checks. Unsigned flags and account labels are never launch evidence.
 - Status can reach `READY_FOR_AUTHORIZED_FINAL_REVIEW`, **not launch authorization**. The signing key must remain in a trusted server environment. A real server-side evidence issuer, authenticated endpoint, and authorization check do not exist yet and are blocking production rollout.
 - Test suite now contains 12 negative/positive cases. New `.github/workflows/sales-readiness.yml` attempts Node syntax and regression testing on pushes and PRs. CI result is still a separate merge gate.
-- `creative` agent mapping is **provisional** and must be remapped to actual Creative Production specialists before first launch. Registry status alone does not establish media-generation or publishing capability.
+- `creative` maps to verified existing creative **leadership** IDs 184–186; the dedicated creative execution specialists and tools are still missing and must be created/verified before launch. Registry status alone does not establish media-generation or publishing capability.
 - Run locally: `node --test scripts/sales-readiness.test.mjs`.
 - Next patch: authenticated read-only API to gather server-side agent/provider observations, then real verification receipts and owner-scoped campaign settings. Never expose the signing key to the frontend.
 
