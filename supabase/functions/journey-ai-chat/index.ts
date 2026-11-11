@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {workforceQuestionKind,renderWorkforceAnswer} from "./workforce-answer.mjs";
 import {isActivationReadinessQuestion,summarizeActivationResponse} from "./activation-answer.mjs";
+import {isFlourishedMarketingQuestion,renderMarketingReadiness} from "./marketing-answer.mjs";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
@@ -307,6 +308,25 @@ Deno.serve(async(req:Request)=>{
     if(!prompt)return json({error:"Prompt required"},400);
     const context=clip(body?.context??{},22000);
     const model=Deno.env.get("OPENAI_TEXT_MODEL")||"gpt-5-mini";
+    // Separate external brand workspaces from customer-business analytics.
+    // A status question is READ ONLY; marketing execution requires a distinct approved call.
+    if(!attachments.length && isFlourishedMarketingQuestion(prompt)){
+      let squad:any=null,status="UNAVAILABLE";
+      try{
+        const resp=await fetch(url+"/functions/v1/cj-marketing-launch-squad",{
+          method:"POST",headers:{"Content-Type":"application/json","apikey":anon,"Authorization":auth},
+          body:JSON.stringify({action:"readiness",brand_name:"Flourished Images"}),
+          signal:AbortSignal.timeout(15000)
+        });
+        if(resp.status===403)status="BUSINESS_OWNER_AUTH_REQUIRED";
+        else if(resp.ok){squad=await resp.json();status=squad?.status==="LIVE_MARKETING_SQUAD_READINESS"?"LIVE_MARKETING_SQUAD_READINESS":"UNAVAILABLE";}
+      }catch(e){console.warn("Flourished marketing squad readiness unavailable",e instanceof Error?e.message:"unknown");}
+      const reply=renderMarketingReadiness(squad,status);
+      return json({reply,model:"deterministic-external-brand-marketing-readiness",
+        agent_workforce_status:status,registered_agent_jobs:[],execution_performed:false,
+        orchestration:{mode:"marketing-readiness-only",director:"Journey AI",
+          team_size:Object.keys(AGENTS).length,specialists:[],completed:0,requested:0}});
+    }
     // Activation questions resolve to a live evidence-backed PLAN, never a bulk status mutation.
     if(!attachments.length && isActivationReadinessQuestion(prompt)){
       let plan:any=null,status="UNAVAILABLE";
