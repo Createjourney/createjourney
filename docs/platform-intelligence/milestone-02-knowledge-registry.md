@@ -1,6 +1,17 @@
 # Journey AI — Platform Knowledge Registry M2
 
-**Status: development implementation and isolated CI validation. NOT DEPLOYED TO PRODUCTION.**
+**Status: development implementation and isolated CI validation PASSED. NOT DEPLOYED TO PRODUCTION.**
+
+## Tested initial graph (read-only source and anonymous DOM evidence)
+- **12** logical pages.
+- **695** source candidate interactive controls.
+- **553** anonymous DOM controls from Chromium; **65** candidate surfaces.
+- **1,038** graph nodes, **200** source/DOM relationship edges, including **181** anonymous DOM-to-page matches.
+- **25** deployed Edge Function inventory entries and **31** public SQL function signatures available as source-audited metadata.
+- All entries remain **IMPLEMENTED_UNVERIFIED**; no automated browser or code discovery can award `VERIFIED_OPERATIONAL`.
+- Latest tested CI run: https://github.com/Createjourney/createjourney/actions/runs/43011104655 (**4 jobs passed**: deterministic knowledge, edge types, disposable PostgreSQL migration, anonymous DOM graph).
+
+
 
 This is the additive knowledge foundation for future page-aware guidance and software execution. It does not activate mutations or grant any agent new privileges.
 
