@@ -89,3 +89,31 @@ jobs:
           INSERT INTO public.cj_platform_knowledge_edges(version_id,from_node_key,to_node_key,relation_type) VALUES('00000000-0000-4000-8000-000000000001','page:home','page:marketing','navigates_to');
           SELECT COUNT(*) FROM public.cj_platform_knowledge_edges;
           SQL
+
+  anonymous-dom-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install --with-deps chromium webkit
+      - run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/cj-m2-http.log 2>&1 &
+      - name: Collect anonymous UI relationships
+        env:
+          CJ_AUDIT_OUT_DIR: /tmp/cj-m2-browser
+        run: node scripts/platform-intelligence-browser-inventory.mjs
+      - name: Build unverified graph with browser evidence
+        env:
+          CJ_KNOWLEDGE_BROWSER_EVIDENCE: /tmp/cj-m2-browser/anonymous-browser-inventory.json
+          CJ_KNOWLEDGE_OUTPUT: artifacts/platform-intelligence/knowledge-with-anonymous-dom.json
+        run: node scripts/platform-knowledge-build.mjs . "$(git rev-parse HEAD)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: journey-ai-m2-knowledge-anonymous-dom
+          path: |
+            artifacts/platform-intelligence/knowledge-with-anonymous-dom.json
+            /tmp/cj-m2-browser/anonymous-browser-inventory.json
+          retention-days: 14
