@@ -27,7 +27,7 @@ function expectSuccess(r,label){
 }
 async function user(role){
  const email='ci-'+role+'-'+randomUUID()+'@example.invalid';
- const password='Test-'+randomUUID()+'-!');
+ const password='Test-'+randomUUID()+'-!';
  const result=expectSuccess(await call('POST','/auth/v1/admin/users',{email,password,email_confirm:true},service),role+' create user');
  const id=result.id||result.user?.id;
  assert.ok(id,role+' user id');
