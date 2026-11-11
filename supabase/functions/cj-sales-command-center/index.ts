@@ -55,8 +55,19 @@ Deno.serve(async(req)=>{
   let body:Record<string,unknown>;
   try {body=JSON.parse(raw)}catch{return reply({error:"Invalid JSON"},400)}
   if(!body||typeof body!=="object"||Array.isArray(body))return reply({error:"Invalid body"},400);
-  const businessId=String(body.business_id||"");
-  if(!UUID.test(businessId))return reply({error:"business_id is required"},400);
+  let businessId=String(body.business_id||"");
+  // Resolve only when the authorized caller has exactly one manageable business.
+  // Never silently select among multiple organizations.
+  if(!businessId){
+   const {data:memberships,error:membershipsError}=await admin.from("business_members")
+    .select("business_id,role,is_active").eq("user_id",userId).eq("is_active",true);
+   if(membershipsError)return reply({error:"Membership unavailable"},503);
+   const eligible=(memberships||[]).filter(m=>["owner","manager"].includes(String(m.role).toLowerCase()));
+   const ids=[...new Set(eligible.map(m=>String(m.business_id)))];
+   if(ids.length!==1)return reply({error:ids.length?"Select an authorized business":"No authorized business"},ids.length?409:403);
+   businessId=ids[0];
+  }
+  if(!UUID.test(businessId))return reply({error:"Valid business_id is required"},400);
   const {data:member,error:memberErr}=await admin.from("business_members").select("role,is_active").eq("business_id",businessId)
    .eq("user_id",userId).eq("is_active",true).maybeSingle();
   if(memberErr)return reply({error:"Membership unavailable"},503);
