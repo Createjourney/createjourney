@@ -281,7 +281,11 @@ window.CJSmartBoardOwnerPage={
  "use strict";
  if(typeof document==="undefined"||window.CJSalesCommandCenter)return;
  const loader=document.createElement("script");
- loader.src="./assets/cj-sales-center-v1.js";
+ // Resolve relative to this already-loaded asset, not the app's current route.
+ const script=document.currentScript;
+ loader.src=script&&script.src
+  ?new URL("./cj-sales-center-v1.js",script.src).href
+  :new URL("/assets/cj-sales-center-v1.js",location.origin).href;
  loader.defer=true;
  loader.onerror=function(){console.warn("Sales Command Center asset unavailable; existing CreateJourney unaffected.")};
  document.head.appendChild(loader);
