@@ -50,3 +50,23 @@ These groups are selected launch responsibilities, not the full future workforce
 
 ## Deployment rule
 Do not merge or deploy until GitHub CI checks are inspected and the isolated authenticated E2E verification is feasible. No production changes are made by creating this branch.
+
+
+## PR #30 implementation follow-up: authenticated Sales Command Center (staged, not deployed)
+- New `supabase/migrations/20261110_sales_campaign_command_center.sql`: tenant-bound campaign configuration, append-only application audit events, and cryptographically signed verification evidence. Restricts all three new tables to `service_role`; RLS stays enabled.
+- New `supabase/functions/cj-sales-command-center/index.ts`: requires a valid Supabase user access token and active owner/manager membership. Supports `overview`, `create`, `update`, `approve` (owner only, **planning approval**), and `pause`. It never sends a message, creates a paid advertisement or touches a payment provider.
+- Campaign validation enforces HTTPS product URLs, integer-cent pricing, finite targets and budget, a truthful fulfillment note, and disables unverified delivery guarantees.
+- Overview reads real registry IDs and statuses, redacted integration status and a scoped list of agent job statuses. No connected account tokens, raw job results or customer personal data are returned.
+- Verification evidence is accepted **only** when stored by a trusted service, unexpired (up to 24h), tenant/campaign matched, and HMAC-SHA256 signed over `JSON.stringify(["cj-sales-v1",gate,business_id,campaign_id,verified_at_ms,expires_at_ms,"PASS"])`. A future independent verifier must hold `CJ_SALES_VERIFICATION_SECRET` and emit independently checked outcomes; **no verifier or signer is deployed by this PR**. Without these, the gate stays `BLOCKED`.
+- New `assets/cj-sales-center-v1.js`: optional owner-visible campaign draft and readiness overlay, loaded from the Journey capability registry and attached to the Marketing panel when available. This does not itself activate external marketing.
+- CI now checks Node readiness tests, browser-side syntax, and Deno backend type correctness. SQL migration tests, authenticated e2e, and provider integrations are not yet covered.
+
+### Release gates and safe deployment order
+1. Inspect GitHub Actions results for the exact PR commit and resolve failures. Review the final diff.
+2. Validate migration on a disposable Supabase development branch or isolated test project, including RLS, ownership, permissions, and event insert behavior. Do **not** trial synthetic campaigns in the live production business.
+3. Apply the migration after review; deploy `cj-sales-command-center` with JWT verification enabled, then publish the UI asset from a reviewed frontend commit.
+4. Run authenticated test-business create/update/owner-approve/manager-denial/pause/overview tests, with invalid JWT, cross-business isolation and forged evidence checks.
+5. Reconcile UI state against backend receipts. Only after that implement Shopify webhook orders/refunds, Meta/Instagram permitted operations and TikTok + email connections.
+
+### Distinguish working components from planned components
+At this stage the existing agent registry remains mostly PLANNED, no social/Shopify provider action has been proven, and no real sales campaigns have been processed. Passing static CI confirms source hygiene, **not** functional deployment.
