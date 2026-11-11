@@ -48,10 +48,28 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Start isolated local Supabase stack
-        run: supabase start
-      - name: Apply repository migrations to isolated database
-        run: supabase db reset --local --yes
+      - name: Prepare minimal isolated campaign schema fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cj-sales-sandbox"
+          cd "$RUNNER_TEMP/cj-sales-sandbox"
+          supabase init --yes
+          # Historical migrations in this repository do not include initial production
+          # schema creation. This suite tests only the new additive campaign migration.
+          # The minimal fixture is deliberately NOT a production schema substitute.
+          cat > supabase/migrations/20261109000000_sales_fixture.sql <<'SQL'
+          CREATE TABLE public.businesses(
+            id uuid PRIMARY KEY DEFAULT gen_random_uuid()
+          );
+          SQL
+          cp "$GITHUB_WORKSPACE/supabase/migrations/20261110_sales_campaign_command_center.sql"              supabase/migrations/20261110000000_sales_campaign_command_center.sql
+      - name: Start isolated Supabase and apply campaign migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/cj-sales-sandbox"
+          supabase start
       - name: Check campaign schema, grants, and RLS
         shell: bash
         run: |
@@ -64,4 +82,9 @@ jobs:
           docker exec -i "$DB_CONTAINER" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres < tests/sales-command-center-local.sql
       - name: Stop isolated Supabase stack
         if: always()
-        run: supabase stop --no-backup || true
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/cj-sales-sandbox/supabase/config.toml" ]; then
+            cd "$RUNNER_TEMP/cj-sales-sandbox"
+            supabase stop --no-backup || true
+          fi
