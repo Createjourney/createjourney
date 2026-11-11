@@ -224,6 +224,8 @@ async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prom
   if(result?.error||result?.execution_performed!==false)return {status:"UNAVAILABLE",message:"Agent workforce evidence cannot be verified."};
   if(action==="overview"){
    const data=result.summary||{};
+   if(!Number.isInteger(data.registered_agents)||!data.by_lifecycle_status||typeof data.by_lifecycle_status!=="object")
+    return {status:"UNAVAILABLE",message:"Workforce summary was incomplete; no agent counts can be verified."};
    return {status:"READ_ONLY_LIVE",message:JSON.stringify({registered_agents:data.registered_agents,
     by_lifecycle_status:data.by_lifecycle_status,departments_registered:result.departments_registered,
     dependencies_recorded:result.dependencies_recorded,dependencies_status:result.dependencies_status,
@@ -231,7 +233,9 @@ async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prom
     execution_proof:data.execution_proof}).slice(0,4200)};
   }
   if(action==="roster"){
-   const entries=(result.entries||[]).map((a:any)=>({agent_no:a.agent_no,name:a.agent_name,
+   if(!Array.isArray(result.entries)||!Number.isInteger(result.total))
+    return {status:"UNAVAILABLE",message:"Workforce roster response was incomplete."};
+   const entries=result.entries.map((a:any)=>({agent_no:a.agent_no,name:a.agent_name,
     department_no:a.department_no,lifecycle_status:a.lifecycle_status,readiness:a.readiness,
     verified_external_execution:false}));
    return {status:"READ_ONLY_LIVE",message:JSON.stringify({entries,total:result.total,
@@ -239,18 +243,21 @@ async function authorizedWorkforceRead(url:string,anon:string,bearer:string,prom
     note:"List is paginated; omitted entries are not missing or inactive."}).slice(0,6500)};
   }
   if(action==="departments"){
-   const entries=(result.entries||[]).map((d:any)=>({department_no:d.department_no,
+   if(!Array.isArray(result.entries))return {status:"UNAVAILABLE",message:"Department evidence was unavailable."};
+   const entries=result.entries.map((d:any)=>({department_no:d.department_no,
     name:d.department_name,total:d.total,by_status:d.by_status}));
    return {status:"READ_ONLY_LIVE",message:JSON.stringify({entries,
     registered_agents:result.summary?.registered_agents}).slice(0,6500)};
   }
   if(action==="tool_capabilities"){
+   if(!Array.isArray(result.granted_permissions))return {status:"UNAVAILABLE",message:"Agent tool grants were unavailable."};
    return {status:"READ_ONLY_LIVE",message:JSON.stringify({
     catalog_status:result.tool_catalog_status,
     granted_permissions:result.granted_permissions?.slice(0,60),
     warning:result.warning,external_operations_verified:false}).slice(0,4500)};
   }
   const detail=result.agent||{};
+  if(!Number.isInteger(detail.agent_no))return {status:"UNAVAILABLE",message:"Agent detail evidence was unavailable."};
   return {status:"READ_ONLY_LIVE",message:JSON.stringify({agent_no:detail.agent_no,
    agent_name:detail.agent_name,lifecycle_status:detail.lifecycle_status,readiness:detail.readiness,
    business_execution_evidence:detail.business_execution_evidence,
