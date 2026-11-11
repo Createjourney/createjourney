@@ -42,3 +42,19 @@ export function summarizeMarketingAction(result,command){
  }
  return "No marketing action requested.";
 }
+
+/** Owner-reported planning context, not a verified merchant feed or advertised claim. */
+export const FLOURISHED_PROVISIONAL_BRIEF=Object.freeze({
+ product:"Premium three-dimensional multifunctional modular display frame with interchangeable flower/vase accessories",
+ provisional_retail_price_usd:240,
+ first_release_target_units:100,
+ first_release_inventory_verified:false,
+ target_audience:"Women approximately 18–60",
+ planned_ship_within_days:20,
+ shipping_capacity_verified:false,
+ product_listing_verified:false,
+ customer_checkout_verified:false,
+ approved_creative_assets_verified:false,
+ fulfillment_and_claims_policy:"Never present target inventory or shipping dates as guaranteed before merchant validation",
+ evidence_status:"OWNER_REPORTED_PROVISIONAL_2026"
+});
