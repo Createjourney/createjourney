@@ -275,3 +275,14 @@ window.CJSmartBoardOwnerPage={
  }
 };
 })();
+
+/* Sales Command Center V1: sidecar loader; no sales actions run until explicitly requested. */
+(function(){
+ "use strict";
+ if(typeof document==="undefined"||window.CJSalesCommandCenter)return;
+ const loader=document.createElement("script");
+ loader.src="./assets/cj-sales-center-v1.js";
+ loader.defer=true;
+ loader.onerror=function(){console.warn("Sales Command Center asset unavailable; existing CreateJourney unaffected.")};
+ document.head.appendChild(loader);
+})();
