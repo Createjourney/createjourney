@@ -146,7 +146,7 @@ test('production source preserves chat provider retry and M3 server authorizatio
   'agent_workforce_status:workforce.status','do not run'])
   assert.ok(chat.includes(phrase),phrase);
  for(const phrase of ['auth.getUser(token)','eligible.find(m=>m.business_id===requestedBusiness)',
-  'eligible.length===1','PRIVILEGED_ROLES'])
+  'eligible.length===1','business_selection_required','PRIVILEGED_ROLES'])
   assert.ok(service.includes(phrase),phrase);
  for(const operation of ['.insert(','.upsert(','.update(','.delete('])
   assert.ok(!service.includes(operation),'unexpected write operation '+operation);
