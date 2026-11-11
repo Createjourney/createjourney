@@ -19,8 +19,10 @@
 
 - `supabase/functions/journey-ai-agent-intelligence/logic.mjs` — pure permission-aware readiness and evidence classification utilities.
 - `supabase/functions/journey-ai-agent-intelligence/index.ts` — authenticated, owner/manager-only, read-only Supabase Edge Function.
+- `supabase/functions/journey-ai-chat/index.ts` — **staged** live-context handoff for owner requests about agent status, roster, departments, permissions and individual agent evidence. It uses the authenticated read-only endpoint and reports `UNAVAILABLE` if the service cannot verify results; status/catalog questions do not launch analysis pilot jobs.
 - `tests/journey-ai-agent-intelligence.test.mjs` — regression tests for realistic registry totals, evidence policy, missing grants and bounded inputs.
 - `.github/workflows/agent-workforce-m3.yml` — Node tests, Deno type-check and read-only permission contract guard.
+- `supabase/backups/journey-ai-chat-v22-deployed-20261111/index.ts` — exact deployed v22 source preserved before integration. **Critical:** GitHub's pre-existing v22 source was stale and lacked a deployed provider retry improvement. The integration was rebased on the real deployed source, not the stale file.
 
 ## Authenticated API contract
 
@@ -29,7 +31,7 @@ All POST requests require a valid end-user Supabase JWT and a **validated busine
 | Action | Result | Limits |
 |---|---|---|
 | `overview` | Live 607-registry counts grouped by lifecycle status, department count, known dependencies count, scoped business job count | 1,000 registry records max, enough for today's 607 |
-| `roster` | Ordered, paginated agent directory, optional bounded search | 60 records/page, max offset 5,000 |
+| `roster` | Ordered, paginated agent directory with bounded search, lifecycle status and department filters | 60 records/page, max offset 5,000 |
 | `agent_detail` | A single role's responsibilities, classification, supervisor, prerequisite/dependent relationships, granted tools, business-specific job/event/status evidence | 20 jobs; 120 events; 250 dependency rows |
 | `departments` | 75 departments with live role counts/status breakdown | 150 departments max |
 | `tool_capabilities` | Registered tool definitions and explicit grants, labeled `UNVERIFIED`; never falsely treats grants as a successful provider operation | 1,000 grants max |
@@ -37,7 +39,7 @@ All POST requests require a valid end-user Supabase JWT and a **validated busine
 
 ### Truth model
 
-- `PLANNED` → `NOT_IMPLEMENTED` — registration does not mean software exists.
+- `PLANNED` → `PLANNED_UNVERIFIED` — registry lifecycle alone cannot determine whether executable code exists.
 - `TESTING` with no successful analysis receipts → `TESTING_UNVERIFIED`.
 - A `SUCCEEDED` analysis-only job **plus** an `ANALYSIS_COMPLETED` job event (scoped to the selected business) → `ANALYSIS_RUNTIME_OBSERVED`. **Still not an external provider action.**
 - Unknown `DEPLOYED`/other statuses without receipts → `IMPLEMENTED_UNVERIFIED`, not automatically verified operational.
@@ -54,12 +56,19 @@ The Edge Function has no mutation endpoints. It does not accept tool-invocation 
 - [x] Inspect live 607-role registry, departments, tool permissions, dependencies and existing job evidence.
 - [x] Define deterministic lifecycle, readiness and proof distinctions.
 - [x] Implement secure roster, agent detail, department, grant and business-evidence reads.
-- [x] Add tests and Deno type-check workflow.
+- [x] Add tests, mocked chat request/authorization scenarios, Deno type-check and existing pilot-routing regression workflow.
+- [x] Stage conversational Journey AI integration without bypassing the authenticated owner/manager service.
+- [x] Preserve exact deployed v22 chat source including the provider fallback retry.
 - [ ] Final GitHub Actions run green for this branch and code review.
 - [ ] PR #36 Milestone 1 authenticated and live-board acceptance gates.
 - [ ] PR #37 Milestone 2 migration + verified production knowledge activation.
 - [ ] Scoped authenticated E2E in isolated business, including cross-tenant denials and actual runtime job receipts.
 - [ ] Deploy read-only Edge Function with `verify_jwt=true`, test 401/403/success under owner/manager, and check logs.
-- [ ] Integrate into Journey AI chat only in the future context-aware milestone, with user role/business selection and independently verified evidence.
+- [x] Stage optional read-only Journey AI chat integration for explicit agent questions, with typed business scope and transparent unavailable state.
+- [ ] Verify the integrated chat against a live authenticated owner session in an isolated test business. This has **not** happened.
 
 **Release decision:** Keep this work staged until prior dependencies and authenticated tests pass. No production database writes and no agent activation.
+
+## Live conversational behavior after authorized deployment
+
+The staged chat code calls `journey-ai-agent-intelligence` only for agent/workforce questions. It can request overview, a paginated/searchable roster, one specific agent, departments or tool permission summaries. The Edge Function rechecks owner/manager membership; an arbitrary browser-supplied business ID does not grant data access. If the endpoint is undeployed, unauthorized or unavailable, Journey AI receives explicit `UNAVAILABLE` context rather than invented status. Agent pilot routing ignores informational status/catalog questions. No AI agent is activated by this M3 integration.
