@@ -1,9 +1,10 @@
-name: Sales Readiness Unit Tests
+name: Sales Readiness Unit + Local Supabase Tests
 on:
   pull_request:
     paths:
       - 'supabase/functions/cj-sales-command-center/**'
-      - 'supabase/migrations/20261110_sales_campaign_command_center.sql'
+      - 'supabase/migrations/**'
+      - 'tests/sales-command-center-local.sql'
       - 'assets/cj-sales-center-v1.js'
       - 'assets/cj-journey-capabilities-v1.js'
       - 'scripts/sales-readiness.mjs'
@@ -11,15 +12,20 @@ on:
       - '.github/workflows/sales-readiness.yml'
   push:
     paths:
+      - 'supabase/functions/cj-sales-command-center/**'
+      - 'supabase/migrations/**'
+      - 'tests/sales-command-center-local.sql'
+      - 'assets/cj-sales-center-v1.js'
+      - 'assets/cj-journey-capabilities-v1.js'
       - 'scripts/sales-readiness.mjs'
       - 'scripts/sales-readiness.test.mjs'
       - '.github/workflows/sales-readiness.yml'
 permissions:
   contents: read
 jobs:
-  test:
+  code-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,3 +40,28 @@ jobs:
         with:
           deno-version: v2.x
       - run: deno check supabase/functions/cj-sales-command-center/index.ts
+  local-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start isolated local Supabase stack
+        run: supabase start
+      - name: Apply repository migrations to isolated database
+        run: supabase db reset --local --yes
+      - name: Check campaign schema, grants, and RLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_CONTAINER="$(docker ps --format '{{.Names}}' | grep '^supabase_db_' | head -n1)"
+          if [ -z "$DB_CONTAINER" ]; then
+            echo 'Local Supabase Postgres container not found' >&2
+            exit 1
+          fi
+          docker exec -i "$DB_CONTAINER" psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres < tests/sales-command-center-local.sql
+      - name: Stop isolated Supabase stack
+        if: always()
+        run: supabase stop --no-backup || true
