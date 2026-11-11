@@ -122,8 +122,12 @@ test('Journey AI workforce bridge sends scoped read-only requests and never fabr
  assert.deepEqual({action:requested.action,limit:requested.limit,offset:requested.offset,status:requested.status,
   search:requested.search},{action:'roster',limit:40,offset:40,status:'TESTING',search:'marketing'});
  const noBusiness=await invoke(u,'public-key',token,'Which agents are active?',{});
- assert.equal(noBusiness.status,'BUSINESS_SELECTION_REQUIRED');
- assert.equal(calls.length,3);
+ assert.equal(noBusiness.status,'READ_ONLY_LIVE','A sole business may be resolved by the authenticated server');
+ assert.equal(JSON.parse(calls[3].options.body).business_id,undefined);
+ assert.equal(calls.length,4);
+ sandbox.fetch=async()=>({ok:false,status:409});
+ const ambiguous=await invoke(u,'public-key',token,'Which agents are active?',{});
+ assert.equal(ambiguous.status,'BUSINESS_SELECTION_REQUIRED');
  sandbox.fetch=async()=>({ok:false,status:403});
  const denied=await invoke(u,'public-key',token,'How many agents?',{business_id:id});
  assert.equal(denied.status,'UNAVAILABLE');
