@@ -12,6 +12,20 @@ const groups=[
  {key:"commerce",agents:[345,337,353]},{key:"reporting",agents:[524,526]}
 ];
 const allIds=[...new Set(groups.flatMap(g=>g.agents))];
+async function verifiedReceipt(e:Record<string,unknown>,businessId:string,campaignId:string,secret:string,now:number):Promise<boolean>{
+ if(!secret||!GATES.includes(String(e.gate_key))||e.outcome!=="PASS"||e.source!=="server_verified")return false;
+ const verifiedAt=typeof e.verified_at==="string"?Date.parse(e.verified_at):NaN;
+ const expiresAt=typeof e.expires_at==="string"?Date.parse(e.expires_at):NaN;
+ if(!Number.isSafeInteger(verifiedAt)||!Number.isSafeInteger(expiresAt)||
+   verifiedAt>now||expiresAt<=now||expiresAt<=verifiedAt||expiresAt-verifiedAt>86400000)return false;
+ if(typeof e.provider_reference!=="string"||!e.provider_reference||typeof e.signature!=="string"||
+   !/^[0-9a-f]{64}$/.test(e.signature))return false;
+ const message=JSON.stringify(["cj-sales-v1",e.gate_key,businessId,campaignId,verifiedAt,expiresAt,"PASS"]);
+ const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),{name:"HMAC",hash:"SHA-256"},false,["verify"]);
+ const sig=new Uint8Array((e.signature.match(/../g)||[]).map(v=>parseInt(v,16)));
+ return crypto.subtle.verify("HMAC",key,sig,new TextEncoder().encode(message));
+}
+
 const nullableText=(x:unknown,n:number)=>typeof x==="string"?x.trim().slice(0,n):"";
 const int=(x:unknown,min:number,max:number):number|null=>typeof x==="number"&&Number.isInteger(x)&&x>=min&&x<=max?x:null;
 const errMsg=(e:unknown)=>e instanceof Error?e.message:"Backend request failed";
@@ -147,16 +161,18 @@ Deno.serve(async(req)=>{
   let evidenceRows:Record<string,unknown>[]=[];
   if(selected){
    const {data,error}=await admin.from("cj_sales_verification_evidence")
-    .select("gate_key,outcome,source,verified_at,expires_at,provider_reference")
+    .select("gate_key,outcome,source,verified_at,expires_at,provider_reference,signature")
     .eq("business_id",businessId).eq("campaign_id",selected.id).order("verified_at",{ascending:false}).limit(100);
    if(error)throw error;evidenceRows=data||[];
   }
   const current=Date.now();
-  const verified_gates=GATES.filter(gate=>evidenceRows.some(e=>
-   e.gate_key===gate&&e.outcome==="PASS"&&e.source==="server_verified"&&
-   typeof e.verified_at==="string"&&Date.parse(e.verified_at)<=current&&
-   typeof e.expires_at==="string"&&Date.parse(e.expires_at)>current&&
-   typeof e.provider_reference==="string"&&e.provider_reference.length>0));
+  const verificationKey=Deno.env.get("CJ_SALES_VERIFICATION_SECRET")||"";
+  const gateResults=await Promise.all(GATES.map(async gate=>{
+   const proofs=evidenceRows.filter(e=>e.gate_key===gate);
+   for(const receipt of proofs)if(await verifiedReceipt(receipt,businessId,selected!.id,verificationKey,current))return gate;
+   return null;
+  }));
+  const verified_gates=gateResults.filter((g):g is string=>typeof g==="string");
   const blockers=GATES.filter(gate=>!verified_gates.includes(gate));
   if(!selected)blockers.push("campaign_not_configured");
   const agentCount=agents.filter(a=>["VERIFIED","DEPLOYED","MONITORING"].includes(a.status)).length;
