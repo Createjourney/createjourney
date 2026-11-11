@@ -1,0 +1,23 @@
+name: Flourished Marketing Squad Production Authentication Smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/marketing-launch-squad-production-smoke.yml'
+      - 'scripts/marketing-launch-squad-production-smoke.mjs'
+permissions:
+  contents: read
+jobs:
+  production-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/marketing-launch-squad-production-smoke.mjs
+        env:
+          CJ_SUPABASE_URL: https://pbiivpehdatvmyaxwixk.supabase.co
+          CJ_SUPABASE_ANON_KEY: ${{ secrets.CJ_SUPABASE_ANON_KEY }}
+          CJ_TEST_ACCESS_TOKEN: ${{ secrets.CJ_TEST_ACCESS_TOKEN }}
