@@ -8,6 +8,13 @@ on:
       - 'assets/cj-journey-capabilities-v1.js'
       - 'assets/cj-sales-center-v1.js'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/hosted-app-preflight.yml'
+      - 'assets/cj-sales-center-v1.js'
+      - 'assets/cj-journey-capabilities-v1.js'
+      - 'index.html'
 permissions:
   contents: read
 jobs:
@@ -40,3 +47,32 @@ jobs:
           curl --fail --silent --show-error --location --retry 2 --max-time 30 --compressed             "https://app.gocreatejourney.com/assets/cj-journey-capabilities-v1.js"             --output "$RUNNER_TEMP/cj-hosted/capabilities.js"
           grep -q 'CJJourneyCapabilities' "$RUNNER_TEMP/cj-hosted/capabilities.js"
           echo "PASS: hosted application is reachable; capability script is published."
+
+      - name: Verify newly published Sales Command Center assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://app.gocreatejourney.com/assets"
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent --show-error --location --max-time 20 --compressed               "$BASE/cj-sales-center-v1.js?check=$GITHUB_SHA"               -o "$RUNNER_TEMP/cj-hosted/sales-center.js" &&
+              grep -q 'CJSalesCommandCenter' "$RUNNER_TEMP/cj-hosted/sales-center.js" &&
+              curl --fail --silent --show-error --location --max-time 20 --compressed               "$BASE/cj-journey-capabilities-v1.js?check=$GITHUB_SHA"               -o "$RUNNER_TEMP/cj-hosted/capabilities-new.js" &&
+              grep -q 'cj-sales-center-v1.js' "$RUNNER_TEMP/cj-hosted/capabilities-new.js"; then
+              echo "PASS: Sales Command Center sidecar is hosted and referenced."
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages publishing, attempt $attempt/12"
+            sleep 10
+          done
+          echo "FAIL: Sales Command Center assets not yet published" >&2
+          exit 1
+      - name: Confirm protected Sales backend rejects unauthenticated request
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(curl --silent --show-error --location --max-time 20             -o "$RUNNER_TEMP/cj-hosted/backend-unauth.txt" -w '%{http_code}'             -X POST 'https://pbiivpehdatvmyaxwixk.supabase.co/functions/v1/cj-sales-command-center'             -H 'Content-Type: application/json' --data '{"action":"overview"}')"
+          if [ "$STATUS" != "401" ] && [ "$STATUS" != "403" ]; then
+            echo "Unexpected HTTP status for unauthenticated protected endpoint: $STATUS" >&2
+            exit 1
+          fi
+          echo "PASS: unauthenticated request rejected (HTTP $STATUS)."
