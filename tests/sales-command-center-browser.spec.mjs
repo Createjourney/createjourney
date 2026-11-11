@@ -60,3 +60,14 @@ test('Control Center has separate AI Sales entry without changing Marketing chat
  await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
  await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
 });
+
+test('real Command Center tile opens sales overlay instead of returning to dashboard top',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>typeof window.CJExactHome?.showCommandCenter==='function'&&typeof window.CJSalesCommandCenter?.open==='function',{timeout:25000});
+ await page.evaluate(()=>window.CJExactHome.showCommandCenter());
+ const tile=page.locator('#cjScreenshotHome .cjx-controls [data-cjs-launch]').first();
+ await expect(tile).toBeVisible({timeout:20000});
+ await tile.click();
+ await expect(page.locator('#cjSalesOverlay')).toBeVisible({timeout:10000});
+ await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
+});
