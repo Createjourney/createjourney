@@ -25,7 +25,7 @@ const css=`
 let root=null,last=null;
 const providers=[
  ["shopify","Shopify","Storefront, orders, refunds and sales attribution"],
- ["meta","Facebook & Instagram","Business pages, content and outreach permissions"],
+ ["meta","Facebook & Instagram","Business page visibility and Instagram publishing; outreach/ads separately authorized"],
  ["tiktok","TikTok","Profile access; content publishing needs separate platform approval"],
  ["google","Google Business Profile","Business profile and authorized review management"],
  ["gmail","Gmail Business Email","Authorized send-only email connection (outreach separately approved)"],
@@ -182,7 +182,7 @@ function renderMarketingHub(data,container){
     storeInput.autocomplete="off";storeInput.maxLength=90;
    }
    const button=el("button",{type:"button",text:canOAuth&&key!=="meta_ads"?
-    configured?(key==="shopify"?"Inspect store":"Verify account"):"Connect "+name:"View requirements"},box);
+    configured?(key==="shopify"?"Verify store":"Verify account"):"Connect "+name:"View requirements"},box);
    button.onclick=async()=>{
     if(!supports||key==="meta_ads"){message(name+" is not available as a separately verified marketing connector yet.",true);return}
     if(!snapshot){message("Check connection readiness first.",true);return}
@@ -190,8 +190,12 @@ function renderMarketingHub(data,container){
     button.disabled=true;
     try{
      if(key==="shopify"){
-      if(configured){message("Shopify authorization recorded for "+(state.store||"the selected store")+
-       ". Webhook signatures, checkout and sales attribution must be verified separately.");return}
+      if(configured){
+       const verified=await specialty("cj-shopify-integration",{action:"verify",business_id:data.business_id});
+       if(!verified.identity_verified)throw Error("Shopify identity not verified");
+       message("Shopify verified for "+verified.store+". Orders, refunds, checkout attribution and publishing require separate verified webhooks.");
+       await loadConnections();return;
+      }
       const shop=String(storeInput?.value||"").trim().toLowerCase();
       if(!/^[a-z0-9][a-z0-9-]{0,62}\.myshopify\.com$/.test(shop))
        throw Error("Enter the exact Shopify .myshopify.com store domain");
