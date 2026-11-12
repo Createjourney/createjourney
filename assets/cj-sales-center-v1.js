@@ -213,7 +213,7 @@ function createForm(container){
 function open(){
  if(root){root.hidden=false;return refresh()}
  if(!document.getElementById("cjs-style")){const style=el("style",{id:"cjs-style"});style.textContent=css;document.head.append(style)}
- root=el("section",{id:"cjSalesOverlay",role:"dialog","aria-modal":"true","aria-label":"Autonomous Sales Command Center"},document.body);
+ root=el("section",{id:"cjSalesOverlay",role:"dialog","aria-modal":"true","aria-label":"Marketing & Sales Command Center"},document.body);
  const shell=el("main",{className:"cjs-shell"},root);
  const buttons=el("div",{className:"cjs-flex"},shell);
  el("h1",{text:"Marketing & Sales Command Center"},buttons);
