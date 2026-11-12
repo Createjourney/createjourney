@@ -31,6 +31,14 @@ async function encrypt(token:string){
  const enc=(arr:Uint8Array)=>btoa(String.fromCharCode(...arr));
  return enc(iv)+"."+enc(bytes);
 }
+async function decrypt(token:string){
+ const [ivPart,dataPart]=String(token||"").split(".");
+ if(!ivPart||!dataPart)throw Error("No encrypted Shopify authorization available");
+ const decode=(value:string)=>Uint8Array.from(atob(value),c=>c.charCodeAt(0));
+ const key=await aesKey();
+ return new TextDecoder().decode(await crypto.subtle.decrypt(
+  {name:"AES-GCM",iv:decode(ivPart)},key,decode(dataPart)));
+}
 async function verifyShopifyHmac(q:URLSearchParams,secret:string){
  const signature=q.get("hmac")||"";
  if(!/^[0-9a-f]{64}$/i.test(signature)||!secret)return false;
@@ -117,6 +125,7 @@ Deno.serve(async(req:Request)=>{
   if(action==="status")return send({provider:"shopify",oauth_configured:enabled,
    connected:row?.status==="connected",status:row?.status||"disconnected",
    store:row?.external_account_name||null,scope_verified:!!row?.metadata?.scope_verified,
+   identity_verified:!!row?.metadata?.identity_verified_at,
    order_webhook_verified:!!row?.metadata?.order_webhook_verified,
    external_execution_verified:false,callback_url:redirect()});
   if(action==="begin"){
@@ -137,6 +146,28 @@ Deno.serve(async(req:Request)=>{
    auth.searchParams.set("redirect_uri",redirect());
    auth.searchParams.set("state",state);
    return send({provider:"shopify",authorization_url:auth.toString(),scope:scopes,external_actions_authorized:false});
+  }
+  if(action==="verify"){
+   if(row?.status!=="connected")return send({error:"Shopify is not connected"},409);
+   const shop=String(row.metadata?.shop||row.external_account_id||"");
+   if(!shopReg.test(shop))return send({error:"Stored Shopify domain is invalid"},409);
+   const token=await decrypt(String(row.metadata?.encrypted_tokens||""));
+   const response=await fetch("https://"+shop+"/admin/api/"+apiVersion+"/graphql.json",{
+    method:"POST",headers:{"Content-Type":"application/json","X-Shopify-Access-Token":token},
+    body:JSON.stringify({query:"{ shop { name myshopifyDomain } }"}),
+    signal:AbortSignal.timeout(15000)
+   });
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||result.errors?.length||result.data?.shop?.myshopifyDomain!==shop)
+    return send({error:"Shopify Admin API store identity could not be verified"},502);
+   const {error:updated}=await db.from("connected_accounts").update({
+    external_account_name:String(result.data.shop.name||shop).slice(0,100),
+    metadata:{...row.metadata,identity_verified_at:new Date().toISOString()},
+    last_synced_at:new Date().toISOString(),updated_at:new Date().toISOString()
+   }).eq("id",row.id).eq("business_id",business);
+   if(updated)throw updated;
+   return send({identity_verified:true,store:shop,
+    order_webhook_verified:false,checkout_verified:false,external_actions_verified:false});
   }
   if(action==="disconnect"){
    if(identity.role!=="owner")return send({error:"Owner permission required"},403);
