@@ -27,8 +27,8 @@ const providers=[
  ["shopify","Shopify","Storefront, orders, refunds and sales attribution"],
  ["meta","Facebook & Instagram","Business pages, content and outreach permissions"],
  ["tiktok","TikTok","Approved publishing and promotions"],
- ["google","Google","Analytics and business integrations"],
- ["email","Business Email","Opt-in outreach and follow-ups"],
+ ["google","Google Business Profile","Business profile and authorized review management"],
+ ["email","Business Email (Gmail / Outlook)","Opt-in outreach and follow-ups"],
  ["meta_ads","Meta Ads","Approved campaigns, budgets and reporting"]
 ];
 async function specialty(slug,body){
@@ -162,9 +162,9 @@ function renderMarketingHub(data,container){
   clear(grid);
   for(const [key,name,purpose] of providers){
    const providerKey=key==="meta_ads"?"meta":key;
-   const supports=key==="meta"||key==="google";
-   const state=snapshot?.accounts?.find(a=>a.provider===providerKey);
-   const canOAuth=supports&&snapshot?.readiness?.[providerKey]?.oauth_configured===true;
+   const supports=key==="meta"||key==="google"||key==="shopify";
+   const state=key==="shopify"?snapshot?.shopify:snapshot?.accounts?.find(a=>a.provider===providerKey);
+   const canOAuth=supports&&(key==="shopify"?snapshot?.shopify?.oauth_configured===true:snapshot?.readiness?.[providerKey]?.oauth_configured===true);
    const configured=state?.status==="connected";
    const box=el("div",{className:"cjs-card"},grid);
    el("strong",{text:name},box);el("p",{text:purpose},box);
@@ -174,15 +174,30 @@ function renderMarketingHub(data,container){
     configured?"Connected record — verify operational permissions":
     state?"Status: "+state.status:
     canOAuth?"Ready to authorize — not connected":"OAuth configuration required"},box);
+   let storeInput=null;
+   if(key==="shopify"&&canOAuth&&!configured){
+    const label=el("label",{text:"Shop domain (.myshopify.com)"},box);
+    storeInput=el("input",{type:"text",placeholder:"your-store.myshopify.com"},label);
+    storeInput.autocomplete="off";storeInput.maxLength=90;
+   }
    const button=el("button",{type:"button",text:canOAuth&&key!=="meta_ads"?
-    configured?"Verify account":"Connect "+name:"View requirements"},box);
+    configured?(key==="shopify"?"Inspect store":"Verify account"):"Connect "+name:"View requirements"},box);
    button.onclick=async()=>{
     if(!supports||key==="meta_ads"){message(name+" is not available as a separately verified marketing connector yet.",true);return}
     if(!snapshot){message("Check connection readiness first.",true);return}
     if(!canOAuth){message(name+" requires provider OAuth credentials and encrypted token storage configured in Supabase.",true);return}
     button.disabled=true;
     try{
-     if(configured){
+     if(key==="shopify"){
+      if(configured){message("Shopify authorization recorded for "+(state.store||"the selected store")+
+       ". Webhook signatures, checkout and sales attribution must be verified separately.");return}
+      const shop=String(storeInput?.value||"").trim().toLowerCase();
+      if(!/^[a-z0-9][a-z0-9-]{0,62}\.myshopify\.com$/.test(shop))
+       throw Error("Enter the exact Shopify .myshopify.com store domain");
+      const started=await specialty("cj-shopify-integration",{action:"begin",business_id:data.business_id,shop});
+      if(!started.authorization_url||!/^https:\/\//.test(started.authorization_url))throw Error("Shopify authorization URL unavailable");
+      window.location.assign(started.authorization_url);
+     }else if(configured){
       const verification=await specialty("journey-integrations",{action:"sync_account",business_id:data.business_id,provider:providerKey});
       if(!verification.verified)throw Error(verification.error||"Provider verification failed");
       message(name+" provider account verified. Publishing and campaign permissions require separate tests.");
@@ -199,7 +214,8 @@ function renderMarketingHub(data,container){
     disconnect.onclick=async()=>{
      if(!confirm("Disconnect "+name+" from this business? Scheduled external actions must be stopped separately."))return;
      disconnect.disabled=true;
-     try{await specialty("journey-integrations",{action:"disconnect",business_id:data.business_id,provider:providerKey});
+     try{await specialty(key==="shopify"?"cj-shopify-integration":"journey-integrations",
+       {action:"disconnect",business_id:data.business_id,...(key==="shopify"?{}:{provider:providerKey})});
       await loadConnections();message(name+" disconnected in CreateJourney.");
      }catch(e){message(e.message||String(e),true)}finally{disconnect.disabled=false}
     };
@@ -209,8 +225,11 @@ function renderMarketingHub(data,container){
  async function loadConnections(){
   checkConn.disabled=true;
   try{
-   const snapshot=await specialty("journey-integrations",{action:"status",business_id:data.business_id});
-   drawConnections(snapshot);
+   const main=await specialty("journey-integrations",{action:"status",business_id:data.business_id});
+   let shopify=null;
+   try{shopify=await specialty("cj-shopify-integration",{action:"status",business_id:data.business_id})}
+   catch(e){shopify={status:"unavailable",oauth_configured:false}}
+   drawConnections({...main,shopify});
    message("Connection readiness checked. This does not prove publishing or sales execution.");
   }catch(e){drawConnections(null);message(e.message||String(e),true)}
   finally{checkConn.disabled=false}
