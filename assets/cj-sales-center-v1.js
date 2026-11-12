@@ -226,18 +226,20 @@ function open(){
  refresh();
 }
 function installButton(){
- // The original Marketing control intentionally starts a Journey AI chat.
- // Keep that workflow intact; provide a separate, direct Sales entry point.
+ // Keep a single Marketing tile: reuse the app's native Marketing button.
  const controls=document.querySelector(".cjx-controls");
- if(controls&&!controls.querySelector("[data-cjs-launch]")){
-  const b=el("button",{type:"button","data-cjs-launch":"true",className:"cjx-control"},controls);
-  const icon=el("span",{className:"cjx-iconbox cjx-pink"},b);
-  icon.textContent="↗";
-  const content=el("span",{},b);
-  el("strong",{text:"Marketing"},content);
-  el("span",{className:"cjx-copy",text:"Connections, agents, campaigns & sales"},content);
-  el("span",{className:"cjx-arrow",text:"›"},b);
-  b.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
+ if(controls){
+  const native=controls.querySelector('[data-cjx-home-action="marketing"]');
+  const existing=controls.querySelector("[data-cjs-launch]");
+  if(native){
+   if(existing&&existing!==native)existing.remove();
+   native.setAttribute("data-cjs-launch","true");
+   native.setAttribute("aria-label","Marketing Command Center");
+   native.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
+  }else if(!existing){
+   const b=el("button",{type:"button","data-cjs-launch":"true",className:"cjx-control"},controls);
+   el("strong",{text:"Marketing"},b);b.onclick=event=>{event.preventDefault();event.stopPropagation();open()};
+  }
  }
  // Retain access from the existing (advanced) Marketing workspace too.
  const host=document.getElementById("aiWorkspaceMarketingPanel");
