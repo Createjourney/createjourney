@@ -62,6 +62,11 @@ expectSuccess(await call('POST','/rest/v1/business_members',[
 ],service),'seed memberships');
 expectSuccess(await call('POST','/rest/v1/connected_accounts',{business_id:businessId,provider:'meta',status:'connected',capabilities:{claimed:'instagram_publish'}},service),'seed connection');
 
+const ownerBusinesses=expectSuccess(await app(owner.token,'list_businesses'),'list authorized businesses');
+assert.equal(ownerBusinesses.businesses.length,1,'Owner sees only their authorized business');
+assert.equal(ownerBusinesses.businesses[0].id,businessId);
+const outsiderBusinesses=expectSuccess(await app(outsider.token,'list_businesses'),'outsider empty business list');
+assert.equal(outsiderBusinesses.businesses.length,0,'Unauthorized business metadata must not leak');
 const denied=await app(outsider.token,'overview',{},businessId);
 assert.equal(denied.status,403,'Non-member cannot view business');
 const crossBusiness=await app(owner.token,'overview',{},otherBusinessId);
