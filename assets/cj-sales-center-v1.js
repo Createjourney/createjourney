@@ -130,6 +130,23 @@ function renderMarketingHub(data,container){
  el("h2",{text:"One Marketing Command Center"},intro);
  el("p",{text:"Account connections, AI sales team, campaign drafts, outreach readiness and performance — all in one place. This view will never claim a connection or an agent is operational without evidence."},intro);
  const toolbar=el("div",{className:"cjs-flex"},intro);
+ const askAI=el("button",{type:"button",text:"Ask Journey AI"},toolbar);
+ askAI.onclick=()=>{
+  const context={page:"marketing",action:"marketing_assistance",business_id:data.business_id,
+   source:"marketing_command_center"};
+  window.dispatchEvent(new CustomEvent("cj:journey-context",{detail:context}));
+  if(typeof window.CJSalesCommandCenter?.close==="function")window.CJSalesCommandCenter.close();
+  const opened=typeof window.CJExactHome?.openJourneyAI==="function"?
+   window.CJExactHome.openJourneyAI():
+   typeof window.openAI==="function"?window.openAI():false;
+  const input=document.getElementById("aiInput");
+  if(input){
+   input.value="Help me plan and manage marketing for my selected business. "+
+    "Use verified connected accounts and agent capabilities only. "+
+    "Prepare draft actions and request approval before posting, messaging or ad spend.";
+   input.focus();
+  }else if(opened===false){alert("Journey AI chat is not available on this screen.");}
+ };
  const pauseAll=el("button",{type:"button",text:"Pause all CreateJourney campaigns"},toolbar);
  pauseAll.onclick=async()=>{
   if(!confirm("Pause all CreateJourney-managed campaign plans for this business? Provider-side advertising and messages are NOT automatically stopped."))return;
