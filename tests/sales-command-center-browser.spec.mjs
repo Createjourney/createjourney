@@ -126,3 +126,15 @@ test('connection readiness gates live OAuth and never offers unsupported Shopify
  expect(actions.some(x=>x.action==='status')).toBeTruthy();
  expect(actions.some(x=>x.action==='begin_connection')).toBeFalsy();
 });
+
+test('Marketing business selector requires explicit choice for multi-organization owners',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html?multiple=1');
+ await page.locator('[data-cjs-launch]').click();
+ await expect(page.getByText('Select a business to continue.')).toBeVisible();
+ const select=page.getByLabel('Choose business to manage');
+ await select.selectOption('second-business');
+ await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
+ const requests=await page.evaluate(()=>window.__cjRequests);
+ const overview=requests.find(x=>x.action==='overview');
+ expect(overview.business_id).toBe('second-business');
+});
