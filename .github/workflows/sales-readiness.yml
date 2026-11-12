@@ -9,6 +9,7 @@ on:
       - 'tests/sales-command-center-local.sql'
       - 'tests/sales-command-center-fixture.sql'
       - 'tests/sales-command-center-local-e2e.mjs'
+      - 'tests/marketing-oauth-security-smoke.mjs'
       - 'tests/sales-command-center-browser.spec.mjs'
       - 'tests/fixtures/sales-center.html'
       - 'assets/cj-sales-center-v1.js'
@@ -42,6 +43,7 @@ jobs:
       - run: node --check scripts/sales-readiness.mjs
       - run: node --check scripts/sales-readiness.test.mjs
       - run: node --check tests/sales-command-center-local-e2e.mjs
+      - run: node --check tests/marketing-oauth-security-smoke.mjs
       - run: node --test scripts/sales-readiness.test.mjs
       - run: node --check assets/cj-sales-center-v1.js
       - run: node --check assets/cj-journey-capabilities-v1.js
@@ -90,6 +92,9 @@ jobs:
           cp "$GITHUB_WORKSPACE/supabase/migrations/20261110_sales_campaign_command_center.sql" supabase/migrations/20261110000000_sales_campaign_command_center.sql
           mkdir -p supabase/functions/cj-sales-command-center
           cp "$GITHUB_WORKSPACE/supabase/functions/cj-sales-command-center/index.ts" supabase/functions/cj-sales-command-center/index.ts
+          mkdir -p supabase/functions/cj-shopify-integration supabase/functions/cj-marketing-oauth
+          cp "$GITHUB_WORKSPACE/supabase/functions/cj-shopify-integration/index.ts" supabase/functions/cj-shopify-integration/index.ts
+          cp "$GITHUB_WORKSPACE/supabase/functions/cj-marketing-oauth/index.ts" supabase/functions/cj-marketing-oauth/index.ts
       - name: Start isolated Supabase and apply campaign migration
         shell: bash
         run: |
@@ -111,13 +116,18 @@ jobs:
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP/cj-sales-sandbox"
-          supabase functions serve cj-sales-command-center --no-verify-jwt > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
+          supabase functions serve --no-verify-jwt > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
           EDGE_PID=$!
           trap 'kill "$EDGE_PID" 2>/dev/null || true' EXIT
           STATUS="$(supabase status --output json)"
           export CJ_LOCAL_API_URL="$(printf '%s' "$STATUS" | jq -r '.API_URL')"
           export CJ_LOCAL_ANON_KEY="$(printf '%s' "$STATUS" | jq -r '.ANON_KEY')"
           export CJ_LOCAL_SERVICE_KEY="$(printf '%s' "$STATUS" | jq -r '.SERVICE_ROLE_KEY')"
+          node "$GITHUB_WORKSPACE/tests/marketing-oauth-security-smoke.mjs" || {
+            echo 'OAuth negative probe failed'
+            tail -n 45 "$RUNNER_TEMP/cj-sales-edge.log" || true
+            exit 1
+          }
           node "$GITHUB_WORKSPACE/tests/sales-command-center-local-e2e.mjs" || {
             echo 'Local Edge Function diagnostic (no credentials):'
             tail -n 45 "$RUNNER_TEMP/cj-sales-edge.log" || true
