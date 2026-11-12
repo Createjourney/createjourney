@@ -226,19 +226,23 @@ function open(){
  refresh();
 }
 function installButton(){
- // Keep a single Marketing tile: reuse the app's native Marketing button.
+ // Replace the native Marketing tile with one visually identical dedicated launcher.
+ // Existing command-center capture handlers otherwise intercept the native action.
  const controls=document.querySelector(".cjx-controls");
  if(controls){
   const native=controls.querySelector('[data-cjx-home-action="marketing"]');
-  const existing=controls.querySelector("[data-cjs-launch]");
   if(native){
-   if(existing&&existing!==native)existing.remove();
-   native.setAttribute("data-cjs-launch","true");
-   native.setAttribute("aria-label","Marketing Command Center");
-   native.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
-  }else if(!existing){
+   const replacement=native.cloneNode(true);
+   replacement.removeAttribute("data-cjx-home-action");
+   replacement.removeAttribute("id");
+   replacement.setAttribute("data-cjs-launch","true");
+   replacement.setAttribute("aria-label","Marketing");
+   replacement.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
+   native.replaceWith(replacement);
+  }else if(!controls.querySelector("[data-cjs-launch]")){
    const b=el("button",{type:"button","data-cjs-launch":"true",className:"cjx-control"},controls);
-   el("strong",{text:"Marketing"},b);b.onclick=event=>{event.preventDefault();event.stopPropagation();open()};
+   el("strong",{text:"Marketing"},b);
+   b.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
   }
  }
  // Retain access from the existing (advanced) Marketing workspace too.
