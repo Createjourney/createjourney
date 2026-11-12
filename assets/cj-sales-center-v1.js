@@ -154,19 +154,69 @@ function renderMarketingHub(data,container){
   }catch(e){message(e.message||String(e),true)}finally{run.disabled=false}
  };
  el("h2",{text:"Marketing account connections"},container);
+ el("p",{text:"Check connection readiness before authorizing a platform. Only configured OAuth providers receive a Connect button. Connecting does not authorize posting, messaging or ad spend."},container);
+ const connActions=el("div",{className:"cjs-flex"},container);
+ const checkConn=el("button",{type:"button",text:"Check connection readiness"},connActions);
  const grid=el("div",{className:"cjs-grid"},container);
- for(const [key,name,purpose] of providers){
-  const c=(data.integrations||[]).find(x=>String(x.provider||"").toLowerCase()===key);
-  const connected=!!c&&c.connection_status==="connected"&&!c.token_expired;
-  const box=el("div",{className:"cjs-card"},grid);
-  el("strong",{text:name},box);el("p",{text:purpose},box);
-  el("p",{text:connected?"Connection record found; capabilities not verified":
-   c?"Status: "+c.connection_status:"Setup required — not connected"},box);
-  const b=el("button",{type:"button",text:connected?"Inspect connection":"Connection requirements"},box);
-  b.onclick=()=>message(connected?
-   name+" has a connection record but operational scopes still need verification.":
-   name+" needs its provider OAuth configuration, callback, permissions and verification before we can offer a working Connect action.",true);
+ function drawConnections(snapshot){
+  clear(grid);
+  for(const [key,name,purpose] of providers){
+   const providerKey=key==="meta_ads"?"meta":key;
+   const supports=key==="meta"||key==="google";
+   const state=snapshot?.accounts?.find(a=>a.provider===providerKey);
+   const canOAuth=supports&&snapshot?.readiness?.[providerKey]?.oauth_configured===true;
+   const configured=state?.status==="connected";
+   const box=el("div",{className:"cjs-card"},grid);
+   el("strong",{text:name},box);el("p",{text:purpose},box);
+   const status=el("p",{text:!supports?
+    "Connector under development — no live OAuth":
+    !snapshot?"Readiness not checked — not verified":
+    configured?"Connected record — verify operational permissions":
+    state?"Status: "+state.status:
+    canOAuth?"Ready to authorize — not connected":"OAuth configuration required"},box);
+   const button=el("button",{type:"button",text:canOAuth&&key!=="meta_ads"?
+    configured?"Verify account":"Connect "+name:"View requirements"},box);
+   button.onclick=async()=>{
+    if(!supports||key==="meta_ads"){message(name+" is not available as a separately verified marketing connector yet.",true);return}
+    if(!snapshot){message("Check connection readiness first.",true);return}
+    if(!canOAuth){message(name+" requires provider OAuth credentials and encrypted token storage configured in Supabase.",true);return}
+    button.disabled=true;
+    try{
+     if(configured){
+      const verification=await specialty("journey-integrations",{action:"sync_account",business_id:data.business_id,provider:providerKey});
+      if(!verification.verified)throw Error(verification.error||"Provider verification failed");
+      message(name+" provider account verified. Publishing and campaign permissions require separate tests.");
+      await loadConnections();
+     }else{
+      const started=await specialty("journey-integrations",{action:"begin_connection",business_id:data.business_id,provider:providerKey});
+      if(!started.authorization_url||!/^https:\/\//.test(started.authorization_url))throw Error("Provider authorization URL unavailable");
+      window.location.assign(started.authorization_url);
+     }
+    }catch(e){message(e.message||String(e),true)}finally{button.disabled=false}
+   };
+   if(configured&&supports&&key!=="meta_ads"){
+    const disconnect=el("button",{type:"button",text:"Disconnect "+name},box);
+    disconnect.onclick=async()=>{
+     if(!confirm("Disconnect "+name+" from this business? Scheduled external actions must be stopped separately."))return;
+     disconnect.disabled=true;
+     try{await specialty("journey-integrations",{action:"disconnect",business_id:data.business_id,provider:providerKey});
+      await loadConnections();message(name+" disconnected in CreateJourney.");
+     }catch(e){message(e.message||String(e),true)}finally{disconnect.disabled=false}
+    };
+   }
+  }
  }
+ async function loadConnections(){
+  checkConn.disabled=true;
+  try{
+   const snapshot=await specialty("journey-integrations",{action:"status",business_id:data.business_id});
+   drawConnections(snapshot);
+   message("Connection readiness checked. This does not prove publishing or sales execution.");
+  }catch(e){drawConnections(null);message(e.message||String(e),true)}
+  finally{checkConn.disabled=false}
+ }
+ checkConn.onclick=loadConnections;
+ drawConnections(null);
  const gate=el("div",{className:"cjs-card"},container);
  el("h2",{text:"Live sales readiness"},gate);
  el("p",{text:"Campaign planning is available below. Provider publishing, advertising, outreach and order verification remain blocked until their secure connectors and test receipts pass."},gate);
