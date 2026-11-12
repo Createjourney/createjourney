@@ -138,3 +138,17 @@ test('Marketing business selector requires explicit choice for multi-organizatio
  const overview=requests.find(x=>x.action==='overview');
  expect(overview.business_id).toBe('second-business');
 });
+
+test('Marketing hub hands owner context back to Journey AI chat',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
+ await page.evaluate(()=>{
+  const input=document.createElement('textarea');
+  input.id='aiInput';document.body.append(input);
+  window.CJExactHome={openJourneyAI:()=>{window.__openedJourneyAI=true;return true}};
+ });
+ await page.locator('[data-cjs-launch]').click();
+ await page.getByRole('button',{name:'Ask Journey AI'}).click();
+ expect(await page.evaluate(()=>window.__openedJourneyAI)).toBe(true);
+ expect(await page.locator('#aiInput').inputValue()).toContain('verified connected accounts');
+ await expect(page.locator('#cjSalesOverlay')).toHaveCount(0);
+});
