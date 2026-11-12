@@ -9,20 +9,24 @@ import {createClient} from "jsr:@supabase/supabase-js@2";
  */
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization,apikey,content-type,x-client-info","Access-Control-Allow-Methods":"GET, POST, OPTIONS"};
 const json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers:{...cors,"Content-Type":"application/json","Cache-Control":"no-store"}});
-type Provider="gmail"|"tiktok";
+type Provider="gmail"|"tiktok"|"outlook";
 const configs={
  gmail:{id:"GOOGLE_GMAIL_CLIENT_ID",secret:"GOOGLE_GMAIL_CLIENT_SECRET",
  auth:"https://accounts.google.com/o/oauth2/v2/auth",
  token:"https://oauth2.googleapis.com/token",scopes:"openid email profile https://www.googleapis.com/auth/gmail.send"},
  tiktok:{id:"TIKTOK_CLIENT_KEY",secret:"TIKTOK_CLIENT_SECRET",
  auth:"https://www.tiktok.com/v2/auth/authorize/",
- token:"https://open.tiktokapis.com/v2/oauth/token/",scopes:"user.info.basic"}
+ token:"https://open.tiktokapis.com/v2/oauth/token/",scopes:"user.info.basic"},
+ outlook:{id:"MICROSOFT_OAUTH_CLIENT_ID",secret:"MICROSOFT_OAUTH_CLIENT_SECRET",
+ auth:"https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+ token:"https://login.microsoftonline.com/common/oauth2/v2.0/token",
+ scopes:"openid profile email offline_access User.Read Mail.Send"}
 } as const;
 const supabaseUrl=()=>Deno.env.get("SUPABASE_URL")||"";
 const callback=(p:Provider)=>supabaseUrl()+"/functions/v1/cj-marketing-oauth/"+p;
 const cfg=(p:Provider)=>({client:Deno.env.get(configs[p].id)||"",secret:Deno.env.get(configs[p].secret)||"",
   encrypt:Deno.env.get("INTEGRATION_TOKEN_ENCRYPTION_KEY")||""});
-const providerFrom=(v:unknown):Provider|null=>v==="gmail"||v==="tiktok"?v:null;
+const providerFrom=(v:unknown):Provider|null=>v==="gmail"||v==="tiktok"||v==="outlook"?v:null;
 async function encryptionKey(p:Provider){
  const secret=cfg(p).encrypt;
  if(secret.length<32)throw Error("Encryption configuration missing");
@@ -61,7 +65,7 @@ async function member(req:Request,db:any,business:string){
 }
 async function tokenExchange(p:Provider,code:string){
  const c=cfg(p);
- const form=p==="gmail"?
+ const form=p!=="tiktok"?
   new URLSearchParams({client_id:c.client,client_secret:c.secret,code,
     grant_type:"authorization_code",redirect_uri:callback(p)}):
   new URLSearchParams({client_key:c.client,client_secret:c.secret,code,
@@ -73,6 +77,13 @@ async function tokenExchange(p:Provider,code:string){
  return data;
 }
 async function profile(p:Provider,access:string,tokens:any){
+ if(p==="outlook"){
+  const r=await fetch("https://graph.microsoft.com/v1.0/me?$select=id,displayName,mail,userPrincipalName",
+   {headers:{Authorization:"Bearer "+access},signal:AbortSignal.timeout(12000)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.id)return null;
+  return {id:String(j.id),name:String(j.mail||j.userPrincipalName||j.displayName||"Microsoft 365 account")};
+ }
  if(p==="gmail"){
   const r=await fetch("https://www.googleapis.com/oauth2/v3/userinfo",
    {headers:{Authorization:"Bearer "+access},signal:AbortSignal.timeout(12000)});
@@ -109,15 +120,15 @@ async function getCallback(req:Request,p:Provider){
  const tokens=await tokenExchange(p,code);
  const identity=await profile(p,tokens.access_token,tokens);
  if(!identity||!identity.id)return json({error:"Could not verify provider identity"},502);
- const scopes=(p==="gmail"?String(tokens.scope||"").split(/\s+/):String(tokens.scope||query.get("scopes")||"").split(",")).filter(Boolean);
+ const scopes=(p!=="tiktok"?String(tokens.scope||"").split(/\s+/):String(tokens.scope||query.get("scopes")||"").split(",")).filter(Boolean);
  // Gmail send scope and TikTok identity scope must be actually granted.
- const required=p==="gmail"?"https://www.googleapis.com/auth/gmail.send":"user.info.basic";
+ const required=p==="gmail"?"https://www.googleapis.com/auth/gmail.send":p==="outlook"?"Mail.Send":"user.info.basic";
  if(!scopes.includes(required))return json({error:"Required provider permission was not granted"},403);
  const expiry=Number(tokens.expires_in)>0?new Date(Date.now()+Number(tokens.expires_in)*1000).toISOString():null;
  const encrypted=await encrypt(p,tokens);
  const {error:save}=await db.from("connected_accounts").update({
   status:"connected",connection_type:"oauth",external_account_id:identity.id,
-  external_account_name:identity.name,scopes,capabilities:p==="gmail"?["email_send_approved_only"]:["tiktok_profile_read"],
+  external_account_name:identity.name,scopes,capabilities:p==="gmail"||p==="outlook"?["email_send_approved_only"]:["tiktok_profile_read"],
   metadata:{encrypted_tokens:encrypted,identity_verified_at:new Date().toISOString(),
    publishing_verified:false,outreach_verified:false},token_expires_at:expiry,
   connected_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()
@@ -162,12 +173,13 @@ Deno.serve(async(req:Request)=>{
     await db.from("connected_accounts").insert({...values,business_id:business,provider:p,connection_type:"oauth"});
    if(result.error)throw result.error;
    const auth=new URL(configs[p].auth);
-   auth.searchParams.set(p==="gmail"?"client_id":"client_key",c.client);
+   auth.searchParams.set(p==="tiktok"?"client_key":"client_id",c.client);
    auth.searchParams.set("redirect_uri",callback(p));
    auth.searchParams.set("response_type","code");
    auth.searchParams.set("state",state);
    auth.searchParams.set("scope",configs[p].scopes);
    if(p==="gmail"){auth.searchParams.set("access_type","offline");auth.searchParams.set("prompt","consent")}
+   if(p==="outlook"){auth.searchParams.set("response_mode","query");auth.searchParams.set("prompt","select_account")}
    return json({provider:p,authorization_url:auth.toString(),external_actions_authorized:false});
   }
   if(action==="disconnect"){
@@ -187,7 +199,7 @@ Deno.serve(async(req:Request)=>{
    const exp=row.token_expires_at?Date.parse(row.token_expires_at):0;
    if(exp&&exp<Date.now()+300000){
     if(!tokens.refresh_token)return json({error:"Token needs account reauthorization"},409);
-    const form=p==="gmail"?
+    const form=p!=="tiktok"?
      new URLSearchParams({client_id:c.client,client_secret:c.secret,
       refresh_token:tokens.refresh_token,grant_type:"refresh_token"}):
      new URLSearchParams({client_key:c.client,client_secret:c.secret,
