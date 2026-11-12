@@ -130,6 +130,16 @@ function renderMarketingHub(data,container){
  el("h2",{text:"One Marketing Command Center"},intro);
  el("p",{text:"Account connections, AI sales team, campaign drafts, outreach readiness and performance — all in one place. This view will never claim a connection or an agent is operational without evidence."},intro);
  const toolbar=el("div",{className:"cjs-flex"},intro);
+ const pauseAll=el("button",{type:"button",text:"Pause all CreateJourney campaigns"},toolbar);
+ pauseAll.onclick=async()=>{
+  if(!confirm("Pause all CreateJourney-managed campaign plans for this business? Provider-side advertising and messages are NOT automatically stopped."))return;
+  pauseAll.disabled=true;
+  try{
+   const outcome=await request("pause_all",{business_id:data.business_id});
+   await refresh();
+   message("Paused "+outcome.paused_campaigns+" CreateJourney campaign plans. Provider-side actions require separate controls.");
+  }catch(e){message(e.message||String(e),true)}finally{pauseAll.disabled=false}
+ };
  const activate=el("button",{type:"button",text:"Activate AI Sales Team — check readiness"},toolbar);
  activate.onclick=async()=>{
   activate.disabled=true;message("Checking agent activation requirements…");
