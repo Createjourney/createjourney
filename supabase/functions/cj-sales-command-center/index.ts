@@ -112,6 +112,20 @@ Deno.serve(async(req)=>{
    const {error}=await admin.from("cj_sales_campaign_events").insert({business_id:businessId,campaign_id:campaignId,actor_user_id:userId,event_type:type,detail});
    if(error)throw error;
   }
+  if(action==="pause_all"){
+   if(role!=="owner")return reply({error:"Owner permission required"},403);
+   const {data:changed,error:changeError}=await admin.from("cj_sales_campaigns")
+    .update({status:"paused",updated_at:new Date().toISOString()})
+    .eq("business_id",businessId).neq("status","paused").select("id");
+   if(changeError)throw changeError;
+   for(const campaign of changed||[])
+    await event(campaign.id,"PAUSED_BY_OWNER_GLOBAL_CONTROL",{
+     scope:"createjourney_campaigns_only",external_provider_actions_stopped:false
+    });
+   return reply({paused_campaigns:(changed||[]).length,
+    external_provider_actions_stopped:false,
+    note:"CreateJourney planning campaigns paused. External provider-side ads/messages must be stopped separately."});
+  }
   if(action==="create"){
    if(!body.campaign||typeof body.campaign!=="object"||Array.isArray(body.campaign))return reply({error:"Campaign details required"},400);
    const fields=validate(body.campaign as Record<string,unknown>);
