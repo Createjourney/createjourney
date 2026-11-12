@@ -29,7 +29,7 @@ const providers=[
  ["tiktok","TikTok","Profile access; content publishing needs separate platform approval"],
  ["google","Google Business Profile","Business profile and authorized review management"],
  ["gmail","Gmail Business Email","Authorized send-only email connection (outreach separately approved)"],
- ["outlook","Microsoft 365 / Outlook","Future Microsoft Graph email connection"],
+ ["outlook","Microsoft 365 / Outlook","Delegated Microsoft Graph Mail.Send; outreach still requires separate approval"],
  ["meta_ads","Meta Ads","Approved campaigns, budgets and reporting"]
 ];
 async function specialty(slug,body){
@@ -163,9 +163,9 @@ function renderMarketingHub(data,container){
   clear(grid);
   for(const [key,name,purpose] of providers){
    const providerKey=key==="meta_ads"?"meta":key;
-   const supports=["meta","google","shopify","gmail","tiktok"].includes(key);
-   const state=key==="shopify"?snapshot?.shopify:["gmail","tiktok"].includes(key)?snapshot?.marketing?.[key]:snapshot?.accounts?.find(a=>a.provider===providerKey);
-   const canOAuth=supports&&(key==="shopify"?snapshot?.shopify?.oauth_configured===true:["gmail","tiktok"].includes(key)?snapshot?.marketing?.[key]?.oauth_configured===true:snapshot?.readiness?.[providerKey]?.oauth_configured===true);
+   const supports=["meta","google","shopify","gmail","tiktok","outlook"].includes(key);
+   const state=key==="shopify"?snapshot?.shopify:["gmail","tiktok","outlook"].includes(key)?snapshot?.marketing?.[key]:snapshot?.accounts?.find(a=>a.provider===providerKey);
+   const canOAuth=supports&&(key==="shopify"?snapshot?.shopify?.oauth_configured===true:["gmail","tiktok","outlook"].includes(key)?snapshot?.marketing?.[key]?.oauth_configured===true:snapshot?.readiness?.[providerKey]?.oauth_configured===true);
    const configured=state?.status==="connected";
    const box=el("div",{className:"cjs-card"},grid);
    el("strong",{text:name},box);el("p",{text:purpose},box);
@@ -203,14 +203,14 @@ function renderMarketingHub(data,container){
       if(!started.authorization_url||!/^https:\/\//.test(started.authorization_url))throw Error("Shopify authorization URL unavailable");
       window.location.assign(started.authorization_url);
      }else if(configured){
-      const basic=["gmail","tiktok"].includes(key);
+      const basic=["gmail","tiktok","outlook"].includes(key);
       const verification=await specialty(basic?"cj-marketing-oauth":"journey-integrations",
        {action:basic?"verify":"sync_account",business_id:data.business_id,provider:providerKey});
       if(!(verification.verified||verification.identity_verified))throw Error(verification.error||"Provider verification failed");
       message(name+" provider account verified. Publishing and campaign permissions require separate tests.");
       await loadConnections();
      }else{
-      const oauthBasic=["gmail","tiktok"].includes(key);
+      const oauthBasic=["gmail","tiktok","outlook"].includes(key);
       const started=await specialty(oauthBasic?"cj-marketing-oauth":"journey-integrations",
        {action:oauthBasic?"begin":"begin_connection",business_id:data.business_id,provider:providerKey});
       if(!started.authorization_url||!/^https:\/\//.test(started.authorization_url))throw Error("Provider authorization URL unavailable");
@@ -224,7 +224,7 @@ function renderMarketingHub(data,container){
      if(!confirm("Disconnect "+name+" from this business? Scheduled external actions must be stopped separately."))return;
      disconnect.disabled=true;
      try{await specialty(key==="shopify"?"cj-shopify-integration":
-        ["gmail","tiktok"].includes(key)?"cj-marketing-oauth":"journey-integrations",
+        ["gmail","tiktok","outlook"].includes(key)?"cj-marketing-oauth":"journey-integrations",
        {action:"disconnect",business_id:data.business_id,...(key==="shopify"?{}:{provider:providerKey})});
       await loadConnections();message(name+" disconnected in CreateJourney.");
      }catch(e){message(e.message||String(e),true)}finally{disconnect.disabled=false}
@@ -240,7 +240,7 @@ function renderMarketingHub(data,container){
    try{shopify=await specialty("cj-shopify-integration",{action:"status",business_id:data.business_id})}
    catch(e){shopify={status:"unavailable",oauth_configured:false}}
    const marketing={};
-   for(const provider of ["gmail","tiktok"]){
+   for(const provider of ["gmail","tiktok","outlook"]){
     try{marketing[provider]=await specialty("cj-marketing-oauth",
      {action:"status",business_id:data.business_id,provider});}
     catch(e){marketing[provider]={status:"unavailable",oauth_configured:false}}
