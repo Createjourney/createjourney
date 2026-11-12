@@ -120,20 +120,40 @@ function renderMarketingHub(data,container){
    " agents still require development. No automatic agent activation performed.");
   }catch(e){message(e.message||String(e),true)}finally{activate.disabled=false}
  };
- const draft=el("button",{type:"button",text:"Create Flourished Images marketing plan"},toolbar);
+ const draft=el("button",{type:"button",text:"Create AI marketing plan"},toolbar);
  const plan=el("div",{className:"cjs-card"},intro);plan.hidden=true;
  draft.onclick=()=>{plan.hidden=!plan.hidden};
- el("p",{text:"Owner-initiated AI planning only. Setup does not connect accounts, publish content or spend advertising funds."},plan);
- const setup=el("button",{type:"button",text:"Set up Flourished Images workspace"},plan);
+ el("p",{text:"Configure a brand-specific marketing workspace. Drafting does not connect accounts, publish content or spend advertising money."},plan);
+ const brandGrid=el("div",{className:"cjs-grid"},plan);
+ const field=(name,type,placeholder)=>{
+  const label=el("label",{text:name},brandGrid);
+  const input=el("input",{type,placeholder},label);
+  if(type==="number"){input.min="0";input.step="1"}
+  return input;
+ };
+ const brand=field("Brand name","text","e.g. Flourished Images");
+ const website=field("Business website","url","https://example.com");
+ const product=field("Product or service","text","e.g. Premium display frame");
+ const price=field("Retail price (USD)","number","240");price.step="0.01";
+ const target=field("Launch order target","number","100");
+ const shipping=field("Shipping goal (days, optional)","number","20");
+ const getBrief=()=>{
+  const name=brand.value.trim(),url=website.value.trim(),item=product.value.trim();
+  const amount=Number(price.value),goal=Number(target.value),days=shipping.value?Number(shipping.value):null;
+  if(name.length<2||item.length<2||!/^https:\/\/[^\s]+$/i.test(url)||
+    !Number.isFinite(amount)||amount<=0||!Number.isInteger(goal)||goal<1||
+    (days!==null&&(!Number.isInteger(days)||days<1)))throw Error("Provide valid brand, HTTPS site, product, price, and order target.");
+  return {name,url,brief:{product:item,price_usd:amount,launch_units_planned:goal,
+   shipping_goal_days:days,shipping_capacity_verified:false,checkout_verified:false}};
+ };
+ const setup=el("button",{type:"button",text:"Set up marketing workspace"},plan);
  setup.onclick=async()=>{
   setup.disabled=true;
   try{
+   const {name,url,brief}=getBrief();
    const result=await specialty("cj-marketing-launch-squad",{
-    action:"setup_brand",brand_name:"Flourished Images",confirm_brand_control:true,
-    website_url:"https://flourishedimages.com",
-    product_brief:{product:"Premium multifunctional display frame",price_usd:240,
-    launch_units_planned:100,shipping_goal_days:20,shipping_capacity_verified:false,
-    checkout_verified:false}});
+    action:"setup_brand",brand_name:name,confirm_brand_control:true,
+    website_url:url,product_brief:brief});
    message("Marketing workspace: "+result.status+". No third-party accounts connected.");
   }catch(e){message(e.message||String(e),true)}finally{setup.disabled=false}
  };
@@ -147,9 +167,13 @@ function renderMarketingHub(data,container){
   if(!check.checked){message("Approve AI usage before running specialists.",true);return}
   run.disabled=true;message("Preparing draft…");
   try{
+   const {name,brief}=getBrief();
    const r=await specialty("cj-marketing-launch-squad",{action:"draft_campaign",
-    brand_name:"Flourished Images",confirm_draft_only:true,confirm_analysis_cost:true,
-    request:"Draft a detailed 14-day marketing plan for a premium $240 display frame with an initial target of 100 preorders. Separate verified facts from assumptions. Suggest outreach, creatives and measurement. Shipping within 20 days remains unverified."});
+    brand_name:name,confirm_draft_only:true,confirm_analysis_cost:true,
+    request:"Draft a 14-day marketing plan for "+name+
+     ". Product/service: "+brief.product+". Price USD "+brief.price_usd+
+     "; initial order target "+brief.launch_units_planned+
+     ". Separate verified facts from assumptions. Shipping targets, inventory and checkout are NOT verified. Provide consent-based outreach, creative and tracking recommendations."});
    resultBox.hidden=false;resultBox.textContent=JSON.stringify(r.campaign_draft||r,null,2);
    message("Draft generated. No publishing, outbound contact or ad spending.");
   }catch(e){message(e.message||String(e),true)}finally{run.disabled=false}
