@@ -17,7 +17,7 @@ window.fetch=async(url,init)=>{
  campaigns:[],execution_results:[],readiness:{status:"BLOCKED",launch_authorized:false,
   blockers:["shopify_order_webhook_verified","platform_permissions_verified"]}};
  let response=overview,status=200;
- if(request.action==="list_businesses"){response={businesses:[{id:"ci-business",name:"CI Business",role:"owner"}]};}
+ if(request.action==="list_businesses"){response={businesses:[{id:"ci-business",name:"CI Business",role:"owner"},...(new URLSearchParams(location.search).has("multiple")?[{id:"second-business",name:"Second Business",role:"manager"}]:[])]};}
  if(request.action==="status"){
   response={business_id:"ci-business",accounts:[],readiness:{google:{oauth_configured:false},meta:{oauth_configured:false}}};
  }
