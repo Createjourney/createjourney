@@ -17,6 +17,9 @@ window.fetch=async(url,init)=>{
  campaigns:[],execution_results:[],readiness:{status:"BLOCKED",launch_authorized:false,
   blockers:["shopify_order_webhook_verified","platform_permissions_verified"]}};
  let response=overview,status=200;
+ if(request.action==="status"){
+  response={business_id:"ci-business",accounts:[],readiness:{google:{oauth_configured:false},meta:{oauth_configured:false}}};
+ }
  if(request.action==="create"){
   response={launch_authorized:false,campaign:{id:"ci-campaign",status:"draft",...request.campaign}};status=201;
  }
