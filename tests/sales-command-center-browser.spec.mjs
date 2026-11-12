@@ -111,7 +111,7 @@ test('one marketing hub does not pretend missing OAuth is connected',async({page
  await expect(page.getByRole('heading',{name:'One Marketing Command Center'})).toBeVisible();
  await expect(page.getByText('Shopify',{exact:true}).first()).toBeVisible();
  await page.getByRole('button',{name:'View requirements'}).first().click();
- await expect(page.getByText(/not available as a separately verified marketing connector yet/)).toBeVisible();
+ await expect(page.getByText(/Check connection readiness first/)).toBeVisible();
  const events=await page.evaluate(()=>window.__cjRequests);
  expect(events.some(e=>e.action==='create')).toBeFalsy();
 });
