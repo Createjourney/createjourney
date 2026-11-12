@@ -22,7 +22,7 @@ const css=`
 #cjSalesOverlay label{font-weight:600;font-size:13px;display:block}
 #cjSalesOverlay input,#cjSalesOverlay select{width:100%;margin-top:5px;padding:10px;border:1px solid #bfccda;border-radius:8px;font-size:14px;background:white}
 `;
-let root=null,last=null,selectedBusinessId=null;
+let root=null,last=null,selectedBusinessId=null,selectedBusinessName='';
 const providers=[
  ["shopify","Shopify","Storefront, orders, refunds and sales attribution"],
  ["meta","Facebook & Instagram","Business page visibility and Instagram publishing; outreach/ads separately authorized"],
@@ -63,6 +63,7 @@ async function refresh(){
   const businesses=listing.businesses||[];
   if(!businesses.length)throw Error("No owner/manager business membership is available");
   if(!businesses.some(x=>x.id===selectedBusinessId))selectedBusinessId=businesses.length===1?businesses[0].id:null;
+  selectedBusinessName=businesses.find(x=>x.id===selectedBusinessId)?.name||"";
   const chooser=root.querySelector("#cjs-business-choice");
   clear(chooser);
   if(businesses.length>1){
@@ -225,6 +226,9 @@ function renderMarketingHub(data,container){
   }catch(e){message(e.message||String(e),true)}finally{run.disabled=false}
  };
  el("h2",{text:"Marketing account connections"},container);
+ const tenantLabel=el("div",{className:"cjs-card cjs-warning"},container);
+ el("strong",{text:"Selected business: "+(selectedBusinessName||"Unknown")},tenantLabel);
+ el("p",{text:"Every external account connected below belongs to THIS CreateJourney business. Separate product brands and businesses must use their own business entry to prevent mixing revenue, contacts, ad accounts or analytics. Your marketing draft workspace alone does not create or link a business."},tenantLabel);
  el("p",{text:"Check connection readiness before authorizing a platform. Only configured OAuth providers receive a Connect button. Connecting does not authorize posting, messaging or ad spend."},container);
  const connActions=el("div",{className:"cjs-flex"},container);
  const checkConn=el("button",{type:"button",text:"Check connection readiness"},connActions);
