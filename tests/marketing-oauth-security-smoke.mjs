@@ -19,11 +19,22 @@ async function probe(slug,body,auth){
  const result=await response.json();
  return {code:response.status,result};
 }
+async function warmedProbe(slug,body,auth){
+ let last=null;
+ for(let i=0;i<18;i++){
+  try{
+   last=await probe(slug,body,auth);
+   if(last.code!==502&&last.code!==503)return last;
+  }catch(e){last={code:0,result:{error:String(e)}}}
+  await new Promise(done=>setTimeout(done,1000));
+ }
+ throw Error(slug+" did not start for OAuth smoke; last response "+JSON.stringify(last));
+}
 for(const [slug,body] of endpoints){
- const anonymous=await probe(slug,body);
+ const anonymous=await warmedProbe(slug,body);
  assert.equal(anonymous.code,401,slug+" must reject unauthenticated writes");
  assert.match(JSON.stringify(anonymous.result),/Authentication required/i);
- const invalid=await probe(slug,body,"deliberately-invalid-token");
+ const invalid=await warmedProbe(slug,body,"deliberately-invalid-token");
  assert.equal(invalid.code,401,slug+" must reject invalid bearer tokens");
 }
 console.log("PASS marketing OAuth callbacks are not exposed through unauthenticated POST actions");
