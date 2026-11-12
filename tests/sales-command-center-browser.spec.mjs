@@ -7,7 +7,7 @@ test('sales center appears in Marketing and reports blocked capability honestly'
  await launch.click();
  await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
  await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
- await expect(page.getByText('Meta', {exact:false})).toBeVisible();
+ await expect(page.getByText('Meta', {exact:true}).first()).toBeVisible();
  await expect(page.getByText(/External execution: NOT VERIFIED/)).toBeVisible();
  const events=await page.evaluate(()=>window.__cjRequests);
  expect(events.some(e=>e.action==='overview')).toBeTruthy();
@@ -52,10 +52,10 @@ test('actual CreateJourney application bootstrap loads Sales Command Center side
 
 test('Control Center uses one native Marketing entry for the full hub',async({page})=>{
  await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
- await expect(page.locator('[data-cjx-home-action="marketing"]')).toHaveCount(1);
+ await expect(page.locator('[data-cjx-home-action="marketing"]')).toHaveCount(0);
  const direct=page.locator('.cjx-controls [data-cjs-launch]');
  await expect(direct).toBeVisible();
- await expect(direct).toHaveAttribute('data-cjx-home-action','marketing');
+ await expect(direct).toHaveAttribute('aria-label','Marketing');
  await expect(page.locator('.cjx-controls [data-cjs-launch]')).toHaveCount(1);
  await direct.click();
  await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
@@ -107,7 +107,7 @@ test('iPhone-width real homepage Sales button receives a real pointer click',asy
 
 test('one marketing hub does not pretend missing OAuth is connected',async({page})=>{
  await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
- await page.locator('[data-cjx-home-action="marketing"]').click();
+ await page.locator('[data-cjs-launch]').click();
  await expect(page.getByRole('heading',{name:'One Marketing Command Center'})).toBeVisible();
  await expect(page.getByText('Shopify',{exact:true}).first()).toBeVisible();
  await page.getByRole('button',{name:'Connection requirements'}).first().click();
