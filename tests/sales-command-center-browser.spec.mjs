@@ -61,7 +61,7 @@ test('Control Center uses one native Marketing entry for the full hub',async({pa
  await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
  await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
  await expect(page.getByRole('heading',{name:'Marketing account connections'})).toBeVisible();
- await expect(page.getByText('Setup required — not connected').first()).toBeVisible();
+ await expect(page.getByText('Readiness not checked — not verified').first()).toBeVisible();
 });
 
 test('real Command Center tile opens sales overlay instead of returning to dashboard top',async({page})=>{
@@ -110,8 +110,19 @@ test('one marketing hub does not pretend missing OAuth is connected',async({page
  await page.locator('[data-cjs-launch]').click();
  await expect(page.getByRole('heading',{name:'One Marketing Command Center'})).toBeVisible();
  await expect(page.getByText('Shopify',{exact:true}).first()).toBeVisible();
- await page.getByRole('button',{name:'Connection requirements'}).first().click();
- await expect(page.getByText(/needs its provider OAuth configuration/)).toBeVisible();
+ await page.getByRole('button',{name:'View requirements'}).first().click();
+ await expect(page.getByText(/Check connection readiness first/)).toBeVisible();
  const events=await page.evaluate(()=>window.__cjRequests);
  expect(events.some(e=>e.action==='create')).toBeFalsy();
+});
+
+test('connection readiness gates live OAuth and never offers unsupported Shopify connect',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
+ await page.locator('[data-cjs-launch]').click();
+ await page.getByRole('button',{name:'Check connection readiness'}).click();
+ await expect(page.getByText('Connector under development — no live OAuth').first()).toBeVisible();
+ await expect(page.getByText('OAuth configuration required').first()).toBeVisible();
+ const actions=await page.evaluate(()=>window.__cjRequests);
+ expect(actions.some(x=>x.action==='status')).toBeTruthy();
+ expect(actions.some(x=>x.action==='begin_connection')).toBeFalsy();
 });
