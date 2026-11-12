@@ -22,7 +22,7 @@ const css=`
 #cjSalesOverlay label{font-weight:600;font-size:13px;display:block}
 #cjSalesOverlay input,#cjSalesOverlay select{width:100%;margin-top:5px;padding:10px;border:1px solid #bfccda;border-radius:8px;font-size:14px;background:white}
 `;
-let root=null,last=null;
+let root=null,last=null,selectedBusinessId=null;
 const providers=[
  ["shopify","Shopify","Storefront, orders, refunds and sales attribution"],
  ["meta","Facebook & Instagram","Business page visibility and Instagram publishing; outreach/ads separately authorized"],
@@ -48,7 +48,7 @@ async function request(action,fields={}){
  if(!session?.access_token)throw Error("Sign into CreateJourney first");
  const response=await fetch(endpoint(),{method:"POST",headers:{"Authorization":"Bearer "+session.access_token,
   "apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},
-  body:JSON.stringify({action,...fields})});
+  body:JSON.stringify({action,...(action==="list_businesses"?{}:selectedBusinessId?{business_id:selectedBusinessId}:{}),...fields})});
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw Error(data.error||"Sales service unavailable");
  return data;
@@ -57,8 +57,27 @@ const clear=n=>{while(n.firstChild)n.firstChild.remove()};
 function message(s,isError=false){if(!root)return;const m=root.querySelector("#cjs-message");m.textContent=s;m.style.color=isError?"#a32424":"#2b506f"}
 async function refresh(){
  if(!root)return;
- message("Loading authorized campaign information…");
- try{last=await request("overview");render(last);message("Read-only readiness refreshed. No campaigns launched.")}catch(e){message(e.message||String(e),true)}
+ message("Loading authorized marketing business information…");
+ try{
+  const listing=await request("list_businesses");
+  const businesses=listing.businesses||[];
+  if(!businesses.length)throw Error("No owner/manager business membership is available");
+  if(!businesses.some(x=>x.id===selectedBusinessId))selectedBusinessId=businesses.length===1?businesses[0].id:null;
+  const chooser=root.querySelector("#cjs-business-choice");
+  clear(chooser);
+  if(businesses.length>1){
+   chooser.hidden=false;
+   const label=el("label",{text:"Choose business to manage"},chooser);
+   const select=el("select",{},label);
+   const placeholder=el("option",{value:"",text:"Select a business"},select);placeholder.value="";
+   for(const b of businesses){const o=el("option",{value:b.id,text:b.name+" ("+b.role+")"},select);o.value=b.id}
+   select.value=selectedBusinessId||"";
+   select.onchange=()=>{selectedBusinessId=select.value||null;refresh()};
+   if(!selectedBusinessId){clear(root.querySelector("#cjs-content"));message("Select a business to continue.");return}
+  }else chooser.hidden=true;
+  last=await request("overview");
+  render(last);message("Business readiness refreshed. No campaigns launched.");
+ }catch(e){message(e.message||String(e),true)}
 }
 function render(data){
  const container=root.querySelector("#cjs-content");clear(container);
@@ -330,6 +349,7 @@ function open(){
  const closeBtn=el("button",{type:"button",text:"Close"},buttons);closeBtn.onclick=()=>{root.remove();root=null};
  el("p",{text:"Manage connected accounts, your AI marketing team, campaigns and sales readiness. External actions remain approval-gated."},shell);
  el("p",{id:"cjs-message",role:"status"},shell);
+ el("div",{id:"cjs-business-choice"},shell);
  const data=el("div",{id:"cjs-content"},shell);
  createForm(shell);
  refresh();
