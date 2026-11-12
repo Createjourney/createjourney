@@ -70,6 +70,21 @@ Deno.serve(async(req)=>{
   let body:Record<string,unknown>;
   try {body=JSON.parse(raw)}catch{return reply({error:"Invalid JSON"},400)}
   if(!body||typeof body!=="object"||Array.isArray(body))return reply({error:"Invalid body"},400);
+  const action=String(body.action||"overview");
+  if(action==="list_businesses"){
+   const {data:memberships,error:membershipsError}=await admin.from("business_members")
+    .select("business_id,role,is_active").eq("user_id",userId).eq("is_active",true);
+   if(membershipsError)return reply({error:"Membership unavailable"},503);
+   const eligible=(memberships||[]).filter(m=>["owner","manager"].includes(String(m.role).toLowerCase()));
+   const roles=new Map(eligible.map(m=>[String(m.business_id),String(m.role)]));
+   const ids=[...roles.keys()];
+   if(!ids.length)return reply({businesses:[]});
+   const {data:businesses,error:businessesError}=await admin.from("businesses").select("id,name")
+    .in("id",ids).order("name");
+   if(businessesError)return reply({error:"Business choices unavailable"},503);
+   return reply({businesses:(businesses||[]).filter(b=>roles.has(b.id))
+    .map(b=>({id:b.id,name:b.name,role:roles.get(b.id)}))});
+  }
   let businessId=String(body.business_id||"");
   // Resolve only when the authorized caller has exactly one manageable business.
   // Never silently select among multiple organizations.
@@ -88,7 +103,6 @@ Deno.serve(async(req)=>{
   if(memberErr)return reply({error:"Membership unavailable"},503);
   const role=String(member?.role||"").toLowerCase();
   if(!["owner","manager"].includes(role))return reply({error:"Owner or manager access required"},403);
-  const action=String(body.action||"overview");
   async function getCampaign(){
    if(!UUID.test(String(body.campaign_id||"")))return null;
    const {data,error}=await admin.from("cj_sales_campaigns").select("*").eq("business_id",businessId).eq("id",body.campaign_id).maybeSingle();
