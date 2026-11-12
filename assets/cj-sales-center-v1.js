@@ -23,6 +23,24 @@ const css=`
 #cjSalesOverlay input,#cjSalesOverlay select{width:100%;margin-top:5px;padding:10px;border:1px solid #bfccda;border-radius:8px;font-size:14px;background:white}
 `;
 let root=null,last=null;
+const providers=[
+ ["shopify","Shopify","Storefront, orders, refunds and sales attribution"],
+ ["meta","Facebook & Instagram","Business pages, content and outreach permissions"],
+ ["tiktok","TikTok","Approved publishing and promotions"],
+ ["google","Google","Analytics and business integrations"],
+ ["email","Business Email","Opt-in outreach and follow-ups"],
+ ["meta_ads","Meta Ads","Approved campaigns, budgets and reporting"]
+];
+async function specialty(slug,body){
+ const session=(await sb.auth.getSession()).data.session;
+ if(!session?.access_token)throw Error("Sign into CreateJourney first");
+ const r=await fetch(SUPABASE_URL+"/functions/v1/"+slug,{method:"POST",headers:{
+ Authorization:"Bearer "+session.access_token,apikey:SUPABASE_PUBLISHABLE_KEY,
+ "Content-Type":"application/json"},body:JSON.stringify(body)});
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok)throw Error(j.error||"Service unavailable");
+ return j;
+}
 async function request(action,fields={}){
  if(typeof sb==="undefined"||!sb||typeof SUPABASE_URL==="undefined")throw Error("Supabase session unavailable");
  const session=(await sb.auth.getSession()).data.session;
@@ -48,6 +66,7 @@ function render(data){
  el("p",{text:"Campaign approval is for planning only. No social posts, outreach, ads, or Shopify operations are being executed."},summary);
  const blockers=data.readiness?.blockers||[];
  el("p",{text:"Outstanding verification gates: "+(blockers.length?blockers.join(" · "):"None reported")},summary);
+ renderMarketingHub(data,container);
  el("h2",{text:"Registered AI specialist capabilities"},container);
  const agentBox=el("div",{className:"cjs-grid"},container);
  for(const group of data.agent_capabilities||[]){
@@ -85,6 +104,73 @@ function render(data){
  for(const job of data.execution_results||[])
   el("p",{text:"#"+job.agent_no+" — "+job.status+" / "+job.execution_type+" — External action NOT VERIFIED"},jobs);
 }
+
+function renderMarketingHub(data,container){
+ const intro=el("div",{className:"cjs-card"},container);
+ el("h2",{text:"One Marketing Command Center"},intro);
+ el("p",{text:"Account connections, AI sales team, campaign drafts, outreach readiness and performance — all in one place. This view will never claim a connection or an agent is operational without evidence."},intro);
+ const toolbar=el("div",{className:"cjs-flex"},intro);
+ const activate=el("button",{type:"button",text:"Activate AI Sales Team — check readiness"},toolbar);
+ activate.onclick=async()=>{
+  activate.disabled=true;message("Checking agent activation requirements…");
+  try{
+   const r=await specialty("cj-agent-activation-controller",{action:"activation_plan",business_id:data.business_id});
+   message((r.pilot_candidates||[]).length+" pilot-test candidates; "+(r.requires_development||[]).length+
+   " agents still require development. No automatic agent activation performed.");
+  }catch(e){message(e.message||String(e),true)}finally{activate.disabled=false}
+ };
+ const draft=el("button",{type:"button",text:"Create Flourished Images marketing plan"},toolbar);
+ const plan=el("div",{className:"cjs-card"},intro);plan.hidden=true;
+ draft.onclick=()=>{plan.hidden=!plan.hidden};
+ el("p",{text:"Owner-initiated AI planning only. Setup does not connect accounts, publish content or spend advertising funds."},plan);
+ const setup=el("button",{type:"button",text:"Set up Flourished Images workspace"},plan);
+ setup.onclick=async()=>{
+  setup.disabled=true;
+  try{
+   const result=await specialty("cj-marketing-launch-squad",{
+    action:"setup_brand",brand_name:"Flourished Images",confirm_brand_control:true,
+    website_url:"https://flourishedimages.com",
+    product_brief:{product:"Premium multifunctional display frame",price_usd:240,
+    launch_units_planned:100,shipping_goal_days:20,shipping_capacity_verified:false,
+    checkout_verified:false}});
+   message("Marketing workspace: "+result.status+". No third-party accounts connected.");
+  }catch(e){message(e.message||String(e),true)}finally{setup.disabled=false}
+ };
+ const approval=el("label",{},plan);
+ const check=el("input",{type:"checkbox"},approval);check.style.width="auto";
+ approval.append(document.createTextNode(" I authorize AI usage charges for one draft-only campaign run."));
+ const run=el("button",{type:"button",text:"Generate draft campaign (AI usage)"},plan);
+ const resultBox=el("pre",{className:"cjs-card"},plan);resultBox.hidden=true;
+ resultBox.style.whiteSpace="pre-wrap";resultBox.style.overflowWrap="anywhere";
+ run.onclick=async()=>{
+  if(!check.checked){message("Approve AI usage before running specialists.",true);return}
+  run.disabled=true;message("Preparing draft…");
+  try{
+   const r=await specialty("cj-marketing-launch-squad",{action:"draft_campaign",
+    brand_name:"Flourished Images",confirm_draft_only:true,confirm_analysis_cost:true,
+    request:"Draft a detailed 14-day marketing plan for a premium $240 display frame with an initial target of 100 preorders. Separate verified facts from assumptions. Suggest outreach, creatives and measurement. Shipping within 20 days remains unverified."});
+   resultBox.hidden=false;resultBox.textContent=JSON.stringify(r.campaign_draft||r,null,2);
+   message("Draft generated. No publishing, outbound contact or ad spending.");
+  }catch(e){message(e.message||String(e),true)}finally{run.disabled=false}
+ };
+ el("h2",{text:"Marketing account connections"},container);
+ const grid=el("div",{className:"cjs-grid"},container);
+ for(const [key,name,purpose] of providers){
+  const c=(data.integrations||[]).find(x=>String(x.provider||"").toLowerCase()===key);
+  const connected=!!c&&c.connection_status==="connected"&&!c.token_expired;
+  const box=el("div",{className:"cjs-card"},grid);
+  el("strong",{text:name},box);el("p",{text:purpose},box);
+  el("p",{text:connected?"Connection record found; capabilities not verified":
+   c?"Status: "+c.connection_status:"Setup required — not connected"},box);
+  const b=el("button",{type:"button",text:connected?"Inspect connection":"Connection requirements"},box);
+  b.onclick=()=>message(connected?
+   name+" has a connection record but operational scopes still need verification.":
+   name+" needs its provider OAuth configuration, callback, permissions and verification before we can offer a working Connect action.",true);
+ }
+ const gate=el("div",{className:"cjs-card"},container);
+ el("h2",{text:"Live sales readiness"},gate);
+ el("p",{text:"Campaign planning is available below. Provider publishing, advertising, outreach and order verification remain blocked until their secure connectors and test receipts pass."},gate);
+}
 async function change(action,campaign_id){
  if(action==="approve"&&!confirm("Approve this campaign for planning? This does NOT send posts, messages, or spend money."))return;
  try{await request(action,{campaign_id});await refresh()}catch(e){message(e.message||String(e),true)}
@@ -95,8 +181,8 @@ function createForm(container){
  const form=el("form",{className:"cjs-grid"},box);
  const fields=[
  ["name","Campaign name","text","",true],["product_name","Product","text","",true],
- ["product_url","Product URL (HTTPS)","url","",true],["sale_price","Sale price (USD)","number","299",true],
- ["regular_price","Regular price (USD)","number","340",true],["order_target","Initial order target","number","100",true],
+ ["product_url","Product URL (HTTPS)","url","",true],["sale_price","Sale price (USD)","number","240",true],
+ ["regular_price","Regular price (USD)","number","240",true],["order_target","Initial order target","number","100",true],
  ["daily_ad_cap","Maximum daily advertising (USD)","number","10",true],
  ["daily_research_target","Daily prospect research goal","number","120",true]
  ];
@@ -130,10 +216,10 @@ function open(){
  root=el("section",{id:"cjSalesOverlay",role:"dialog","aria-modal":"true","aria-label":"Autonomous Sales Command Center"},document.body);
  const shell=el("main",{className:"cjs-shell"},root);
  const buttons=el("div",{className:"cjs-flex"},shell);
- el("h1",{text:"Autonomous Sales Command Center"},buttons);
+ el("h1",{text:"Marketing & Sales Command Center"},buttons);
  const refreshBtn=el("button",{type:"button",text:"Refresh status"},buttons);refreshBtn.onclick=refresh;
  const closeBtn=el("button",{type:"button",text:"Close"},buttons);closeBtn.onclick=()=>{root.remove();root=null};
- el("p",{text:"Manage campaign drafts and inspect verified readiness. Live campaign automation is not available yet."},shell);
+ el("p",{text:"Manage connected accounts, your AI marketing team, campaigns and sales readiness. External actions remain approval-gated."},shell);
  el("p",{id:"cjs-message",role:"status"},shell);
  const data=el("div",{id:"cjs-content"},shell);
  createForm(shell);
@@ -148,15 +234,15 @@ function installButton(){
   const icon=el("span",{className:"cjx-iconbox cjx-pink"},b);
   icon.textContent="↗";
   const content=el("span",{},b);
-  el("strong",{text:"AI Sales Command Center"},content);
-  el("span",{className:"cjx-copy",text:"Campaigns, agents & sales readiness"},content);
+  el("strong",{text:"Marketing"},content);
+  el("span",{className:"cjx-copy",text:"Connections, agents, campaigns & sales"},content);
   el("span",{className:"cjx-arrow",text:"›"},b);
   b.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
  }
  // Retain access from the existing (advanced) Marketing workspace too.
  const host=document.getElementById("aiWorkspaceMarketingPanel");
  if(host&&!host.querySelector("[data-cjs-open]")){
-  const b=el("button",{type:"button","data-cjs-open":"true",text:"Autonomous Sales — Launch Readiness"},host);
+  const b=el("button",{type:"button","data-cjs-open":"true",text:"Marketing & Sales Command Center"},host);
   b.style.cssText="display:block;margin:16px 0;padding:12px 18px;border:0;border-radius:12px;background:#193e77;color:white;font-weight:700;cursor:pointer";
   b.onclick=open;
  }
