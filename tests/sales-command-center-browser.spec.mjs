@@ -7,7 +7,7 @@ test('sales center appears in Marketing and reports blocked capability honestly'
  await launch.click();
  await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
  await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
- await expect(page.getByText('Meta', {exact:true}).first()).toBeVisible();
+ await expect(page.getByText('Facebook & Instagram', {exact:true}).first()).toBeVisible();
  await expect(page.getByText(/External execution: NOT VERIFIED/)).toBeVisible();
  const events=await page.evaluate(()=>window.__cjRequests);
  expect(events.some(e=>e.action==='overview')).toBeTruthy();
@@ -111,7 +111,7 @@ test('one marketing hub does not pretend missing OAuth is connected',async({page
  await expect(page.getByRole('heading',{name:'One Marketing Command Center'})).toBeVisible();
  await expect(page.getByText('Shopify',{exact:true}).first()).toBeVisible();
  await page.getByRole('button',{name:'View requirements'}).first().click();
- await expect(page.getByText(/Check connection readiness first/)).toBeVisible();
+ await expect(page.getByText(/not available as a separately verified marketing connector yet/)).toBeVisible();
  const events=await page.evaluate(()=>window.__cjRequests);
  expect(events.some(e=>e.action==='create')).toBeFalsy();
 });
