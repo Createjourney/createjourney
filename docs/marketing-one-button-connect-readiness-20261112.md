@@ -7,8 +7,8 @@
 - Single Marketing tile with connection cards, live account-status checks, agent-readiness inspection, and draft-only Flourished Images planning.
 - JWT-authenticated, tenant-bound existing Google Business Profile and Meta (Facebook/Instagram) connection controls, delegated to the previously deployed journey-integrations API. Existing Meta scopes are for business-page visibility and Instagram content publishing, **not** messaging or ad buying. An OAuth record is not proof that those operations work.
 - New independent Shopify standalone-store authorization-code adapter (merchant enters .myshopify.com domain), signed + expiring OAuth callback validation, encrypted token persistence, and owner-controlled disconnection. This does not implement orders/refunds webhooks or verify checkout.
-- New independent Gmail send-only and TikTok identity OAuth adapters with one-time expiring state, encrypted access/refresh tokens, owner-controlled disconnect, status, and identity verification. Gmail authorization does not send emails by itself; TikTok basic login scope does not allow public posting.
-- Fail-closed presentation for unsupported Microsoft 365/Outlook, Meta advertising, and missing credentials.
+- New independent Gmail/Outlook send-only and TikTok identity OAuth adapters with one-time expiring state, encrypted access/refresh tokens, owner-controlled disconnect, status, and identity verification. Gmail authorization does not send emails by itself; TikTok basic login scope does not allow public posting.
+- Fail-closed presentation for unimplemented Meta advertising and missing provider credentials.
 - Correct Flourished Images launch assumptions: $240 retail, planned first 100 units; shipping target is **not** a verified fulfillment guarantee.
 
 ## Required provider-side work before a human may authorize accounts
@@ -20,7 +20,7 @@
 | Google Business Profile | Existing Google OAuth app credentials and business profile API approval | Existing `journey-integration-callback?provider=google` | `business.manage` | Provider verification; **not** Gmail or Analytics |
 | Gmail | Register Google OAuth client; set `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET` | `https://pbiivpehdatvmyaxwixk.supabase.co/functions/v1/cj-marketing-oauth/gmail` | `openid email profile gmail.send` | Consent screen, sensitive-scope verification, permitted sending/opt-out and delivery receipts |
 | TikTok | TikTok for Developers Login Kit app; set `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET` | `https://pbiivpehdatvmyaxwixk.supabase.co/functions/v1/cj-marketing-oauth/tiktok` | `user.info.basic` | TikTok publishing API, `video.publish` approval, app audit and real action receipts |
-| Microsoft 365 / Outlook | Not implemented | None | None | Separate Microsoft Graph OAuth and authorized sending API |
+| Microsoft 365 / Outlook | Register Microsoft Entra app; set `MICROSOFT_OAUTH_CLIENT_ID`, `MICROSOFT_OAUTH_CLIENT_SECRET` | `https://pbiivpehdatvmyaxwixk.supabase.co/functions/v1/cj-marketing-oauth/outlook` | `openid profile email offline_access User.Read Mail.Send` | User/admin consent, Graph identity verification, authorized sending/opt-out, real delivery receipts |
 | Meta Ads | Not implemented as independent execution connection | None | None | Ads permissions and app review, account selection, spend cap enforcement, provider receipts |
 
 **Secrets:** Server-only Supabase secrets; never store tokens in browser localStorage or expose them in UI. `INTEGRATION_TOKEN_ENCRYPTION_KEY` must be strong (>=32 chars for new adapters) and available to existing / new authorized OAuth services. Do not ask the owner to paste secrets into a chat.
