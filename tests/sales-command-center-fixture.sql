@@ -1,6 +1,7 @@
 -- Minimal fixture for isolated E2E only. NOT a production schema migration.
 create table public.businesses (
- id uuid primary key default gen_random_uuid()
+ id uuid primary key default gen_random_uuid(),
+ name text not null default 'Isolated CI Business'
 );
 create table public.business_members (
  business_id uuid not null references public.businesses(id),
