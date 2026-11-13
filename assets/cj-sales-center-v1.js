@@ -24,8 +24,8 @@ const css=`
 `;
 let root=null,last=null,selectedBusinessId=null,selectedBusinessName='',oauthReturnNotice=null;
 const providers=[
- ["shopify","Shopify","Storefront, orders, refunds and sales attribution"],
- ["meta","Facebook & Instagram","Business page visibility and Instagram publishing; outreach/ads separately authorized"],
+ ["shopify","Shopify","Store identity, products and orders; checkout/attribution pending"],
+ ["meta","Facebook & Instagram","Business page and Instagram authorization; publishing must be verified"],
  ["tiktok","TikTok","Profile access; content publishing needs separate platform approval"],
  ["google","Google Business Profile","Business profile and authorized review management"],
  ["gmail","Gmail Business Email","Authorized send-only email connection (outreach separately approved)"],
@@ -237,8 +237,8 @@ function renderMarketingHub(data,container){
   clear(grid);
   for(const [key,name,purpose] of providers){
    const providerKey=key==="meta_ads"?"meta":key;
-   const supports=["meta","google","shopify","gmail","tiktok","outlook"].includes(key);
-   const state=key==="shopify"?snapshot?.shopify:["gmail","tiktok","outlook"].includes(key)?snapshot?.marketing?.[key]:snapshot?.accounts?.find(a=>a.provider===providerKey);
+   const supports=key!=="meta_ads"&&["meta","google","shopify","gmail","tiktok","outlook"].includes(key);
+   const state=key==="meta_ads"?null:key==="shopify"?snapshot?.shopify:["gmail","tiktok","outlook"].includes(key)?snapshot?.marketing?.[key]:snapshot?.accounts?.find(a=>a.provider===providerKey);
    const canOAuth=supports&&(key==="shopify"?snapshot?.shopify?.oauth_configured===true:["gmail","tiktok","outlook"].includes(key)?snapshot?.marketing?.[key]?.oauth_configured===true:snapshot?.readiness?.[providerKey]?.oauth_configured===true);
    const configured=state?.status==="connected";
    const box=el("div",{className:"cjs-card"},grid);
