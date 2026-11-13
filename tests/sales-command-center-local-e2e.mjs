@@ -74,6 +74,28 @@ assert.equal(crossBusiness.status,403,'Cross-business request forbidden');
 const missingSession=await app(anon,'overview',{},businessId);
 assert.equal(missingSession.status,401,'Anonymous session denied');
 
+// New external integration endpoints must not leak account status across tenants.
+async function oauth(token,slug,action,business_id,provider){
+ return call('POST','/functions/v1/'+slug,
+  {action,business_id,...(provider?{provider}:{})},anon,token);
+}
+for(const [slug,provider] of [
+ ['cj-shopify-integration',null],
+ ['cj-marketing-oauth','gmail'],
+ ['cj-marketing-oauth','tiktok'],
+ ['cj-marketing-oauth','outlook']
+]){
+ const ownerStatus=expectSuccess(await oauth(owner.token,slug,'status',businessId,provider),
+  slug+' authorized owner status');
+ assert.equal(ownerStatus.status==='disconnected'||ownerStatus.connected===false,true,
+  slug+' no verified active connection');
+ const outsiderStatus=await oauth(outsider.token,slug,'status',businessId,provider);
+ assert.equal(outsiderStatus.status,403,slug+' must reject nonmembers');
+ const otherBusiness=await oauth(owner.token,slug,'status',otherBusinessId,provider);
+ assert.equal(otherBusiness.status,403,slug+' must reject other tenant');
+ const anonymousStatus=await oauth(anon,slug,'status',businessId,provider);
+ assert.equal(anonymousStatus.status,401,slug+' must reject anonymous status requests');
+}
 const campaign={
  name:'CI Holiday Campaign',product_name:'Flourished Images Premium Frame',
  product_url:'https://example.com/products/frame',
