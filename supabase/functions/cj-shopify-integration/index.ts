@@ -66,7 +66,7 @@ async function authorize(req:Request,db:any,business:string){
 }
 async function handleCallback(req:Request){
  const cfg=config();
- if(!cfg.client_id||!cfg.client_secret||!cfg.token_key)return send({error:"Shopify app not configured"},503);
+ if(!cfg.client_id||!cfg.client_secret||cfg.token_key.length<32)return send({error:"Shopify app not configured"},503);
  const q=new URL(req.url).searchParams;
  const shop=q.get("shop")||"",state=q.get("state")||"",code=q.get("code")||"";
  if(!shopReg.test(shop)||!state||state.length>150||!code||code.length>2000)return send({error:"Invalid Shopify callback"},400);
