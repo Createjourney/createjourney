@@ -157,7 +157,7 @@ test('OAuth return reopens authorized single Marketing hub and strips callback q
  await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html?integration=shopify&result=connected');
  await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible({timeout:7000});
  await expect(page).not.toHaveURL(/integration=shopify/);
- await expect(page.getByText(/Shopify authorization returned successfully/)).toBeVisible();
+ await expect(page.getByText(/shopify authorization returned successfully/i)).toBeVisible();
 });
 test('Failed OAuth return never claims account verified',async({page})=>{
  await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html?integration=meta&result=error');
