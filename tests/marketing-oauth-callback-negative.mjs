@@ -1,6 +1,6 @@
 // Isolated negative OAuth callback tests. Never use provider live secrets or accounts.
 import assert from 'node:assert/strict';
-import {createHmac} from 'node:crypto';
+import {createHmac,randomUUID} from 'node:crypto';
 
 const origin=(process.env.CJ_LOCAL_API_URL||'').replace(/\/$/,'');
 const sharedSecret='ci-shopify-test-secret-2026';
@@ -61,4 +61,45 @@ for(const provider of ['google','meta']){
  const missing=await get('journey-integration-callback?provider='+provider+'&code=ci-no-state');
  assert.equal(new URL(missing.location).searchParams.get('result'),'error');
 }
+// Expired state persisted in isolated Supabase is never exchangeable for credentials.
+const service=process.env.CJ_LOCAL_SERVICE_KEY||'';
+if(!service)throw Error('Isolated service key required');
+async function rest(method,path,body){
+ const r=await fetch(origin+'/rest/v1/'+path,{method,
+  headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json',
+   Prefer:'return=representation'},body:body===undefined?undefined:JSON.stringify(body)});
+ const data=await r.json().catch(()=>({}));
+ if(!r.ok)throw Error('Synthetic local fixture failed '+r.status+' '+JSON.stringify(data).slice(0,140));
+ return data;
+}
+const businessId=randomUUID();
+await rest('POST','businesses',{id:businessId,name:'OAuth Local Negative CI'});
+for(const provider of ['google','meta']){
+ const state=randomUUID();
+ await rest('POST','connected_accounts',{
+  business_id:businessId,provider,status:'connecting',oauth_state:state,
+  metadata:{oauth_started_at:new Date(Date.now()-30*60*1000).toISOString()}
+ });
+ const expired=await get('journey-integration-callback?provider='+provider+
+  '&state='+state+'&code=ci-invalid');
+ assert.equal(expired.status,302,'Expired callback redirects safely');
+ assert.equal(new URL(expired.location).searchParams.get('result'),'error');
+ const rows=await rest('GET','connected_accounts?select=status,oauth_state,metadata&business_id=eq.'+businessId+
+  '&provider=eq.'+provider);
+ assert.equal(rows.length,1);
+ assert.notEqual(rows[0].status,'connected','Expired callback cannot mark account connected');
+ assert.equal(rows[0].oauth_state,null,'Expired legacy state cannot be reused');
+ assert.equal(rows[0].metadata?.encrypted_tokens,undefined,'Expired callback cannot store tokens');
+}
+const oldShopState=randomUUID();
+await rest('POST','connected_accounts',{
+ business_id:businessId,provider:'shopify',status:'connecting',
+ oauth_state:oldShopState,metadata:{shop,oauth_started_at:new Date(Date.now()-30*60*1000).toISOString()}
+});
+const expiredShop=await get(signed({state:oldShopState}));
+assert.equal(expiredShop.status,403,'Expired stored Shopify state cannot be consumed');
+const shopRows=await rest('GET','connected_accounts?select=status,metadata&business_id=eq.'+businessId+
+ '&provider=eq.shopify');
+assert.notEqual(shopRows[0].status,'connected');
+assert.equal(shopRows[0].metadata?.encrypted_tokens,undefined);
 console.log('PASS: Shopify HMAC/timestamp/state and Gmail/TikTok/Outlook callback state reject tampering and unissued callbacks.');
