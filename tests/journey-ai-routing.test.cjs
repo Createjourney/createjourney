@@ -41,3 +41,15 @@ test('partner handoff precedes legacy parser', () => {
 test('partner handoff is conditional on registered handler', () => {
   assert.match(source, /readOnlyIntent\s*&&\s*typeof window\.CJJourneyPartnerAsk === 'function'/);
 });
+
+// Word boundaries prevent accidental read-only handoff for unrelated words.
+const boundaryNegative = [
+  "Reinspect the board",
+  "Unverified metrics",
+  "The board was changed yesterday",
+  "Publish a revised Journey",
+  "Create a comparison chart"
+];
+for (const prompt of boundaryNegative) test('word-boundary non-inspection: '+prompt, () => assert.equal(predicate.test(prompt), false));
+test('read-only routing remains case insensitive', () => assert.equal(predicate.test('INSPECT THE BOARD'), true));
+test('read-only routing accepts punctuation around exact commands', () => assert.equal(predicate.test('Please: verify the board!'), true));
