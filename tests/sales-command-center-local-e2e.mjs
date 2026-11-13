@@ -112,6 +112,12 @@ const newCampaign=expectSuccess(await app(owner.token,'create',{campaign:{...cam
 const stopped=expectSuccess(await app(owner.token,'pause_all',{},businessId),'global pause');
 assert.equal(stopped.paused_campaigns,1);
 assert.equal(stopped.external_provider_actions_stopped,false,'Global pause cannot claim external ads stopped');
+const auditRows=expectSuccess(await call('GET',
+ '/rest/v1/cj_sales_campaign_events?select=event_type,detail&campaign_id=eq.'+newCampaign.campaign.id,
+ undefined,service),'global pause event audit');
+assert.equal(auditRows.filter(e=>e.event_type==='PAUSED'&&e.detail?.reason==='owner_global_pause').length,1,
+ 'Global pause must create exactly one permitted and identifiable PAUSED event');
+
 const afterPause=expectSuccess(await app(owner.token,'overview',{},businessId),'read campaign status after global pause');
 assert.equal(afterPause.campaigns.find(x=>x.id===newCampaign.campaign.id).status,'paused');
 console.log('PASS: authenticated local E2E: tenant isolation, owner/manager permissions, drafts, updates, planning approvals, readiness, pause.');
