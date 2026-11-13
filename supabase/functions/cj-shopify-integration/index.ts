@@ -93,6 +93,8 @@ async function handleCallback(req:Request){
  if(!r.ok||typeof x.access_token!=="string"||!x.access_token)return send({error:"Shopify authorization failed"},502);
  const encoded=await encrypt(x.access_token);
  const requested=String(x.scope||"").split(",").filter(Boolean);
+ if(!["read_products","read_orders"].every(required=>requested.includes(required)))
+  return send({error:"Required Shopify read-only permissions were not granted"},403);
  const {error:saveError}=await db.from("connected_accounts").update({
   status:"connected",external_account_id:shop,external_account_name:shop,
   scopes:requested,capabilities:["products_read","orders_read"],
