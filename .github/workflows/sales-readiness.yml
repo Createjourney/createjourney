@@ -123,16 +123,20 @@ jobs:
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP/cj-sales-sandbox"
-          export SHOPIFY_CLIENT_ID=ci-client-id
-          export SHOPIFY_CLIENT_SECRET=ci-shopify-test-secret-2026
-          export INTEGRATION_TOKEN_ENCRYPTION_KEY=ci-isolated-integration-token-key-only-2026
-          export GOOGLE_GMAIL_CLIENT_ID=ci-client-id
-          export GOOGLE_GMAIL_CLIENT_SECRET=ci-secret
-          export TIKTOK_CLIENT_KEY=ci-client-key
-          export TIKTOK_CLIENT_SECRET=ci-secret
-          export MICROSOFT_OAUTH_CLIENT_ID=ci-client-id
-          export MICROSOFT_OAUTH_CLIENT_SECRET=ci-secret
-          supabase functions serve --no-verify-jwt > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
+          # Synthetic CI-only provider credentials; Supabase Edge loads --env-file,
+          # not merely the parent shell environment.
+          cat > "$RUNNER_TEMP/cj-fake-oauth.env" <<'OAUTH_ENV'
+          SHOPIFY_CLIENT_ID=ci-client-id
+          SHOPIFY_CLIENT_SECRET=ci-shopify-test-secret-2026
+          INTEGRATION_TOKEN_ENCRYPTION_KEY=ci-isolated-integration-token-key-only-2026
+          GOOGLE_GMAIL_CLIENT_ID=ci-client-id
+          GOOGLE_GMAIL_CLIENT_SECRET=ci-secret
+          TIKTOK_CLIENT_KEY=ci-client-key
+          TIKTOK_CLIENT_SECRET=ci-secret
+          MICROSOFT_OAUTH_CLIENT_ID=ci-client-id
+          MICROSOFT_OAUTH_CLIENT_SECRET=ci-secret
+          OAUTH_ENV
+          supabase functions serve --no-verify-jwt --env-file "$RUNNER_TEMP/cj-fake-oauth.env" > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
           EDGE_PID=$!
           trap 'kill "$EDGE_PID" 2>/dev/null || true' EXIT
           STATUS="$(supabase status --output json)"
