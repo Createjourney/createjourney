@@ -22,7 +22,7 @@ const css=`
 #cjSalesOverlay label{font-weight:600;font-size:13px;display:block}
 #cjSalesOverlay input,#cjSalesOverlay select{width:100%;margin-top:5px;padding:10px;border:1px solid #bfccda;border-radius:8px;font-size:14px;background:white}
 `;
-let root=null,last=null,selectedBusinessId=null,selectedBusinessName='';
+let root=null,last=null,selectedBusinessId=null,selectedBusinessName='',oauthReturnNotice=null;
 const providers=[
  ["shopify","Shopify","Storefront, orders, refunds and sales attribution"],
  ["meta","Facebook & Instagram","Business page visibility and Instagram publishing; outreach/ads separately authorized"],
@@ -77,7 +77,7 @@ async function refresh(){
    if(!selectedBusinessId){clear(root.querySelector("#cjs-content"));message("Select a business to continue.");return}
   }else chooser.hidden=true;
   last=await request("overview");
-  render(last);message("Business readiness refreshed. No campaigns launched.");
+  render(last);message(oauthReturnNotice?.text||"Business readiness refreshed. No campaigns launched.",!!oauthReturnNotice?.error);
  }catch(e){message(e.message||String(e),true)}
 }
 function render(data){
@@ -432,10 +432,11 @@ async function restoreOAuthReturn(){
   if(typeof sb==="undefined"||!sb?.auth)return;
   const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)return;
-  open();
   const caption=outcome==="connected"?
    provider+" authorization returned successfully. Check connection readiness and verify provider identity before any use.":
    provider+" authorization was not completed. Check readiness and reconnect if necessary.";
+  oauthReturnNotice={text:caption,error:outcome==="error"};
+  open();
   message(caption,outcome==="error");
   url.searchParams.delete("integration");url.searchParams.delete("result");
   history.replaceState(history.state,"",url.pathname+url.search+url.hash);
