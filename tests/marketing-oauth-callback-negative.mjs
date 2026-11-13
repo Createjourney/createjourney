@@ -7,10 +7,18 @@ const sharedSecret='ci-shopify-test-secret-2026';
 if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(origin))
  throw Error('Refusing OAuth callback tests outside localhost');
 async function get(path){
- const r=await fetch(origin+'/functions/v1/'+path,{redirect:'manual'});
- let result={};
- try {result=await r.json()}catch{}
- return {status:r.status,result,location:r.headers.get('location')};
+ let last={status:0,result:{},location:null};
+ for(let attempt=0;attempt<25;attempt++){
+  try{
+   const r=await fetch(origin+'/functions/v1/'+path,{redirect:'manual'});
+   let result={};
+   try {result=await r.json()}catch{}
+   last={status:r.status,result,location:r.headers.get('location')};
+   if(r.status!==502&&r.status!==503)return last;
+  }catch(e){last={status:0,result:{error:String(e)},location:null}}
+  await new Promise(resolve=>setTimeout(resolve,1000));
+ }
+ throw Error('OAuth callback worker startup timed out: '+JSON.stringify(last));
 }
 const sign=(params)=>{
  const pairs=[...params.entries()].sort(([a],[b])=>a.localeCompare(b));
