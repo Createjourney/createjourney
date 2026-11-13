@@ -49,4 +49,16 @@ for(const provider of ['gmail','tiktok','outlook']){
  const missing=await get('cj-marketing-oauth/'+provider+'?code=ci-not-valid');
  assert.equal(missing.status,400,provider+' callback without OAuth state must be invalid');
 }
+for(const provider of ['google','meta']){
+ const bad=await get('journey-integration-callback?provider='+provider+
+  '&state=unissued-test-state&code=ci-invalid-code');
+ assert.equal(bad.status,302,provider+' existing callback must redirect from failed OAuth');
+ const returned=new URL(bad.location);
+ assert.equal(returned.origin,'https://app.gocreatejourney.com');
+ assert.equal(returned.searchParams.get('integration'),provider);
+ assert.equal(returned.searchParams.get('result'),'error');
+ assert.equal(returned.searchParams.get('code'),null,'OAuth code cannot leak into redirect');
+ const missing=await get('journey-integration-callback?provider='+provider+'&code=ci-no-state');
+ assert.equal(new URL(missing.location).searchParams.get('result'),'error');
+}
 console.log('PASS: Shopify HMAC/timestamp/state and Gmail/TikTok/Outlook callback state reject tampering and unissued callbacks.');
