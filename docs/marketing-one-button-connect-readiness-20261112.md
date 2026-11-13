@@ -11,6 +11,14 @@
 - Fail-closed presentation for unimplemented Meta advertising and missing provider credentials.
 - Correct Flourished Images launch assumptions: $240 retail, planned first 100 units; shipping target is **not** a verified fulfillment guarantee.
 
+## OAuth callback hardening and confirmation evidence
+
+- Shopify: HMAC authenticates the query, timestamp allows a maximum 10-minute window, and a matching single-use `connected_accounts.oauth_state` must be present and unexpired. An API token is encrypted only after the required product/order read scopes were returned. A subsequent store identity check uses Shopify Admin GraphQL; it still does not verify order webhooks.
+- Existing Google Business Profile and Meta callbacks were audited: the older deployed callback previously checked state only, consumed it **after** token exchange, and redirected to a native URI. The staged hardened callback now enforces a 10-minute expiry, atomically consumes the state before exchanging a token, refuses missing provider identity, and returns to `https://app.gocreatejourney.com/`. This is an intentional behavior change requiring staged deployment verification.
+- Gmail, TikTok and Outlook: enforce an owner-initiated, single-use 10-minute state, provider identity verification and required scopes; return only a generic success/failure without revealing authorization code or tokens. Tokens remain encrypted server-side.
+- CI contains negative callback tests with **synthetic** credentials and local Supabase storage. This verifies invalid HMAC, expired callback timestamps, missing/forged and persisted expired states, JWT protection and tenant isolation. Real successful third-party authorization cannot be verified until each provider app is registered and the owner consents through that provider.
+- The unified Marketing page displays provider-return outcomes and then performs a fresh connection status read; the return URL alone is not evidence of publishing, outreach, checkout or ad authorization.
+
 ## Required provider-side work before a human may authorize accounts
 
 | Provider | Developer setup | Callback to register | Current scope | What remains to be verified |
