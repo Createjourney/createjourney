@@ -2,12 +2,12 @@ import {test,expect} from '@playwright/test';
 
 test('sales center appears in Marketing and reports blocked capability honestly',async({page})=>{
  await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
- const launch=page.getByRole('button',{name:'Autonomous Sales — Launch Readiness'});
+ const launch=page.getByRole('button',{name:'Marketing & Sales Command Center'});
  await expect(launch).toBeVisible();
  await launch.click();
- await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
+ await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
  await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
- await expect(page.getByText('Meta', {exact:false})).toBeVisible();
+ await expect(page.getByText('Facebook & Instagram', {exact:true}).first()).toBeVisible();
  await expect(page.getByText(/External execution: NOT VERIFIED/)).toBeVisible();
  const events=await page.evaluate(()=>window.__cjRequests);
  expect(events.some(e=>e.action==='overview')).toBeTruthy();
@@ -15,7 +15,7 @@ test('sales center appears in Marketing and reports blocked capability honestly'
 });
 test('draft campaign creation cannot authorize external spending',async({page})=>{
  await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
- await page.getByRole('button',{name:'Autonomous Sales — Launch Readiness'}).click();
+ await page.getByRole('button',{name:'Marketing & Sales Command Center'}).click();
  await page.getByLabel('Campaign name').fill('CI Holiday Frame');
  await page.getByLabel('Product', {exact:true}).fill('Premium Display Frame');
  await page.getByLabel('Product URL (HTTPS)').fill('https://example.com/products/frame');
@@ -50,15 +50,18 @@ test('actual CreateJourney application bootstrap loads Sales Command Center side
  expect(await page.evaluate(()=>typeof window.CJSalesCommandCenter.open)).toBe('function');
 });
 
-test('Control Center has separate AI Sales entry without changing Marketing chat routing',async({page})=>{
+test('Control Center uses one native Marketing entry for the full hub',async({page})=>{
  await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
- await expect(page.locator('[data-cjx-home-action="marketing"]')).toHaveCount(1);
+ await expect(page.locator('[data-cjx-home-action="marketing"]')).toHaveCount(0);
  const direct=page.locator('.cjx-controls [data-cjs-launch]');
  await expect(direct).toBeVisible();
- await expect(direct).toContainText('AI Sales Command Center');
+ await expect(direct).toHaveAttribute('aria-label','Marketing');
+ await expect(page.locator('.cjx-controls [data-cjs-launch]')).toHaveCount(1);
  await direct.click();
- await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
+ await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
  await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Marketing account connections'})).toBeVisible();
+ await expect(page.getByText('Readiness not checked — not verified').first()).toBeVisible();
 });
 
 test('real Command Center tile opens sales overlay instead of returning to dashboard top',async({page})=>{
@@ -71,7 +74,7 @@ test('real Command Center tile opens sales overlay instead of returning to dashb
  // Dispatch a real DOM click to verify capture/bubble handling independently.
  await tile.evaluate(el=>el.click());
  await expect(page.locator('#cjSalesOverlay')).toBeVisible({timeout:10000});
- await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
+ await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
 });
 
 test('iPhone-width real homepage Sales button receives a real pointer click',async({page})=>{
@@ -98,5 +101,74 @@ test('iPhone-width real homepage Sales button receives a real pointer click',asy
  const scrollBefore=await page.evaluate(()=>window.scrollY);
  await tile.click();
  await expect(page.locator('#cjSalesOverlay')).toBeVisible({timeout:10000});
- await expect(page.getByRole('dialog',{name:'Autonomous Sales Command Center'})).toBeVisible();
+ await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible();
+});
+
+
+test('one marketing hub does not pretend missing OAuth is connected',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
+ await page.locator('[data-cjs-launch]').click();
+ await expect(page.getByRole('heading',{name:'One Marketing Command Center'})).toBeVisible();
+ await expect(page.getByText('Shopify',{exact:true}).first()).toBeVisible();
+ await page.getByRole('button',{name:'View requirements'}).first().click();
+ await expect(page.getByText(/Check connection readiness first/)).toBeVisible();
+ const events=await page.evaluate(()=>window.__cjRequests);
+ expect(events.some(e=>e.action==='create')).toBeFalsy();
+});
+
+test('connection readiness gates live OAuth and never offers unsupported Shopify connect',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
+ await page.locator('[data-cjs-launch]').click();
+ await page.getByRole('button',{name:'Check connection readiness'}).click();
+ await expect(page.getByText('Connector under development — no live OAuth').first()).toBeVisible();
+ await expect(page.getByText('OAuth configuration required').first()).toBeVisible();
+ const actions=await page.evaluate(()=>window.__cjRequests);
+ expect(actions.some(x=>x.action==='status')).toBeTruthy();
+ expect(actions.some(x=>x.action==='begin_connection')).toBeFalsy();
+});
+
+test('Marketing business selector requires explicit choice for multi-organization owners',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html?multiple=1');
+ await page.locator('[data-cjs-launch]').click();
+ await expect(page.getByText('Select a business to continue.')).toBeVisible();
+ const select=page.getByLabel('Choose business to manage');
+ await select.selectOption('second-business');
+ await expect(page.getByText('Sales launch status: BLOCKED')).toBeVisible();
+ const requests=await page.evaluate(()=>window.__cjRequests);
+ const overview=requests.find(x=>x.action==='overview');
+ expect(overview.business_id).toBe('second-business');
+});
+
+test('Marketing hub hands owner context back to Journey AI chat',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
+ await page.evaluate(()=>{
+  const input=document.createElement('textarea');
+  input.id='aiInput';document.body.append(input);
+  window.CJExactHome={openJourneyAI:()=>{window.__openedJourneyAI=true;return true}};
+ });
+ await page.locator('[data-cjs-launch]').click();
+ await page.getByRole('button',{name:'Ask Journey AI'}).click();
+ expect(await page.evaluate(()=>window.__openedJourneyAI)).toBe(true);
+ expect(await page.locator('#aiInput').inputValue()).toContain('verified connected accounts');
+ await expect(page.locator('#cjSalesOverlay')).toHaveCount(0);
+});
+
+test('OAuth return reopens authorized single Marketing hub and strips callback query',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html?integration=shopify&result=connected');
+ await expect(page.getByRole('dialog',{name:'Marketing & Sales Command Center'})).toBeVisible({timeout:7000});
+ await expect(page).not.toHaveURL(/integration=shopify/);
+ await expect(page.getByText(/shopify authorization returned successfully/i)).toBeVisible();
+});
+test('Failed OAuth return never claims account verified',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html?integration=meta&result=error');
+ await expect(page.getByText(/meta authorization was not completed/)).toBeVisible({timeout:7000});
+ await expect(page).not.toHaveURL(/result=error/);
+});
+
+test('Meta social connection never implies Meta Ads authorization',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/tests/fixtures/sales-center.html');
+ await page.locator('[data-cjs-launch]').click();
+ const metaAds=page.locator('#cjs-content .cjs-card').filter({has:page.getByText('Meta Ads',{exact:true})});
+ await expect(metaAds.getByText('Connector under development — no live OAuth')).toBeVisible();
+ await expect(metaAds.getByRole('button',{name:'View requirements'})).toBeVisible();
 });

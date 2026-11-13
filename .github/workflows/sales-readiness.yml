@@ -3,10 +3,15 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/cj-sales-command-center/**'
+      - 'supabase/functions/cj-shopify-integration/**'
+      - 'supabase/functions/cj-marketing-oauth/**'
+      - 'supabase/functions/journey-integration-callback/**'
       - 'supabase/migrations/**'
       - 'tests/sales-command-center-local.sql'
       - 'tests/sales-command-center-fixture.sql'
       - 'tests/sales-command-center-local-e2e.mjs'
+      - 'tests/marketing-oauth-security-smoke.mjs'
+      - 'tests/marketing-oauth-callback-negative.mjs'
       - 'tests/sales-command-center-browser.spec.mjs'
       - 'tests/fixtures/sales-center.html'
       - 'assets/cj-sales-center-v1.js'
@@ -17,6 +22,9 @@ on:
   push:
     paths:
       - 'supabase/functions/cj-sales-command-center/**'
+      - 'supabase/functions/cj-shopify-integration/**'
+      - 'supabase/functions/cj-marketing-oauth/**'
+      - 'supabase/functions/journey-integration-callback/**'
       - 'supabase/migrations/**'
       - 'tests/sales-command-center-local.sql'
       - 'assets/cj-sales-center-v1.js'
@@ -38,6 +46,8 @@ jobs:
       - run: node --check scripts/sales-readiness.mjs
       - run: node --check scripts/sales-readiness.test.mjs
       - run: node --check tests/sales-command-center-local-e2e.mjs
+      - run: node --check tests/marketing-oauth-security-smoke.mjs
+      - run: node --check tests/marketing-oauth-callback-negative.mjs
       - run: node --test scripts/sales-readiness.test.mjs
       - run: node --check assets/cj-sales-center-v1.js
       - run: node --check assets/cj-journey-capabilities-v1.js
@@ -45,6 +55,9 @@ jobs:
         with:
           deno-version: v2.x
       - run: deno check supabase/functions/cj-sales-command-center/index.ts
+      - run: deno check supabase/functions/cj-shopify-integration/index.ts
+      - run: deno check supabase/functions/cj-marketing-oauth/index.ts
+      - run: deno check supabase/functions/journey-integration-callback/index.ts
   browser-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -84,6 +97,11 @@ jobs:
           cp "$GITHUB_WORKSPACE/supabase/migrations/20261110_sales_campaign_command_center.sql" supabase/migrations/20261110000000_sales_campaign_command_center.sql
           mkdir -p supabase/functions/cj-sales-command-center
           cp "$GITHUB_WORKSPACE/supabase/functions/cj-sales-command-center/index.ts" supabase/functions/cj-sales-command-center/index.ts
+          mkdir -p supabase/functions/cj-shopify-integration supabase/functions/cj-marketing-oauth
+          cp "$GITHUB_WORKSPACE/supabase/functions/cj-shopify-integration/index.ts" supabase/functions/cj-shopify-integration/index.ts
+          cp "$GITHUB_WORKSPACE/supabase/functions/cj-marketing-oauth/index.ts" supabase/functions/cj-marketing-oauth/index.ts
+          mkdir -p supabase/functions/journey-integration-callback
+          cp "$GITHUB_WORKSPACE/supabase/functions/journey-integration-callback/index.ts" supabase/functions/journey-integration-callback/index.ts
       - name: Start isolated Supabase and apply campaign migration
         shell: bash
         run: |
@@ -105,13 +123,36 @@ jobs:
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP/cj-sales-sandbox"
-          supabase functions serve cj-sales-command-center --no-verify-jwt > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
+          # Synthetic CI-only provider credentials; Supabase Edge loads --env-file,
+          # not merely the parent shell environment.
+          cat > "$RUNNER_TEMP/cj-fake-oauth.env" <<'OAUTH_ENV'
+          SHOPIFY_CLIENT_ID=ci-client-id
+          SHOPIFY_CLIENT_SECRET=ci-shopify-test-secret-2026
+          INTEGRATION_TOKEN_ENCRYPTION_KEY=ci-isolated-integration-token-key-only-2026
+          GOOGLE_GMAIL_CLIENT_ID=ci-client-id
+          GOOGLE_GMAIL_CLIENT_SECRET=ci-secret
+          TIKTOK_CLIENT_KEY=ci-client-key
+          TIKTOK_CLIENT_SECRET=ci-secret
+          MICROSOFT_OAUTH_CLIENT_ID=ci-client-id
+          MICROSOFT_OAUTH_CLIENT_SECRET=ci-secret
+          OAUTH_ENV
+          supabase functions serve --no-verify-jwt --env-file "$RUNNER_TEMP/cj-fake-oauth.env" > "$RUNNER_TEMP/cj-sales-edge.log" 2>&1 &
           EDGE_PID=$!
           trap 'kill "$EDGE_PID" 2>/dev/null || true' EXIT
           STATUS="$(supabase status --output json)"
           export CJ_LOCAL_API_URL="$(printf '%s' "$STATUS" | jq -r '.API_URL')"
           export CJ_LOCAL_ANON_KEY="$(printf '%s' "$STATUS" | jq -r '.ANON_KEY')"
           export CJ_LOCAL_SERVICE_KEY="$(printf '%s' "$STATUS" | jq -r '.SERVICE_ROLE_KEY')"
+          node "$GITHUB_WORKSPACE/tests/marketing-oauth-callback-negative.mjs" || {
+            echo 'OAuth callback negative tests failed'
+            tail -n 45 "$RUNNER_TEMP/cj-sales-edge.log" || true
+            exit 1
+          }
+          node "$GITHUB_WORKSPACE/tests/marketing-oauth-security-smoke.mjs" || {
+            echo 'OAuth negative probe failed'
+            tail -n 45 "$RUNNER_TEMP/cj-sales-edge.log" || true
+            exit 1
+          }
           node "$GITHUB_WORKSPACE/tests/sales-command-center-local-e2e.mjs" || {
             echo 'Local Edge Function diagnostic (no credentials):'
             tail -n 45 "$RUNNER_TEMP/cj-sales-edge.log" || true

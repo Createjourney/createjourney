@@ -1,0 +1,23 @@
+name: Marketing OAuth Production Safety (read only)
+on:
+  pull_request:
+    paths:
+      - 'scripts/marketing-oauth-production-negative.mjs'
+      - '.github/workflows/marketing-oauth-production-safety.yml'
+      - 'supabase/functions/cj-shopify-integration/**'
+      - 'supabase/functions/cj-marketing-oauth/**'
+      - 'supabase/functions/journey-integration-callback/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-unauthorized-callback-probes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/marketing-oauth-production-negative.mjs
+      - run: node scripts/marketing-oauth-production-negative.mjs

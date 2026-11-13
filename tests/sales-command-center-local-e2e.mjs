@@ -62,6 +62,11 @@ expectSuccess(await call('POST','/rest/v1/business_members',[
 ],service),'seed memberships');
 expectSuccess(await call('POST','/rest/v1/connected_accounts',{business_id:businessId,provider:'meta',status:'connected',capabilities:{claimed:'instagram_publish'}},service),'seed connection');
 
+const ownerBusinesses=expectSuccess(await app(owner.token,'list_businesses'),'list authorized businesses');
+assert.equal(ownerBusinesses.businesses.length,1,'Owner sees only their authorized business');
+assert.equal(ownerBusinesses.businesses[0].id,businessId);
+const outsiderBusinesses=expectSuccess(await app(outsider.token,'list_businesses'),'outsider empty business list');
+assert.equal(outsiderBusinesses.businesses.length,0,'Unauthorized business metadata must not leak');
 const denied=await app(outsider.token,'overview',{},businessId);
 assert.equal(denied.status,403,'Non-member cannot view business');
 const crossBusiness=await app(owner.token,'overview',{},otherBusinessId);
@@ -69,6 +74,28 @@ assert.equal(crossBusiness.status,403,'Cross-business request forbidden');
 const missingSession=await app(anon,'overview',{},businessId);
 assert.equal(missingSession.status,401,'Anonymous session denied');
 
+// New external integration endpoints must not leak account status across tenants.
+async function oauth(token,slug,action,business_id,provider){
+ return call('POST','/functions/v1/'+slug,
+  {action,business_id,...(provider?{provider}:{})},anon,token);
+}
+for(const [slug,provider] of [
+ ['cj-shopify-integration',null],
+ ['cj-marketing-oauth','gmail'],
+ ['cj-marketing-oauth','tiktok'],
+ ['cj-marketing-oauth','outlook']
+]){
+ const ownerStatus=expectSuccess(await oauth(owner.token,slug,'status',businessId,provider),
+  slug+' authorized owner status');
+ assert.equal(ownerStatus.status==='disconnected'||ownerStatus.connected===false,true,
+  slug+' no verified active connection');
+ const outsiderStatus=await oauth(outsider.token,slug,'status',businessId,provider);
+ assert.equal(outsiderStatus.status,403,slug+' must reject nonmembers');
+ const otherBusiness=await oauth(owner.token,slug,'status',otherBusinessId,provider);
+ assert.equal(otherBusiness.status,403,slug+' must reject other tenant');
+ const anonymousStatus=await oauth(anon,slug,'status',businessId,provider);
+ assert.equal(anonymousStatus.status,401,slug+' must reject anonymous status requests');
+}
 const campaign={
  name:'CI Holiday Campaign',product_name:'Flourished Images Premium Frame',
  product_url:'https://example.com/products/frame',
@@ -101,4 +128,18 @@ assert.equal(paused.campaign.status,'paused');
 assert.equal(paused.launch_authorized,false);
 const pausedOverview=expectSuccess(await app(manager.token,'overview',{campaign_id:id},businessId),'manager reads paused campaign');
 assert.equal(pausedOverview.campaigns.find(c=>c.id===id).status,'paused');
+const managerGlobalPause=await app(manager.token,'pause_all',{},businessId);
+assert.equal(managerGlobalPause.status,403,'Only owner may pause all campaigns');
+const newCampaign=expectSuccess(await app(owner.token,'create',{campaign:{...campaign,name:'CI Pause Test'}},businessId),'create another draft');
+const stopped=expectSuccess(await app(owner.token,'pause_all',{},businessId),'global pause');
+assert.equal(stopped.paused_campaigns,1);
+assert.equal(stopped.external_provider_actions_stopped,false,'Global pause cannot claim external ads stopped');
+const auditRows=expectSuccess(await call('GET',
+ '/rest/v1/cj_sales_campaign_events?select=event_type,detail&campaign_id=eq.'+newCampaign.campaign.id,
+ undefined,service),'global pause event audit');
+assert.equal(auditRows.filter(e=>e.event_type==='PAUSED'&&e.detail?.reason==='owner_global_pause').length,1,
+ 'Global pause must create exactly one permitted and identifiable PAUSED event');
+
+const afterPause=expectSuccess(await app(owner.token,'overview',{},businessId),'read campaign status after global pause');
+assert.equal(afterPause.campaigns.find(x=>x.id===newCampaign.campaign.id).status,'paused');
 console.log('PASS: authenticated local E2E: tenant isolation, owner/manager permissions, drafts, updates, planning approvals, readiness, pause.');

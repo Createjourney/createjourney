@@ -22,14 +22,33 @@ const css=`
 #cjSalesOverlay label{font-weight:600;font-size:13px;display:block}
 #cjSalesOverlay input,#cjSalesOverlay select{width:100%;margin-top:5px;padding:10px;border:1px solid #bfccda;border-radius:8px;font-size:14px;background:white}
 `;
-let root=null,last=null;
+let root=null,last=null,selectedBusinessId=null,selectedBusinessName='',oauthReturnNotice=null;
+const providers=[
+ ["shopify","Shopify","Store identity, products and orders; checkout/attribution pending"],
+ ["meta","Facebook & Instagram","Business page and Instagram authorization; publishing must be verified"],
+ ["tiktok","TikTok","Profile access; content publishing needs separate platform approval"],
+ ["google","Google Business Profile","Business profile and authorized review management"],
+ ["gmail","Gmail Business Email","Authorized send-only email connection (outreach separately approved)"],
+ ["outlook","Microsoft 365 / Outlook","Delegated Microsoft Graph Mail.Send; outreach still requires separate approval"],
+ ["meta_ads","Meta Ads","Approved campaigns, budgets and reporting"]
+];
+async function specialty(slug,body){
+ const session=(await sb.auth.getSession()).data.session;
+ if(!session?.access_token)throw Error("Sign into CreateJourney first");
+ const r=await fetch(SUPABASE_URL+"/functions/v1/"+slug,{method:"POST",headers:{
+ Authorization:"Bearer "+session.access_token,apikey:SUPABASE_PUBLISHABLE_KEY,
+ "Content-Type":"application/json"},body:JSON.stringify(body)});
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok)throw Error(j.error||"Service unavailable");
+ return j;
+}
 async function request(action,fields={}){
  if(typeof sb==="undefined"||!sb||typeof SUPABASE_URL==="undefined")throw Error("Supabase session unavailable");
  const session=(await sb.auth.getSession()).data.session;
  if(!session?.access_token)throw Error("Sign into CreateJourney first");
  const response=await fetch(endpoint(),{method:"POST",headers:{"Authorization":"Bearer "+session.access_token,
   "apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},
-  body:JSON.stringify({action,...fields})});
+  body:JSON.stringify({action,...(action==="list_businesses"?{}:selectedBusinessId?{business_id:selectedBusinessId}:{}),...fields})});
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw Error(data.error||"Sales service unavailable");
  return data;
@@ -38,8 +57,28 @@ const clear=n=>{while(n.firstChild)n.firstChild.remove()};
 function message(s,isError=false){if(!root)return;const m=root.querySelector("#cjs-message");m.textContent=s;m.style.color=isError?"#a32424":"#2b506f"}
 async function refresh(){
  if(!root)return;
- message("Loading authorized campaign information…");
- try{last=await request("overview");render(last);message("Read-only readiness refreshed. No campaigns launched.")}catch(e){message(e.message||String(e),true)}
+ message("Loading authorized marketing business information…");
+ try{
+  const listing=await request("list_businesses");
+  const businesses=listing.businesses||[];
+  if(!businesses.length)throw Error("No owner/manager business membership is available");
+  if(!businesses.some(x=>x.id===selectedBusinessId))selectedBusinessId=businesses.length===1?businesses[0].id:null;
+  selectedBusinessName=businesses.find(x=>x.id===selectedBusinessId)?.name||"";
+  const chooser=root.querySelector("#cjs-business-choice");
+  clear(chooser);
+  if(businesses.length>1){
+   chooser.hidden=false;
+   const label=el("label",{text:"Choose business to manage"},chooser);
+   const select=el("select",{},label);
+   const placeholder=el("option",{value:"",text:"Select a business"},select);placeholder.value="";
+   for(const b of businesses){const o=el("option",{value:b.id,text:b.name+" ("+b.role+")"},select);o.value=b.id}
+   select.value=selectedBusinessId||"";
+   select.onchange=()=>{selectedBusinessId=select.value||null;refresh()};
+   if(!selectedBusinessId){clear(root.querySelector("#cjs-content"));message("Select a business to continue.");return}
+  }else chooser.hidden=true;
+  last=await request("overview");
+  render(last);message(oauthReturnNotice?.text||"Business readiness refreshed. No campaigns launched.",!!oauthReturnNotice?.error);
+ }catch(e){message(e.message||String(e),true)}
 }
 function render(data){
  const container=root.querySelector("#cjs-content");clear(container);
@@ -48,6 +87,7 @@ function render(data){
  el("p",{text:"Campaign approval is for planning only. No social posts, outreach, ads, or Shopify operations are being executed."},summary);
  const blockers=data.readiness?.blockers||[];
  el("p",{text:"Outstanding verification gates: "+(blockers.length?blockers.join(" · "):"None reported")},summary);
+ renderMarketingHub(data,container);
  el("h2",{text:"Registered AI specialist capabilities"},container);
  const agentBox=el("div",{className:"cjs-grid"},container);
  for(const group of data.agent_capabilities||[]){
@@ -85,6 +125,211 @@ function render(data){
  for(const job of data.execution_results||[])
   el("p",{text:"#"+job.agent_no+" — "+job.status+" / "+job.execution_type+" — External action NOT VERIFIED"},jobs);
 }
+
+function renderMarketingHub(data,container){
+ const intro=el("div",{className:"cjs-card"},container);
+ el("h2",{text:"One Marketing Command Center"},intro);
+ el("p",{text:"Account connections, AI sales team, campaign drafts, outreach readiness and performance — all in one place. This view will never claim a connection or an agent is operational without evidence."},intro);
+ const toolbar=el("div",{className:"cjs-flex"},intro);
+ const askAI=el("button",{type:"button",text:"Ask Journey AI"},toolbar);
+ askAI.onclick=()=>{
+  const context={page:"marketing",action:"marketing_assistance",business_id:data.business_id,
+   source:"marketing_command_center"};
+  window.dispatchEvent(new CustomEvent("cj:journey-context",{detail:context}));
+  if(typeof window.CJSalesCommandCenter?.close==="function")window.CJSalesCommandCenter.close();
+  const opened=typeof window.CJExactHome?.openJourneyAI==="function"?
+   window.CJExactHome.openJourneyAI():
+   typeof window.openAI==="function"?window.openAI():false;
+  const input=document.getElementById("aiInput");
+  if(input){
+   input.value="Help me plan and manage marketing for my selected business. "+
+    "Use verified connected accounts and agent capabilities only. "+
+    "Prepare draft actions and request approval before posting, messaging or ad spend.";
+   input.focus();
+  }else if(opened===false){alert("Journey AI chat is not available on this screen.");}
+ };
+ const pauseAll=el("button",{type:"button",text:"Pause all CreateJourney campaigns"},toolbar);
+ pauseAll.onclick=async()=>{
+  if(!confirm("Pause all CreateJourney-managed campaign plans for this business? Provider-side advertising and messages are NOT automatically stopped."))return;
+  pauseAll.disabled=true;
+  try{
+   const outcome=await request("pause_all",{business_id:data.business_id});
+   await refresh();
+   message("Paused "+outcome.paused_campaigns+" CreateJourney campaign plans. Provider-side actions require separate controls.");
+  }catch(e){message(e.message||String(e),true)}finally{pauseAll.disabled=false}
+ };
+ const activate=el("button",{type:"button",text:"Activate AI Sales Team — check readiness"},toolbar);
+ activate.onclick=async()=>{
+  activate.disabled=true;message("Checking agent activation requirements…");
+  try{
+   const r=await specialty("cj-agent-activation-controller",{action:"activation_plan",business_id:data.business_id});
+   message((r.pilot_candidates||[]).length+" pilot-test candidates; "+(r.requires_development||[]).length+
+   " agents still require development. No automatic agent activation performed.");
+  }catch(e){message(e.message||String(e),true)}finally{activate.disabled=false}
+ };
+ const draft=el("button",{type:"button",text:"Create AI marketing plan"},toolbar);
+ const plan=el("div",{className:"cjs-card"},intro);plan.hidden=true;
+ draft.onclick=()=>{plan.hidden=!plan.hidden};
+ el("p",{text:"Configure a brand-specific marketing workspace. Drafting does not connect accounts, publish content or spend advertising money."},plan);
+ const brandGrid=el("div",{className:"cjs-grid"},plan);
+ const field=(name,type,placeholder)=>{
+  const label=el("label",{text:name},brandGrid);
+  const input=el("input",{type,placeholder},label);
+  if(type==="number"){input.min="0";input.step="1"}
+  return input;
+ };
+ const brand=field("Brand name","text","e.g. Flourished Images");
+ const website=field("Business website","url","https://example.com");
+ const product=field("Product or service","text","e.g. Premium display frame");
+ const price=field("Retail price (USD)","number","240");price.step="0.01";
+ const target=field("Launch order target","number","100");
+ const shipping=field("Shipping goal (days, optional)","number","20");
+ const getBrief=()=>{
+  const name=brand.value.trim(),url=website.value.trim(),item=product.value.trim();
+  const amount=Number(price.value),goal=Number(target.value),days=shipping.value?Number(shipping.value):null;
+  if(name.length<2||item.length<2||!/^https:\/\/[^\s]+$/i.test(url)||
+    !Number.isFinite(amount)||amount<=0||!Number.isInteger(goal)||goal<1||
+    (days!==null&&(!Number.isInteger(days)||days<1)))throw Error("Provide valid brand, HTTPS site, product, price, and order target.");
+  return {name,url,brief:{product:item,price_usd:amount,launch_units_planned:goal,
+   shipping_goal_days:days,shipping_capacity_verified:false,checkout_verified:false}};
+ };
+ const setup=el("button",{type:"button",text:"Set up marketing workspace"},plan);
+ setup.onclick=async()=>{
+  setup.disabled=true;
+  try{
+   const {name,url,brief}=getBrief();
+   const result=await specialty("cj-marketing-launch-squad",{
+    action:"setup_brand",brand_name:name,confirm_brand_control:true,
+    website_url:url,product_brief:brief});
+   message("Marketing workspace: "+result.status+". No third-party accounts connected.");
+  }catch(e){message(e.message||String(e),true)}finally{setup.disabled=false}
+ };
+ const approval=el("label",{},plan);
+ const check=el("input",{type:"checkbox"},approval);check.style.width="auto";
+ approval.append(document.createTextNode(" I authorize AI usage charges for one draft-only campaign run."));
+ const run=el("button",{type:"button",text:"Generate draft campaign (AI usage)"},plan);
+ const resultBox=el("pre",{className:"cjs-card"},plan);resultBox.hidden=true;
+ resultBox.style.whiteSpace="pre-wrap";resultBox.style.overflowWrap="anywhere";
+ run.onclick=async()=>{
+  if(!check.checked){message("Approve AI usage before running specialists.",true);return}
+  run.disabled=true;message("Preparing draft…");
+  try{
+   const {name,brief}=getBrief();
+   const r=await specialty("cj-marketing-launch-squad",{action:"draft_campaign",
+    brand_name:name,confirm_draft_only:true,confirm_analysis_cost:true,
+    request:"Draft a 14-day marketing plan for "+name+
+     ". Product/service: "+brief.product+". Price USD "+brief.price_usd+
+     "; initial order target "+brief.launch_units_planned+
+     ". Separate verified facts from assumptions. Shipping targets, inventory and checkout are NOT verified. Provide consent-based outreach, creative and tracking recommendations."});
+   resultBox.hidden=false;resultBox.textContent=JSON.stringify(r.campaign_draft||r,null,2);
+   message("Draft generated. No publishing, outbound contact or ad spending.");
+  }catch(e){message(e.message||String(e),true)}finally{run.disabled=false}
+ };
+ el("h2",{text:"Marketing account connections"},container);
+ const tenantLabel=el("div",{className:"cjs-card cjs-warning"},container);
+ el("strong",{text:"Selected business: "+(selectedBusinessName||"Unknown")},tenantLabel);
+ el("p",{text:"Every external account connected below belongs to THIS CreateJourney business. Separate product brands and businesses must use their own business entry to prevent mixing revenue, contacts, ad accounts or analytics. Your marketing draft workspace alone does not create or link a business."},tenantLabel);
+ el("p",{text:"Check connection readiness before authorizing a platform. Only configured OAuth providers receive a Connect button. Connecting does not authorize posting, messaging or ad spend."},container);
+ const connActions=el("div",{className:"cjs-flex"},container);
+ const checkConn=el("button",{type:"button",text:"Check connection readiness"},connActions);
+ const grid=el("div",{className:"cjs-grid"},container);
+ function drawConnections(snapshot){
+  clear(grid);
+  for(const [key,name,purpose] of providers){
+   const providerKey=key==="meta_ads"?"meta":key;
+   const supports=key!=="meta_ads"&&["meta","google","shopify","gmail","tiktok","outlook"].includes(key);
+   const state=key==="meta_ads"?null:key==="shopify"?snapshot?.shopify:["gmail","tiktok","outlook"].includes(key)?snapshot?.marketing?.[key]:snapshot?.accounts?.find(a=>a.provider===providerKey);
+   const canOAuth=supports&&(key==="shopify"?snapshot?.shopify?.oauth_configured===true:["gmail","tiktok","outlook"].includes(key)?snapshot?.marketing?.[key]?.oauth_configured===true:snapshot?.readiness?.[providerKey]?.oauth_configured===true);
+   const configured=state?.status==="connected";
+   const box=el("div",{className:"cjs-card"},grid);
+   el("strong",{text:name},box);el("p",{text:purpose},box);
+   const status=el("p",{text:!supports?
+    "Connector under development — no live OAuth":
+    !snapshot?"Readiness not checked — not verified":
+    configured?"Connected record — verify operational permissions":
+    state?"Status: "+state.status:
+    canOAuth?"Ready to authorize — not connected":"OAuth configuration required"},box);
+   let storeInput=null;
+   if(key==="shopify"&&canOAuth&&!configured){
+    const label=el("label",{text:"Shop domain (.myshopify.com)"},box);
+    storeInput=el("input",{type:"text",placeholder:"your-store.myshopify.com"},label);
+    storeInput.autocomplete="off";storeInput.maxLength=90;
+   }
+   const button=el("button",{type:"button",text:canOAuth&&key!=="meta_ads"?
+    configured?(key==="shopify"?"Verify store":"Verify account"):"Connect "+name:"View requirements"},box);
+   button.onclick=async()=>{
+    if(!supports||key==="meta_ads"){message(name+" is not available as a separately verified marketing connector yet.",true);return}
+    if(!snapshot){message("Check connection readiness first.",true);return}
+    if(!canOAuth){message(name+" requires provider OAuth credentials and encrypted token storage configured in Supabase.",true);return}
+    button.disabled=true;
+    try{
+     if(key==="shopify"){
+      if(configured){
+       const verified=await specialty("cj-shopify-integration",{action:"verify",business_id:data.business_id});
+       if(!verified.identity_verified)throw Error("Shopify identity not verified");
+       message("Shopify verified for "+verified.store+". Orders, refunds, checkout attribution and publishing require separate verified webhooks.");
+       await loadConnections();return;
+      }
+      const shop=String(storeInput?.value||"").trim().toLowerCase();
+      if(!/^[a-z0-9][a-z0-9-]{0,62}\.myshopify\.com$/.test(shop))
+       throw Error("Enter the exact Shopify .myshopify.com store domain");
+      const started=await specialty("cj-shopify-integration",{action:"begin",business_id:data.business_id,shop});
+      if(!started.authorization_url||!/^https:\/\//.test(started.authorization_url))throw Error("Shopify authorization URL unavailable");
+      window.location.assign(started.authorization_url);
+     }else if(configured){
+      const basic=["gmail","tiktok","outlook"].includes(key);
+      const verification=await specialty(basic?"cj-marketing-oauth":"journey-integrations",
+       {action:basic?"verify":"sync_account",business_id:data.business_id,provider:providerKey});
+      if(!(verification.verified||verification.identity_verified))throw Error(verification.error||"Provider verification failed");
+      message(name+" provider account verified. Publishing and campaign permissions require separate tests.");
+      await loadConnections();
+     }else{
+      const oauthBasic=["gmail","tiktok","outlook"].includes(key);
+      const started=await specialty(oauthBasic?"cj-marketing-oauth":"journey-integrations",
+       {action:oauthBasic?"begin":"begin_connection",business_id:data.business_id,provider:providerKey});
+      if(!started.authorization_url||!/^https:\/\//.test(started.authorization_url))throw Error("Provider authorization URL unavailable");
+      window.location.assign(started.authorization_url);
+     }
+    }catch(e){message(e.message||String(e),true)}finally{button.disabled=false}
+   };
+   if(configured&&supports&&key!=="meta_ads"){
+    const disconnect=el("button",{type:"button",text:"Disconnect "+name},box);
+    disconnect.onclick=async()=>{
+     if(!confirm("Disconnect "+name+" from this business? Scheduled external actions must be stopped separately."))return;
+     disconnect.disabled=true;
+     try{await specialty(key==="shopify"?"cj-shopify-integration":
+        ["gmail","tiktok","outlook"].includes(key)?"cj-marketing-oauth":"journey-integrations",
+       {action:"disconnect",business_id:data.business_id,...(key==="shopify"?{}:{provider:providerKey})});
+      await loadConnections();message(name+" disconnected in CreateJourney.");
+     }catch(e){message(e.message||String(e),true)}finally{disconnect.disabled=false}
+    };
+   }
+  }
+ }
+ async function loadConnections(){
+  checkConn.disabled=true;
+  try{
+   const main=await specialty("journey-integrations",{action:"status",business_id:data.business_id});
+   let shopify=null;
+   try{shopify=await specialty("cj-shopify-integration",{action:"status",business_id:data.business_id})}
+   catch(e){shopify={status:"unavailable",oauth_configured:false}}
+   const marketing={};
+   for(const provider of ["gmail","tiktok","outlook"]){
+    try{marketing[provider]=await specialty("cj-marketing-oauth",
+     {action:"status",business_id:data.business_id,provider});}
+    catch(e){marketing[provider]={status:"unavailable",oauth_configured:false}}
+   }
+   drawConnections({...main,shopify,marketing});
+   message("Connection readiness checked. This does not prove publishing or sales execution.");
+  }catch(e){drawConnections(null);message(e.message||String(e),true)}
+  finally{checkConn.disabled=false}
+ }
+ checkConn.onclick=loadConnections;
+ drawConnections(null);
+ const gate=el("div",{className:"cjs-card"},container);
+ el("h2",{text:"Live sales readiness"},gate);
+ el("p",{text:"Campaign planning is available below. Provider publishing, advertising, outreach and order verification remain blocked until their secure connectors and test receipts pass."},gate);
+}
 async function change(action,campaign_id){
  if(action==="approve"&&!confirm("Approve this campaign for planning? This does NOT send posts, messages, or spend money."))return;
  try{await request(action,{campaign_id});await refresh()}catch(e){message(e.message||String(e),true)}
@@ -95,8 +340,8 @@ function createForm(container){
  const form=el("form",{className:"cjs-grid"},box);
  const fields=[
  ["name","Campaign name","text","",true],["product_name","Product","text","",true],
- ["product_url","Product URL (HTTPS)","url","",true],["sale_price","Sale price (USD)","number","299",true],
- ["regular_price","Regular price (USD)","number","340",true],["order_target","Initial order target","number","100",true],
+ ["product_url","Product URL (HTTPS)","url","",true],["sale_price","Sale price (USD)","number","240",true],
+ ["regular_price","Regular price (USD)","number","240",true],["order_target","Initial order target","number","100",true],
  ["daily_ad_cap","Maximum daily advertising (USD)","number","10",true],
  ["daily_research_target","Daily prospect research goal","number","120",true]
  ];
@@ -127,36 +372,43 @@ function createForm(container){
 function open(){
  if(root){root.hidden=false;return refresh()}
  if(!document.getElementById("cjs-style")){const style=el("style",{id:"cjs-style"});style.textContent=css;document.head.append(style)}
- root=el("section",{id:"cjSalesOverlay",role:"dialog","aria-modal":"true","aria-label":"Autonomous Sales Command Center"},document.body);
+ root=el("section",{id:"cjSalesOverlay",role:"dialog","aria-modal":"true","aria-label":"Marketing & Sales Command Center"},document.body);
  const shell=el("main",{className:"cjs-shell"},root);
  const buttons=el("div",{className:"cjs-flex"},shell);
- el("h1",{text:"Autonomous Sales Command Center"},buttons);
+ el("h1",{text:"Marketing & Sales Command Center"},buttons);
  const refreshBtn=el("button",{type:"button",text:"Refresh status"},buttons);refreshBtn.onclick=refresh;
  const closeBtn=el("button",{type:"button",text:"Close"},buttons);closeBtn.onclick=()=>{root.remove();root=null};
- el("p",{text:"Manage campaign drafts and inspect verified readiness. Live campaign automation is not available yet."},shell);
+ el("p",{text:"Manage connected accounts, your AI marketing team, campaigns and sales readiness. External actions remain approval-gated."},shell);
  el("p",{id:"cjs-message",role:"status"},shell);
+ el("div",{id:"cjs-business-choice"},shell);
  const data=el("div",{id:"cjs-content"},shell);
  createForm(shell);
  refresh();
 }
 function installButton(){
- // The original Marketing control intentionally starts a Journey AI chat.
- // Keep that workflow intact; provide a separate, direct Sales entry point.
+ // Replace the native Marketing tile with one visually identical dedicated launcher.
+ // Existing command-center capture handlers otherwise intercept the native action.
  const controls=document.querySelector(".cjx-controls");
- if(controls&&!controls.querySelector("[data-cjs-launch]")){
-  const b=el("button",{type:"button","data-cjs-launch":"true",className:"cjx-control"},controls);
-  const icon=el("span",{className:"cjx-iconbox cjx-pink"},b);
-  icon.textContent="↗";
-  const content=el("span",{},b);
-  el("strong",{text:"AI Sales Command Center"},content);
-  el("span",{className:"cjx-copy",text:"Campaigns, agents & sales readiness"},content);
-  el("span",{className:"cjx-arrow",text:"›"},b);
-  b.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
+ if(controls){
+  const native=controls.querySelector('[data-cjx-home-action="marketing"]');
+  if(native){
+   const replacement=native.cloneNode(true);
+   replacement.removeAttribute("data-cjx-home-action");
+   replacement.removeAttribute("id");
+   replacement.setAttribute("data-cjs-launch","true");
+   replacement.setAttribute("aria-label","Marketing");
+   replacement.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
+   native.replaceWith(replacement);
+  }else if(!controls.querySelector("[data-cjs-launch]")){
+   const b=el("button",{type:"button","data-cjs-launch":"true",className:"cjx-control"},controls);
+   el("strong",{text:"Marketing"},b);
+   b.onclick=(event)=>{event.preventDefault();event.stopPropagation();open()};
+  }
  }
  // Retain access from the existing (advanced) Marketing workspace too.
  const host=document.getElementById("aiWorkspaceMarketingPanel");
  if(host&&!host.querySelector("[data-cjs-open]")){
-  const b=el("button",{type:"button","data-cjs-open":"true",text:"Autonomous Sales — Launch Readiness"},host);
+  const b=el("button",{type:"button","data-cjs-open":"true",text:"Marketing & Sales Command Center"},host);
   b.style.cssText="display:block;margin:16px 0;padding:12px 18px;border:0;border-radius:12px;background:#193e77;color:white;font-weight:700;cursor:pointer";
   b.onclick=open;
  }
@@ -171,8 +423,29 @@ window.addEventListener("click",(event)=>{
  event.stopImmediatePropagation();
  open();
 },true);
+async function restoreOAuthReturn(){
+ const url=new URL(window.location.href),provider=url.searchParams.get("integration");
+ const outcome=url.searchParams.get("result");
+ if(!["shopify","google","meta","gmail","tiktok","outlook"].includes(provider||"")||
+    !["connected","error"].includes(outcome||""))return;
+ try{
+  if(typeof sb==="undefined"||!sb?.auth)return;
+  const session=(await sb.auth.getSession()).data.session;
+  if(!session?.access_token)return;
+  const caption=outcome==="connected"?
+   provider+" authorization returned successfully. Check connection readiness and verify provider identity before any use.":
+   provider+" authorization was not completed. Check readiness and reconnect if necessary.";
+  oauthReturnNotice={text:caption,error:outcome==="error"};
+  open();
+  message(caption,outcome==="error");
+  url.searchParams.delete("integration");url.searchParams.delete("result");
+  history.replaceState(history.state,"",url.pathname+url.search+url.hash);
+ }catch(e){/* Preserve URL for explicit retry if auth is not ready. */}
+}
 window.CJSalesCommandCenter=Object.freeze({open,request,refresh,close:()=>{if(root){root.remove();root=null}}});
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installButton,{once:true});else installButton();
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{
+ installButton();setTimeout(restoreOAuthReturn,750);
+},{once:true});else {installButton();setTimeout(restoreOAuthReturn,750);}
 window.addEventListener("cj:journey-context",installButton);
 // The Command Center renders after login and can re-render during navigation.
 // Keep a low-cost check alive so the direct Sales tile survives those transitions.
