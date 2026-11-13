@@ -119,8 +119,8 @@ Deno.serve(async(req)=>{
     .eq("business_id",businessId).neq("status","paused").select("id");
    if(changeError)throw changeError;
    for(const campaign of changed||[])
-    await event(campaign.id,"PAUSED_BY_OWNER_GLOBAL_CONTROL",{
-     scope:"createjourney_campaigns_only",external_provider_actions_stopped:false
+    await event(campaign.id,"PAUSED",{
+     reason:"owner_global_pause",scope:"createjourney_campaigns_only",external_provider_actions_stopped:false
     });
    return reply({paused_campaigns:(changed||[]).length,
     external_provider_actions_stopped:false,
