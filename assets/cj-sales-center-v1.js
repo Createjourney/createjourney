@@ -423,8 +423,28 @@ window.addEventListener("click",(event)=>{
  event.stopImmediatePropagation();
  open();
 },true);
+async function restoreOAuthReturn(){
+ const url=new URL(window.location.href),provider=url.searchParams.get("integration");
+ const outcome=url.searchParams.get("result");
+ if(!["shopify","google","meta","gmail","tiktok","outlook"].includes(provider||"")||
+    !["connected","error"].includes(outcome||""))return;
+ try{
+  if(typeof sb==="undefined"||!sb?.auth)return;
+  const session=(await sb.auth.getSession()).data.session;
+  if(!session?.access_token)return;
+  open();
+  const caption=outcome==="connected"?
+   provider+" authorization returned successfully. Check connection readiness and verify provider identity before any use.":
+   provider+" authorization was not completed. Check readiness and reconnect if necessary.";
+  message(caption,outcome==="error");
+  url.searchParams.delete("integration");url.searchParams.delete("result");
+  history.replaceState(history.state,"",url.pathname+url.search+url.hash);
+ }catch(e){/* Preserve URL for explicit retry if auth is not ready. */}
+}
 window.CJSalesCommandCenter=Object.freeze({open,request,refresh,close:()=>{if(root){root.remove();root=null}}});
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installButton,{once:true});else installButton();
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{
+ installButton();setTimeout(restoreOAuthReturn,750);
+},{once:true});else {installButton();setTimeout(restoreOAuthReturn,750);}
 window.addEventListener("cj:journey-context",installButton);
 // The Command Center renders after login and can re-render during navigation.
 // Keep a low-cost check alive so the direct Sales tile survives those transitions.
