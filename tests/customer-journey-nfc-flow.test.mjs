@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { Script } from "node:vm";
 const page = readFileSync(new URL("../customer-journey.html", import.meta.url), "utf8");
-const script = page.match(/<script>([\\s\\S]*?)<\\/script>/)?.[1];
+const script = page.split("<script>")[1]?.split("</script>")[0];
 test("customer Journey page script parses", () => {
   assert.ok(script, "inline script exists");
   assert.doesNotThrow(() => new Script(script));
