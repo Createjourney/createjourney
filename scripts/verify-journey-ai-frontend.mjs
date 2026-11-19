@@ -18,7 +18,8 @@ try {
 }
 const timeout = AbortSignal.timeout(12000);
 try {
-  const response = await fetch(url, { signal: timeout, redirect: 'follow', headers: { accept: 'text/html' }, cache: 'no-store' });
+  const response = await fetch(url, { signal: timeout, redirect: 'manual', headers: { accept: 'text/html' }, cache: 'no-store' });
+  if (response.status >= 300 && response.status < 400) throw new Error('Redirect prohibited before following');
   const finalUrl = new URL(response.url);
   if (finalUrl.origin !== url.origin) throw new Error('Cross-origin redirect prohibited');
   const html = await response.text();
