@@ -92,3 +92,11 @@ Supabase project `pbiivpehdatvmyaxwixk`: `journey-ai-chat` has 10 built-in speci
 - GitHub Actions run `41416510267` passed syntax checks, seven isolated no-network unit tests, and the refusal-without-acknowledgement test. These are **harness safety tests, not live authenticated agent successes**.
 - **Next gate:** provision or identify an explicitly marked test business with an authorized owner/manager JWT; then run `scripts/journey-ai-authenticated-e2e.mjs`, verify two direct agent analyses plus two chat-orchestrated analyses with persisted job IDs, SUCCEEDED statuses, and ANALYSIS_COMPLETED events. Do not run synthetic jobs against the only production business.
 - Milestone 2 remains **unverified** until that evidence exists. Do not advance to autonomous external execution or claim Milestones 3–5 complete. No production business, board, Journey, user or permissions data was modified.
+
+## 2026-11-12 production reinspection — milestone gates unchanged
+- Fresh Supabase project inspection: CreateJourney Production (`pbiivpehdatvmyaxwixk`) reports `ACTIVE_HEALTHY`.
+- Live `journey-ai-chat` is now **ACTIVE v27**, `verify_jwt=true`, source digest `993104f68f1f71348adb87f92a8d0628b351886a08b0ae37326a9f8850f385fb`. This supersedes earlier v22 snapshots; **a version increase is not evidence of authenticated routing success**.
+- GitHub PR #33 (additional ordinary-chat routing negatives) was found in repository search. Its merge, CI and live acceptance remain unverified in this inspection; do not assert it shipped.
+- Milestone 1 source and prior Pages deployment evidence are documented above, but authenticated owner approval / real browser confirmation remains a required release gate.
+- Continue in milestone order. Before any agent execution, obtain an authorized isolated `data_environment=test` business, verify no customer boards or journeys, and run the guarded authenticated harness. Do not use the existing production business as a test fixture.
+- No production data or Edge Functions were changed by this inspection. Milestones 1–5 are **not collectively verified**.
