@@ -41,3 +41,10 @@ test('insecure targets are rejected before fetch', () => {
   assert.equal(result.status, 2);
   assert.match(result.stderr, /HTTPS required/);
 });
+
+test('login endpoint response is not accepted as deployed app', () => {
+  const result = probe({status:200,ok:true,url:'https://example.test/login'});
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /"frontend_not_login_redirect": false/);
+  assert.match(result.stdout, /"result": "FAILED"/);
+});
