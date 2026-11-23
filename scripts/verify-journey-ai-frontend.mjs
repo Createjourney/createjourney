@@ -18,14 +18,17 @@ try {
 }
 const timeout = AbortSignal.timeout(12000);
 try {
-  const response = await fetch(url, { signal: timeout, redirect: 'follow', headers: { accept: 'text/html' }, cache: 'no-store' });
+  const response = await fetch(url, { signal: timeout, redirect: 'manual', headers: { accept: 'text/html' }, cache: 'no-store' });
+  if (response.status >= 300 && response.status < 400) throw new Error('Redirect prohibited before following');
+  const finalUrl = new URL(response.url);
+  if (finalUrl.origin !== url.origin) throw new Error('Cross-origin redirect prohibited');
   const html = await response.text();
   const checks = {
     http_ok: response.ok,
     html_response: /text\/html/i.test(response.headers.get('content-type') || ''),
     journey_ai_bridge: html.includes('CJJourneyPartnerAsk'),
     deterministic_command_router: html.includes('isDeterministicCommand'),
-    frontend_not_login_redirect: !/\/login\/?$/i.test(new URL(response.url).pathname),
+    frontend_not_login_redirect: !/\/login\/?$/i.test(finalUrl.pathname),
   };
   const pass = Object.values(checks).every(Boolean);
   console.log(JSON.stringify({
