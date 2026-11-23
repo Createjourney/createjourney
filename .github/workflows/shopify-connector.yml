@@ -1,0 +1,52 @@
+name: Shopify Connector V1 Validation
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/cj-shopify-connector/**'
+      - 'docs/shopify-first-v1-integration.md'
+      - '.github/workflows/shopify-connector.yml'
+  push:
+    paths:
+      - 'supabase/functions/cj-shopify-connector/**'
+      - '.github/workflows/shopify-connector.yml'
+permissions:
+  contents: read
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/cj-shopify-connector/index.ts
+  hosted-release-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Verify deployed Sales Center and authenticated API gateway
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/shopify-release"
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent --location --retry 1 --max-time 20 --compressed               "https://app.gocreatejourney.com/assets/cj-sales-center-v1.js?bust=$GITHUB_SHA"               -o "$RUNNER_TEMP/shopify-release/sales.js" &&
+              grep -q 'CJSalesCommandCenter' "$RUNNER_TEMP/shopify-release/sales.js" &&
+              curl --fail --silent --location --retry 1 --max-time 20 --compressed               "https://app.gocreatejourney.com/assets/cj-journey-capabilities-v1.js?bust=$GITHUB_SHA"               -o "$RUNNER_TEMP/shopify-release/capabilities.js" &&
+              grep -q 'cj-sales-center-v1.js' "$RUNNER_TEMP/shopify-release/capabilities.js"; then
+              echo "PASS: PR30 Sales Center published to live GitHub Pages."
+              break
+            fi
+            if [ "$attempt" -eq 12 ]; then
+              echo 'Sales Center not published yet' >&2
+              exit 1
+            fi
+            sleep 10
+          done
+          STATUS="$(curl --silent --show-error --max-time 20 -o "$RUNNER_TEMP/shopify-release/api-response"             -w '%{http_code}' -X POST             'https://pbiivpehdatvmyaxwixk.supabase.co/functions/v1/cj-sales-command-center'             -H 'Content-Type: application/json' -d '{"action":"overview"}')"
+          if [ "$STATUS" != '401' ] && [ "$STATUS" != '403' ]; then
+            echo "Unexpected unauthenticated API response status $STATUS" >&2
+            exit 1
+          fi
+          echo "PASS: protected Sales Center API correctly rejects unauthenticated requests ($STATUS)."
