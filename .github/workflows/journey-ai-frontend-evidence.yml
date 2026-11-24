@@ -1,0 +1,25 @@
+name: Journey AI frontend evidence
+on:
+  pull_request:
+    paths:
+      - 'scripts/verify-journey-ai-frontend*'
+      - '.github/workflows/journey-ai-frontend-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: node --version
+      - run: node --test scripts/verify-journey-ai-frontend.test.mjs
+  public-deployment:
+    if: github.event_name == 'workflow_dispatch'
+    needs: probe-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: node scripts/verify-journey-ai-frontend.mjs https://app.gocreatejourney.com/
