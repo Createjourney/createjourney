@@ -4,6 +4,12 @@ on:
     paths:
       - 'scripts/verify-journey-ai-frontend*'
       - '.github/workflows/journey-ai-frontend-evidence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'scripts/verify-journey-ai-frontend*'
+      - '.github/workflows/journey-ai-frontend-evidence.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,7 +22,7 @@ jobs:
       - run: node --version
       - run: node --test scripts/verify-journey-ai-frontend.test.mjs
   public-deployment:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     needs: probe-regression
     runs-on: ubuntu-latest
     timeout-minutes: 5
